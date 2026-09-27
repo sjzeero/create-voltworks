@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "io.github.sjzeero.eecircuits.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8.5",
+  "mixins": [
+    "ArmBlockEntityMixin",
+    "ArmInteractionPointMixin",
+    "BasinRecipeMixin",
+    "BeltDeployerMixin",
+    "RecipeApplierMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
