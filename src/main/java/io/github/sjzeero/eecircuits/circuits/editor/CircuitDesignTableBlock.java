@@ -131,7 +131,7 @@ public class CircuitDesignTableBlock extends SimpleElectricalDeviceBlock<Circuit
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if(player.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof com.simibubi.create.content.equipment.wrench.WrenchItem)
+        if(io.github.sjzeero.eecircuits.utility.WiringTools.isWiringTool(player.getItemInHand(InteractionHand.MAIN_HAND)))
             return InteractionResult.PASS;
         if(level.isClientSide)
             return InteractionResult.SUCCESS;

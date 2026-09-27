@@ -238,6 +238,8 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
     public static InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if(!(level.getBlockEntity(pos) instanceof BoardBlockEntity be))
             return InteractionResult.PASS;
+        if(io.github.sjzeero.eecircuits.utility.WiringTools.isWiringTool(player.getMainHandItem()))
+            return InteractionResult.PASS;
         var local = unrotate(hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()), getAngleX(state), getAngleY(state));
         for(var interactable : be.interactables()) {
             if(!interactable.box().inflate(1 / 32f).contains(local))
