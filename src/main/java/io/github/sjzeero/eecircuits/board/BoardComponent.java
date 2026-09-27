@@ -1,7 +1,10 @@
 package io.github.sjzeero.eecircuits.board;
 
 public interface BoardComponent {
-    int nodeCount();
+    int padCount();
 
     void bake(PlacedPart placed, BoardCircuitBuilder builder);
+
+    default void save(PlacedPart placed) {
+    }
 }

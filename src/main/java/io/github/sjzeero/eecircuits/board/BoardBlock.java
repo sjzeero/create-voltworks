@@ -17,8 +17,10 @@ import java.util.Map;
 public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> {
     private static final VoxelShape SHAPE = box(0, 0, 0, 16, 3, 16);
     private static final Map<Integer, Vec3> PINS = Map.of(
-            0, new Vec3(3 / 16d, 4 / 16d, 8 / 16d),
-            1, new Vec3(13 / 16d, 4 / 16d, 8 / 16d));
+            0, new Vec3(2 / 16d, 4 / 16d, 2 / 16d),
+            1, new Vec3(14 / 16d, 4 / 16d, 2 / 16d),
+            2, new Vec3(2 / 16d, 4 / 16d, 14 / 16d),
+            3, new Vec3(14 / 16d, 4 / 16d, 14 / 16d));
 
     public BoardBlock(Properties properties) {
         super(properties);

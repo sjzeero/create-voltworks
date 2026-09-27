@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Modified by sjzeero: ported from Create: Power Grid to the Electro Energetics network.
+ * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
  */
 package io.github.sjzeero.eecircuits.board;
 
@@ -21,16 +21,15 @@ import net.minecraft.util.Mth;
 
 public class ResistorComponent implements BoardComponent {
     public static final String RESISTANCE = "resistor_value";
-    public static final double DEFAULT = 100;
 
     @Override
-    public int nodeCount() {
+    public int padCount() {
         return 2;
     }
 
     @Override
     public void bake(PlacedPart placed, BoardCircuitBuilder builder) {
-        double resistance = Mth.clamp(placed.getDouble(RESISTANCE, DEFAULT), 0.1, 100_000_000);
-        builder.connect(resistance, builder.terminalNode(placed.pads[0]), builder.terminalNode(placed.pads[1]));
+        float resistance = Mth.clamp(placed.getFloat(RESISTANCE, 100f), 0.1f, 100_000_000f);
+        placed.add(builder.connect(resistance, builder.terminalNode(placed.pads[0]), builder.terminalNode(placed.pads[1])));
     }
 }

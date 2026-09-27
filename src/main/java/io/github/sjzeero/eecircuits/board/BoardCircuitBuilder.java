@@ -1,44 +1,63 @@
+/*
+ * Copyright 2025 patryk3211
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
+ */
 package io.github.sjzeero.eecircuits.board;
 
-import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
-import com.george_vi.electroenergetics.simulation.BridgeCollector;
-import com.george_vi.electroenergetics.simulation.electrical_properties.ElectricalProperties;
-import net.minecraft.core.BlockPos;
+import io.github.sjzeero.eecircuits.pgsim.AbstractElectricWire;
+import io.github.sjzeero.eecircuits.pgsim.ElectricWire;
+import io.github.sjzeero.eecircuits.pgsim.node.FloatingNode;
+import io.github.sjzeero.eecircuits.pgsim.node.IElectricNode;
+import io.github.sjzeero.eecircuits.pgsim.node.INode;
 
-import java.util.function.IntUnaryOperator;
+import java.util.Collection;
+import java.util.function.IntFunction;
 
 public class BoardCircuitBuilder {
-    public static final int INTERNAL_BASE = 64;
+    private final IntFunction<FloatingNode> padNodes;
+    private final Collection<INode> internalNodes;
+    private final Collection<AbstractElectricWire> wires;
 
-    private final BridgeCollector bridges;
-    private final BlockPos pos;
-    private final IntUnaryOperator terminals;
-    private int nextInternal;
-
-    public BoardCircuitBuilder(BridgeCollector bridges, BlockPos pos, IntUnaryOperator terminals, int firstInternal) {
-        this.bridges = bridges;
-        this.pos = pos;
-        this.terminals = terminals;
-        this.nextInternal = firstInternal;
+    public BoardCircuitBuilder(IntFunction<FloatingNode> padNodes, Collection<INode> internalNodes, Collection<AbstractElectricWire> wires) {
+        this.padNodes = padNodes;
+        this.internalNodes = internalNodes;
+        this.wires = wires;
     }
 
-    public InWorldNode terminalNode(int index) {
-        return new InWorldNode(terminals.applyAsInt(index), pos);
+    public FloatingNode terminalNode(int index) {
+        return padNodes.apply(index);
     }
 
-    public InWorldNode addInternalNode() {
-        InWorldNode node = new InWorldNode(nextInternal++, pos);
-        bridges.addInternalNode(node);
+    public FloatingNode addInternalNode() {
+        var node = new FloatingNode();
+        add(node);
         return node;
     }
 
-    public ElectricalProperties connect(double resistance, InWorldNode node1, InWorldNode node2) {
-        ElectricalProperties properties = ElectricalProperties.resistor(Math.max(resistance, 0.001));
-        bridges.bridge(node1, node2, properties);
-        return properties;
+    public void add(INode node) {
+        internalNodes.add(node);
     }
 
-    public int nextInternalId() {
-        return nextInternal;
+    public void add(AbstractElectricWire wire) {
+        wires.add(wire);
+    }
+
+    public ElectricWire connect(float resistance, IElectricNode node1, IElectricNode node2) {
+        var wire = new ElectricWire(resistance, node1, node2);
+        add(wire);
+        return wire;
     }
 }
