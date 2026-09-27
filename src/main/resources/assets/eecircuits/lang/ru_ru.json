@@ -119,7 +119,7 @@
   "eecircuits.gui.circuit_designer.cancel": "Отменить",
   "eecircuits.gui.circuit_designer.confirm_overwrite": "Файл уже существует, нажмите еще раз, чтобы перезаписать его",
   "eecircuits.gui.circuit_designer.connect": "Проложить дорожку (%s)",
-  "eecircuits.gui.circuit_designer.delete": "Снять выбор (%s)",
+  "eecircuits.gui.circuit_designer.delete": "Удалить выделенное (%s)",
   "eecircuits.gui.circuit_designer.discard": "Сбросить изменения",
   "eecircuits.gui.circuit_designer.doesnt_exist": "Указанный файл не существует",
   "eecircuits.gui.circuit_designer.edit": "Редактировать схему",
