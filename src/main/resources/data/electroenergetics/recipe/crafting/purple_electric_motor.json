@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "electroenergetics:connector"
+    },
+    "D": {
+      "item": "minecraft:purple_dye"
+    },
+    "M": {
+      "item": "create:andesite_alloy_block"
+    },
+    "R": {
+      "item": "electroenergetics:commutator"
+    },
+    "X": {
+      "item": "eecircuits:copper_circuit"
+    },
+    "c": {
+      "item": "electroenergetics:copper_wire_spool"
+    }
+  },
+  "pattern": [
+    "CcX",
+    "RMD",
+    "Cc "
+  ],
+  "result": {
+    "count": 1,
+    "id": "electroenergetics:purple_electric_motor"
+  }
+}
