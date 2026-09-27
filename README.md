@@ -8,3 +8,9 @@ Motors, relays, transformers and a few others now need a copper circuit, the vol
 Needs NeoForge 1.21.1, Create 6.0.x and Electro Energetics 1.1.x.
 
 Build with `./gradlew build`, the jar ends up in build/libs.
+
+## Circuit board (work in progress, branch pg-boards-poc)
+
+A circuit board block that is a single Electro Energetics device. Its pins are EE nodes and the parts on the board are baked into EE's network each tick. Right now only a resistor part exists, ported from Create: Power Grid (see NOTICE).
+
+`/eecircuits boardtest place|wire|series|read` sets up a creative battery wired to a board near spawn and prints the board voltage and current.
