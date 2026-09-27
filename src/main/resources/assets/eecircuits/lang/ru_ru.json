@@ -142,7 +142,7 @@
   "eecircuits.keyinfo.place_trace": "Проложить дорожку",
   "eecircuits.keyinfo.rotate_component": "Повернуть компонент",
   "eecircuits.keyinfo.switch_layer": "Переключить слой",
-  "block.eecircuits.circuit_design_table": "Стол для проектирования печатных плат",
+  "block.eecircuits.circuit_design_table": "Стол проектирования плат",
   "eecircuits.gui.circuit_board.damage_body": "У этой платы есть поврежденные компоненты",
   "eecircuits.gui.potentiometer.title": "Потенциометр",
   "eecircuits.gui.potentiometer.value": "Положение: %s%%",
@@ -180,5 +180,8 @@
   "eecircuits.tooltip.circuit_assembly.progress": "Прогресс",
   "block.eecircuits.circuit_design_table.tooltip.summary": "Разрабатывайте и чертите _Схематики печатных плат_. Если вы хотите разместить компоненты, они должны быть в вашем инвентаре.",
   "block.eecircuits.circuit_design_table.tooltip.condition1": "Когда в слоте стола Пустая схематика",
-  "block.eecircuits.circuit_design_table.tooltip.behaviour1": "Записывает начерченную электрическую схему в схематику"
+  "block.eecircuits.circuit_design_table.tooltip.behaviour1": "Записывает начерченную электрическую схему в схематику",
+  "eecircuits.goggles.table_power": "Мощность: %s Вт (нужно %s Вт)",
+  "eecircuits.goggles.table_temperature": "Температура: %s °C (перегрев при %s °C)",
+  "eecircuits.goggles.part_burnt": "(сгорел)"
 }

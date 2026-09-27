@@ -228,5 +228,8 @@
   "eecircuits.tooltip.circuit_assembly.progress": "Progress",
   "block.eecircuits.circuit_design_table.tooltip.summary": "Design and write _Circuit Schematics_. If you want to place components, you must have them in your inventory.",
   "block.eecircuits.circuit_design_table.tooltip.condition1": "When given an Empty Schematic",
-  "block.eecircuits.circuit_design_table.tooltip.behaviour1": "Writes the current design into a schematic item"
+  "block.eecircuits.circuit_design_table.tooltip.behaviour1": "Writes the current design into a schematic item",
+  "eecircuits.goggles.table_power": "Power: %s W (needs %s W)",
+  "eecircuits.goggles.table_temperature": "Temperature: %s °C (overheats at %s °C)",
+  "eecircuits.goggles.part_burnt": "(burnt)"
 }

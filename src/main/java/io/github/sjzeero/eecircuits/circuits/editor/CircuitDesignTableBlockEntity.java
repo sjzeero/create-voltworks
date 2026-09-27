@@ -44,12 +44,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class CircuitDesignTableBlockEntity extends BlockEntity implements IMultiScreenHandlerFactory, ISchematicHolder, IMenuContent {
+public class CircuitDesignTableBlockEntity extends BlockEntity implements IMultiScreenHandlerFactory, ISchematicHolder, IMenuContent, com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation {
     private final Container inventory = new SimpleContainer(3);
 
     CircuitSchematic schematic = new CircuitSchematic();
     boolean schematicChanged = false;
     float power;
+    float temperature = Float.NaN;
 
     public CircuitDesignTableBlockEntity(BlockPos pos, BlockState state) {
         super(EECircuits.DESIGN_TABLE_BE.get(), pos, state);
@@ -63,14 +64,33 @@ public class CircuitDesignTableBlockEntity extends BlockEntity implements IMulti
         if(powered != state.getValue(CircuitDesignTableBlock.POWERED))
             level.setBlock(pos, state.setValue(CircuitDesignTableBlock.POWERED, powered), Block.UPDATE_ALL_IMMEDIATE);
         float p = device == null ? 0 : (float) device.power();
-        if(Math.abs(p - be.power) >= 1 || (p == 0) != (be.power == 0)) {
+        float t = device == null ? Float.NaN : device.temperature();
+        boolean tempChanged = Float.isFinite(t) && (!Float.isFinite(be.temperature) || Math.abs(t - be.temperature) >= 1);
+        if(Math.abs(p - be.power) >= 1 || (p == 0) != (be.power == 0) || tempChanged) {
             be.power = p;
+            if(Float.isFinite(t))
+                be.temperature = t;
             be.notifyUpdate();
         }
     }
 
     public float power() {
         return power;
+    }
+
+    public float temperature() {
+        return temperature;
+    }
+
+    @Override
+    public boolean addToGoggleTooltip(java.util.List<Component> tooltip, boolean isPlayerSneaking) {
+        tooltip.add(Component.literal("    ").append(Component.translatable("block.eecircuits.circuit_design_table")));
+        tooltip.add(Component.literal("    ").append(Component.translatable("eecircuits.goggles.table_power", String.format(java.util.Locale.ROOT, "%.1f", power), Math.round(CircuitDesignTableDevice.REQUIRED_POWER)).withStyle(net.minecraft.ChatFormatting.GRAY)));
+        if(Float.isFinite(temperature)) {
+            var style = temperature >= CircuitDesignTableDevice.OVERHEAT_TEMPERATURE - 50 ? net.minecraft.ChatFormatting.RED : net.minecraft.ChatFormatting.GRAY;
+            tooltip.add(Component.literal("    ").append(Component.translatable("eecircuits.goggles.table_temperature", String.format(java.util.Locale.ROOT, "%.0f", temperature), Math.round(CircuitDesignTableDevice.OVERHEAT_TEMPERATURE)).withStyle(style)));
+        }
+        return true;
     }
 
     public boolean isPowered() {
@@ -88,6 +108,8 @@ public class CircuitDesignTableBlockEntity extends BlockEntity implements IMulti
         super.saveAdditional(tag, registries);
         tag.put("Schematic", schematic.serializeNbt(registries));
         tag.putFloat("Power", power);
+        if(Float.isFinite(temperature))
+            tag.putFloat("Temperature", temperature);
     }
 
     @Override
@@ -95,6 +117,7 @@ public class CircuitDesignTableBlockEntity extends BlockEntity implements IMulti
         super.loadAdditional(tag, registries);
         schematic.deserializeNbt(registries, tag.getCompound("Schematic"));
         power = tag.getFloat("Power");
+        temperature = tag.contains("Temperature") ? tag.getFloat("Temperature") : Float.NaN;
         if(level != null && level.isClientSide)
             schematicChanged = true;
     }
