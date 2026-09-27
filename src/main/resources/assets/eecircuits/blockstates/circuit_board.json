@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "eecircuits:block/circuit_board" }
+  }
+}

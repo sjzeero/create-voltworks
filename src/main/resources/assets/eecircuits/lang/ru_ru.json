@@ -3,5 +3,6 @@
   "item.eecircuits.blank_circuit": "Пустая плата",
   "item.eecircuits.copper_circuit": "Медная плата",
   "item.eecircuits.incomplete_golden_circuit": "Незавершённая золотая плата",
-  "item.eecircuits.golden_circuit": "Золотая плата"
+  "item.eecircuits.golden_circuit": "Золотая плата",
+  "block.eecircuits.circuit_board": "Печатная плата"
 }
