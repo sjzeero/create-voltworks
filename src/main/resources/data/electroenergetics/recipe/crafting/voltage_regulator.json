@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "O": {
+      "item": "electroenergetics:transformer_oil_bucket"
+    },
+    "P": {
+      "item": "create:precision_mechanism"
+    },
+    "T": {
+      "item": "electroenergetics:transformer_core"
+    },
+    "W": {
+      "item": "electroenergetics:copper_wire_spool"
+    },
+    "X": {
+      "item": "eecircuits:golden_circuit"
+    }
+  },
+  "pattern": [
+    "XPX",
+    "WTW",
+    " O "
+  ],
+  "result": {
+    "count": 1,
+    "id": "electroenergetics:voltage_regulator"
+  }
+}
