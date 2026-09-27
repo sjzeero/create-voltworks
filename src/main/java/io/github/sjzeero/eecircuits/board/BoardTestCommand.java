@@ -37,6 +37,15 @@ public class BoardTestCommand {
                 .then(Commands.literal("boardtest")
                         .then(Commands.literal("setup").then(Commands.argument("preset", StringArgumentType.word())
                                 .executes(ctx -> setup(ctx, StringArgumentType.getString(ctx, "preset")))))
+                        .then(Commands.literal("load").then(Commands.argument("preset", StringArgumentType.word())
+                                .executes(ctx -> {
+                                    BoardDevice d = board(ctx.getSource());
+                                    ListTag parts = preset(StringArgumentType.getString(ctx, "preset"));
+                                    if (d == null || parts == null)
+                                        return reply(ctx.getSource(), "no board or preset");
+                                    d.setParts(parts);
+                                    return reply(ctx.getSource(), "loaded " + StringArgumentType.getString(ctx, "preset"));
+                                })))
                         .then(Commands.literal("battery").then(Commands.argument("which", IntegerArgumentType.integer(0, 1))
                                 .then(Commands.argument("volts", DoubleArgumentType.doubleArg())
                                         .executes(ctx -> battery(ctx, IntegerArgumentType.getInteger(ctx, "which"),
