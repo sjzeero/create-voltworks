@@ -38,6 +38,8 @@ public class BoardTestCommand {
                 .then(Commands.literal("boardtest")
                         .then(Commands.literal("setup").then(Commands.argument("preset", StringArgumentType.word())
                                 .executes(ctx -> setup(ctx, StringArgumentType.getString(ctx, "preset")))))
+                        .then(Commands.literal("schematic").then(Commands.argument("preset", StringArgumentType.word())
+                                .executes(ctx -> schematic(ctx, StringArgumentType.getString(ctx, "preset")))))
                         .then(Commands.literal("wire").executes(BoardTestCommand::wire))
                         .then(Commands.literal("attach").then(Commands.argument("board", BlockPosArgument.blockPos())
                                 .then(Commands.argument("battery", BlockPosArgument.blockPos())
@@ -105,6 +107,18 @@ public class BoardTestCommand {
             return reply(source, "board entity missing");
         be.setSchematic(preset.schematic().serializeNbt(level.registryAccess()));
         return reply(source, "setup " + name + " with " + preset.schematic().components().size() + " components");
+    }
+
+    private static int schematic(CommandContext<CommandSourceStack> ctx, String name) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        var preset = TestBoards.build(name, BoardTestCommand::component);
+        if(preset == null)
+            return reply(ctx.getSource(), "unknown preset " + name + ", one of " + TestBoards.NAMES);
+        var tag = new net.minecraft.nbt.CompoundTag();
+        tag.put("Schematic", preset.schematic().serializeNbt(ctx.getSource().registryAccess()));
+        var stack = new net.minecraft.world.item.ItemStack(EECircuits.CIRCUIT_SCHEMATIC.get());
+        stack.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag));
+        ctx.getSource().getPlayerOrException().getInventory().add(stack);
+        return reply(ctx.getSource(), "schematic " + name);
     }
 
     private static int attach(CommandContext<CommandSourceStack> ctx) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
