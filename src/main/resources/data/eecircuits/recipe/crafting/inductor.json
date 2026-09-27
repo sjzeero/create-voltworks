@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "create:cardboard"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "W": {
+      "tag": "c:wires/copper"
+    }
+  },
+  "pattern": [
+    " WC",
+    "WSW",
+    "CW "
+  ],
+  "result": {
+    "count": 1,
+    "id": "eecircuits:inductor"
+  }
+}

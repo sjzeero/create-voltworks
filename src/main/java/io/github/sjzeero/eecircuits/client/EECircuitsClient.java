@@ -12,6 +12,10 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
+import io.github.sjzeero.eecircuits.circuits.CircuitItems;
 
 @Mod(value = EECircuits.MOD_ID, dist = Dist.CLIENT)
 public class EECircuitsClient {
@@ -22,6 +26,7 @@ public class EECircuitsClient {
         modBus.addListener(EECircuitsClient::loaders);
         modBus.addListener(EECircuitsClient::models);
         modBus.addListener(EECircuitsClient::renderers);
+        modBus.addListener(EECircuitsClient::setup);
     }
 
     private static void screens(RegisterMenuScreensEvent event) {
@@ -45,5 +50,15 @@ public class EECircuitsClient {
     private static void renderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(EECircuits.BOARD_BE.get(), CircuitBoardRenderer::new);
         event.registerBlockEntityRenderer(EECircuits.DESIGN_TABLE_BE.get(), CircuitDesignTableRenderer::new);
+    }
+
+    private static void setup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> {
+            ItemBlockRenderTypes.setRenderLayer(CircuitItems.ACID.get(), RenderType.translucent());
+            for (var item : java.util.List.of(EECircuits.DESIGN_TABLE_ITEM.get(), CircuitItems.INCOMPLETE_CIRCUIT.get()))
+                com.simibubi.create.foundation.item.TooltipModifier.REGISTRY.register(item,
+                        new com.simibubi.create.foundation.item.ItemDescription.Modifier(item, net.createmod.catnip.lang.FontHelper.Palette.STANDARD_CREATE));
+            ItemBlockRenderTypes.setRenderLayer(CircuitItems.ACID_FLOWING.get(), RenderType.translucent());
+        });
     }
 }

@@ -7,6 +7,8 @@ import io.github.sjzeero.eecircuits.board.BoardBlock;
 import io.github.sjzeero.eecircuits.board.BoardBlockEntity;
 import io.github.sjzeero.eecircuits.board.BoardDevice;
 import io.github.sjzeero.eecircuits.board.BoardTestCommand;
+import io.github.sjzeero.eecircuits.circuits.CircuitItems;
+import io.github.sjzeero.eecircuits.circuits.circuitboard.CircuitInsertion;
 import io.github.sjzeero.eecircuits.circuits.components.ComponentRegistry;
 import io.github.sjzeero.eecircuits.circuits.components.Components;
 import io.github.sjzeero.eecircuits.circuits.editor.CircuitDesignTableBlock;
@@ -83,6 +85,10 @@ public class EECircuits {
                 out.accept(BOARD_ITEM.get());
                 out.accept(DESIGN_TABLE_ITEM.get());
                 out.accept(CIRCUIT_SCHEMATIC.get());
+                out.accept(CircuitItems.EMPTY_CIRCUIT.get());
+                out.accept(CircuitItems.UNETCHED_CIRCUIT.get());
+                out.accept(CircuitItems.INCOMPLETE_CIRCUIT.get());
+                out.accept(CircuitItems.ACID_BUCKET.get());
                 for(var component : ComponentRegistry.entries()) {
                     var item = ComponentRegistry.getItem(component);
                     if(item != null && ComponentRegistry.getId(component).getNamespace().equals(MOD_ID)
@@ -94,6 +100,7 @@ public class EECircuits {
 
     public EECircuits(IEventBus modBus, ModContainer container) {
         Components.register(modBus);
+        CircuitItems.register(modBus);
         BLOCKS.register(modBus);
         ITEMS.register(modBus);
         BLOCK_ENTITIES.register(modBus);
@@ -104,6 +111,7 @@ public class EECircuits {
         modBus.addListener((NewRegistryEvent e) -> e.register(ComponentRegistry.REGISTRY));
         container.registerConfig(ModConfig.Type.SERVER, EECircuitsConfig.SPEC);
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent e) -> BoardTestCommand.register(e.getDispatcher()));
+        NeoForge.EVENT_BUS.addListener(CircuitInsertion::onDeployerRecipeSearch);
     }
 
     public static ResourceLocation asResource(String path) {

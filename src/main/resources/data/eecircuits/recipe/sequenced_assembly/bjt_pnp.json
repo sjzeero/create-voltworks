@@ -1,0 +1,74 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "tag": "c:plates/iron"
+  },
+  "results": [
+    {
+      "chance": 100.0,
+      "id": "eecircuits:bjt_pnp"
+    },
+    {
+      "chance": 10.0,
+      "id": "eecircuits:bjt_npn"
+    },
+    {
+      "chance": 3.0,
+      "id": "create:iron_sheet"
+    },
+    {
+      "chance": 3.0,
+      "id": "create:electron_tube"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "eecircuits:incomplete_bjt_pnp"
+        },
+        {
+          "tag": "c:wires/electrum"
+        }
+      ],
+      "results": [
+        {
+          "id": "eecircuits:incomplete_bjt_pnp"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "eecircuits:incomplete_bjt_pnp"
+        },
+        {
+          "item": "create:polished_rose_quartz"
+        }
+      ],
+      "results": [
+        {
+          "id": "eecircuits:incomplete_bjt_pnp"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        {
+          "item": "eecircuits:incomplete_bjt_pnp"
+        }
+      ],
+      "results": [
+        {
+          "id": "eecircuits:incomplete_bjt_pnp"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "eecircuits:incomplete_bjt_pnp"
+  }
+}

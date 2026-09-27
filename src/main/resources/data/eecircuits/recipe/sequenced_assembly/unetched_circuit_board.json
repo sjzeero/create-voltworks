@@ -1,0 +1,79 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "eecircuits:circuit_schematic"
+  },
+  "loops": 2,
+  "results": [
+    {
+      "chance": 100.0,
+      "id": "eecircuits:unetched_circuit"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "eecircuits:incomplete_unetched_circuit"
+        },
+        {
+          "item": "eecircuits:empty_circuit"
+        }
+      ],
+      "results": [
+        {
+          "id": "eecircuits:incomplete_unetched_circuit"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "eecircuits:incomplete_unetched_circuit"
+        },
+        {
+          "item": "create:dough"
+        }
+      ],
+      "results": [
+        {
+          "id": "eecircuits:incomplete_unetched_circuit"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "eecircuits:incomplete_unetched_circuit"
+        },
+        {
+          "tag": "c:plates/copper"
+        }
+      ],
+      "results": [
+        {
+          "id": "eecircuits:incomplete_unetched_circuit"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        {
+          "item": "eecircuits:incomplete_unetched_circuit"
+        }
+      ],
+      "results": [
+        {
+          "id": "eecircuits:incomplete_unetched_circuit"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "eecircuits:incomplete_unetched_circuit"
+  }
+}

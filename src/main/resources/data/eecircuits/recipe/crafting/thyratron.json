@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": {
+      "item": "minecraft:ender_pearl"
+    },
+    "H": {
+      "item": "electroenergetics:insulator"
+    },
+    "I": {
+      "tag": "c:plates/iron"
+    }
+  },
+  "pattern": [
+    "H",
+    "E",
+    "I"
+  ],
+  "result": {
+    "count": 1,
+    "id": "eecircuits:thyratron"
+  }
+}
