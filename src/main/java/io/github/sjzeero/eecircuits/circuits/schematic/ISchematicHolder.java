@@ -15,21 +15,15 @@
  *
  * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
  */
-package io.github.sjzeero.eecircuits.board;
+package io.github.sjzeero.eecircuits.circuits.schematic;
 
-import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 
-public class ResistorComponent implements BoardComponent {
-    public static final String RESISTANCE = "resistor_value";
+public interface ISchematicHolder {
+    CircuitSchematic getSchematic();
+    void setSchematic(CircuitSchematic schematic);
 
-    @Override
-    public int padCount() {
-        return 2;
-    }
-
-    @Override
-    public void bake(PlacedPart placed, BoardCircuitBuilder builder) {
-        float resistance = Mth.clamp(placed.getFloat(RESISTANCE, 100f), 0.1f, 100_000_000f);
-        placed.add(builder.connect(resistance, builder.terminalNode(placed.pads[0]), builder.terminalNode(placed.pads[1])));
-    }
+    @NotNull
+    String getSchematicName();
+    void setSchematicName(String name);
 }

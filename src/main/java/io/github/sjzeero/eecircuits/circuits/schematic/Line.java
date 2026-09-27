@@ -15,22 +15,7 @@
  *
  * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
  */
-package io.github.sjzeero.eecircuits.board;
+package io.github.sjzeero.eecircuits.circuits.schematic;
 
-import io.github.sjzeero.eecircuits.pgsim.special.PNJunctionWire;
-
-public class DiodeComponent implements BoardComponent {
-    @Override
-    public int padCount() {
-        return 2;
-    }
-
-    @Override
-    public void bake(PlacedPart placed, BoardCircuitBuilder builder) {
-        var pnJunctionWire = new PNJunctionWire(5.47e-9, 0.075f, 22, 1.783,
-                1000, 1e-6,
-                builder.terminalNode(placed.pads[1]), builder.terminalNode(placed.pads[0]));
-        builder.add(pnJunctionWire);
-        placed.add(pnJunctionWire);
-    }
+public record Line(boolean vertical, int position, int start, int end) {
 }
