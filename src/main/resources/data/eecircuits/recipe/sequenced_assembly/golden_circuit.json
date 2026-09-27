@@ -1,0 +1,62 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "eecircuits:copper_circuit"
+  },
+  "loops": 1,
+  "results": [
+    {
+      "id": "eecircuits:golden_circuit"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "eecircuits:incomplete_golden_circuit"
+        },
+        {
+          "tag": "c:plates/gold"
+        }
+      ],
+      "results": [
+        {
+          "id": "eecircuits:incomplete_golden_circuit"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "eecircuits:incomplete_golden_circuit"
+        },
+        {
+          "item": "electroenergetics:insulated_wire"
+        }
+      ],
+      "results": [
+        {
+          "id": "eecircuits:incomplete_golden_circuit"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        {
+          "item": "eecircuits:incomplete_golden_circuit"
+        }
+      ],
+      "results": [
+        {
+          "id": "eecircuits:incomplete_golden_circuit"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "eecircuits:incomplete_golden_circuit"
+  }
+}

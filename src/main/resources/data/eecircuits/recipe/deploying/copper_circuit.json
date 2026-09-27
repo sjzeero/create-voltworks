@@ -1,0 +1,16 @@
+{
+  "type": "create:deploying",
+  "ingredients": [
+    {
+      "item": "eecircuits:blank_circuit"
+    },
+    {
+      "tag": "c:wires/copper"
+    }
+  ],
+  "results": [
+    {
+      "id": "eecircuits:copper_circuit"
+    }
+  ]
+}
