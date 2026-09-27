@@ -19,6 +19,18 @@ Schematics are drawn on the circuit design table, the same table and editor as i
 
 The schematic lives in the block's `Board.Schematic` data and is kept on the dropped item. Clients get the schematic only when it changes and small state updates (switch, relay and fuse states, bulb brightness) otherwise. In world, switches, buttons, relays and potentiometers can be clicked (sneak lowers a potentiometer, an iron nugget resets a blown fuse), bulbs light the block, gauges show readings on goggles and output redstone at the board edge. Sneak-click in creative repairs burnt parts.
 
+### Boards next to each other
+
+Vias with edge connections join the matching via on the board beside them (same row, mirrored column), vias with vertical passthrough join the via straight above or below on a stacked board, like Power Grid's headers. Linked vias are one node, so current flows from board to board.
+
+### Cooling, goggles and the table
+
+An encased fan blowing through a board cools its parts; the effect scales with fan speed (`encasedFanCooling` in the server config). With goggles, looking at a part on a board shows that part's readings (gauges, bulbs and so on), sneaking adds the part's name and temperature and the hottest part on the board.
+
+The design table heats up with the power it takes, like in Power Grid: it smokes and goggles turn the temperature red when it gets close, and past 175 °C it explodes. About 150 V keeps it warm but alive, 200 V blows it up within a second.
+
+`HighContrastTraces` in `eecircuits-client.toml` draws top traces red and bottom traces green in the editor; the colours and alphas can be changed in the same file.
+
 ### Crafting
 
 The crafting chain follows Power Grid:
@@ -51,7 +63,9 @@ Test commands (near spawn, creative batteries wired to the board):
 - `/eecircuits boardtest schematic <preset>` gives a written schematic of a preset
 - `/eecircuits boardtest wire`, `battery <0|1> <volts>`
 - `/eecircuits boardtest use <part> [sneak|item]`, `repair`
-- `/eecircuits boardtest read|world`
+- `/eecircuits boardtest read|world`, `readat <pos>`
+- `/eecircuits boardtest links <edge|header>` builds two linked boards with a supply and a resistor
+- `/eecircuits boardtest many <count> <preset>`, `clearmany`, `perf reset|report` for load tests (100 boards cost about 0.5 ms per tick on the server thread and 0.3 to 0.4 ms on the sim thread)
 - `/eecircuits boardtest attach <device pos> <battery pos> <volts>` puts a creative battery at the second position and wires it to any EE device, e.g. a board or the design table
 
 `./gradlew test` builds boards from schematics and checks them against values from Power Grid's own solver.
