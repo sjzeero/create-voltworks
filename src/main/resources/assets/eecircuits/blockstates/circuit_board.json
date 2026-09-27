@@ -1,57 +1,7 @@
 {
   "variants": {
-    "facing=north,rotation=0": {
-      "model": "eecircuits:block/circuit_board"
-    },
-    "facing=north,rotation=1": {
-      "model": "eecircuits:block/circuit_board",
-      "x": 90,
-      "y": 180
-    },
-    "facing=north,rotation=2": {
-      "model": "eecircuits:block/circuit_board",
-      "x": 180,
-      "y": 180
-    },
-    "facing=east,rotation=0": {
-      "model": "eecircuits:block/circuit_board",
-      "y": 90
-    },
-    "facing=east,rotation=1": {
-      "model": "eecircuits:block/circuit_board",
-      "x": 90,
-      "y": 270
-    },
-    "facing=east,rotation=2": {
-      "model": "eecircuits:block/circuit_board",
-      "x": 180,
-      "y": 270
-    },
-    "facing=south,rotation=0": {
-      "model": "eecircuits:block/circuit_board",
-      "y": 180
-    },
-    "facing=south,rotation=1": {
-      "model": "eecircuits:block/circuit_board",
-      "x": 90
-    },
-    "facing=south,rotation=2": {
-      "model": "eecircuits:block/circuit_board",
-      "x": 180
-    },
-    "facing=west,rotation=0": {
-      "model": "eecircuits:block/circuit_board",
-      "y": 270
-    },
-    "facing=west,rotation=1": {
-      "model": "eecircuits:block/circuit_board",
-      "x": 90,
-      "y": 90
-    },
-    "facing=west,rotation=2": {
-      "model": "eecircuits:block/circuit_board",
-      "x": 180,
-      "y": 90
+    "": {
+      "model": "eecircuits:circuit_board"
     }
   }
 }

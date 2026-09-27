@@ -181,6 +181,10 @@ public class BakedCircuit {
         }
     }
 
+    public void clientTick() {
+        tickedComponents.removeIf(placed -> !placed.tick());
+    }
+
     public List<ThermalUnit> tick(float coolingMultiplier) {
         List<ThermalUnit> burnt = new ArrayList<>();
         if(firstTick) {

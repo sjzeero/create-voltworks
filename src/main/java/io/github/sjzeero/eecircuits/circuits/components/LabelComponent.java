@@ -37,7 +37,7 @@ public class LabelComponent extends Component implements IGoggleLabel {
     public static final int MIN_SIZE = 3;
     public static final int MAX_SIZE = 5;
 
-    private final int[] SEGMENT_TINT = {255, 255, 235, 240, 245};
+    public static final int[] SEGMENT_TINT = {255, 255, 235, 240, 245};
 
     public LabelComponent(ComponentFootprint footprint) {
         super(footprint);

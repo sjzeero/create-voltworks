@@ -20,47 +20,62 @@ package io.github.sjzeero.eecircuits.board;
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import io.github.sjzeero.eecircuits.EECircuits;
+import io.github.sjzeero.eecircuits.circuits.circuitboard.BakedCircuit;
 import io.github.sjzeero.eecircuits.circuits.components.IComponentGoggleInformation;
 import io.github.sjzeero.eecircuits.circuits.components.IInteractableComponent;
 import io.github.sjzeero.eecircuits.circuits.components.TerminalBoundingBox;
+import io.github.sjzeero.eecircuits.circuits.editor.IMenuContent;
 import io.github.sjzeero.eecircuits.circuits.schematic.BoardContext;
 import io.github.sjzeero.eecircuits.circuits.schematic.CircuitSchematic;
+import io.github.sjzeero.eecircuits.circuits.schematic.ISchematicHolder;
 import io.github.sjzeero.eecircuits.circuits.schematic.PlacedComponent;
+import io.github.sjzeero.eecircuits.network.BoardSchematicPayload;
+import io.github.sjzeero.eecircuits.network.BoardStatePayload;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-public class BoardBlockEntity extends BlockEntity implements BoardContext, IHaveGoggleInformation {
-    private CompoundTag data = new CompoundTag();
+public class BoardBlockEntity extends BlockEntity implements BoardContext, IHaveGoggleInformation, ISchematicHolder, IMenuContent {
     private CircuitSchematic schematic = new CircuitSchematic();
-    private final Map<String, Float> temperatures = new HashMap<>();
+    private @Nullable BakedCircuit baked;
+    private float[] temperatures = new float[0];
+    private int[] burntIndices = new int[0];
     private List<TerminalBoundingBox> terminals = List.of();
     private List<Interactable> interactables = List.of();
     private int burnt;
     private int light;
+    private int version = -1;
     private @Nullable CompoundTag pendingSchematic;
-    private int seenVersion = -1;
 
-    public record Interactable(UUID uuid, AABB box) {
+    public @Nullable Object quads;
+    public @Nullable Object clientState;
+    public int modelVersion;
+
+    public record Interactable(UUID uuid, AABB box, boolean clientScreen) {
     }
 
     public BoardBlockEntity(BlockPos pos, BlockState state) {
@@ -84,14 +99,33 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
 
     public void setSchematic(CompoundTag schematicTag) {
         pendingSchematic = schematicTag.copy();
-        var tag = new CompoundTag();
-        tag.put("Schematic", pendingSchematic.copy());
-        apply(tag, level == null ? null : level.registryAccess());
         setChanged();
     }
 
+    @Override
     public CircuitSchematic getSchematic() {
         return schematic;
+    }
+
+    @Override
+    public void setSchematic(CircuitSchematic schematic) {
+        if(level != null)
+            setSchematic(schematic.serializeNbt(level.registryAccess()));
+    }
+
+    @Override
+    public @NotNull String getSchematicName() {
+        var name = schematic.getName();
+        return name == null ? "" : name;
+    }
+
+    @Override
+    public void setSchematicName(String name) {
+        schematic.setName(name);
+    }
+
+    public @Nullable BakedCircuit baked() {
+        return baked;
     }
 
     public List<TerminalBoundingBox> terminals() {
@@ -102,60 +136,121 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
         return interactables;
     }
 
-    public int seenVersion() {
-        return seenVersion;
+    public int version() {
+        return version;
     }
 
     public int light() {
         return light;
     }
 
-    public float temperature(String key) {
-        return temperatures.getOrDefault(key, Float.NaN);
+    public int burnt() {
+        return burnt;
     }
 
-    private void apply(CompoundTag tag, @Nullable HolderLookup.Provider registries) {
-        data = tag;
-        if(registries == null)
-            return;
+    public float[] temperatures() {
+        return temperatures;
+    }
+
+    public void applyFull(CompoundTag tag, HolderLookup.Provider registries) {
+        version = tag.getInt("Version");
         try {
             schematic = CircuitSchematic.fromNbt(registries, tag.getCompound("Schematic"));
         } catch(RuntimeException e) {
             EECircuits.LOGGER.warn("Failed to read board schematic at {}", worldPosition, e);
             schematic = new CircuitSchematic();
         }
-        temperatures.clear();
-        var thermal = tag.getCompound("Thermal");
-        for(var key : thermal.getAllKeys())
-            temperatures.put(key, thermal.getFloat(key));
+        baked = BakedCircuit.from(schematic, this);
+        var list = tag.getList("Temperatures", Tag.TAG_FLOAT);
+        var temps = new float[list.size()];
+        for(int i = 0; i < temps.length; i++)
+            temps[i] = list.getFloat(i);
+        applyTemperatures(temps);
+        applyBurnt(tag.getIntArray("Burnt"));
         light = tag.getInt("Light");
 
         var terms = new ArrayList<TerminalBoundingBox>();
         var inter = new ArrayList<Interactable>();
-        burnt = 0;
-        var burntIds = new java.util.HashSet<String>();
-        for(var entry : tag.getList("Burnt", net.minecraft.nbt.Tag.TAG_STRING))
-            burntIds.add(entry.getAsString());
         for(var placed : schematic.components()) {
-            placed.destroyed = burntIds.contains(placed.uuid.toString());
-            placed.withContext(this);
-            int maxIndex = -1;
-            for(var pad : placed.footprint().getPads().values())
-                maxIndex = Math.max(maxIndex, pad.nodeIndex());
-            boolean external = false;
-            for(int i = 0; i <= maxIndex; i++)
-                external |= placed.component.isExternalNode(i);
-            if(external) {
-                for(var bb : placed.component.terminals(placed))
-                    terms.add(bb.offset(placed.x / 16f, 2 / 16f, placed.y / 16f));
-            }
             if(placed.component instanceof IInteractableComponent interactable)
-                inter.add(new Interactable(placed.uuid, interactable.getShape(placed).bounds()));
-            if(placed.destroyed)
-                burnt++;
+                inter.add(new Interactable(placed.uuid, interactable.getShape(placed).bounds(), interactable.hasClientScreen(placed)));
         }
+        terms.addAll(baked.terminals);
         terminals = List.copyOf(terms);
         interactables = List.copyOf(inter);
+        modelChanged();
+    }
+
+    private void modelChanged() {
+        quads = null;
+        modelVersion++;
+        if(level != null && level.isClientSide) {
+            requestModelDataUpdate();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_IMMEDIATE);
+        }
+    }
+
+    public boolean applyState(BoardStatePayload state, HolderLookup.Provider registries) {
+        if(state.version() != version)
+            return false;
+        boolean modelChanged = false;
+        var components = schematic.components();
+        for(var change : state.changes()) {
+            if(change.component() < 0 || change.component() >= components.size())
+                continue;
+            var placed = components.get(change.component());
+            var modelBefore = placed.component.getModelId(placed);
+            try {
+                placed.getEntry(change.property()).read(registries, change.value());
+            } catch(IllegalArgumentException e) {
+                continue;
+            }
+            placed.stateUpdated();
+            modelChanged |= !modelBefore.equals(placed.component.getModelId(placed));
+        }
+        if(state.temperatures() != null)
+            applyTemperatures(state.temperatures());
+        if(state.burnt() != null) {
+            applyBurnt(state.burnt());
+            modelChanged = true;
+        }
+        light = state.light();
+        if(modelChanged)
+            modelChanged();
+        return modelChanged;
+    }
+
+    private void applyTemperatures(float[] temps) {
+        temperatures = temps;
+        if(baked == null)
+            return;
+        int n = Math.min(temps.length, baked.thermalUnits.size());
+        for(int i = 0; i < n; i++)
+            baked.thermalUnits.get(i).setTemperature(temps[i]);
+    }
+
+    private void applyBurnt(int[] indices) {
+        burntIndices = indices;
+        var components = schematic.components();
+        for(var placed : components)
+            placed.destroyed = false;
+        for(int i : indices)
+            if(i >= 0 && i < components.size())
+                components.get(i).destroyed = true;
+        burnt = indices.length;
+    }
+
+    public CompoundTag writeClient(HolderLookup.Provider registries) {
+        var tag = new CompoundTag();
+        tag.putInt("Version", version);
+        tag.put("Schematic", schematic.serializeNbt(registries));
+        var list = new ListTag();
+        for(float t : temperatures)
+            list.add(FloatTag.valueOf(t));
+        tag.put("Temperatures", list);
+        tag.putIntArray("Burnt", burntIndices);
+        tag.putInt("Light", light);
+        return tag;
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, BoardBlockEntity be) {
@@ -168,25 +263,39 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
             device.queueSchematic(be.pendingSchematic);
             be.pendingSchematic = null;
         }
-        if(device.version() != be.seenVersion && device.clientTag() != null) {
-            be.seenVersion = device.version();
+        var full = device.fullTag();
+        if(full != null && device.schematicVersion() != be.version) {
             int oldTerminals = be.terminals.size();
-            be.apply(device.clientTag(), level.registryAccess());
+            be.applyFull(full, level.registryAccess());
             be.setChanged();
-            level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+            PacketDistributor.sendToPlayersTrackingChunk(server, new ChunkPos(pos), new BoardSchematicPayload(pos, full));
             if(oldTerminals != be.terminals.size() || device.registeredPins != be.terminals.size())
                 level.scheduleTick(pos, state.getBlock(), 1);
-            if(state.getValue(BoardBlock.LIGHT) != be.light)
-                level.setBlock(pos, state.setValue(BoardBlock.LIGHT, be.light), Block.UPDATE_CLIENTS);
         }
+        BoardStatePayload payload;
+        while((payload = device.pollState()) != null) {
+            if(be.applyState(payload, level.registryAccess())) {
+                be.setChanged();
+            }
+            PacketDistributor.sendToPlayersTrackingChunk(server, new ChunkPos(pos), payload);
+        }
+        if(state.getValue(BoardBlock.LIGHT) != be.light)
+            level.setBlock(pos, state.setValue(BoardBlock.LIGHT, be.light), Block.UPDATE_CLIENTS);
         if(device.takeRedstoneDirty())
             level.updateNeighborsAt(pos, state.getBlock());
+    }
+
+    public static void clientTick(Level level, BlockPos pos, BlockState state, BoardBlockEntity be) {
+        if(be.baked != null)
+            be.baked.clientTick();
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.put("Board", data.copy());
+        var board = new CompoundTag();
+        board.put("Schematic", schematic.serializeSafeNbt(registries));
+        tag.put("Board", board);
         if(pendingSchematic != null)
             tag.put("Pending", pendingSchematic.copy());
     }
@@ -194,7 +303,10 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        apply(tag.getCompound("Board"), registries);
+        if(tag.contains("Client")) {
+            applyFull(tag.getCompound("Client"), registries);
+            return;
+        }
         if(tag.contains("Pending"))
             pendingSchematic = tag.getCompound("Pending");
     }
@@ -202,7 +314,7 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         var tag = new CompoundTag();
-        tag.put("Board", data.copy());
+        tag.put("Client", writeClient(registries));
         return tag;
     }
 
@@ -211,23 +323,39 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    public void sendToMenu(RegistryFriendlyByteBuf buf) {
+        buf.writeBlockPos(worldPosition);
+        buf.writeNbt(writeClient(buf.registryAccess()));
+    }
+
+    public void readClient(CompoundTag tag, HolderLookup.Provider registries) {
+        applyFull(tag, registries);
+    }
+
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
         tooltip.add(Component.literal("    ").append(Component.translatable("block.eecircuits.circuit_board")));
-        boolean any = false;
+        if(schematic.getName() != null)
+            tooltip.add(Component.literal("    ").append(Component.literal(schematic.getName()).withStyle(ChatFormatting.GRAY)));
         for(var placed : schematic.components()) {
             if(placed.component instanceof IComponentGoggleInformation info)
-                any |= info.addToGoggleTooltip(placed, tooltip, isPlayerSneaking);
+                info.addToGoggleTooltip(placed, tooltip, isPlayerSneaking);
         }
-        if(burnt > 0)
+        if(burnt > 0) {
             tooltip.add(Component.literal("    ").append(Component.translatable("eecircuits.goggles.burnt", burnt).withStyle(ChatFormatting.RED)));
+            tooltip.add(Component.literal("    ").append(Component.translatable("eecircuits.gui.circuit_board.damage_body").withStyle(ChatFormatting.GRAY)));
+        }
         if(isPlayerSneaking) {
             float max = Float.NEGATIVE_INFINITY;
-            for(var t : temperatures.values())
+            for(var t : temperatures)
                 max = Math.max(max, t);
             if(Float.isFinite(max))
                 tooltip.add(Component.literal("    ").append(Component.translatable("eecircuits.goggles.hottest", String.format("%.1f", max)).withStyle(ChatFormatting.GRAY)));
         }
         return true;
+    }
+
+    public @Nullable PlacedComponent component(UUID uuid) {
+        return baked == null ? null : baked.get(uuid);
     }
 }

@@ -130,7 +130,7 @@ public class ElectronTubeComponent extends MirrorableComponent {
     }
 
     public static class RenderData {
-        float prev;
-        float current;
+        public float prev;
+        public float current;
     }
 }

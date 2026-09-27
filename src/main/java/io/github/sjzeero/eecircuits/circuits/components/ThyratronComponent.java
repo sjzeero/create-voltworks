@@ -156,8 +156,8 @@ public class ThyratronComponent extends MirrorableComponent {
         wire.setLit(placed.get(LIT));
     }
 
-    private static class RenderData {
-        float heaterPrev;
-        float heater;
+    public static class RenderData {
+        public float heaterPrev;
+        public float heater;
     }
 }

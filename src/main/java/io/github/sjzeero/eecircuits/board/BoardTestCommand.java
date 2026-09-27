@@ -180,7 +180,7 @@ public class BoardTestCommand {
         if(level.getBlockEntity(pos) instanceof BoardBlockEntity be) {
             out.add("boardLight=" + be.light());
             var dev = board(source);
-            out.add("version=" + be.seenVersion() + "/" + (dev == null ? -1 : dev.version()));
+            out.add("version=" + be.version() + "/" + (dev == null ? -1 : dev.schematicVersion()));
             out.add("terminals=" + be.terminals().size());
             out.add("interactables=" + be.interactables().size());
             var nodes = ((BoardBlock) state.getBlock()).getNodePositions(level, pos, state);

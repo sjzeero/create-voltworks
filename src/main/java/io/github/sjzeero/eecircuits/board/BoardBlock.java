@@ -28,6 +28,10 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.SimpleMenuProvider;
+import io.github.sjzeero.eecircuits.circuits.editor.CircuitBoardEditMenu;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -232,6 +236,11 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
         for(var interactable : be.interactables()) {
             if(!interactable.box().inflate(1 / 32f).contains(local))
                 continue;
+            if(interactable.clientScreen()) {
+                if(level.isClientSide)
+                    io.github.sjzeero.eecircuits.client.ClientHooks.openComponentScreen(be, interactable.uuid());
+                return InteractionResult.sidedSuccess(level.isClientSide);
+            }
             if(level instanceof ServerLevel server) {
                 var device = DevicesSavedData.load(server).getDevice(pos, BoardDevice.class);
                 if(device != null)
@@ -244,6 +253,13 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
             if(device != null)
                 device.queueRepair();
             return InteractionResult.SUCCESS;
+        }
+        if(player.isCreative() && !player.isShiftKeyDown() && player.getMainHandItem().isEmpty() && player.getOffhandItem().isEmpty()) {
+            if(player instanceof ServerPlayer sp) {
+                sp.openMenu(new SimpleMenuProvider((id, inv, p) -> p.isCreative() ? CircuitBoardEditMenu.create(id, inv, be) : null,
+                        Component.translatable("block.eecircuits.circuit_board")), be::sendToMenu);
+            }
+            return InteractionResult.sidedSuccess(level.isClientSide);
         }
         return InteractionResult.PASS;
     }
@@ -336,8 +352,10 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
 
     @Override
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if(level.isClientSide || type != EECircuits.BOARD_BE.get())
+        if(type != EECircuits.BOARD_BE.get())
             return null;
+        if(level.isClientSide)
+            return (l, p, s, be) -> BoardBlockEntity.clientTick(l, p, s, (BoardBlockEntity) be);
         return (l, p, s, be) -> BoardBlockEntity.serverTick(l, p, s, (BoardBlockEntity) be);
     }
 

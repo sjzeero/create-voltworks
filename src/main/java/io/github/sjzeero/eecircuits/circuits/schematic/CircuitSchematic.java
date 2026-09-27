@@ -230,7 +230,7 @@ public class CircuitSchematic {
     }
 
     public ItemStack toItemStack(HolderLookup.Provider provider) {
-        var stack = new ItemStack(EECircuits.BOARD_ITEM.get());
+        var stack = new ItemStack(EECircuits.CIRCUIT_SCHEMATIC.get());
         var tag = new CompoundTag();
         tag.put("Schematic", serializeSafeNbt(provider));
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));

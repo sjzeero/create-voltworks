@@ -9,6 +9,12 @@ import io.github.sjzeero.eecircuits.board.BoardDevice;
 import io.github.sjzeero.eecircuits.board.BoardTestCommand;
 import io.github.sjzeero.eecircuits.circuits.components.ComponentRegistry;
 import io.github.sjzeero.eecircuits.circuits.components.Components;
+import io.github.sjzeero.eecircuits.circuits.editor.CircuitDesignTableBlock;
+import io.github.sjzeero.eecircuits.circuits.editor.CircuitDesignTableBlockEntity;
+import io.github.sjzeero.eecircuits.circuits.editor.CircuitDesignTableDevice;
+import io.github.sjzeero.eecircuits.circuits.schematic.CircuitSchematicItem;
+import io.github.sjzeero.eecircuits.network.EENetwork;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -56,6 +62,17 @@ public class EECircuits {
             () -> new SimulatedDeviceType<>(asResource("circuit_board"),
                     (type, level, pos, sd) -> new BoardDevice(level, pos, sd, type)));
 
+    public static final DeferredBlock<CircuitDesignTableBlock> DESIGN_TABLE = BLOCKS.register("circuit_design_table", () -> new CircuitDesignTableBlock(
+            BlockBehaviour.Properties.ofFullCopy(Blocks.CRAFTING_TABLE).noOcclusion()));
+    public static final DeferredItem<?> DESIGN_TABLE_ITEM = ITEMS.registerSimpleBlockItem(DESIGN_TABLE);
+    @SuppressWarnings("DataFlowIssue")
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CircuitDesignTableBlockEntity>> DESIGN_TABLE_BE = BLOCK_ENTITIES.register("circuit_design_table",
+            () -> BlockEntityType.Builder.of(CircuitDesignTableBlockEntity::new, DESIGN_TABLE.get()).build(null));
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<CircuitDesignTableDevice>> DESIGN_TABLE_DEVICE = DEVICES.register("circuit_design_table",
+            () -> new SimulatedDeviceType<>(asResource("circuit_design_table"),
+                    (type, level, pos, sd) -> new CircuitDesignTableDevice(level, pos, sd, type)));
+    public static final DeferredItem<CircuitSchematicItem> CIRCUIT_SCHEMATIC = ITEMS.registerItem("circuit_schematic", CircuitSchematicItem::new);
+
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = TABS.register("main", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.eecircuits"))
             .icon(() -> COPPER_CIRCUIT.get().getDefaultInstance())
@@ -64,6 +81,8 @@ public class EECircuits {
                 out.accept(COPPER_CIRCUIT);
                 out.accept(GOLDEN_CIRCUIT);
                 out.accept(BOARD_ITEM.get());
+                out.accept(DESIGN_TABLE_ITEM.get());
+                out.accept(CIRCUIT_SCHEMATIC.get());
                 for(var component : ComponentRegistry.entries()) {
                     var item = ComponentRegistry.getItem(component);
                     if(item != null && ComponentRegistry.getId(component).getNamespace().equals(MOD_ID)
@@ -80,6 +99,8 @@ public class EECircuits {
         BLOCK_ENTITIES.register(modBus);
         DEVICES.register(modBus);
         TABS.register(modBus);
+        EEMenus.register(modBus);
+        modBus.addListener(EENetwork::register);
         modBus.addListener((NewRegistryEvent e) -> e.register(ComponentRegistry.REGISTRY));
         container.registerConfig(ModConfig.Type.SERVER, EECircuitsConfig.SPEC);
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent e) -> BoardTestCommand.register(e.getDispatcher()));
@@ -87,5 +108,9 @@ public class EECircuits {
 
     public static ResourceLocation asResource(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    }
+
+    public static ResourceLocation texture(String path) {
+        return asResource("textures/" + path + ".png");
     }
 }

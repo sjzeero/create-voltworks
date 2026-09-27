@@ -20,6 +20,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.ListTag;
+import io.github.sjzeero.eecircuits.circuits.components.properties.ConstantProperty;
+import io.github.sjzeero.eecircuits.network.BoardStatePayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -29,6 +33,9 @@ import org.jetbrains.annotations.Nullable;
 import io.github.sjzeero.eecircuits.circuits.components.ComponentRegistry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -37,6 +44,7 @@ import java.util.function.Consumer;
 
 public class BoardDevice extends SimpleElectricalDevice implements BoardContext {
     public static final int SYNC_INTERVAL = 5;
+    public static final float TEMPERATURE_STEP = 0.5f;
 
     private CircuitSchematic schematic = new CircuitSchematic();
     private BakedCircuit baked;
@@ -50,8 +58,13 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
     private boolean changed = true;
     private long lastSync = -SYNC_INTERVAL;
 
-    private volatile CompoundTag clientTag;
-    private volatile int version;
+    private volatile CompoundTag fullTag;
+    private volatile int schematicVersion;
+    private final ConcurrentLinkedQueue<BoardStatePayload> outbox = new ConcurrentLinkedQueue<>();
+    private final Map<String, CompoundTag> sentProperties = new HashMap<>();
+    private float[] sentTemperatures = new float[0];
+    private int[] sentBurnt = new int[0];
+    private int sentLight;
     private volatile int[] emitted = new int[6];
     private volatile boolean redstoneDirty;
     private volatile Readings readings = Readings.EMPTY;
@@ -137,6 +150,27 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
         });
     }
 
+    public void queuePropertyUpdate(UUID component, ResourceLocation propertyId, CompoundTag value) {
+        var copy = value.copy();
+        queue(device -> {
+            if(device.baked == null)
+                return;
+            var placed = device.baked.get(component);
+            if(placed == null)
+                return;
+            try {
+                var entry = placed.getEntry(propertyId);
+                if(entry.property.isHidden())
+                    return;
+                entry.read(level.registryAccess(), copy);
+            } catch(IllegalArgumentException e) {
+                return;
+            }
+            placed.stateUpdated();
+            device.changed = true;
+        });
+    }
+
     public void queueRepair() {
         queue(device -> {
             device.savedState = new CompoundTag();
@@ -156,12 +190,16 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
         return readings;
     }
 
-    public @Nullable CompoundTag clientTag() {
-        return clientTag;
+    public @Nullable CompoundTag fullTag() {
+        return fullTag;
     }
 
-    public int version() {
-        return version;
+    public int schematicVersion() {
+        return schematicVersion;
+    }
+
+    public @Nullable BoardStatePayload pollState() {
+        return outbox.poll();
     }
 
     public int emitted(Direction direction) {
@@ -191,6 +229,88 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
         rebuild = false;
         changed = true;
         redstoneDirty = true;
+        publishFull();
+    }
+
+    private void publishFull() {
+        var tag = new CompoundTag();
+        tag.put("Schematic", schematic.serializeNbt(level.registryAccess()));
+        sentProperties.clear();
+        for(int i = 0; i < baked.components.size(); i++) {
+            var placed = baked.components.get(i);
+            for(var property : placed.component.getProperties()) {
+                if(property instanceof ConstantProperty)
+                    continue;
+                var value = new CompoundTag();
+                placed.getEntry(property).write(level.registryAccess(), value);
+                sentProperties.put(i + "|" + property.id(), value);
+            }
+        }
+        sentTemperatures = temperatures();
+        sentBurnt = burntIndices();
+        sentLight = lightLevel();
+        tag.put("Temperatures", floatList(sentTemperatures));
+        tag.putIntArray("Burnt", sentBurnt);
+        tag.putInt("Light", sentLight);
+        outbox.clear();
+        schematicVersion++;
+        tag.putInt("Version", schematicVersion);
+        fullTag = tag;
+    }
+
+    private static ListTag floatList(float[] values) {
+        var list = new ListTag();
+        for(float v : values)
+            list.add(FloatTag.valueOf(v));
+        return list;
+    }
+
+    private float[] temperatures() {
+        var temps = new float[baked.thermalUnits.size()];
+        for(int i = 0; i < temps.length; i++)
+            temps[i] = baked.thermalUnits.get(i).getTemperature();
+        return temps;
+    }
+
+    private int[] burntIndices() {
+        var list = new ArrayList<Integer>();
+        for(int i = 0; i < baked.components.size(); i++)
+            if(baked.components.get(i).destroyed)
+                list.add(i);
+        return list.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    private void publishState() {
+        var changes = new ArrayList<BoardStatePayload.Change>();
+        for(int i = 0; i < baked.components.size(); i++) {
+            var placed = baked.components.get(i);
+            for(var property : placed.component.getProperties()) {
+                if(property instanceof ConstantProperty)
+                    continue;
+                var value = new CompoundTag();
+                placed.getEntry(property).write(level.registryAccess(), value);
+                var key = i + "|" + property.id();
+                if(!value.equals(sentProperties.get(key))) {
+                    sentProperties.put(key, value);
+                    changes.add(new BoardStatePayload.Change(i, property.id(), value));
+                }
+            }
+        }
+        var temps = temperatures();
+        boolean tempsChanged = temps.length != sentTemperatures.length;
+        for(int i = 0; !tempsChanged && i < temps.length; i++)
+            tempsChanged = Math.abs(temps[i] - sentTemperatures[i]) > TEMPERATURE_STEP;
+        var burnt = burntIndices();
+        boolean burntChanged = !Arrays.equals(burnt, sentBurnt);
+        int light = lightLevel();
+        if(changes.isEmpty() && !tempsChanged && !burntChanged && light == sentLight)
+            return;
+        if(tempsChanged)
+            sentTemperatures = temps;
+        if(burntChanged)
+            sentBurnt = burnt;
+        sentLight = light;
+        outbox.add(new BoardStatePayload(pos, schematicVersion, changes, tempsChanged ? temps : null, burntChanged ? burnt : null, light));
     }
 
     @Override
@@ -261,24 +381,13 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
             u[k] = sim.pinU[k];
             i[k] = sim.pinCurrent(k);
         }
-        int units = baked.thermalUnits.size();
         readings = new Readings(level.getGameTime(), u, i, summarize(), sim.converged, sim.badSteps);
 
         long now = level.getGameTime();
-        if(now - lastSync >= SYNC_INTERVAL && (changed || units > 0)) {
+        if(changed || now - lastSync >= SYNC_INTERVAL) {
             lastSync = now;
             changed = false;
-            var tag = new CompoundTag();
-            tag.put("Schematic", schematic.serializeNbt(level.registryAccess()));
-            baked.write(tag);
-            tag.putInt("Light", lightLevel());
-            var burntList = new net.minecraft.nbt.ListTag();
-            for(var placed : baked.components)
-                if(placed.destroyed)
-                    burntList.add(net.minecraft.nbt.StringTag.valueOf(placed.uuid.toString()));
-            tag.put("Burnt", burntList);
-            clientTag = tag;
-            version++;
+            publishState();
         }
     }
 

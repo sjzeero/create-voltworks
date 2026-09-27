@@ -30,6 +30,10 @@ public interface IInteractableComponent {
 
     InteractionResult use(BoardContext board, PlacedComponent component, Player player);
 
+    default boolean hasClientScreen(PlacedComponent component) {
+        return false;
+    }
+
     static VoxelShape extrudedFootprint(@NotNull PlacedComponent placed, float height) {
         var footprint = placed.footprint();
         return Shapes.box(

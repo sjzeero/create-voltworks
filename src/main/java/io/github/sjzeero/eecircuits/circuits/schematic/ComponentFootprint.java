@@ -75,6 +75,19 @@ public class ComponentFootprint {
         return renderedStack;
     }
 
+    public boolean hasOutline() {
+        return outline;
+    }
+
+    public boolean hasItem() {
+        return withItem;
+    }
+
+    @Nullable
+    public Orientation getArrow() {
+        return arrow;
+    }
+
     public int getWidth() {
         return width;
     }
