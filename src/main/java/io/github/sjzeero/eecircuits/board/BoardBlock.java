@@ -293,6 +293,52 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
             device.queueRedstone(getOrientation(state, dir), level.getSignal(fromPos, dir));
     }
 
+    public static Direction getDirection(BlockState state, Orientation orientation) {
+        var facing = state.getValue(HORIZONTAL_FACING);
+        if(state.getValue(ROTATION) == 1) {
+            if(orientation == Orientation.UP)
+                return Direction.UP;
+            if(orientation == Orientation.DOWN)
+                return Direction.DOWN;
+            if(orientation == Orientation.LEFT)
+                return facing.getCounterClockWise();
+            if(orientation == Orientation.RIGHT)
+                return facing.getClockWise();
+            throw new IllegalStateException();
+        }
+        Direction dir;
+        if(state.getValue(ROTATION) == 0) {
+            dir = switch(orientation) {
+                case UP -> Direction.NORTH;
+                case RIGHT -> Direction.EAST;
+                case DOWN -> Direction.SOUTH;
+                case LEFT -> Direction.WEST;
+            };
+            dir = switch(facing) {
+                case NORTH -> dir;
+                case SOUTH -> dir.getOpposite();
+                case EAST -> dir.getClockWise();
+                case WEST -> dir.getCounterClockWise();
+                default -> throw new IllegalStateException();
+            };
+        } else {
+            dir = switch(orientation) {
+                case UP -> Direction.SOUTH;
+                case RIGHT -> Direction.EAST;
+                case DOWN -> Direction.NORTH;
+                case LEFT -> Direction.WEST;
+            };
+            dir = switch(facing) {
+                case NORTH -> dir.getOpposite();
+                case SOUTH -> dir;
+                case EAST -> dir.getCounterClockWise();
+                case WEST -> dir.getClockWise();
+                default -> throw new IllegalStateException();
+            };
+        }
+        return dir;
+    }
+
     @Nullable
     public static Orientation getOrientation(BlockState state, Direction side) {
         var facing = state.getValue(HORIZONTAL_FACING);

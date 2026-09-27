@@ -62,6 +62,14 @@ public class BoardTestCommand {
                             return reply(ctx.getSource(), "repair queued");
                         }))
                         .then(Commands.literal("read").executes(BoardTestCommand::read))
+                        .then(Commands.literal("readat").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                .executes(ctx -> readAt(ctx.getSource(), BlockPosArgument.getLoadedBlockPos(ctx, "pos")))))
+                        .then(Commands.literal("links").then(Commands.argument("kind", StringArgumentType.word())
+                                .executes(ctx -> links(ctx.getSource(), StringArgumentType.getString(ctx, "kind")))))
+                        .then(Commands.literal("many").then(Commands.argument("count", IntegerArgumentType.integer(1, 400))
+                                .then(Commands.argument("preset", StringArgumentType.word())
+                                        .executes(ctx -> many(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "count"), StringArgumentType.getString(ctx, "preset"))))))
+                        .then(Commands.literal("clearmany").executes(ctx -> clearMany(ctx.getSource())))
                         .then(Commands.literal("world").executes(BoardTestCommand::world))));
     }
 
@@ -240,6 +248,162 @@ public class BoardTestCommand {
                 out.add("goggles:" + line.getString().trim());
         }
         return reply(source, String.join(" ", out));
+    }
+
+    private record Deferred(long tick, Runnable task) {
+    }
+
+    private static final List<Deferred> deferred = new ArrayList<>();
+    private static long ticks;
+
+    private static void later(int delay, Runnable task) {
+        deferred.add(new Deferred(ticks + delay, task));
+    }
+
+    public static void onServerTick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) {
+        ticks++;
+        if(deferred.isEmpty())
+            return;
+        var due = new ArrayList<Deferred>();
+        deferred.removeIf(d -> {
+            if(d.tick() > ticks)
+                return false;
+            due.add(d);
+            return true;
+        });
+        due.forEach(d -> d.task().run());
+    }
+
+    private static BlockPos linkBase(CommandSourceStack source) {
+        return base(source).south(6);
+    }
+
+    /** Two boards joined by an edge via ("edge") or a vertical header ("header"), one battery across them. */
+    private static int links(CommandSourceStack source, String kind) {
+        ServerLevel level = source.getLevel();
+        var a = linkBase(source);
+        var b = kind.equals("header") ? a.above() : a.east();
+        var battery = a.west(2);
+        level.setChunkForced(a.getX() >> 4, a.getZ() >> 4, true);
+        for(var p : List.of(a, b, a.east(), a.above(), battery))
+            level.setBlockAndUpdate(p, Blocks.AIR.defaultBlockState());
+        var sa = new BoardSketch(BoardTestCommand::component);
+        sa.place("connector", 0, 0);
+        sa.place("connector", 0, 13);
+        var sb = new BoardSketch(BoardTestCommand::component);
+        sb.place("connector", 0, 0);
+        sb.place("connector", 0, 13);
+        if(kind.equals("header")) {
+            // Upper board looks down onto the lower one; same facing mirrors x (Power Grid rule).
+            sa.place("via", 8, 7, io.github.sjzeero.eecircuits.circuits.components.ViaComponent.VERTICAL_PASSTHROUGH, true)
+                    .set(io.github.sjzeero.eecircuits.circuits.components.ViaComponent.EDGE_CONNECTIONS, false);
+            sa.h(14, 1, 8).v(8, 7, 14);
+            sb.place("via", 7, 7, io.github.sjzeero.eecircuits.circuits.components.ViaComponent.VERTICAL_PASSTHROUGH, true)
+                    .set(io.github.sjzeero.eecircuits.circuits.components.ViaComponent.EDGE_CONNECTIONS, false);
+            sb.place("resistor", 9, 6, io.github.sjzeero.eecircuits.circuits.components.ResistorComponent.RESISTANCE, 100f);
+            sb.h(7, 7, 9);
+            sb.v(13, 1, 7).h(1, 1, 13);
+        } else {
+            sa.place("via", 15, 7);
+            sa.h(14, 1, 15).v(15, 7, 14);
+            sb.place("via", 0, 7);
+            sb.place("resistor", 5, 6, io.github.sjzeero.eecircuits.circuits.components.ResistorComponent.RESISTANCE, 100f);
+            sb.h(7, 0, 5);
+            sb.v(9, 1, 7).h(1, 1, 9);
+        }
+        level.setBlockAndUpdate(a, EECircuits.BOARD.get().defaultBlockState());
+        level.setBlockAndUpdate(b, EECircuits.BOARD.get().defaultBlockState());
+        if(level.getBlockEntity(a) instanceof BoardBlockEntity be)
+            be.setSchematic(sa.schematic.serializeNbt(level.registryAccess()));
+        if(level.getBlockEntity(b) instanceof BoardBlockEntity be)
+            be.setSchematic(sb.schematic.serializeNbt(level.registryAccess()));
+        placeBattery(level, battery, 12);
+        var server = level.getServer();
+        later(20, () -> {
+            var sd = InfrastructureSavedData.load(level);
+            sd.connect(new InWorldNode(1, battery), new InWorldNode(1, a), CEEWireTypes.COPPER.get());
+            sd.connect(new InWorldNode(0, battery), new InWorldNode(0, b), CEEWireTypes.COPPER.get());
+            var bat = DevicesSavedData.load(level).getDevice(battery, CreativeBatteryDevice.class);
+            if(bat != null)
+                bat.voltage = 12;
+        });
+        return reply(source, "links " + kind + " boards at " + a.toShortString() + " and " + b.toShortString() + ", 12 V across, 100 ohm on the second board");
+    }
+
+    private static void placeBattery(ServerLevel level, BlockPos p, double volts) {
+        var batteryBlock = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("electroenergetics", "creative_battery"));
+        level.setBlockAndUpdate(p, batteryBlock.defaultBlockState());
+        var state = level.getBlockState(p);
+        ((ElectricalDeviceBlock<?>) state.getBlock()).ensureNodesExist(level, p, state);
+        var bat = DevicesSavedData.load(level).getDevice(p, CreativeBatteryDevice.class);
+        if(bat != null)
+            bat.voltage = volts;
+    }
+
+    private static final List<BlockPos> manyBoards = new ArrayList<>();
+
+    private static BlockPos manyBase(CommandSourceStack source) {
+        return base(source).south(12);
+    }
+
+    /** Places count boards of a preset in a grid, each with its own wired creative battery. */
+    private static int many(CommandSourceStack source, int count, String presetName) {
+        ServerLevel level = source.getLevel();
+        var preset = TestBoards.build(presetName, BoardTestCommand::component);
+        if(preset == null)
+            return reply(source, "unknown preset " + presetName + ", one of " + TestBoards.NAMES);
+        clearMany(source);
+        var origin = manyBase(source);
+        int columns = 20;
+        var placed = new ArrayList<BlockPos[]>();
+        for(int i = 0; i < count; i++) {
+            var board = origin.offset((i % columns) * 2, 0, (i / columns) * 3);
+            var battery = board.south();
+            level.setChunkForced(board.getX() >> 4, board.getZ() >> 4, true);
+            level.setBlockAndUpdate(board, EECircuits.BOARD.get().defaultBlockState());
+            if(level.getBlockEntity(board) instanceof BoardBlockEntity be)
+                be.setSchematic(preset.schematic().serializeNbt(level.registryAccess()));
+            var supply = preset.supplies().get(0);
+            placeBattery(level, battery, supply.volts());
+            manyBoards.add(board);
+            manyBoards.add(battery);
+            placed.add(new BlockPos[]{board, battery});
+        }
+        var server = level.getServer();
+        later(20, () -> {
+            var sd = InfrastructureSavedData.load(level);
+            var supply = preset.supplies().get(0);
+            for(var pair : placed) {
+                sd.connect(new InWorldNode(0, pair[1]), new InWorldNode(0, pair[0]), CEEWireTypes.COPPER.get());
+                sd.connect(new InWorldNode(1, pair[1]), new InWorldNode(supply.pin(), pair[0]), CEEWireTypes.COPPER.get());
+                var bat = DevicesSavedData.load(level).getDevice(pair[1], CreativeBatteryDevice.class);
+                if(bat != null)
+                    bat.voltage = supply.volts();
+            }
+        });
+        return reply(source, "placed " + count + " " + presetName + " boards from " + origin.toShortString());
+    }
+
+    private static int clearMany(CommandSourceStack source) {
+        ServerLevel level = source.getLevel();
+        int n = manyBoards.size();
+        for(var p : manyBoards)
+            level.setBlockAndUpdate(p, Blocks.AIR.defaultBlockState());
+        manyBoards.clear();
+        return reply(source, "cleared " + n + " blocks");
+    }
+
+    private static int readAt(CommandSourceStack source, BlockPos pos) {
+        var d = DevicesSavedData.load(source.getLevel()).getDevice(pos, BoardDevice.class);
+        if(d == null)
+            return reply(source, "no board at " + pos.toShortString());
+        var r = d.readings();
+        var sb = new StringBuilder(String.format(Locale.ROOT, "%s t=%d pinU=%s pinI=%s conv=%s bad=%d cooling=%.3f links=%d",
+                pos.toShortString(), r.tick(), fmt(r.pinU()), fmt(r.pinI()), r.converged(), r.badSteps(), d.coolingMultiplier(),
+                d.allLinks(source.getLevel()).size()));
+        for(var part : r.parts())
+            sb.append(" | ").append(part);
+        return reply(source, sb.toString());
     }
 
     private static String fmt(double[] values) {

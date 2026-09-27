@@ -362,13 +362,24 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
         tooltip.add(Component.literal("    ").append(Component.translatable("block.eecircuits.circuit_board")));
         if(schematic.getName() != null)
             tooltip.add(Component.literal("    ").append(Component.literal(schematic.getName()).withStyle(ChatFormatting.GRAY)));
-        for(var placed : schematic.components()) {
-            if(placed.component instanceof IComponentGoggleInformation info)
-                info.addToGoggleTooltip(placed, tooltip, isPlayerSneaking);
-        }
         if(burnt > 0) {
             tooltip.add(Component.literal("    ").append(Component.translatable("eecircuits.goggles.burnt", burnt).withStyle(ChatFormatting.RED)));
             tooltip.add(Component.literal("    ").append(Component.translatable("eecircuits.gui.circuit_board.damage_body").withStyle(ChatFormatting.GRAY)));
+        }
+        var hovered = hoveredComponent();
+        if(hovered != null) {
+            if(hovered.component instanceof IComponentGoggleInformation info)
+                info.addToGoggleTooltip(hovered, tooltip, isPlayerSneaking);
+            if(isPlayerSneaking) {
+                var item = io.github.sjzeero.eecircuits.circuits.components.ComponentRegistry.getItem(level, hovered.component);
+                var line = Component.literal("    ").append(item.getDescription().copy().withStyle(ChatFormatting.GRAY));
+                float t = partTemperature(hovered);
+                if(Float.isFinite(t))
+                    line.append(Component.literal(String.format(java.util.Locale.ROOT, " %.1f \u00b0C", t)).withStyle(ChatFormatting.DARK_GRAY));
+                if(hovered.destroyed)
+                    line.append(Component.literal(" ").append(Component.translatable("eecircuits.goggles.part_burnt")).withStyle(ChatFormatting.RED));
+                tooltip.add(line);
+            }
         }
         if(isPlayerSneaking) {
             float max = Float.NEGATIVE_INFINITY;
@@ -378,6 +389,39 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
                 tooltip.add(Component.literal("    ").append(Component.translatable("eecircuits.goggles.hottest", String.format("%.1f", max)).withStyle(ChatFormatting.GRAY)));
         }
         return true;
+    }
+
+    private float partTemperature(PlacedComponent placed) {
+        if(baked == null)
+            return Float.NaN;
+        for(var unit : baked.thermalUnits) {
+            if(unit.getId().equals(placed.uuid))
+                return unit.getTemperature();
+        }
+        return Float.NaN;
+    }
+
+    /** The part under the crosshair, same hit test as Power Grid's board goggles. Client only. */
+    private @Nullable PlacedComponent hoveredComponent() {
+        if(level == null || !level.isClientSide)
+            return null;
+        var hit = io.github.sjzeero.eecircuits.client.ClientHooks.hitLocation();
+        if(hit == null)
+            return null;
+        var local = BoardBlock.unrotate(hit.subtract(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ()),
+                BoardBlock.getAngleX(getBlockState()), BoardBlock.getAngleY(getBlockState()));
+        if(local.x < -0.01 || local.x > 1.01 || local.z < -0.01 || local.z > 1.01)
+            return null;
+        double px = local.x * 16, py = local.z * 16;
+        PlacedComponent best = null;
+        for(var placed : schematic.components()) {
+            var footprint = placed.footprint();
+            if(px >= placed.x && py >= placed.y && px < placed.x + footprint.getWidth() && py < placed.y + footprint.getHeight()) {
+                if(best == null || placed.component instanceof IComponentGoggleInformation)
+                    best = placed;
+            }
+        }
+        return best;
     }
 
     public @Nullable PlacedComponent component(UUID uuid) {

@@ -68,6 +68,12 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
     private volatile int[] emitted = new int[6];
     private volatile boolean redstoneDirty;
     private volatile Readings readings = Readings.EMPTY;
+    public static final int LINK_NODE_BASE = 1000;
+    private boolean hasLinkVias;
+    private long ownLinksTick = Long.MIN_VALUE;
+    private List<BoardLinks.Link> ownLinks = List.of();
+    private final Map<com.simibubi.create.content.kinetics.fan.AirCurrent, Float> coolingAir = new HashMap<>();
+    private float coolingMultiplier = 1.0f;
 
     public record Readings(long tick, double[] pinU, double[] pinI, List<String> parts, boolean converged, int badSteps) {
         static final Readings EMPTY = new Readings(0, new double[0], new double[0], List.of(), true, 0);
@@ -178,6 +184,39 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
         });
     }
 
+    public void addCoolingMultiplier(com.simibubi.create.content.kinetics.fan.AirCurrent current, float value) {
+        var previous = coolingAir.put(current, value);
+        if(previous != null)
+            coolingMultiplier = Math.max(1, coolingMultiplier - previous);
+        coolingMultiplier += value;
+    }
+
+    public void removeCoolingMultiplier(com.simibubi.create.content.kinetics.fan.AirCurrent current) {
+        var previous = coolingAir.remove(current);
+        if(previous != null)
+            coolingMultiplier = Math.max(1, coolingMultiplier - previous);
+    }
+
+    public float coolingMultiplier() {
+        return coolingMultiplier;
+    }
+
+    private void updateCooling() {
+        if(coolingAir.isEmpty())
+            return;
+        var iter = coolingAir.entrySet().iterator();
+        while(iter.hasNext()) {
+            var entry = iter.next();
+            var source = entry.getKey().source;
+            if(source.isSourceRemoved() || source.getSpeed() == 0) {
+                coolingMultiplier = Math.max(1, coolingMultiplier - entry.getValue());
+                iter.remove();
+            }
+        }
+        if(coolingAir.isEmpty())
+            coolingMultiplier = 1.0f;
+    }
+
     public @Nullable BakedCircuit baked() {
         return baked;
     }
@@ -224,6 +263,8 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
         }
         baked = BakedCircuit.from(schematic, this);
         baked.setAmbientTemperature(Thermal.getAmbientTemperature(level, pos));
+        hasLinkVias = baked.components.stream().anyMatch(BoardLinks::canLink);
+        ownLinksTick = Long.MIN_VALUE;
         sim = new BoardSim(baked, previous);
         baked.read(state);
         rebuild = false;
@@ -323,24 +364,105 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
         }
         if(rebuild || sim == null)
             bake();
-        sim.serial = ++serial;
-        int pins = Math.min(sim.pins, registeredPins);
-        if(!sim.coupled() || pins < sim.pins)
-            return;
-        for(int k = 1; k < pins; k++) {
-            bridges.bridge(new InWorldNode(k, pos), new InWorldNode(0, pos), new PinBranch(sim, k, 0, serial));
-            for(int j = k + 1; j < pins; j++)
-                bridges.bridge(new InWorldNode(k, pos), new InWorldNode(j, pos), new PinBranch(sim, k, j, serial));
+        List<BoardLinks.Link> links = List.of();
+        if(level instanceof ServerLevel server) {
+            links = allLinks(server);
+            var vias = linkedVias(links);
+            if(!vias.equals(sim.linkVias))
+                sim = new BoardSim(baked, sim.pinU(), vias);
         }
+        sim.serial = ++serial;
+        if(!sim.coupled() || registeredPins < sim.connectorPins)
+            return;
+        int pins = sim.pins;
+        for(int k = 1; k < pins; k++) {
+            bridges.bridge(pinNode(k), pinNode(0), new PinBranch(sim, k, 0, serial));
+            for(int j = k + 1; j < pins; j++)
+                bridges.bridge(pinNode(k), pinNode(j), new PinBranch(sim, k, j, serial));
+        }
+        for(var link : links) {
+            if(pos.compareTo(link.other().pos()) >= 0)
+                continue;
+            var otherSim = link.other().sim;
+            if(otherSim == null || !otherSim.linkVias.contains(link.theirs()) || !sim.linkVias.contains(link.mine()))
+                continue;
+            bridges.bridge(linkNode(link.mine()), link.other().linkNode(link.theirs()),
+                    com.george_vi.electroenergetics.simulation.electrical_properties.ElectricalProperties.resistor(BoardLinks.LINK_RESISTANCE));
+        }
+    }
+
+    private InWorldNode pinNode(int k) {
+        if(k < sim.connectorPins)
+            return new InWorldNode(k, pos);
+        return linkNode(sim.linkVias.get(k - sim.connectorPins));
+    }
+
+    InWorldNode linkNode(PlacedComponent via) {
+        return new InWorldNode(LINK_NODE_BASE + baked.components.indexOf(via), pos);
+    }
+
+    boolean hasLinkVias() {
+        return hasLinkVias;
+    }
+
+    private List<BoardLinks.Link> ownLinks(ServerLevel server) {
+        long now = server.getGameTime();
+        if(ownLinksTick != now) {
+            ownLinksTick = now;
+            ownLinks = hasLinkVias ? BoardLinks.find(this, server) : List.of();
+        }
+        return ownLinks;
+    }
+
+    /** Links found from this board plus the ones neighbours found towards it, so both sides agree. */
+    public List<BoardLinks.Link> allLinks(ServerLevel server) {
+        if(!hasLinkVias || baked == null)
+            return List.of();
+        var result = new ArrayList<>(ownLinks(server));
+        var devices = DevicesSavedData.load(server);
+        for(var dir : Direction.values()) {
+            var npos = pos.relative(dir);
+            if(!server.isLoaded(npos) || !(server.getBlockState(npos).getBlock() instanceof BoardBlock))
+                continue;
+            var other = devices.getDevice(npos, BoardDevice.class);
+            if(other == null || other.baked == null || !other.hasLinkVias)
+                continue;
+            for(var link : other.ownLinks(server)) {
+                if(link.other() != this)
+                    continue;
+                boolean known = false;
+                for(var existing : result)
+                    known |= existing.other() == other && existing.mine() == link.theirs() && existing.theirs() == link.mine();
+                if(!known)
+                    result.add(new BoardLinks.Link(link.theirs(), other, link.mine()));
+            }
+        }
+        return result;
+    }
+
+    private List<PlacedComponent> linkedVias(List<BoardLinks.Link> links) {
+        if(links.isEmpty())
+            return List.of();
+        var vias = new ArrayList<PlacedComponent>();
+        for(var placed : baked.components) {
+            for(var link : links) {
+                if(link.mine() == placed) {
+                    vias.add(placed);
+                    break;
+                }
+            }
+        }
+        return vias;
     }
 
     @Override
     public void postTick(SimulationResults results) {
         if(sim == null || baked == null)
             return;
-        if(!sim.coupled() || Math.min(sim.pins, registeredPins) < sim.pins)
+        if(!sim.coupled() || registeredPins < sim.connectorPins)
             sim.standaloneTick(CEEConfigs.server().simulationConfig.microTicks.get());
-        var burnt = baked.tick(1.0f);
+        updateCooling();
+        var burnt = baked.tick(coolingMultiplier);
         if(!burnt.isEmpty() && level instanceof ServerLevel server) {
             for(var unit : burnt) {
                 var p = unit.getPosition();

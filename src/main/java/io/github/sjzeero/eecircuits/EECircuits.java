@@ -112,6 +112,7 @@ public class EECircuits {
         container.registerConfig(ModConfig.Type.SERVER, EECircuitsConfig.SPEC);
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent e) -> BoardTestCommand.register(e.getDispatcher()));
         NeoForge.EVENT_BUS.addListener(CircuitInsertion::onDeployerRecipeSearch);
+        NeoForge.EVENT_BUS.addListener(BoardTestCommand::onServerTick);
     }
 
     public static ResourceLocation asResource(String path) {

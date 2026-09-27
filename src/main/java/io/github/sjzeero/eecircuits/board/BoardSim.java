@@ -5,12 +5,21 @@ import io.github.sjzeero.eecircuits.pgsim.ElectricalNetwork;
 import io.github.sjzeero.eecircuits.pgsim.node.FloatingNode;
 import io.github.sjzeero.eecircuits.pgsim.node.VoltageSourceCoupling;
 import io.github.sjzeero.eecircuits.pgsim.solver.JavaMNA;
+import io.github.sjzeero.eecircuits.circuits.schematic.CircuitSchematic;
+import io.github.sjzeero.eecircuits.circuits.schematic.PlacedComponent;
+import io.github.sjzeero.eecircuits.pgsim.node.INode;
 import org.ejml.data.DMatrixRMaj;
+
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
 
 public class BoardSim {
     public static final double G_MIN = 1e-9;
 
     public final int pins;
+    public final int connectorPins;
+    public final List<PlacedComponent> linkVias;
     public final BakedCircuit circuit;
 
     private final ElectricalNetwork network;
@@ -33,8 +42,14 @@ public class BoardSim {
     int badSteps;
 
     public BoardSim(BakedCircuit circuit, double[] previousU) {
+        this(circuit, previousU, List.of());
+    }
+
+    public BoardSim(BakedCircuit circuit, double[] previousU, List<PlacedComponent> linkVias) {
         this.circuit = circuit;
-        this.pins = circuit.externalNodes.size();
+        this.linkVias = List.copyOf(linkVias);
+        this.connectorPins = circuit.externalNodes.size();
+        this.pins = connectorPins + this.linkVias.size();
         this.pinU = new double[pins];
         if (previousU != null)
             System.arraycopy(previousU, 0, pinU, 0, Math.min(pins, previousU.length));
@@ -52,14 +67,24 @@ public class BoardSim {
         network.bjtSmoothAlpha = 0.5;
         network.diodeSmoothAlpha = 0.025;
 
-        pinNodes = circuit.externalNodes.toArray(new FloatingNode[0]);
+        pinNodes = new FloatingNode[pins];
+        for (int k = 0; k < connectorPins; k++)
+            pinNodes[k] = circuit.externalNodes.get(k);
+        var linkNodes = Collections.newSetFromMap(new IdentityHashMap<INode, Boolean>());
+        for (int k = 0; k < this.linkVias.size(); k++) {
+            var node = circuit.getNode(new CircuitSchematic.Node(this.linkVias.get(k), 0));
+            pinNodes[connectorPins + k] = node;
+            linkNodes.add(node);
+        }
         sources = new VoltageSourceCoupling[pins];
         for (int k = 0; k < pins; k++) {
             network.addNode(pinNodes[k]);
             sources[k] = new VoltageSourceCoupling(pinNodes[k], null, 0f, (float) (k == 0 ? 0 : pinU[k]));
             network.addNode(sources[k]);
         }
-        circuit.internalNodes.forEach(network::addNode);
+        for (var node : circuit.internalNodes)
+            if (!linkNodes.contains(node))
+                network.addNode(node);
         circuit.wires.forEach(network::addWire);
     }
 
