@@ -407,6 +407,13 @@ public class JavaMNA implements IMNA {
         return converged;
     }
 
+    public boolean solveLinearized(DMatrixRMaj rhs, DMatrixRMaj out) {
+        if(Jacobian == null || rhs.getNumRows() != Jacobian.getNumRows())
+            return false;
+        Jacobian.solve(rhs, out);
+        return !MatrixFeatures_DDRM.hasUncountable(out);
+    }
+
     private static class ExchangeRow {
         private final int index;
         private final DMatrixRMaj changedRow;
