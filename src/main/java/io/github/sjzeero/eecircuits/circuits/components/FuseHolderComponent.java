@@ -45,7 +45,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class FuseHolderComponent extends OrientableComponent implements IInteractableComponent, IGoggleLabel {
-    public static final TagKey<Item> FUSE_RESETTING = TagKey.create(Registries.ITEM, EECircuits.asResource("fuse_resetting"));
+    public static final TagKey<Item> FUSE_RESETTING = TagKey.create(Registries.ITEM, net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(EECircuits.MOD_ID, "fuse_resetting"));
 
     public static final EnumProperty<FuseState> STATE = new EnumProperty<>(EECircuits.MOD_ID, "fuse_state", FuseState.class).hidden().unsafe().cast();
     public static final EnumProperty<FuseState> PREV_STATE = new EnumProperty<>(EECircuits.MOD_ID, "fuse_state_prev", FuseState.class).hidden().unsafe().cast();

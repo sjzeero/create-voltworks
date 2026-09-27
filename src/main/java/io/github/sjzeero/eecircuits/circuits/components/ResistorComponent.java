@@ -46,6 +46,7 @@ public class ResistorComponent extends VerticallyOrientableComponent {
     @Override
     public void bake(@NotNull PlacedComponent placed, @NotNull ComponentCircuitBuilder builder, ThermalBuilder.@NotNull IEmitter thermals) {
         var wire = builder.connect(placed.get(RESISTANCE), builder.terminalNode(0), builder.terminalNode(1));
+        placed.add(wire);
         thermals.builder()
                 .setThermalMass(0.05f)
                 .setMaxPower(25, 125f)
