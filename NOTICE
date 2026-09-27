@@ -7,6 +7,12 @@ licensed under the Apache License, Version 2.0 (see LICENSE-APACHE-2.0).
 Files derived from Create: Power Grid keep their original license header
 and are marked as modified.
 
+The circuit board and board component textures, models and language strings
+under assets/eecircuits (models/component, textures/block/component,
+textures/block/circuit_board*, and the component item textures) are taken
+from Create: Power Grid under the same license, with resource locations
+changed to the eecircuits namespace.
+
 Create: Power Grid NOTICE:
 
 Copyright 2025-2026 patryk3211

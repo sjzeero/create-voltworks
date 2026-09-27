@@ -1,0 +1,74 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"1": "eecircuits:block/component/transistor"
+	},
+	"elements": [
+		{
+			"name": "body",
+			"from": [0, 1, 0],
+			"to": [3, 5, 2],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 1, 0]},
+			"faces": {
+				"north": {"uv": [2, 4, 5, 8], "texture": "#1"},
+				"east": {"uv": [0, 4, 2, 8], "texture": "#1"},
+				"south": {"uv": [7, 4, 10, 8], "texture": "#1"},
+				"west": {"uv": [5, 4, 7, 8], "texture": "#1"},
+				"up": {"uv": [4, 8, 6, 11], "rotation": 90, "texture": "#1"},
+				"down": {"uv": [0, 8, 2, 11], "rotation": 90, "texture": "#1"}
+			}
+		},
+		{
+			"name": "Base",
+			"from": [1, 0, 1.5],
+			"to": [2, 1, 1.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 0.5]},
+			"faces": {
+				"north": {"uv": [0, 15, 1, 16], "texture": "#1"},
+				"east": {"uv": [1, 1, 1, 2], "texture": "#1"},
+				"south": {"uv": [0, 15, 1, 16], "texture": "#1"},
+				"west": {"uv": [1, 1, 1, 2], "texture": "#1"},
+				"up": {"uv": [1, 1, 2, 1], "texture": "#1"},
+				"down": {"uv": [1, 1, 2, 1], "texture": "#1"}
+			}
+		},
+		{
+			"name": "Emitter",
+			"from": [0, 0, 0.5],
+			"to": [1, 1, 0.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [-1, 0, -0.5]},
+			"faces": {
+				"north": {"uv": [1, 15, 2, 16], "texture": "#1"},
+				"east": {"uv": [1, 1, 1, 2], "texture": "#1"},
+				"south": {"uv": [1, 15, 2, 16], "texture": "#1"},
+				"west": {"uv": [1, 1, 1, 2], "texture": "#1"},
+				"up": {"uv": [1, 1, 2, 1], "texture": "#1"},
+				"down": {"uv": [1, 1, 2, 1], "texture": "#1"}
+			}
+		},
+		{
+			"name": "Collector",
+			"from": [2, 0, 0.5],
+			"to": [3, 1, 0.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [1, 0, -0.5]},
+			"faces": {
+				"north": {"uv": [2, 15, 3, 16], "texture": "#1"},
+				"east": {"uv": [1, 1, 1, 2], "texture": "#1"},
+				"south": {"uv": [2, 15, 3, 16], "texture": "#1"},
+				"west": {"uv": [1, 1, 1, 2], "texture": "#1"},
+				"up": {"uv": [1, 1, 2, 1], "texture": "#1"},
+				"down": {"uv": [1, 1, 2, 1], "texture": "#1"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "NPN",
+			"origin": [8, 8, 8],
+			"scope": 0,
+			"color": 0,
+			"children": [0, 1, 2, 3]
+		}
+	]
+}
