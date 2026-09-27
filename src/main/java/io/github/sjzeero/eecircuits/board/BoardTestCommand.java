@@ -69,6 +69,10 @@ public class BoardTestCommand {
                         .then(Commands.literal("many").then(Commands.argument("count", IntegerArgumentType.integer(1, 400))
                                 .then(Commands.argument("preset", StringArgumentType.word())
                                         .executes(ctx -> many(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "count"), StringArgumentType.getString(ctx, "preset"))))))
+                        .then(Commands.literal("perf").then(Commands.literal("reset").executes(ctx -> {
+                                    BoardStats.reset(ctx.getSource().getLevel().getGameTime());
+                                    return reply(ctx.getSource(), "board perf counters reset");
+                                })).then(Commands.literal("report").executes(ctx -> perfReport(ctx.getSource()))))
                         .then(Commands.literal("clearmany").executes(ctx -> clearMany(ctx.getSource())))
                         .then(Commands.literal("world").executes(BoardTestCommand::world))));
     }
@@ -391,6 +395,19 @@ public class BoardTestCommand {
             level.setBlockAndUpdate(p, Blocks.AIR.defaultBlockState());
         manyBoards.clear();
         return reply(source, "cleared " + n + " blocks");
+    }
+
+    private static int perfReport(CommandSourceStack source) {
+        long ticks = source.getLevel().getGameTime() - BoardStats.startTick;
+        if(BoardStats.startTick < 0 || ticks <= 0)
+            return reply(source, "run perf reset first");
+        long boardTicks = BoardStats.BOARD_TICKS.sum();
+        double mainMs = BoardStats.MAIN_NS.sum() / 1e6 / ticks;
+        double simMs = BoardStats.SIM_NS.sum() / 1e6 / ticks;
+        double boards = (double) boardTicks / ticks;
+        return reply(source, String.format(Locale.ROOT,
+                "board perf over %d ticks: %.1f boards, main thread %.3f ms/tick (%.1f us/board), sim thread %.3f ms/tick (%.1f us/board)",
+                ticks, boards, mainMs, boards > 0 ? mainMs * 1000 / boards : 0, simMs, boards > 0 ? simMs * 1000 / boards : 0));
     }
 
     private static int readAt(CommandSourceStack source, BlockPos pos) {

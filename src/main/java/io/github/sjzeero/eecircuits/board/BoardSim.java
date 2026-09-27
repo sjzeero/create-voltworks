@@ -97,7 +97,9 @@ public class BoardSim {
             return;
         steppedSerial = serial;
         steppedMicroTick = microTick;
+        long t0 = System.nanoTime();
         step(microTick, totalMicroTicks);
+        BoardStats.SIM_NS.add(System.nanoTime() - t0);
     }
 
     public void standaloneTick(int totalMicroTicks) {

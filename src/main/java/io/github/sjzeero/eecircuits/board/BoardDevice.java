@@ -225,8 +225,12 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
         return schematic;
     }
 
+    /** Pin readings from the last tick plus a per-part summary built on request (server thread only). */
     public Readings readings() {
-        return readings;
+        var r = readings;
+        if(baked == null)
+            return r;
+        return new Readings(r.tick(), r.pinU(), r.pinI(), summarize(), r.converged(), r.badSteps());
     }
 
     public @Nullable CompoundTag fullTag() {
@@ -356,6 +360,15 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
 
     @Override
     public void preTick(BridgeCollector bridges) {
+        long t0 = System.nanoTime();
+        try {
+            preTickImpl(bridges);
+        } finally {
+            BoardStats.MAIN_NS.add(System.nanoTime() - t0);
+        }
+    }
+
+    private void preTickImpl(BridgeCollector bridges) {
         Consumer<BoardDevice> action;
         while((action = actions.poll()) != null) {
             if(rebuild)
@@ -457,6 +470,16 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
 
     @Override
     public void postTick(SimulationResults results) {
+        long t0 = System.nanoTime();
+        try {
+            postTickImpl();
+        } finally {
+            BoardStats.MAIN_NS.add(System.nanoTime() - t0);
+            BoardStats.BOARD_TICKS.increment();
+        }
+    }
+
+    private void postTickImpl() {
         if(sim == null || baked == null)
             return;
         if(!sim.coupled() || registeredPins < sim.connectorPins)
@@ -503,7 +526,7 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
             u[k] = sim.pinU[k];
             i[k] = sim.pinCurrent(k);
         }
-        readings = new Readings(level.getGameTime(), u, i, summarize(), sim.converged, sim.badSteps);
+        readings = new Readings(level.getGameTime(), u, i, List.of(), sim.converged, sim.badSteps);
 
         long now = level.getGameTime();
         if(changed || now - lastSync >= SYNC_INTERVAL) {
