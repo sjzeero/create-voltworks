@@ -110,6 +110,7 @@ public class EECircuits {
         modBus.addListener(EENetwork::register);
         modBus.addListener((NewRegistryEvent e) -> e.register(ComponentRegistry.REGISTRY));
         container.registerConfig(ModConfig.Type.SERVER, EECircuitsConfig.SPEC);
+        container.registerConfig(ModConfig.Type.CLIENT, EECircuitsClientConfig.SPEC);
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent e) -> BoardTestCommand.register(e.getDispatcher()));
         NeoForge.EVENT_BUS.addListener(CircuitInsertion::onDeployerRecipeSearch);
         NeoForge.EVENT_BUS.addListener(BoardTestCommand::onServerTick);

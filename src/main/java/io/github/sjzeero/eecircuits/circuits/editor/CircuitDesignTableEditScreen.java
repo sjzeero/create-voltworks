@@ -348,10 +348,17 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
 
         int bpX = bgX + 13, bpY = topPos + 22;
 
-        CircuitSchematicRender.renderLayer(schematic.back(), ctx, bpX, bpY, CIRCUIT_SCALE,
-                backLayer ? COLOR_TRACE_FRONT : COLOR_TRACE_BACK);
-        CircuitSchematicRender.renderLayer(schematic.front(), ctx, bpX, bpY, CIRCUIT_SCALE,
-                backLayer ? COLOR_TRACE_BACK : COLOR_TRACE_FRONT);
+        if(io.github.sjzeero.eecircuits.EECircuitsClientConfig.highContrast()) {
+            CircuitSchematicRender.renderLayer(schematic.back(), ctx, bpX, bpY, CIRCUIT_SCALE,
+                    backLayer ? io.github.sjzeero.eecircuits.EECircuitsClientConfig.activeBack() : io.github.sjzeero.eecircuits.EECircuitsClientConfig.back());
+            CircuitSchematicRender.renderLayer(schematic.front(), ctx, bpX, bpY, CIRCUIT_SCALE,
+                    backLayer ? io.github.sjzeero.eecircuits.EECircuitsClientConfig.front() : io.github.sjzeero.eecircuits.EECircuitsClientConfig.activeFront());
+        } else {
+            CircuitSchematicRender.renderLayer(schematic.back(), ctx, bpX, bpY, CIRCUIT_SCALE,
+                    backLayer ? COLOR_TRACE_FRONT : COLOR_TRACE_BACK);
+            CircuitSchematicRender.renderLayer(schematic.front(), ctx, bpX, bpY, CIRCUIT_SCALE,
+                    backLayer ? COLOR_TRACE_BACK : COLOR_TRACE_FRONT);
+        }
         CircuitSchematicRender.renderComponents(schematic, ctx, bpX, bpY, CIRCUIT_SCALE, mouseX, mouseY);
 
         if(currentTool.y > 0) {

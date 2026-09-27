@@ -171,7 +171,7 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        var shape = Shapes.create(rotate(PLATE, state));
+        var shape = plateShape(state);
         if(level.getBlockEntity(pos) instanceof BoardBlockEntity be) {
             for(var interactable : be.interactables())
                 shape = Shapes.or(shape, Shapes.create(rotate(interactable.box(), state)));
@@ -179,9 +179,15 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
         return shape;
     }
 
+    private static final Map<BlockState, VoxelShape> PLATE_SHAPES = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private static VoxelShape plateShape(BlockState state) {
+        return PLATE_SHAPES.computeIfAbsent(state.setValue(LIGHT, 0), s -> Shapes.create(rotate(PLATE, s)));
+    }
+
     @Override
     protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return Shapes.create(rotate(PLATE, state));
+        return plateShape(state);
     }
 
     private static Map<Integer, Vec3> nodePositions(Level level, BlockPos pos, BlockState state) {
