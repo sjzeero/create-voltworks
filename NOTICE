@@ -9,7 +9,8 @@ and are marked as modified.
 
 The circuit board and board component textures, models and language strings
 under assets/eecircuits (models/component, textures/block/component,
-textures/block/circuit_board*, and the component item textures) are taken
+textures/block/circuit_board*, the component item textures, the circuit
+design table model and textures, and the gui textures under textures/gui) are taken
 from Create: Power Grid under the same license, with resource locations
 changed to the eecircuits namespace.
 
