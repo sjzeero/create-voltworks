@@ -15,6 +15,7 @@ import io.github.sjzeero.eecircuits.EECircuits;
 import io.github.sjzeero.eecircuits.circuits.components.ComponentRegistry;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -38,6 +39,10 @@ public class BoardTestCommand {
                         .then(Commands.literal("setup").then(Commands.argument("preset", StringArgumentType.word())
                                 .executes(ctx -> setup(ctx, StringArgumentType.getString(ctx, "preset")))))
                         .then(Commands.literal("wire").executes(BoardTestCommand::wire))
+                        .then(Commands.literal("attach").then(Commands.argument("board", BlockPosArgument.blockPos())
+                                .then(Commands.argument("battery", BlockPosArgument.blockPos())
+                                        .then(Commands.argument("volts", DoubleArgumentType.doubleArg(0, 100000))
+                                                .executes(BoardTestCommand::attach)))))
                         .then(Commands.literal("battery").then(Commands.argument("which", IntegerArgumentType.integer(0, 1))
                                 .then(Commands.argument("volts", DoubleArgumentType.doubleArg())
                                         .executes(ctx -> battery(ctx, IntegerArgumentType.getInteger(ctx, "which"),
@@ -99,6 +104,26 @@ public class BoardTestCommand {
             return reply(source, "board entity missing");
         be.setSchematic(preset.schematic().serializeNbt(level.registryAccess()));
         return reply(source, "setup " + name + " with " + preset.schematic().components().size() + " components");
+    }
+
+    private static int attach(CommandContext<CommandSourceStack> ctx) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        CommandSourceStack source = ctx.getSource();
+        ServerLevel level = source.getLevel();
+        var board = BlockPosArgument.getLoadedBlockPos(ctx, "board");
+        var p = BlockPosArgument.getLoadedBlockPos(ctx, "battery");
+        if(!(level.getBlockEntity(board) instanceof BoardBlockEntity))
+            return reply(source, "no board at " + board.toShortString());
+        var batteryBlock = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("electroenergetics", "creative_battery"));
+        level.setBlockAndUpdate(p, batteryBlock.defaultBlockState());
+        var state = level.getBlockState(p);
+        ((ElectricalDeviceBlock<?>) state.getBlock()).ensureNodesExist(level, p, state);
+        var battery = DevicesSavedData.load(level).getDevice(p, CreativeBatteryDevice.class);
+        if(battery != null)
+            battery.voltage = DoubleArgumentType.getDouble(ctx, "volts");
+        var sd = InfrastructureSavedData.load(level);
+        sd.connect(new InWorldNode(0, p), new InWorldNode(0, board), CEEWireTypes.COPPER.get());
+        sd.connect(new InWorldNode(1, p), new InWorldNode(1, board), CEEWireTypes.COPPER.get());
+        return reply(source, "attached battery at " + p.toShortString());
     }
 
     private static int wire(CommandContext<CommandSourceStack> ctx) {
