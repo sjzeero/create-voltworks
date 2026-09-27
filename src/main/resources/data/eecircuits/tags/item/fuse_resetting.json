@@ -1,0 +1,9 @@
+{
+  "values": [
+    "minecraft:iron_nugget",
+    {
+      "id": "#c:wires/iron",
+      "required": false
+    }
+  ]
+}
