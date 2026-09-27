@@ -49,6 +49,7 @@ public class CircuitDesignTableBlockEntity extends BlockEntity implements IMulti
 
     CircuitSchematic schematic = new CircuitSchematic();
     boolean schematicChanged = false;
+    float power;
 
     public CircuitDesignTableBlockEntity(BlockPos pos, BlockState state) {
         super(EECircuits.DESIGN_TABLE_BE.get(), pos, state);
@@ -61,6 +62,15 @@ public class CircuitDesignTableBlockEntity extends BlockEntity implements IMulti
         boolean powered = device != null && device.power() >= CircuitDesignTableDevice.REQUIRED_POWER;
         if(powered != state.getValue(CircuitDesignTableBlock.POWERED))
             level.setBlock(pos, state.setValue(CircuitDesignTableBlock.POWERED, powered), Block.UPDATE_ALL_IMMEDIATE);
+        float p = device == null ? 0 : (float) device.power();
+        if(Math.abs(p - be.power) >= 1 || (p == 0) != (be.power == 0)) {
+            be.power = p;
+            be.notifyUpdate();
+        }
+    }
+
+    public float power() {
+        return power;
     }
 
     public boolean isPowered() {
@@ -77,12 +87,14 @@ public class CircuitDesignTableBlockEntity extends BlockEntity implements IMulti
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("Schematic", schematic.serializeNbt(registries));
+        tag.putFloat("Power", power);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         schematic.deserializeNbt(registries, tag.getCompound("Schematic"));
+        power = tag.getFloat("Power");
         if(level != null && level.isClientSide)
             schematicChanged = true;
     }

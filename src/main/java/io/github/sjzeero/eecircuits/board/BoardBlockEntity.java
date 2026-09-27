@@ -253,6 +253,22 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
         return tag;
     }
 
+    public static boolean measureSync;
+    public final long[] syncStats = new long[4];
+
+    private static int encodedSize(Level level, BoardSchematicPayload full, BoardStatePayload state) {
+        var buf = new net.minecraft.network.RegistryFriendlyByteBuf(io.netty.buffer.Unpooled.buffer(), level.registryAccess());
+        try {
+            if(full != null)
+                BoardSchematicPayload.CODEC.encode(buf, full);
+            else
+                BoardStatePayload.CODEC.encode(buf, state);
+            return buf.readableBytes();
+        } finally {
+            buf.release();
+        }
+    }
+
     public static void serverTick(Level level, BlockPos pos, BlockState state, BoardBlockEntity be) {
         if(!(level instanceof ServerLevel server))
             return;
@@ -268,7 +284,12 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
             int oldTerminals = be.terminals.size();
             be.applyFull(full, level.registryAccess());
             be.setChanged();
-            PacketDistributor.sendToPlayersTrackingChunk(server, new ChunkPos(pos), new BoardSchematicPayload(pos, full));
+            var schematicPayload = new BoardSchematicPayload(pos, full);
+            if(measureSync) {
+                be.syncStats[0]++;
+                be.syncStats[1] += encodedSize(level, schematicPayload, null);
+            }
+            PacketDistributor.sendToPlayersTrackingChunk(server, new ChunkPos(pos), schematicPayload);
             if(oldTerminals != be.terminals.size() || device.registeredPins != be.terminals.size())
                 level.scheduleTick(pos, state.getBlock(), 1);
         }
@@ -276,6 +297,10 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
         while((payload = device.pollState()) != null) {
             if(be.applyState(payload, level.registryAccess())) {
                 be.setChanged();
+            }
+            if(measureSync) {
+                be.syncStats[2]++;
+                be.syncStats[3] += encodedSize(level, null, payload);
             }
             PacketDistributor.sendToPlayersTrackingChunk(server, new ChunkPos(pos), payload);
         }

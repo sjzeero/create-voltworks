@@ -18,6 +18,7 @@
 package io.github.sjzeero.eecircuits.circuits.editor;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.util.Mth;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
 import com.simibubi.create.foundation.render.RenderTypes;
 import io.github.sjzeero.eecircuits.client.EEPartialModels;
@@ -31,11 +32,10 @@ public class CircuitDesignTableRenderer extends SafeBlockEntityRenderer<CircuitD
 
     @Override
     protected void renderSafe(CircuitDesignTableBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource bufferSource, int light, int overlay) {
-        if(!be.isPowered())
-            return;
+        float power = Mth.clamp((be.power() - 15) / 15, 0, 1);
         var state = be.getBlockState();
         var glow = CachedBuffers.partial(EEPartialModels.CIRCUIT_TABLE_GLOW, state);
-        int a = 192;
+        int a = (int) (power * 192);
         glow.rotateYCenteredDegrees(state.getValue(CircuitDesignTableBlock.HORIZONTAL_FACING).getAxis() == net.minecraft.core.Direction.Axis.X ? 90 : 0)
                 .disableDiffuse()
                 .color(a, a, a, 255)

@@ -54,6 +54,9 @@ dependencies {
     jarJar(implementation("org.ejml:ejml-core:0.44.0"))
     jarJar(implementation("org.ejml:ejml-ddense:0.44.0"))
     jarJar(implementation("org.ejml:ejml-dsparse:0.44.0"))
+    additionalRuntimeClasspath("org.ejml:ejml-core:0.44.0")
+    additionalRuntimeClasspath("org.ejml:ejml-ddense:0.44.0")
+    additionalRuntimeClasspath("org.ejml:ejml-dsparse:0.44.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

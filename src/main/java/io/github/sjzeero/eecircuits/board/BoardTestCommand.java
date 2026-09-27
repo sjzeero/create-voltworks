@@ -87,6 +87,7 @@ public class BoardTestCommand {
         if(preset == null)
             return reply(source, "unknown preset " + name + ", one of " + TestBoards.NAMES);
         current = preset;
+        BoardBlockEntity.measureSync = true;
         var board = boardPos(source);
         level.setChunkForced(board.getX() >> 4, board.getZ() >> 4, true);
         var batteryBlock = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("electroenergetics", "creative_battery"));
@@ -111,15 +112,22 @@ public class BoardTestCommand {
         ServerLevel level = source.getLevel();
         var board = BlockPosArgument.getLoadedBlockPos(ctx, "board");
         var p = BlockPosArgument.getLoadedBlockPos(ctx, "battery");
-        if(!(level.getBlockEntity(board) instanceof BoardBlockEntity))
-            return reply(source, "no board at " + board.toShortString());
+        if(!(level.getBlockState(board).getBlock() instanceof ElectricalDeviceBlock<?>))
+            return reply(source, "no electrical device at " + board.toShortString());
         var batteryBlock = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("electroenergetics", "creative_battery"));
         level.setBlockAndUpdate(p, batteryBlock.defaultBlockState());
         var state = level.getBlockState(p);
         ((ElectricalDeviceBlock<?>) state.getBlock()).ensureNodesExist(level, p, state);
+        double volts = DoubleArgumentType.getDouble(ctx, "volts");
         var battery = DevicesSavedData.load(level).getDevice(p, CreativeBatteryDevice.class);
         if(battery != null)
-            battery.voltage = DoubleArgumentType.getDouble(ctx, "volts");
+            battery.voltage = volts;
+        var server = level.getServer();
+        server.tell(new net.minecraft.server.TickTask(server.getTickCount() + 2, () -> {
+            var later = DevicesSavedData.load(level).getDevice(p, CreativeBatteryDevice.class);
+            if(later != null)
+                later.voltage = volts;
+        }));
         var sd = InfrastructureSavedData.load(level);
         sd.connect(new InWorldNode(0, p), new InWorldNode(0, board), CEEWireTypes.COPPER.get());
         sd.connect(new InWorldNode(1, p), new InWorldNode(1, board), CEEWireTypes.COPPER.get());
@@ -208,6 +216,8 @@ public class BoardTestCommand {
             out.add("version=" + be.version() + "/" + (dev == null ? -1 : dev.schematicVersion()));
             out.add("terminals=" + be.terminals().size());
             out.add("interactables=" + be.interactables().size());
+            var st = be.syncStats;
+            out.add("sync schematic=" + st[0] + "x/" + st[1] + "B state=" + st[2] + "x/" + st[3] + "B");
             var nodes = ((BoardBlock) state.getBlock()).getNodePositions(level, pos, state);
             out.add("nodes=" + nodes);
             var tooltip = new ArrayList<Component>();
