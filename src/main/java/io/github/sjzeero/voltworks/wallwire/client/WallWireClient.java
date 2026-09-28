@@ -14,6 +14,7 @@ import com.george_vi.electroenergetics.foundation.nodes.NodeConnectionPoint;
 import com.george_vi.electroenergetics.simulation.WireType;
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.VoltworksClientConfig;
 import io.github.sjzeero.voltworks.VoltworksConfig;
 import io.github.sjzeero.voltworks.mixin.WireSpoolItemAccessor;
 import io.github.sjzeero.voltworks.wallwire.PlaceWallWirePayload;
@@ -61,6 +62,7 @@ public final class WallWireClient {
 
     public static Mode mode = Mode.AIR;
     public static KeyMapping toggleKey;
+    private static boolean modeLoaded;
 
     static @Nullable InWorldNode start;
     static final List<WallCell> points = new ArrayList<>();
@@ -138,10 +140,15 @@ public final class WallWireClient {
             reset();
             return;
         }
+        if(!modeLoaded && VoltworksClientConfig.SPEC.isLoaded()) {
+            mode = VoltworksClientConfig.wallMode() ? Mode.WALL : Mode.AIR;
+            modeLoaded = true;
+        }
         while(toggleKey != null && toggleKey.consumeClick()) {
             if(!holdingSpool(player))
                 continue;
             mode = mode == Mode.AIR ? Mode.WALL : Mode.AIR;
+            VoltworksClientConfig.setWallMode(mode == Mode.WALL);
             reset();
             player.displayClientMessage(Component.translatable(mode == Mode.WALL ? "voltworks.wire_mode.wall" : "voltworks.wire_mode.air")
                     .withStyle(ChatFormatting.GOLD), true);

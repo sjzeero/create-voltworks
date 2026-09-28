@@ -15,6 +15,8 @@ Holding any EE wire spool, press V (Voltworks category in controls, can be rebou
 
 In WALL mode the wire lies flat on block faces. Right-click a node to start, then right-click points on floors, walls or ceilings; the wire snaps to the 16x16 pixel grid of each face, runs in straight lines, turns corners and wraps around onto other faces and blocks. Right-click another node to finish. Sneak + right-click removes the last point (or cancels). The first and last points must be close to their nodes (`maxLead`).
 
+The wire is drawn as a small box on the pixel grid: 1x1 pixel for normal wires, 3x3 pixels for heavily insulated ones, with the wire's own texture. The ends run straight into the connectors. The chosen mode is remembered in `voltworks-client.toml` (`wallMode`).
+
 It is a normal EE connection: same wire type, resistance from the routed length, same current limit and burning, same drops. Breaking a block it lies on or one of its ends drops it, and an empty spool picks it up like an air wire. Routes are checked again on the server and saved with the world (`voltworks_wall_wires`). Limits are in the server config under `wallWires` (`maxLength`, `maxLead`, `maxPoints`); a route can never be longer than the wire type allows.
 
 ## Circuit board (work in progress, branch pg-boards-poc)
@@ -75,5 +77,6 @@ Test commands (near spawn, creative batteries wired to the board):
 - `/voltworks boardtest links <edge|header>` builds two linked boards with a supply and a resistor
 - `/voltworks boardtest many <count> <preset>`, `clearmany`, `perf reset|report` for load tests (100 boards cost about 0.5 ms per tick on the server thread and 0.3 to 0.4 ms on the sim thread)
 - `/voltworks boardtest attach <device pos> <battery pos> <volts>` puts a creative battery at the second position and wires it to any EE device, e.g. a board or the design table
+- `/voltworks wallwiretest <pos>` builds a small room with two battery and bulb circuits on wall wires (copper over a wall, heavily insulated along a ceiling)
 
 `./gradlew test` builds boards from schematics and checks them against values from Power Grid's own solver.

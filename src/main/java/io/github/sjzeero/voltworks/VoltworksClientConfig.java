@@ -7,6 +7,7 @@ public final class VoltworksClientConfig {
     public static final ModConfigSpec SPEC;
     public static final ModConfigSpec.BooleanValue HIGH_CONTRAST_TRACES;
     private static final ModConfigSpec.IntValue RED_TOP, GREEN_TOP, BLUE_TOP, ALPHA_TOP, ALPHA_TOP_BEHIND;
+    private static final ModConfigSpec.BooleanValue WALL_WIRE_MODE;
     private static final ModConfigSpec.IntValue RED_BOTTOM, GREEN_BOTTOM, BLUE_BOTTOM, ALPHA_BOTTOM, ALPHA_BOTTOM_BEHIND;
 
     static {
@@ -24,10 +25,25 @@ public final class VoltworksClientConfig {
         ALPHA_BOTTOM = b.comment("Amount of alpha in traces on the back").defineInRange("traceAlphaBottom", 255, 0, 255);
         ALPHA_BOTTOM_BEHIND = b.comment("Amount of alpha in traces on the back").defineInRange("traceAlphaBottomBehind", 128, 0, 255);
         b.pop();
+        b.push("wallWires");
+        WALL_WIRE_MODE = b.comment("Wire spools lay wires flat on block faces (WALL mode) instead of hanging them. Toggled in game with the wire mode key.")
+                .define("wallMode", false);
+        b.pop();
         SPEC = b.build();
     }
 
     private VoltworksClientConfig() {
+    }
+
+    public static boolean wallMode() {
+        return SPEC.isLoaded() && WALL_WIRE_MODE.get();
+    }
+
+    public static void setWallMode(boolean wall) {
+        if(!SPEC.isLoaded())
+            return;
+        WALL_WIRE_MODE.set(wall);
+        WALL_WIRE_MODE.save();
     }
 
     public static boolean highContrast() {

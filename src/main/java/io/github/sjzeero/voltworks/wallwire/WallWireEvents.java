@@ -17,6 +17,7 @@ public final class WallWireEvents {
         NeoForge.EVENT_BUS.addListener(WallWireEvents::login);
         NeoForge.EVENT_BUS.addListener(WallWireEvents::changedDimension);
         NeoForge.EVENT_BUS.addListener(WallWireEvents::respawn);
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.RegisterCommandsEvent e) -> WallWireTestCommand.register(e.getDispatcher()));
     }
 
     private static void levelTick(LevelTickEvent.Post event) {
