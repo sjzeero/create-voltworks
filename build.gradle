@@ -73,5 +73,5 @@ test {
 }
 
 jar {
-    from('LICENSE', 'NOTICE', 'LICENSE-APACHE-2.0')
+    from('LICENSE', 'NOTICE')
 }

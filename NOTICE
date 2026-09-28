@@ -1,9 +1,10 @@
-CEE: Voltworks
-Copyright (c) 2026 sjzeero
+CEE: Voltworks, Copyright 2026 sjzeero
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
 
 This product includes software derived from Create: Power Grid
 (https://github.com/patryk3211/PowerGrid), Copyright 2025-2026 patryk3211,
-licensed under the Apache License, Version 2.0 (see LICENSE-APACHE-2.0).
+licensed under the Apache License, Version 2.0 (see LICENSE).
 Files derived from Create: Power Grid keep their original license header
 and are marked as modified.
 
@@ -34,4 +35,4 @@ limitations under the License.
 
 This product bundles EJML (Efficient Java Matrix Library)
 (https://ejml.org), Copyright (c) 2009-2024 Peter Abeles,
-licensed under the Apache License, Version 2.0 (see LICENSE-APACHE-2.0).
+licensed under the Apache License, Version 2.0 (see LICENSE).

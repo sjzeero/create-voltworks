@@ -84,3 +84,7 @@ Test commands (near spawn, creative batteries wired to the board):
 - `/voltworks wallwiretest <pos>` builds a small room with two battery and bulb circuits on wall wires (copper over a wall, heavily insulated along a ceiling)
 
 `./gradlew test` builds boards from schematics and checks them against values from Power Grid's own solver.
+
+## License
+
+Apache License 2.0, see LICENSE. The board and circuit code ported from Create: Power Grid (Copyright patryk3211, Apache-2.0) keeps its original headers and is marked as modified, see NOTICE.
