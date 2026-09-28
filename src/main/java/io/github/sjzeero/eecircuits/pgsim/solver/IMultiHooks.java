@@ -3,7 +3,7 @@ package io.github.sjzeero.eecircuits.pgsim.solver;
 /**
  * Multi-tick hooks, called only when multi ticks are > 1
  *
- * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
  */
 public interface IMultiHooks {
     /**

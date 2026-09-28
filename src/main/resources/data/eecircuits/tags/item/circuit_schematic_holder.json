@@ -1,9 +1,0 @@
-{
-  "values": [
-    "eecircuits:circuit_board",
-    "eecircuits:incomplete_unetched_circuit",
-    "eecircuits:incomplete_circuit",
-    "eecircuits:circuit_schematic",
-    "eecircuits:unetched_circuit"
-  ]
-}

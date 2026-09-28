@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
  */
 package io.github.sjzeero.eecircuits.circuits.components;
 
@@ -119,7 +119,7 @@ public abstract class GaugeComponent extends OrientableComponent implements IRed
             tooltip.add(Component.literal("    ").append(Component.literal(line.toString())
                     .append(getUnit(component)).withStyle(getColor(Math.abs(value), maxValue))));
         } else {
-            tooltip.add(Component.literal("    ").append(Component.translatable("eecircuits.gui.invalid_equation").withStyle(ChatFormatting.RED)));
+            tooltip.add(Component.literal("    ").append(Component.translatable("voltworks.gui.invalid_equation").withStyle(ChatFormatting.RED)));
         }
         return true;
     }

@@ -15,7 +15,7 @@
       "item": "electroenergetics:copper_wire_spool"
     },
     "X": {
-      "item": "eecircuits:copper_circuit"
+      "item": "voltworks:copper_circuit"
     }
   },
   "pattern": [

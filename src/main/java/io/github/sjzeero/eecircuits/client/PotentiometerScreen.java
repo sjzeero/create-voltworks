@@ -21,7 +21,7 @@ public class PotentiometerScreen extends Screen {
     private int sent;
 
     public PotentiometerScreen(BlockPos pos, PlacedComponent placed) {
-        super(Component.translatable("eecircuits.gui.potentiometer.title"));
+        super(Component.translatable("voltworks.gui.potentiometer.title"));
         this.pos = pos;
         this.placed = placed;
         this.value = placed.get(PotentiometerComponent.VALUE);
@@ -37,7 +37,7 @@ public class PotentiometerScreen extends Screen {
 
             @Override
             protected void updateMessage() {
-                setMessage(Component.translatable("eecircuits.gui.potentiometer.value", (int) Math.round(this.value * 100)));
+                setMessage(Component.translatable("voltworks.gui.potentiometer.value", (int) Math.round(this.value * 100)));
             }
 
             @Override

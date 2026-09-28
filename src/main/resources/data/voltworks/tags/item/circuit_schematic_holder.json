@@ -1,0 +1,9 @@
+{
+  "values": [
+    "voltworks:circuit_board",
+    "voltworks:incomplete_unetched_circuit",
+    "voltworks:incomplete_circuit",
+    "voltworks:circuit_schematic",
+    "voltworks:unetched_circuit"
+  ]
+}

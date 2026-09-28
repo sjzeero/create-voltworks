@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
  */
 package io.github.sjzeero.eecircuits.board;
 
@@ -265,7 +265,7 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
         if(player.isCreative() && !player.isShiftKeyDown() && player.getMainHandItem().isEmpty() && player.getOffhandItem().isEmpty()) {
             if(player instanceof ServerPlayer sp) {
                 sp.openMenu(new SimpleMenuProvider((id, inv, p) -> p.isCreative() ? CircuitBoardEditMenu.create(id, inv, be) : null,
-                        Component.translatable("block.eecircuits.circuit_board")), be::sendToMenu);
+                        Component.translatable("block.voltworks.circuit_board")), be::sendToMenu);
             }
             return InteractionResult.sidedSuccess(level.isClientSide);
         }

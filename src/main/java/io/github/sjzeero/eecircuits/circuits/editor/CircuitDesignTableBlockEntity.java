@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
  */
 package io.github.sjzeero.eecircuits.circuits.editor;
 
@@ -84,11 +84,11 @@ public class CircuitDesignTableBlockEntity extends BlockEntity implements IMulti
 
     @Override
     public boolean addToGoggleTooltip(java.util.List<Component> tooltip, boolean isPlayerSneaking) {
-        tooltip.add(Component.literal("    ").append(Component.translatable("block.eecircuits.circuit_design_table")));
-        tooltip.add(Component.literal("    ").append(Component.translatable("eecircuits.goggles.table_power", String.format(java.util.Locale.ROOT, "%.1f", power), Math.round(CircuitDesignTableDevice.REQUIRED_POWER)).withStyle(net.minecraft.ChatFormatting.GRAY)));
+        tooltip.add(Component.literal("    ").append(Component.translatable("block.voltworks.circuit_design_table")));
+        tooltip.add(Component.literal("    ").append(Component.translatable("voltworks.goggles.table_power", String.format(java.util.Locale.ROOT, "%.1f", power), Math.round(CircuitDesignTableDevice.REQUIRED_POWER)).withStyle(net.minecraft.ChatFormatting.GRAY)));
         if(Float.isFinite(temperature)) {
             var style = temperature >= CircuitDesignTableDevice.OVERHEAT_TEMPERATURE - 50 ? net.minecraft.ChatFormatting.RED : net.minecraft.ChatFormatting.GRAY;
-            tooltip.add(Component.literal("    ").append(Component.translatable("eecircuits.goggles.table_temperature", String.format(java.util.Locale.ROOT, "%.0f", temperature), Math.round(CircuitDesignTableDevice.OVERHEAT_TEMPERATURE)).withStyle(style)));
+            tooltip.add(Component.literal("    ").append(Component.translatable("voltworks.goggles.table_temperature", String.format(java.util.Locale.ROOT, "%.0f", temperature), Math.round(CircuitDesignTableDevice.OVERHEAT_TEMPERATURE)).withStyle(style)));
         }
         return true;
     }
@@ -191,14 +191,14 @@ public class CircuitDesignTableBlockEntity extends BlockEntity implements IMulti
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("block.eecircuits.circuit_design_table");
+        return Component.translatable("block.voltworks.circuit_design_table");
     }
 
     @Override
     @NotNull
     public String getSchematicName() {
         var name = schematic.getName();
-        return name != null ? name : Component.translatable("item.eecircuits.circuit_schematic.empty").getString();
+        return name != null ? name : Component.translatable("item.voltworks.circuit_schematic.empty").getString();
     }
 
     @Override

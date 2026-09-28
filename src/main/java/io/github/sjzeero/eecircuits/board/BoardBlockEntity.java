@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
  */
 package io.github.sjzeero.eecircuits.board;
 
@@ -359,12 +359,12 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        tooltip.add(Component.literal("    ").append(Component.translatable("block.eecircuits.circuit_board")));
+        tooltip.add(Component.literal("    ").append(Component.translatable("block.voltworks.circuit_board")));
         if(schematic.getName() != null)
             tooltip.add(Component.literal("    ").append(Component.literal(schematic.getName()).withStyle(ChatFormatting.GRAY)));
         if(burnt > 0) {
-            tooltip.add(Component.literal("    ").append(Component.translatable("eecircuits.goggles.burnt", burnt).withStyle(ChatFormatting.RED)));
-            tooltip.add(Component.literal("    ").append(Component.translatable("eecircuits.gui.circuit_board.damage_body").withStyle(ChatFormatting.GRAY)));
+            tooltip.add(Component.literal("    ").append(Component.translatable("voltworks.goggles.burnt", burnt).withStyle(ChatFormatting.RED)));
+            tooltip.add(Component.literal("    ").append(Component.translatable("voltworks.gui.circuit_board.damage_body").withStyle(ChatFormatting.GRAY)));
         }
         var hovered = hoveredComponent();
         if(hovered != null) {
@@ -377,7 +377,7 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
                 if(Float.isFinite(t))
                     line.append(Component.literal(String.format(java.util.Locale.ROOT, " %.1f \u00b0C", t)).withStyle(ChatFormatting.DARK_GRAY));
                 if(hovered.destroyed)
-                    line.append(Component.literal(" ").append(Component.translatable("eecircuits.goggles.part_burnt")).withStyle(ChatFormatting.RED));
+                    line.append(Component.literal(" ").append(Component.translatable("voltworks.goggles.part_burnt")).withStyle(ChatFormatting.RED));
                 tooltip.add(line);
             }
         }
@@ -386,7 +386,7 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
             for(var t : temperatures)
                 max = Math.max(max, t);
             if(Float.isFinite(max))
-                tooltip.add(Component.literal("    ").append(Component.translatable("eecircuits.goggles.hottest", String.format("%.1f", max)).withStyle(ChatFormatting.GRAY)));
+                tooltip.add(Component.literal("    ").append(Component.translatable("voltworks.goggles.hottest", String.format("%.1f", max)).withStyle(ChatFormatting.GRAY)));
         }
         return true;
     }

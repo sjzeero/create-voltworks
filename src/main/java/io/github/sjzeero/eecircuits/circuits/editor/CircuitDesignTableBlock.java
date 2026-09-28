@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
  */
 package io.github.sjzeero.eecircuits.circuits.editor;
 
@@ -126,7 +126,7 @@ public class CircuitDesignTableBlock extends SimpleElectricalDeviceBlock<Circuit
 
     @Override
     public MutableComponent getNodeLabel(Level level, BlockPos pos, BlockState state, int id) {
-        return Component.translatable("eecircuits.terminal.connector");
+        return Component.translatable("voltworks.terminal.connector");
     }
 
     @Override
@@ -151,8 +151,8 @@ public class CircuitDesignTableBlock extends SimpleElectricalDeviceBlock<Circuit
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         double R = CircuitDesignTableDevice.RESISTANCE;
         float P = CircuitDesignTableDevice.REQUIRED_POWER;
-        tooltip.add(Component.translatable("eecircuits.tooltip.rated_voltage", Math.round(Math.sqrt(P * R))).withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("eecircuits.tooltip.rated_power", Math.round(P)).withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.translatable("voltworks.tooltip.rated_voltage", Math.round(Math.sqrt(P * R))).withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.translatable("voltworks.tooltip.rated_power", Math.round(P)).withStyle(ChatFormatting.GRAY));
     }
 
     @Override

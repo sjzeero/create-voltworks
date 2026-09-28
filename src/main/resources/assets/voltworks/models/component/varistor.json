@@ -1,0 +1,58 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"0": "voltworks:block/component/varistor",
+		"particle": "voltworks:block/component/varistor"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 1],
+			"to": [1, 2, 2],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 1]},
+			"faces": {
+				"north": {"uv": [15, 0, 16, 2], "texture": "#0"},
+				"east": {"uv": [15, 0, 16, 2], "texture": "#0"},
+				"south": {"uv": [15, 0, 16, 2], "texture": "#0"},
+				"west": {"uv": [15, 0, 16, 2], "texture": "#0"},
+				"up": {"uv": [14, 0, 15, 1], "texture": "#0"},
+				"down": {"uv": [13, 0, 14, 1], "texture": "#0"}
+			}
+		},
+		{
+			"from": [3, 0, 2],
+			"to": [4, 2, 3],
+			"rotation": {"angle": 0, "axis": "y", "origin": [3, 0, 2]},
+			"faces": {
+				"north": {"uv": [15, 0, 16, 2], "texture": "#0"},
+				"east": {"uv": [15, 0, 16, 2], "texture": "#0"},
+				"south": {"uv": [15, 0, 16, 2], "texture": "#0"},
+				"west": {"uv": [15, 0, 16, 2], "texture": "#0"},
+				"up": {"uv": [14, 0, 15, 1], "texture": "#0"},
+				"down": {"uv": [13, 0, 14, 1], "texture": "#0"}
+			}
+		},
+		{
+			"from": [0, 1, 1.5],
+			"to": [4, 5, 2.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [2, 1, 2]},
+			"faces": {
+				"north": {"uv": [0, 0, 4, 4], "texture": "#0"},
+				"east": {"uv": [1, 0, 2, 4], "texture": "#0"},
+				"south": {"uv": [0, 0, 4, 4], "texture": "#0"},
+				"west": {"uv": [0, 0, 1, 4], "texture": "#0"},
+				"up": {"uv": [0, 0, 4, 1], "texture": "#0"},
+				"down": {"uv": [0, 1, 4, 2], "texture": "#0"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "group",
+			"origin": [8, 8, 8],
+			"scope": 0,
+			"color": 0,
+			"children": [0, 1, 2]
+		}
+	]
+}

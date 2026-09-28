@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
  */
 package io.github.sjzeero.eecircuits.client;
 
@@ -26,7 +26,7 @@ import io.github.sjzeero.eecircuits.EECircuits;
  * @see com.simibubi.create.AllKeys
  */
 public enum ModdedKeys {
-    CATEGORY_CIRCUIT_EDITOR("key.categories.eecircuits.circuit_editor"),
+    CATEGORY_CIRCUIT_EDITOR("key.categories.voltworks.circuit_editor"),
 
     ROTATE_COMPONENT("rotate_component", GLFW.GLFW_KEY_R),
     PLACE_TRACE("place_trace", GLFW.GLFW_KEY_T),

@@ -1,0 +1,74 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "tag": "c:plates/iron"
+  },
+  "results": [
+    {
+      "chance": 100.0,
+      "id": "voltworks:bjt_npn"
+    },
+    {
+      "chance": 10.0,
+      "id": "voltworks:bjt_pnp"
+    },
+    {
+      "chance": 3.0,
+      "id": "create:iron_sheet"
+    },
+    {
+      "chance": 3.0,
+      "id": "create:electron_tube"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_bjt_npn"
+        },
+        {
+          "item": "create:polished_rose_quartz"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_bjt_npn"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_bjt_npn"
+        },
+        {
+          "tag": "c:wires/electrum"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_bjt_npn"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_bjt_npn"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_bjt_npn"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "voltworks:incomplete_bjt_npn"
+  }
+}

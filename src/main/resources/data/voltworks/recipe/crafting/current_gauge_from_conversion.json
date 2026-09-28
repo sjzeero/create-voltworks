@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "voltworks:voltage_gauge"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "voltworks:current_gauge"
+  }
+}

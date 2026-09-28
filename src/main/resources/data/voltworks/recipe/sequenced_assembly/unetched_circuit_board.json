@@ -1,0 +1,79 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "voltworks:circuit_schematic"
+  },
+  "loops": 2,
+  "results": [
+    {
+      "chance": 100.0,
+      "id": "voltworks:unetched_circuit"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_unetched_circuit"
+        },
+        {
+          "item": "voltworks:empty_circuit"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_unetched_circuit"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_unetched_circuit"
+        },
+        {
+          "item": "create:dough"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_unetched_circuit"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_unetched_circuit"
+        },
+        {
+          "tag": "c:plates/copper"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_unetched_circuit"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_unetched_circuit"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_unetched_circuit"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "voltworks:incomplete_unetched_circuit"
+  }
+}

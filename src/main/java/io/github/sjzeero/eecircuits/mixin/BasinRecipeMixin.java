@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
  */
 package io.github.sjzeero.eecircuits.mixin;
 
@@ -37,20 +37,20 @@ import java.util.List;
 public class BasinRecipeMixin {
     // Items are already taken out of the basin when outputs are accepted, so remember what was extracted.
     @Unique
-    private static final ThreadLocal<List<ItemStack>> eecircuits$extracted = ThreadLocal.withInitial(ArrayList::new);
+    private static final ThreadLocal<List<ItemStack>> voltworks$extracted = ThreadLocal.withInitial(ArrayList::new);
 
     @Inject(method = "apply(Lcom/simibubi/create/content/processing/basin/BasinBlockEntity;Lnet/minecraft/world/item/crafting/Recipe;Z)Z", at = @At("HEAD"))
-    private static void eecircuits$applyStart(BasinBlockEntity basin, Recipe<?> recipe, boolean test, CallbackInfoReturnable<Boolean> cir) {
-        eecircuits$extracted.get().clear();
+    private static void voltworks$applyStart(BasinBlockEntity basin, Recipe<?> recipe, boolean test, CallbackInfoReturnable<Boolean> cir) {
+        voltworks$extracted.get().clear();
     }
 
     @ModifyExpressionValue(
             method = "apply(Lcom/simibubi/create/content/processing/basin/BasinBlockEntity;Lnet/minecraft/world/item/crafting/Recipe;Z)Z",
             at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/items/IItemHandler;extractItem(IIZ)Lnet/minecraft/world/item/ItemStack;")
     )
-    private static ItemStack eecircuits$recordExtracted(ItemStack extracted) {
+    private static ItemStack voltworks$recordExtracted(ItemStack extracted) {
         if(!extracted.isEmpty())
-            eecircuits$extracted.get().add(extracted.copy());
+            voltworks$extracted.get().add(extracted.copy());
         return extracted;
     }
 
@@ -61,7 +61,7 @@ public class BasinRecipeMixin {
                     target = "Lcom/simibubi/create/content/processing/basin/BasinBlockEntity;acceptOutputs(Ljava/util/List;Ljava/util/List;Z)Z"
             )
     )
-    private static void eecircuits$applyTransferNbt(BasinBlockEntity basin, Recipe<?> recipe, boolean test, CallbackInfoReturnable<Boolean> cir, @Local(ordinal = 0) List<ItemStack> outputs) {
-        RecipeNbtTransfer.transfer(eecircuits$extracted.get(), outputs);
+    private static void voltworks$applyTransferNbt(BasinBlockEntity basin, Recipe<?> recipe, boolean test, CallbackInfoReturnable<Boolean> cir, @Local(ordinal = 0) List<ItemStack> outputs) {
+        RecipeNbtTransfer.transfer(voltworks$extracted.get(), outputs);
     }
 }

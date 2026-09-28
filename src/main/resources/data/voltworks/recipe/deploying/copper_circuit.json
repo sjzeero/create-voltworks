@@ -1,0 +1,16 @@
+{
+  "type": "create:deploying",
+  "ingredients": [
+    {
+      "item": "voltworks:blank_circuit"
+    },
+    {
+      "tag": "c:wires/copper"
+    }
+  ],
+  "results": [
+    {
+      "id": "voltworks:copper_circuit"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,powered=false": {
+      "model": "voltworks:block/circuit_design_table"
+    },
+    "facing=north,powered=true": {
+      "model": "voltworks:block/circuit_design_table"
+    },
+    "facing=east,powered=false": {
+      "model": "voltworks:block/circuit_design_table",
+      "y": 90
+    },
+    "facing=east,powered=true": {
+      "model": "voltworks:block/circuit_design_table",
+      "y": 90
+    },
+    "facing=south,powered=false": {
+      "model": "voltworks:block/circuit_design_table",
+      "y": 180
+    },
+    "facing=south,powered=true": {
+      "model": "voltworks:block/circuit_design_table",
+      "y": 180
+    },
+    "facing=west,powered=false": {
+      "model": "voltworks:block/circuit_design_table",
+      "y": 270
+    },
+    "facing=west,powered=true": {
+      "model": "voltworks:block/circuit_design_table",
+      "y": 270
+    }
+  }
+}

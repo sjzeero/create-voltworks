@@ -1,0 +1,19 @@
+{
+  "type": "create:mixing",
+  "heat_requirement": "heated",
+  "ingredients": [
+    {
+      "item": "voltworks:unetched_circuit"
+    },
+    {
+      "type": "neoforge:single",
+      "amount": 250,
+      "fluid": "voltworks:acid"
+    }
+  ],
+  "results": [
+    {
+      "id": "voltworks:incomplete_circuit"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "values": [
-    "eecircuits:copper_circuit",
-    "eecircuits:golden_circuit"
+    "voltworks:copper_circuit",
+    "voltworks:golden_circuit"
   ]
 }

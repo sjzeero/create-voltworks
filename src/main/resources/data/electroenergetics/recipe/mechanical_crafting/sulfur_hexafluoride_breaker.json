@@ -16,7 +16,7 @@
       "item": "electroenergetics:transformer_oil_bucket"
     },
     "X": {
-      "item": "eecircuits:golden_circuit"
+      "item": "voltworks:golden_circuit"
     },
     "s": {
       "tag": "c:plates/iron"

@@ -1,7 +1,7 @@
 from pathlib import Path
 from PIL import Image
 
-OUT = Path(__file__).resolve().parent.parent / "src/main/resources/assets/eecircuits/textures/item"
+OUT = Path(__file__).resolve().parent.parent / "src/main/resources/assets/voltworks/textures/item"
 
 BLANK = {
     "o": (58, 56, 50), "L": (196, 192, 172), "b": (164, 160, 142), "s": (122, 118, 104),

@@ -34,7 +34,7 @@ public class BoardTestCommand {
     private static TestBoards.Preset current;
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("eecircuits").requires(s -> s.hasPermission(2))
+        dispatcher.register(Commands.literal("voltworks").requires(s -> s.hasPermission(2))
                 .then(Commands.literal("boardtest")
                         .then(Commands.literal("setup").then(Commands.argument("preset", StringArgumentType.word())
                                 .executes(ctx -> setup(ctx, StringArgumentType.getString(ctx, "preset")))))

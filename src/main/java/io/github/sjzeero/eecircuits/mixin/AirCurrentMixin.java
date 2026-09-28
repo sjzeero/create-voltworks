@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
  */
 package io.github.sjzeero.eecircuits.mixin;
 
@@ -42,16 +42,16 @@ public abstract class AirCurrentMixin {
     @Shadow protected abstract int getLimit();
 
     @Unique
-    private final List<BoardDevice> eecircuits$affectedBoards = new ArrayList<>();
+    private final List<BoardDevice> voltworks$affectedBoards = new ArrayList<>();
 
     @Inject(method = "rebuild()V", at = @At("HEAD"))
-    private void eecircuits$rebuildHead(CallbackInfo ci) {
-        eecircuits$affectedBoards.forEach(board -> board.removeCoolingMultiplier((AirCurrent) (Object) this));
-        eecircuits$affectedBoards.clear();
+    private void voltworks$rebuildHead(CallbackInfo ci) {
+        voltworks$affectedBoards.forEach(board -> board.removeCoolingMultiplier((AirCurrent) (Object) this));
+        voltworks$affectedBoards.clear();
     }
 
     @Inject(method = "rebuild()V", at = @At("TAIL"))
-    private void eecircuits$rebuildTail(CallbackInfo ci) {
+    private void voltworks$rebuildTail(CallbackInfo ci) {
         if(!(source.getAirCurrentWorld() instanceof ServerLevel world) || direction == null)
             return;
         var start = source.getAirCurrentPos();
@@ -66,7 +66,7 @@ public abstract class AirCurrentMixin {
             var board = devices.getDevice(pos, BoardDevice.class);
             if(board != null) {
                 board.addCoolingMultiplier((AirCurrent) (Object) this, factor * initialStrength);
-                eecircuits$affectedBoards.add(board);
+                voltworks$affectedBoards.add(board);
             }
         }
     }

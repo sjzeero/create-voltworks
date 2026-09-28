@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 
 @Mod(EECircuits.MOD_ID)
 public class EECircuits {
-    public static final String MOD_ID = "eecircuits";
+    public static final String MOD_ID = "voltworks";
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MOD_ID);
@@ -76,7 +76,7 @@ public class EECircuits {
     public static final DeferredItem<CircuitSchematicItem> CIRCUIT_SCHEMATIC = ITEMS.registerItem("circuit_schematic", CircuitSchematicItem::new);
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = TABS.register("main", () -> CreativeModeTab.builder()
-            .title(Component.translatable("itemGroup.eecircuits"))
+            .title(Component.translatable("itemGroup.voltworks"))
             .icon(() -> COPPER_CIRCUIT.get().getDefaultInstance())
             .displayItems((params, out) -> {
                 out.accept(BLANK_CIRCUIT);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
  */
 package io.github.sjzeero.eecircuits.mixin;
 
@@ -48,7 +48,7 @@ public abstract class ArmInteractionPointMixin {
     @Shadow public abstract BlockPos getPos();
 
     @Unique
-    private ItemStack eecircuits$handleDepot(ArmBlockEntity armBE, ItemStack componentStack, boolean simulate) {
+    private ItemStack voltworks$handleDepot(ArmBlockEntity armBE, ItemStack componentStack, boolean simulate) {
         var handler = getHandler(armBE);
         if (handler == null)
             return null;
@@ -80,7 +80,7 @@ public abstract class ArmInteractionPointMixin {
     }
 
     @Unique
-    private ItemStack eecircuits$handleBelt(ItemStack stack, boolean simulate) {
+    private ItemStack voltworks$handleBelt(ItemStack stack, boolean simulate) {
         var beltBE = BeltHelper.getSegmentBE(getLevel(), getPos());
         if (beltBE == null)
             return null;
@@ -118,12 +118,12 @@ public abstract class ArmInteractionPointMixin {
             at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/items/ItemHandlerHelper;insertItem(Lnet/neoforged/neoforge/items/IItemHandler;Lnet/minecraft/world/item/ItemStack;Z)Lnet/minecraft/world/item/ItemStack;"),
             cancellable = true
     )
-    private void eecircuits$insertAssembleCircuit(ArmBlockEntity armBE, ItemStack stack, boolean simulate, CallbackInfoReturnable<ItemStack> cir) {
+    private void voltworks$insertAssembleCircuit(ArmBlockEntity armBE, ItemStack stack, boolean simulate, CallbackInfoReturnable<ItemStack> cir) {
         ItemStack remainder = null;
         if(((Object) this) instanceof AllArmInteractionPointTypes.BeltPoint) {
-            remainder = eecircuits$handleBelt(stack, simulate);
+            remainder = voltworks$handleBelt(stack, simulate);
         } else if(((Object) this) instanceof AllArmInteractionPointTypes.DepotPoint) {
-            remainder = eecircuits$handleDepot(armBE, stack, simulate);
+            remainder = voltworks$handleDepot(armBE, stack, simulate);
         }
         if(remainder != null)
             cir.setReturnValue(remainder);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
  */
 package io.github.sjzeero.eecircuits.circuits.components;
 
@@ -57,7 +57,7 @@ public class ThyratronComponent extends MirrorableComponent {
     private static final int ANODE_NODE = 2;
     private static final List<TerminalBoundingBox> ANODE_TERMINAL = List.of(
             new TerminalBoundingBox(
-                    net.minecraft.network.chat.Component.translatable("component.eecircuits.thyratron.2"),
+                    net.minecraft.network.chat.Component.translatable("component.voltworks.thyratron.2"),
                     0.5f, 10.5f, 0.5f, 2.5f, 12.5f, 2.5f
             ).withColor(TerminalBoundingBox.RED)
     );

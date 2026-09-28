@@ -12,7 +12,7 @@
       "item": "electroenergetics:cut_off_switch"
     },
     "X": {
-      "item": "eecircuits:copper_circuit"
+      "item": "voltworks:copper_circuit"
     }
   },
   "pattern": [

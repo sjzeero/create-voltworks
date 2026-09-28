@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "voltworks:inductor"
+    },
+    {
+      "tag": "c:plates/iron"
+    },
+    {
+      "item": "create:andesite_alloy"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "voltworks:relay"
+  }
+}

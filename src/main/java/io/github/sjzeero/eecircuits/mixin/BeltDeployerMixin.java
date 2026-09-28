@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
  */
 package io.github.sjzeero.eecircuits.mixin;
 
@@ -39,7 +39,7 @@ public class BeltDeployerMixin {
     @Inject(method = "activate",
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/kinetics/deployer/DeployerBlockEntity;award(Lcom/simibubi/create/foundation/advancement/CreateAdvancement;)V"))
-    private static void eecircuits$activateMixin(TransportedItemStack transported, TransportedItemStackHandlerBehaviour handler, DeployerBlockEntity blockEntity, Recipe<?> recipe, CallbackInfo ci, @Local List<TransportedItemStack> collect) {
+    private static void voltworks$activateMixin(TransportedItemStack transported, TransportedItemStackHandlerBehaviour handler, DeployerBlockEntity blockEntity, Recipe<?> recipe, CallbackInfo ci, @Local List<TransportedItemStack> collect) {
         var player = blockEntity.getPlayer();
         var stack = player == null ? ItemStack.EMPTY : player.getMainHandItem();
         if(stack.is(CircuitTags.CIRCUIT_SCHEMATIC_HOLDER)) {

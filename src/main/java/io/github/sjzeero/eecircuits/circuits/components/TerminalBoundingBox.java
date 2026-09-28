@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
  */
 package io.github.sjzeero.eecircuits.circuits.components;
 
@@ -21,7 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
 
 public class TerminalBoundingBox {
-    public static final Component CONNECTOR = Component.translatable("eecircuits.terminal.connector");
+    public static final Component CONNECTOR = Component.translatable("voltworks.terminal.connector");
     public static final int GRAY = 0x808080;
     public static final int RED = 0xE03030;
 

@@ -37,7 +37,7 @@ public class CircuitItems {
     public static final DeferredItem<SequencedAssemblyItem> INCOMPLETE_BJT_PNP = EECircuits.ITEMS.registerItem("incomplete_bjt_pnp", SequencedAssemblyItem::new);
 
     public static final DeferredHolder<FluidType, AcidFluidType> ACID_TYPE = FLUID_TYPES.register("acid", () -> new AcidFluidType(FluidType.Properties.create()
-            .descriptionId("fluid.eecircuits.acid")
+            .descriptionId("fluid.voltworks.acid")
             .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
             .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)));
     public static final DeferredHolder<Fluid, BaseFlowingFluid.Source> ACID = FLUIDS.register("acid", () -> new BaseFlowingFluid.Source(acidProperties()));

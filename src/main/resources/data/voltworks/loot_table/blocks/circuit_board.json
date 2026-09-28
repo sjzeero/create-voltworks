@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:copy_custom_data",
+              "source": "block_entity",
+              "ops": [
+                {
+                  "op": "replace",
+                  "source": "Board.Schematic",
+                  "target": "Schematic"
+                }
+              ]
+            }
+          ],
+          "name": "voltworks:circuit_board"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ]
+}

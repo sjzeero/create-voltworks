@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Modified by sjzeero: ported from Create: Power Grid to EE Circuits.
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
  */
 package io.github.sjzeero.eecircuits.circuits.schematic;
 
@@ -52,7 +52,7 @@ public class CircuitSchematicItem extends Item {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         var data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound("Schematic");
         if(data.contains("Components"))
-            tooltipComponents.add(Component.translatable("eecircuits.circuit_board.tooltip.parts", data.getList("Components", 10).size())
+            tooltipComponents.add(Component.translatable("voltworks.circuit_board.tooltip.parts", data.getList("Components", 10).size())
                     .withStyle(ChatFormatting.GRAY));
         if(tooltipFlag.isCreative()) {
             tooltipComponents.add(Component.translatable(getDescriptionId() + ".tooltip.creative")

@@ -1,0 +1,32 @@
+{
+  "values": [
+    "voltworks:potentiometer",
+    "voltworks:pentode",
+    "voltworks:current_gauge",
+    "voltworks:barretter_tube",
+    "voltworks:inductor",
+    "voltworks:display_module",
+    "voltworks:bjt_npn",
+    "voltworks:bjt_pnp",
+    "create:copper_nugget",
+    "voltworks:triode",
+    "voltworks:switch",
+    "voltworks:button",
+    "voltworks:voltage_gauge",
+    "voltworks:relay_dpdt",
+    "voltworks:light_bulb",
+    "voltworks:resistor",
+    "voltworks:neon_bulb",
+    "voltworks:relay",
+    "voltworks:vfet",
+    "minecraft:paper",
+    "voltworks:varistor",
+    "voltworks:capacitor",
+    "voltworks:fuse_holder",
+    "voltworks:connector",
+    "voltworks:redstone_relay",
+    "voltworks:thyratron",
+    "voltworks:regulator_tube",
+    "voltworks:diode"
+  ]
+}

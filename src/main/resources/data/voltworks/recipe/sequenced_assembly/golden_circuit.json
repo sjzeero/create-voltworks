@@ -1,0 +1,62 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "voltworks:copper_circuit"
+  },
+  "loops": 1,
+  "results": [
+    {
+      "id": "voltworks:golden_circuit"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_golden_circuit"
+        },
+        {
+          "tag": "c:plates/gold"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_golden_circuit"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_golden_circuit"
+        },
+        {
+          "item": "electroenergetics:insulated_wire"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_golden_circuit"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_golden_circuit"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_golden_circuit"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "voltworks:incomplete_golden_circuit"
+  }
+}
