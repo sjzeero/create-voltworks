@@ -29,6 +29,10 @@ Schematics are drawn on the circuit design table, the same table and editor as i
 
 The schematic lives in the block's `Board.Schematic` data and is kept on the dropped item. Clients get the schematic only when it changes and small state updates (switch, relay and fuse states, bulb brightness) otherwise. In world, switches, buttons, relays and potentiometers can be clicked (sneak lowers a potentiometer, an iron nugget resets a blown fuse), bulbs light the block, gauges show readings on goggles and output redstone at the board edge. Sneak-click in creative repairs burnt parts.
 
+### Board colours
+
+Boards come in green, white, black, orange, red, blue, yellow and purple. Right-click a placed board with one of those dyes (not on a clickable part) to recolour it, or craft a board item with a dye. The colour is a block state (`color`), is kept on the dropped item and on pick-block, and does not change the schematic. Other dyes do nothing.
+
 ### Boards next to each other
 
 Vias with edge connections join the matching via on the board beside them (same row, mirrored column), vias with vertical passthrough join the via straight above or below on a stacked board, like Power Grid's headers. Linked vias are one node, so current flows from board to board.

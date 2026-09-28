@@ -7,15 +7,14 @@ licensed under the Apache License, Version 2.0 (see LICENSE-APACHE-2.0).
 Files derived from Create: Power Grid keep their original license header
 and are marked as modified.
 
-The circuit board and board component textures, models and language strings
-under assets/voltworks (models/component, textures/block/component,
-textures/block/circuit_board*, the component item textures, the circuit
-design table model and textures, the gui textures under textures/gui, the acid
-fluid and bucket textures, the empty, unetched and incomplete circuit and
-incomplete transistor item textures, and the recipes under data/voltworks/recipe
-that follow Power Grid's recipes) are taken
-from Create: Power Grid under the same license, with resource locations
-changed to the voltworks namespace.
+The board component models under assets/voltworks/models/component (except
+the transistor, resistor and capacitor models), the circuit design table model,
+the language strings and the recipes under data/voltworks/recipe that follow
+Power Grid's recipes are taken from Create: Power Grid under the same license,
+with resource locations changed to the voltworks namespace.
+
+All textures under assets/voltworks/textures are original work drawn for
+Create: Voltworks.
 
 Create: Power Grid NOTICE:
 
