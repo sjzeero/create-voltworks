@@ -1,0 +1,63 @@
+/*
+ * Copyright 2025 patryk3211
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
+ */
+package io.github.sjzeero.voltworks.client;
+
+import net.minecraft.client.Minecraft;
+import io.github.sjzeero.voltworks.circuits.components.ComponentRegistry;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
+
+import java.util.HashSet;
+import java.util.Set;
+
+public class ComponentModels {
+    public static ModelResourceLocation modelId(ResourceLocation componentId) {
+        return new ModelResourceLocation(ResourceLocation.fromNamespaceAndPath(componentId.getNamespace(), "component/" + componentId.getPath()), "standalone");
+    }
+
+    public static ResourceLocation rawModelId(ResourceLocation componentId) {
+        return ResourceLocation.fromNamespaceAndPath(componentId.getNamespace(), "component/" + componentId.getPath());
+    }
+
+    public static Set<ModelResourceLocation> collectIds() {
+        var ids = new HashSet<ModelResourceLocation>();
+        for(var component : ComponentRegistry.entries()) {
+            for(var id : component.requestedModels()) {
+                ids.add(modelId(id));
+            }
+        }
+        return ids;
+    }
+
+    public static Set<ResourceLocation> collectRawIds() {
+        var ids = new HashSet<ResourceLocation>();
+        for(var component : ComponentRegistry.entries()) {
+            for(var id : component.requestedModels()) {
+                ids.add(rawModelId(id));
+            }
+        }
+        return ids;
+    }
+
+    public static BakedModel getModel(PlacedComponent placed) {
+        var manager = Minecraft.getInstance().getModelManager();
+        return manager.getModel(modelId(placed.component.getModelId(placed)));
+    }
+}

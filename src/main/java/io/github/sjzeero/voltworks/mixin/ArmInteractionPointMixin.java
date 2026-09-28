@@ -1,0 +1,131 @@
+/*
+ * Copyright 2025 patryk3211
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
+ */
+package io.github.sjzeero.voltworks.mixin;
+
+import com.simibubi.create.content.kinetics.belt.BeltHelper;
+import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour;
+import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
+import com.simibubi.create.content.kinetics.mechanicalArm.AllArmInteractionPointTypes;
+import com.simibubi.create.content.kinetics.mechanicalArm.ArmBlockEntity;
+import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPoint;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.items.IItemHandler;
+import org.apache.commons.lang3.mutable.MutableBoolean;
+import io.github.sjzeero.voltworks.circuits.CircuitItems;
+import io.github.sjzeero.voltworks.circuits.circuitboard.IncompleteCircuitItem;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.List;
+
+@Mixin(value = ArmInteractionPoint.class, remap = false)
+public abstract class ArmInteractionPointMixin {
+    @Shadow protected abstract IItemHandler getHandler(ArmBlockEntity armBlockEntity);
+
+    @Shadow public abstract Level getLevel();
+
+    @Shadow public abstract BlockPos getPos();
+
+    @Unique
+    private ItemStack voltworks$handleDepot(ArmBlockEntity armBE, ItemStack componentStack, boolean simulate) {
+        var handler = getHandler(armBE);
+        if (handler == null)
+            return null;
+        // Try to insert into a circuit
+        for(int i = 0; i < handler.getSlots(); ++i) {
+            var circuitStack = handler.getStackInSlot(i);
+            if(circuitStack.isEmpty())
+                continue;
+            if(circuitStack.is(CircuitItems.INCOMPLETE_CIRCUIT.get())) {
+                var newCircuit = IncompleteCircuitItem.insert(getLevel(), circuitStack, componentStack);
+                if(newCircuit != null) {
+                    if(!simulate) {
+                        var extracted = handler.extractItem(i, 1, false);
+                        if(handler.insertItem(i, newCircuit, true).isEmpty()) {
+                            // Commit
+                            handler.insertItem(i, newCircuit, false);
+                        } else {
+                            // Abort
+                            handler.insertItem(i, extracted, false);
+                            return componentStack;
+                        }
+                    }
+                    return componentStack.copyWithCount(componentStack.getCount() - 1);
+                }
+                return componentStack;
+            }
+        }
+        return null;
+    }
+
+    @Unique
+    private ItemStack voltworks$handleBelt(ItemStack stack, boolean simulate) {
+        var beltBE = BeltHelper.getSegmentBE(getLevel(), getPos());
+        if (beltBE == null)
+            return null;
+        var transport = beltBE.getBehaviour(TransportedItemStackHandlerBehaviour.TYPE);
+        if (transport == null)
+            return null;
+        var found = new MutableBoolean(false);
+        var inserted = new MutableBoolean(false);
+        transport.handleCenteredProcessingOnAllItems(0.05f, tis -> {
+            if(found.isFalse() && tis.stack.is(CircuitItems.INCOMPLETE_CIRCUIT.get())) {
+                found.setTrue();
+                var newCircuit = IncompleteCircuitItem.insert(getLevel(), tis.stack, stack);
+                if(newCircuit != null) {
+                    inserted.setTrue();
+                    if(!simulate) {
+                        var result = new TransportedItemStack(newCircuit);
+                        result.lockedExternally = newCircuit.is(CircuitItems.INCOMPLETE_CIRCUIT.get());
+                        transport.handleProcessingOnItem(tis,
+                                TransportedItemStackHandlerBehaviour.TransportedResult.convertToAndLeaveHeld(List.of(), result)
+                        );
+                    }
+                }
+            }
+            return TransportedItemStackHandlerBehaviour.TransportedResult.doNothing();
+        });
+        if(found.isFalse())
+            return null;
+        if(inserted.isFalse())
+            return stack;
+        return stack.copyWithCount(stack.getCount() - 1);
+    }
+
+    @Inject(
+            method = "insert",
+            at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/items/ItemHandlerHelper;insertItem(Lnet/neoforged/neoforge/items/IItemHandler;Lnet/minecraft/world/item/ItemStack;Z)Lnet/minecraft/world/item/ItemStack;"),
+            cancellable = true
+    )
+    private void voltworks$insertAssembleCircuit(ArmBlockEntity armBE, ItemStack stack, boolean simulate, CallbackInfoReturnable<ItemStack> cir) {
+        ItemStack remainder = null;
+        if(((Object) this) instanceof AllArmInteractionPointTypes.BeltPoint) {
+            remainder = voltworks$handleBelt(stack, simulate);
+        } else if(((Object) this) instanceof AllArmInteractionPointTypes.DepotPoint) {
+            remainder = voltworks$handleDepot(armBE, stack, simulate);
+        }
+        if(remainder != null)
+            cir.setReturnValue(remainder);
+    }
+}
