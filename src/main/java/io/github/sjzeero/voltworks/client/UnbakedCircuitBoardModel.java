@@ -23,6 +23,8 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.client.resources.model.UnbakedModel;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
 import net.neoforged.neoforge.client.model.geometry.IUnbakedGeometry;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +36,12 @@ import java.util.Objects;
 import java.util.function.Function;
 
 public class UnbakedCircuitBoardModel implements IUnbakedGeometry<UnbakedCircuitBoardModel> {
+    @Override
+    public void resolveParents(Function<ResourceLocation, UnbakedModel> modelGetter, IGeometryBakingContext context) {
+        for(var color : BoardColor.values())
+            modelGetter.apply(CircuitBoardModel.plateModel(color)).resolveParents(modelGetter);
+    }
+
     @Override
     public BakedModel bake(@NotNull IGeometryBakingContext context, ModelBaker bakery, Function<Material, TextureAtlasSprite> textureProvider, @NotNull ModelState state, @NotNull ItemOverrides overrides) {
         var plates = new EnumMap<BoardColor, BakedModel>(BoardColor.class);
