@@ -1,6 +1,6 @@
-# Create: Voltworks
+# CEE: Voltworks
 
-Addon for Create: Electro Energetics. It ports the microelectronics from Create: Power Grid (schematics, the circuit design table, board parts and the board solver) onto EE's electrical network, and adds blank, copper and golden circuit boards (idea taken from Create: New Age) that some of the EE machines need. More mechanics will be added over time.
+Addon for Create: Electro Energetics (CEE in the name stands for it). It ports the microelectronics from Create: Power Grid (schematics, the circuit design table, board parts and the board solver) onto EE's electrical network, and adds blank, copper and golden circuit boards (idea taken from Create: New Age) that some of the EE machines need. More mechanics will be added over time.
 
 Blank circuits come out of a superheated press, copper ones from a deployer, golden ones from sequenced assembly.
 Motors, relays, transformers and a few others now need a copper circuit, the voltage regulator, energy meters and the SF6 breaker need golden ones.
@@ -11,7 +11,7 @@ Build with `./gradlew build`, the jar (`create-voltworks-<mc version>-<version>.
 
 ## Wall wires
 
-Holding any EE wire spool, press V (Voltworks category in controls, can be rebound) to switch between AIR and WALL mode. The current mode is shown above the hotbar while a spool is in hand. AIR is EE's normal hanging wire.
+Holding any EE wire spool, press V (CEE: Voltworks category in controls, can be rebound) to switch between AIR and WALL mode. The current mode is shown above the hotbar while a spool is in hand. AIR is EE's normal hanging wire.
 
 In WALL mode the wire lies flat on block faces. Right-click a node to start, then right-click points on floors, walls or ceilings; the wire snaps to the 16x16 pixel grid of each face, runs in straight lines, turns corners and wraps around onto other faces and blocks. Right-click another node to finish. Sneak + right-click removes the last point (or cancels). The first and last points must be close to their nodes (`maxLead`).
 

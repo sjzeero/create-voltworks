@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
+ * Modified by sjzeero: ported from Create: Power Grid to CEE: Voltworks.
  */
 package io.github.sjzeero.voltworks.pgsim.solver;
 

@@ -6,7 +6,7 @@ issueTrackerURL="https://github.com/sjzeero/create-voltworks/issues"
 [[mods]]
 modId="voltworks"
 version="${mod_version}"
-displayName="Create: Voltworks"
+displayName="CEE: Voltworks"
 authors="sjzeero"
 description='''Create: Power Grid microelectronics for Create: Electro Energetics, and more to come.'''
 

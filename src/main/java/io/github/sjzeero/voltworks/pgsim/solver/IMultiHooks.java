@@ -3,7 +3,7 @@ package io.github.sjzeero.voltworks.pgsim.solver;
 /**
  * Multi-tick hooks, called only when multi ticks are > 1
  *
- * Modified by sjzeero: ported from Create: Power Grid to Create: Voltworks.
+ * Modified by sjzeero: ported from Create: Power Grid to CEE: Voltworks.
  */
 public interface IMultiHooks {
     /**
