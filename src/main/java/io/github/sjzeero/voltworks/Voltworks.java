@@ -114,6 +114,7 @@ public class Voltworks {
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent e) -> BoardTestCommand.register(e.getDispatcher()));
         NeoForge.EVENT_BUS.addListener(CircuitInsertion::onDeployerRecipeSearch);
         NeoForge.EVENT_BUS.addListener(BoardTestCommand::onServerTick);
+        io.github.sjzeero.voltworks.wallwire.WallWireEvents.register();
     }
 
     public static ResourceLocation asResource(String path) {

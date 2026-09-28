@@ -1,0 +1,169 @@
+package io.github.sjzeero.voltworks.wallwire;
+
+import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
+import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.saveddata.SavedData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+
+/** Per dimension store of wall wire routes, keyed by the Electro Energetics connection they belong to. */
+public class WallWireData extends SavedData {
+    private static final String NAME = "voltworks_wall_wires";
+
+    private final ServerLevel level;
+    private final Map<InWorldNodeConnection, WallRoute> routes = new LinkedHashMap<>();
+    private final Map<BlockPos, Set<InWorldNodeConnection>> byPos = new HashMap<>();
+    private final Set<InWorldNodeConnection> pendingChecks = new LinkedHashSet<>();
+    private final Set<BlockPos> changedBlocks = new LinkedHashSet<>();
+    private Iterator<InWorldNodeConnection> sweep = Collections.emptyIterator();
+
+    private WallWireData(ServerLevel level) {
+        this.level = level;
+    }
+
+    public static WallWireData get(ServerLevel level) {
+        return level.getDataStorage().computeIfAbsent(new Factory<>(() -> new WallWireData(level),
+                (tag, provider) -> load(level, tag)), NAME);
+    }
+
+    private static WallWireData load(ServerLevel level, CompoundTag tag) {
+        WallWireData data = new WallWireData(level);
+        for(Tag t : tag.getList("Routes", Tag.TAG_COMPOUND)) {
+            WallRoute route = WallRoute.load((CompoundTag) t);
+            if(!route.cells.isEmpty())
+                data.index(route);
+        }
+        return data;
+    }
+
+    @Override
+    public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider provider) {
+        ListTag list = new ListTag();
+        for(WallRoute route : routes.values())
+            list.add(route.save());
+        tag.put("Routes", list);
+        return tag;
+    }
+
+    public @Nullable WallRoute get(InWorldNodeConnection connection) {
+        return routes.get(connection);
+    }
+
+    public Collection<WallRoute> all() {
+        return routes.values();
+    }
+
+    public void put(WallRoute route) {
+        WallRoute old = routes.get(route.connection);
+        if(old != null)
+            unindex(old);
+        index(route);
+        setDirty();
+        WallWireSync.added(level, route);
+    }
+
+    public void remove(InWorldNodeConnection connection) {
+        WallRoute old = routes.get(connection);
+        if(old == null)
+            return;
+        unindex(old);
+        setDirty();
+        WallWireSync.removed(level, connection);
+    }
+
+    private void index(WallRoute route) {
+        routes.put(route.connection, route);
+        WallRouter.forEachTouchedPos(route.cells, p -> byPos.computeIfAbsent(p, k -> new HashSet<>()).add(route.connection));
+        sweep = Collections.emptyIterator();
+    }
+
+    private void unindex(WallRoute route) {
+        routes.remove(route.connection);
+        WallRouter.forEachTouchedPos(route.cells, p -> {
+            Set<InWorldNodeConnection> set = byPos.get(p);
+            if(set != null && set.remove(route.connection) && set.isEmpty())
+                byPos.remove(p);
+        });
+        sweep = Collections.emptyIterator();
+    }
+
+    /** Called when Electro Energetics drops a connection; checked at the end of the tick, since burnt wires get replaced in place. */
+    public void queueCheck(InWorldNodeConnection connection) {
+        if(routes.containsKey(connection))
+            pendingChecks.add(connection);
+    }
+
+    public void blockChanged(BlockPos pos) {
+        if(byPos.containsKey(pos))
+            changedBlocks.add(pos.immutable());
+    }
+
+    public void tick() {
+        if(routes.isEmpty())
+            return;
+        InfrastructureSavedData sd = InfrastructureSavedData.load(level);
+
+        if(!changedBlocks.isEmpty()) {
+            List<BlockPos> changed = new ArrayList<>(changedBlocks);
+            changedBlocks.clear();
+            Set<InWorldNodeConnection> broken = new LinkedHashSet<>();
+            for(BlockPos pos : changed) {
+                Set<InWorldNodeConnection> set = byPos.get(pos);
+                if(set == null)
+                    continue;
+                for(InWorldNodeConnection c : set) {
+                    WallRoute route = routes.get(c);
+                    if(route != null && !stillSupported(route, pos))
+                        broken.add(c);
+                }
+            }
+            for(InWorldNodeConnection c : broken)
+                breakWire(sd, c);
+        }
+
+        // slow sweep so changes that skipped neighbour updates are caught too
+        if(!sweep.hasNext())
+            sweep = new ArrayList<>(routes.keySet()).iterator();
+        if(sweep.hasNext()) {
+            InWorldNodeConnection c = sweep.next();
+            WallRoute route = routes.get(c);
+            if(route != null && !stillSupported(route, null))
+                breakWire(sd, c);
+        }
+
+        if(!pendingChecks.isEmpty()) {
+            List<InWorldNodeConnection> checks = new ArrayList<>(pendingChecks);
+            pendingChecks.clear();
+            for(InWorldNodeConnection c : checks)
+                if(!sd.isConnected(c.node1(), c.node2()))
+                    remove(c);
+        }
+    }
+
+    private void breakWire(InfrastructureSavedData sd, InWorldNodeConnection c) {
+        if(sd.getConnectionData(c) != null)
+            sd.removeAndDropConnection(c);
+        pendingChecks.add(c);
+    }
+
+    /** Checks the cells touching {@code pos}, or all loaded cells when pos is null. */
+    private boolean stillSupported(WallRoute route, @Nullable BlockPos pos) {
+        for(WallCell cell : route.cells) {
+            if(pos != null && !cell.pos().equals(pos) && !cell.front().equals(pos))
+                continue;
+            if(!level.isLoaded(cell.pos()) || !level.isLoaded(cell.front()))
+                continue;
+            if(!WallRouter.supports(level, cell))
+                return false;
+        }
+        return true;
+    }
+}

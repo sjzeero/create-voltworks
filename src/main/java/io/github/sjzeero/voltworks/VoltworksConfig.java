@@ -7,6 +7,9 @@ public final class VoltworksConfig {
     private static final ModConfigSpec.BooleanValue OVERHEATING;
     private static final ModConfigSpec.DoubleValue HOLDING_CURRENT;
     private static final ModConfigSpec.DoubleValue FAN_COOLING;
+    private static final ModConfigSpec.DoubleValue WALL_WIRE_MAX_LENGTH;
+    private static final ModConfigSpec.DoubleValue WALL_WIRE_MAX_LEAD;
+    private static final ModConfigSpec.IntValue WALL_WIRE_MAX_POINTS;
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
@@ -15,6 +18,14 @@ public final class VoltworksConfig {
                 .defineInRange("holdingCurrentPercent", 0.9, 0.01, 0.99);
         FAN_COOLING = b.comment("Cooling multiplier applied to boards in an encased fan's air stream (multiplied by rotational speed).")
                 .defineInRange("encasedFanCooling", 0.01, 0.0, 10.0);
+        b.push("wallWires");
+        WALL_WIRE_MAX_LENGTH = b.comment("Longest wall wire in blocks, measured along its route. The wire type's own limit also applies.")
+                .defineInRange("maxLength", 64.0, 1.0, 512.0);
+        WALL_WIRE_MAX_LEAD = b.comment("Longest straight piece between a connector and the first or last point on a face.")
+                .defineInRange("maxLead", 2.0, 0.5, 8.0);
+        WALL_WIRE_MAX_POINTS = b.comment("Most points a player can click for one wall wire.")
+                .defineInRange("maxPoints", 64, 1, 512);
+        b.pop();
         SPEC = b.build();
     }
 
@@ -27,6 +38,18 @@ public final class VoltworksConfig {
 
     public static float fanCoolingStrength() {
         return SPEC.isLoaded() ? FAN_COOLING.get().floatValue() : 0.01f;
+    }
+
+    public static double wallWireMaxLength() {
+        return SPEC.isLoaded() ? WALL_WIRE_MAX_LENGTH.get() : 64.0;
+    }
+
+    public static double wallWireMaxLead() {
+        return SPEC.isLoaded() ? WALL_WIRE_MAX_LEAD.get() : 2.0;
+    }
+
+    public static int wallWireMaxPoints() {
+        return SPEC.isLoaded() ? WALL_WIRE_MAX_POINTS.get() : 64;
     }
 
     public static float holdingCurrentPercent() {

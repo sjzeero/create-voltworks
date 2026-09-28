@@ -9,7 +9,10 @@
     "ArmInteractionPointMixin",
     "BasinRecipeMixin",
     "BeltDeployerMixin",
-    "RecipeApplierMixin"
+    "InfrastructureSavedDataMixin",
+    "RecipeApplierMixin",
+    "WireSimulationStateMixin",
+    "WireSpoolItemAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
