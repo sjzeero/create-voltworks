@@ -9,6 +9,14 @@ Needs NeoForge 1.21.1, Create 6.0.x and Electro Energetics 1.1.x.
 
 Build with `./gradlew build`, the jar (`create-voltworks-<mc version>-<version>.jar`) ends up in build/libs.
 
+## Wall wires
+
+Holding any EE wire spool, press V (Voltworks category in controls, can be rebound) to switch between AIR and WALL mode. The current mode is shown above the hotbar while a spool is in hand. AIR is EE's normal hanging wire.
+
+In WALL mode the wire lies flat on block faces. Right-click a node to start, then right-click points on floors, walls or ceilings; the wire snaps to the 16x16 pixel grid of each face, runs in straight lines, turns corners and wraps around onto other faces and blocks. Right-click another node to finish. Sneak + right-click removes the last point (or cancels). The first and last points must be close to their nodes (`maxLead`).
+
+It is a normal EE connection: same wire type, resistance from the routed length, same current limit and burning, same drops. Breaking a block it lies on or one of its ends drops it, and an empty spool picks it up like an air wire. Routes are checked again on the server and saved with the world (`voltworks_wall_wires`). Limits are in the server config under `wallWires` (`maxLength`, `maxLead`, `maxPoints`); a route can never be longer than the wire type allows.
+
 ## Circuit board (work in progress, branch pg-boards-poc)
 
 A circuit board block built from a schematic, using the schematic model, parts and solver ported from Create: Power Grid (see NOTICE). Each connector on the schematic becomes a pin of one Electro Energetics device; the parts run in their own small network that is coupled to EE at the pins every microtick.
