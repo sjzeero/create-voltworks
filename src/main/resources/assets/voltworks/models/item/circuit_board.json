@@ -2,5 +2,49 @@
   "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "voltworks:item/circuit_board"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "voltworks:board_color": 0.05
+      },
+      "model": "voltworks:item/circuit_board_white"
+    },
+    {
+      "predicate": {
+        "voltworks:board_color": 0.15
+      },
+      "model": "voltworks:item/circuit_board_black"
+    },
+    {
+      "predicate": {
+        "voltworks:board_color": 0.25
+      },
+      "model": "voltworks:item/circuit_board_orange"
+    },
+    {
+      "predicate": {
+        "voltworks:board_color": 0.35
+      },
+      "model": "voltworks:item/circuit_board_red"
+    },
+    {
+      "predicate": {
+        "voltworks:board_color": 0.45
+      },
+      "model": "voltworks:item/circuit_board_blue"
+    },
+    {
+      "predicate": {
+        "voltworks:board_color": 0.55
+      },
+      "model": "voltworks:item/circuit_board_yellow"
+    },
+    {
+      "predicate": {
+        "voltworks:board_color": 0.65
+      },
+      "model": "voltworks:item/circuit_board_purple"
+    }
+  ]
 }

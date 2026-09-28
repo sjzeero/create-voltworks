@@ -43,6 +43,7 @@ import org.joml.Vector3f;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.board.BoardBlock;
 import io.github.sjzeero.voltworks.board.BoardBlockEntity;
+import io.github.sjzeero.voltworks.board.BoardColor;
 import io.github.sjzeero.voltworks.circuits.components.properties.Orientation;
 import io.github.sjzeero.voltworks.circuits.schematic.Area;
 import io.github.sjzeero.voltworks.circuits.schematic.CircuitSchematic;
@@ -52,6 +53,7 @@ import io.github.sjzeero.voltworks.circuits.schematic.Point;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static io.github.sjzeero.voltworks.circuits.schematic.CircuitLayer.GRID_TO_GRID_SCALE;
 
@@ -75,9 +77,15 @@ public class CircuitBoardModel implements BakedModel {
     private final TextureAtlasSprite padSprite;
     private final TextureAtlasSprite copperSprite;
     private final BakedModel baseModel;
+    private final Map<BoardColor, BakedModel> plates;
 
-    public CircuitBoardModel(BakedModel plateModel, TextureAtlasSprite padSprite, TextureAtlasSprite copperSprite) {
-        this.baseModel = plateModel;
+    public static ResourceLocation plateModel(BoardColor color) {
+        return color == BoardColor.GREEN ? BASE_MODEL : Voltworks.asResource("block/circuit_board_" + color.getSerializedName());
+    }
+
+    public CircuitBoardModel(Map<BoardColor, BakedModel> plates, TextureAtlasSprite padSprite, TextureAtlasSprite copperSprite) {
+        this.plates = plates;
+        this.baseModel = plates.get(BoardColor.GREEN);
         this.padSprite = padSprite;
         this.copperSprite = copperSprite;
         this.particleSprite = baseModel.getParticleIcon();
@@ -85,7 +93,7 @@ public class CircuitBoardModel implements BakedModel {
 
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction face, RandomSource random) {
-        return baseModel.getQuads(state, face, random);
+        return plate(state).getQuads(state, face, random);
     }
 
     @Override
@@ -154,7 +162,7 @@ public class CircuitBoardModel implements BakedModel {
                 circuit.quads = cache;
             }
         }
-        var quads = new ArrayList<>(baseModel.getQuads(state, side, rand, data, renderType));
+        var quads = new ArrayList<>(plate(state).getQuads(state, side, rand, data, renderType));
 
         if(data.has(COMPONENTS)) {
             var components = data.get(COMPONENTS);
@@ -224,6 +232,12 @@ public class CircuitBoardModel implements BakedModel {
         if(cache != null)
             cache.putQuads(state, side, renderType, quads);
         return quads;
+    }
+
+    private BakedModel plate(@Nullable BlockState state) {
+        if(state == null || !state.hasProperty(BoardBlock.COLOR))
+            return baseModel;
+        return plates.getOrDefault(state.getValue(BoardBlock.COLOR), baseModel);
     }
 
     public BakedQuad emitTrace(Area area) {

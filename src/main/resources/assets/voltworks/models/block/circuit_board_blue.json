@@ -1,0 +1,7 @@
+{
+  "parent": "voltworks:block/circuit_board",
+  "textures": {
+    "0": "voltworks:block/circuit_board_blue",
+    "particle": "voltworks:block/circuit_board_blue"
+  }
+}

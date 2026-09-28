@@ -33,7 +33,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.SimpleMenuProvider;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitBoardEditMenu;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -53,6 +58,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -69,17 +75,18 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
     public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final IntegerProperty ROTATION = IntegerProperty.create("rotation", 0, 2);
     public static final IntegerProperty LIGHT = BlockStateProperties.LEVEL;
+    public static final EnumProperty<BoardColor> COLOR = EnumProperty.create("color", BoardColor.class);
     private static final AABB PLATE = new AABB(0, 0, 0, 1, 2 / 16d, 1);
 
     public BoardBlock(Properties properties) {
         super(properties.lightLevel(state -> state.getValue(LIGHT)));
-        registerDefaultState(defaultBlockState().setValue(HORIZONTAL_FACING, Direction.NORTH).setValue(ROTATION, 0).setValue(LIGHT, 0));
+        registerDefaultState(defaultBlockState().setValue(HORIZONTAL_FACING, Direction.NORTH).setValue(ROTATION, 0).setValue(LIGHT, 0).setValue(COLOR, BoardColor.GREEN));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(HORIZONTAL_FACING, ROTATION, LIGHT);
+        builder.add(HORIZONTAL_FACING, ROTATION, LIGHT, COLOR);
     }
 
     @Override
@@ -118,7 +125,7 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
             tag.put("Schematic", be.getSchematic().serializeSafeNbt(level.registryAccess()));
             stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
         }
-        return stack;
+        return BoardColor.paint(stack, state.getValue(COLOR));
     }
 
     public static int getAngleX(BlockState state) {
@@ -182,7 +189,7 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
     private static final Map<BlockState, VoxelShape> PLATE_SHAPES = new java.util.concurrent.ConcurrentHashMap<>();
 
     private static VoxelShape plateShape(BlockState state) {
-        return PLATE_SHAPES.computeIfAbsent(state.setValue(LIGHT, 0), s -> Shapes.create(rotate(PLATE, s)));
+        return PLATE_SHAPES.computeIfAbsent(state.setValue(LIGHT, 0).setValue(COLOR, BoardColor.GREEN), s -> Shapes.create(rotate(PLATE, s)));
     }
 
     @Override
@@ -228,6 +235,31 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
         var device = DevicesSavedData.load(level).getDevice(pos, BoardDevice.class);
         if(device != null)
             device.registeredPins = getNodePositions(level, pos, state).size();
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        var color = BoardColor.ofDye(stack);
+        if(color == null || state.getValue(COLOR) == color || hitsPart(state, level, pos, hit))
+            return super.useItemOn(stack, state, level, pos, player, hand, hit);
+        if(!level.isClientSide) {
+            level.setBlock(pos, state.setValue(COLOR, color), Block.UPDATE_ALL);
+            level.playSound(null, pos, SoundEvents.DYE_USE, SoundSource.BLOCKS, 1, 1);
+            level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
+            stack.consume(1, player);
+        }
+        return ItemInteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    private static boolean hitsPart(BlockState state, Level level, BlockPos pos, BlockHitResult hit) {
+        if(!(level.getBlockEntity(pos) instanceof BoardBlockEntity be))
+            return false;
+        var local = unrotate(hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()), getAngleX(state), getAngleY(state));
+        for(var interactable : be.interactables()) {
+            if(interactable.box().inflate(1 / 32f).contains(local))
+                return true;
+        }
+        return false;
     }
 
     @Override

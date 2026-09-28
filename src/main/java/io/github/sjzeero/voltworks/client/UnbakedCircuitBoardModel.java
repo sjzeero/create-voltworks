@@ -27,14 +27,20 @@ import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
 import net.neoforged.neoforge.client.model.geometry.IUnbakedGeometry;
 import org.jetbrains.annotations.NotNull;
 
+import io.github.sjzeero.voltworks.board.BoardColor;
+
+import java.util.EnumMap;
 import java.util.Objects;
 import java.util.function.Function;
 
 public class UnbakedCircuitBoardModel implements IUnbakedGeometry<UnbakedCircuitBoardModel> {
     @Override
     public BakedModel bake(@NotNull IGeometryBakingContext context, ModelBaker bakery, Function<Material, TextureAtlasSprite> textureProvider, @NotNull ModelState state, @NotNull ItemOverrides overrides) {
+        var plates = new EnumMap<BoardColor, BakedModel>(BoardColor.class);
+        for(var color : BoardColor.values())
+            plates.put(color, Objects.requireNonNull(bakery.bake(CircuitBoardModel.plateModel(color), state)));
         return new CircuitBoardModel(
-                Objects.requireNonNull(bakery.bake(CircuitBoardModel.BASE_MODEL, state)),
+                plates,
                 textureProvider.apply(CircuitBoardModel.PAD_SPRITE_ID),
                 textureProvider.apply(CircuitBoardModel.COPPER_SPRITE_ID)
         );

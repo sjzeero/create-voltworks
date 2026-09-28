@@ -15,6 +15,8 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.item.ItemProperties;
+import io.github.sjzeero.voltworks.board.BoardColor;
 import io.github.sjzeero.voltworks.circuits.CircuitItems;
 
 @Mod(value = Voltworks.MOD_ID, dist = Dist.CLIENT)
@@ -62,6 +64,8 @@ public class VoltworksClient {
                 com.simibubi.create.foundation.item.TooltipModifier.REGISTRY.register(item,
                         new com.simibubi.create.foundation.item.ItemDescription.Modifier(item, net.createmod.catnip.lang.FontHelper.Palette.STANDARD_CREATE));
             ItemBlockRenderTypes.setRenderLayer(CircuitItems.ACID_FLOWING.get(), RenderType.translucent());
+            ItemProperties.register(Voltworks.BOARD_ITEM.get(), Voltworks.asResource("board_color"),
+                    (stack, level, entity, seed) -> BoardColor.ofBoard(stack).ordinal() / 10f);
         });
     }
 }

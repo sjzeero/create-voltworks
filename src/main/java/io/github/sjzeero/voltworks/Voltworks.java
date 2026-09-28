@@ -6,6 +6,7 @@ import com.mojang.logging.LogUtils;
 import io.github.sjzeero.voltworks.board.BoardBlock;
 import io.github.sjzeero.voltworks.board.BoardBlockEntity;
 import io.github.sjzeero.voltworks.board.BoardDevice;
+import io.github.sjzeero.voltworks.board.BoardDyeRecipe;
 import io.github.sjzeero.voltworks.board.BoardTestCommand;
 import io.github.sjzeero.voltworks.circuits.CircuitItems;
 import io.github.sjzeero.voltworks.circuits.circuitboard.CircuitInsertion;
@@ -22,6 +23,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -47,6 +50,7 @@ public class Voltworks {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MOD_ID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MOD_ID);
     public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID);
+    public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(Registries.RECIPE_SERIALIZER, MOD_ID);
     public static final DeferredRegister<SimulatedDeviceType<?>> DEVICES = DeferredRegister.create(CEERegistries.SIMULATED_DEVICE_TYPE, MOD_ID);
 
     public static final DeferredItem<Item> BLANK_CIRCUIT = ITEMS.registerSimpleItem("blank_circuit");
@@ -63,6 +67,8 @@ public class Voltworks {
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<BoardDevice>> BOARD_DEVICE = DEVICES.register("circuit_board",
             () -> new SimulatedDeviceType<>(asResource("circuit_board"),
                     (type, level, pos, sd) -> new BoardDevice(level, pos, sd, type)));
+    public static final DeferredHolder<RecipeSerializer<?>, SimpleCraftingRecipeSerializer<BoardDyeRecipe>> BOARD_DYEING = RECIPE_SERIALIZERS.register("board_dyeing",
+            () -> new SimpleCraftingRecipeSerializer<>(BoardDyeRecipe::new));
 
     public static final DeferredBlock<CircuitDesignTableBlock> DESIGN_TABLE = BLOCKS.register("circuit_design_table", () -> new CircuitDesignTableBlock(
             BlockBehaviour.Properties.ofFullCopy(Blocks.CRAFTING_TABLE).noOcclusion()));
@@ -105,6 +111,7 @@ public class Voltworks {
         ITEMS.register(modBus);
         BLOCK_ENTITIES.register(modBus);
         DEVICES.register(modBus);
+        RECIPE_SERIALIZERS.register(modBus);
         TABS.register(modBus);
         EEMenus.register(modBus);
         modBus.addListener(EENetwork::register);
