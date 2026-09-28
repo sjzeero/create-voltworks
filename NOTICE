@@ -1,4 +1,4 @@
-EE Circuits
+Create: Voltworks
 Copyright (c) 2026 sjzeero
 
 This product includes software derived from Create: Power Grid
@@ -8,14 +8,14 @@ Files derived from Create: Power Grid keep their original license header
 and are marked as modified.
 
 The circuit board and board component textures, models and language strings
-under assets/eecircuits (models/component, textures/block/component,
+under assets/voltworks (models/component, textures/block/component,
 textures/block/circuit_board*, the component item textures, the circuit
 design table model and textures, the gui textures under textures/gui, the acid
 fluid and bucket textures, the empty, unetched and incomplete circuit and
-incomplete transistor item textures, and the recipes under data/eecircuits/recipe
+incomplete transistor item textures, and the recipes under data/voltworks/recipe
 that follow Power Grid's recipes) are taken
 from Create: Power Grid under the same license, with resource locations
-changed to the eecircuits namespace.
+changed to the voltworks namespace.
 
 Create: Power Grid NOTICE:
 

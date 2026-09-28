@@ -1,13 +1,13 @@
-# EE Circuits
+# Create: Voltworks
 
-Small addon for Create: Electro Energetics. Adds blank, copper and golden circuit boards (idea taken from Create: New Age) and makes some of the EE machines need them.
+Addon for Create: Electro Energetics. It ports the microelectronics from Create: Power Grid (schematics, the circuit design table, board parts and the board solver) onto EE's electrical network, and adds blank, copper and golden circuit boards (idea taken from Create: New Age) that some of the EE machines need. More mechanics will be added over time.
 
 Blank circuits come out of a superheated press, copper ones from a deployer, golden ones from sequenced assembly.
 Motors, relays, transformers and a few others now need a copper circuit, the voltage regulator, energy meters and the SF6 breaker need golden ones.
 
 Needs NeoForge 1.21.1, Create 6.0.x and Electro Energetics 1.1.x.
 
-Build with `./gradlew build`, the jar ends up in build/libs.
+Build with `./gradlew build`, the jar (`create-voltworks-<mc version>-<version>.jar`) ends up in build/libs.
 
 ## Circuit board (work in progress, branch pg-boards-poc)
 
@@ -29,7 +29,7 @@ An encased fan blowing through a board cools its parts; the effect scales with f
 
 The design table heats up with the power it takes, like in Power Grid: it smokes and goggles turn the temperature red when it gets close, and past 175 °C it explodes. About 150 V keeps it warm but alive, 200 V blows it up within a second.
 
-`HighContrastTraces` in `eecircuits-client.toml` draws top traces red and bottom traces green in the editor; the colours and alphas can be changed in the same file.
+`HighContrastTraces` in `voltworks-client.toml` draws top traces red and bottom traces green in the editor; the colours and alphas can be changed in the same file.
 
 ### Crafting
 
@@ -42,7 +42,7 @@ The crafting chain follows Power Grid:
 
 NPN and PNP transistors come from sequenced assembly like in Power Grid, the other parts and the table are crafted. Power Grid ingredients that do not exist here are replaced:
 
-| Power Grid | EE Circuits |
+| Power Grid | Voltworks |
 |---|---|
 | conductive casing | andesite casing |
 | copper plating | copper block |
@@ -59,13 +59,13 @@ JEI shows the circuit design and circuit assembly categories.
 
 Test commands (near spawn, creative batteries wired to the board):
 
-- `/eecircuits boardtest setup <relay|vfet|triode|fuse|overheat|gauge|controls>`
-- `/eecircuits boardtest schematic <preset>` gives a written schematic of a preset
-- `/eecircuits boardtest wire`, `battery <0|1> <volts>`
-- `/eecircuits boardtest use <part> [sneak|item]`, `repair`
-- `/eecircuits boardtest read|world`, `readat <pos>`
-- `/eecircuits boardtest links <edge|header>` builds two linked boards with a supply and a resistor
-- `/eecircuits boardtest many <count> <preset>`, `clearmany`, `perf reset|report` for load tests (100 boards cost about 0.5 ms per tick on the server thread and 0.3 to 0.4 ms on the sim thread)
-- `/eecircuits boardtest attach <device pos> <battery pos> <volts>` puts a creative battery at the second position and wires it to any EE device, e.g. a board or the design table
+- `/voltworks boardtest setup <relay|vfet|triode|fuse|overheat|gauge|controls>`
+- `/voltworks boardtest schematic <preset>` gives a written schematic of a preset
+- `/voltworks boardtest wire`, `battery <0|1> <volts>`
+- `/voltworks boardtest use <part> [sneak|item]`, `repair`
+- `/voltworks boardtest read|world`, `readat <pos>`
+- `/voltworks boardtest links <edge|header>` builds two linked boards with a supply and a resistor
+- `/voltworks boardtest many <count> <preset>`, `clearmany`, `perf reset|report` for load tests (100 boards cost about 0.5 ms per tick on the server thread and 0.3 to 0.4 ms on the sim thread)
+- `/voltworks boardtest attach <device pos> <battery pos> <volts>` puts a creative battery at the second position and wires it to any EE device, e.g. a board or the design table
 
 `./gradlew test` builds boards from schematics and checks them against values from Power Grid's own solver.
