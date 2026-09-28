@@ -14,6 +14,11 @@
     "WireSimulationStateMixin",
     "WireSpoolItemAccessor"
   ],
+  "client": [
+    "client.WireInteractionHandlerMixin",
+    "client.WireRendererMixin",
+    "client.WireVisualMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }
