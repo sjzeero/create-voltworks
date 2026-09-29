@@ -161,7 +161,18 @@ public class WallWireData extends SavedData {
                 continue;
             if(!level.isLoaded(cell.pos()) || !level.isLoaded(cell.front()))
                 continue;
-            if(!WallRouter.supports(level, cell))
+            if(WallShapes.passable(level.getBlockState(cell.pos())) || WallShapes.passable(level.getBlockState(cell.front())))
+                continue;
+            if(!WallRouter.supports(level, cell) && !WallRouter.supportsFullFace(level, cell))
+                return false;
+        }
+        WallShapes shapes = new WallShapes(level);
+        for(int i = 1; i < route.cells.size(); i++) {
+            WallCell a = route.cells.get(i - 1), b = route.cells.get(i);
+            if(WallRouter.isSpan(a, b) && !WallRouter.forEachSpanPixel(a, b, (x, y, z) -> {
+                BlockPos p = new BlockPos(x >> 4, y >> 4, z >> 4);
+                return pos != null && !p.equals(pos) || !level.isLoaded(p) || !shapes.solid(x, y, z);
+            }))
                 return false;
         }
         return true;
