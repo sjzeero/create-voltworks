@@ -99,7 +99,7 @@ public final class WallWireTestCommand {
         List<WallCell> cells = WallRouter.route(level, points, 16 * 64);
         if(cells == null)
             return "no path; ";
-        double length = (cells.size() - 1) / 16.0 + pa.distanceTo(first.point()) + pb.distanceTo(last.point());
+        double length = WallRouter.pixels(cells) / 16.0 + pa.distanceTo(first.point()) + pb.distanceTo(last.point());
         if(sd.isConnected(a, b))
             sd.removeConnectionNoDrops(new com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection(a, b));
         WallWireData.get(level).put(WallRoute.oriented(a, b, cells, length));
@@ -116,10 +116,10 @@ public final class WallWireTestCommand {
             if(level.getBlockState(p).getBlock() instanceof ElectricalDeviceBlock<?>)
                 continue;
             for(Direction face : Direction.values()) {
-                if(!WallRouter.supports(level, p, face))
-                    continue;
                 int[] px = {pixel(node.x - p.getX()), pixel(node.y - p.getY()), pixel(node.z - p.getZ())};
                 WallCell cell = WallCell.of(p, face, px);
+                if(!WallRouter.supports(level, cell))
+                    continue;
                 double d = cell.point().distanceTo(node);
                 if(d < bestDist) {
                     bestDist = d;

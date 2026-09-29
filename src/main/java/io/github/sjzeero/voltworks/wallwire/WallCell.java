@@ -7,8 +7,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * One pixel of a block face that a wall wire can lie on. {@code px, py, pz} is the pixel inside {@code pos};
- * the coordinate along the face normal is always the layer touching that face (15 for positive faces, 0 for negative).
+ * One pixel of a surface that a wall wire can lie on: the {@code face} side of the solid pixel {@code px, py, pz}
+ * inside {@code pos}. On a full block face the coordinate along the normal is 15 for positive faces and 0 for negative.
  */
 public record WallCell(BlockPos pos, Direction face, int px, int py, int pz) {
     public static final double LIFT = 0.01;
@@ -23,15 +23,28 @@ public record WallCell(BlockPos pos, Direction face, int px, int py, int pz) {
         return new WallCell(pos, face, q[0], q[1], q[2]);
     }
 
+    public static WallCell ofPixel(int x, int y, int z, Direction face) {
+        return new WallCell(new BlockPos(x >> 4, y >> 4, z >> 4), face, x & 15, y & 15, z & 15);
+    }
+
     public static WallCell fromHit(BlockHitResult hit) {
         BlockPos pos = hit.getBlockPos();
+        Direction face = hit.getDirection();
         Vec3 local = hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
         int[] p = {pixel(local.x), pixel(local.y), pixel(local.z)};
-        return of(pos, hit.getDirection(), p);
+        int a = face.getAxis().ordinal();
+        int layer = (int) Math.round(face.getAxis().choose(local.x, local.y, local.z) * 16);
+        p[a] = Mth.clamp(face.getAxisDirection() == Direction.AxisDirection.POSITIVE ? layer - 1 : layer, 0, 15);
+        return new WallCell(pos, face, p[0], p[1], p[2]);
     }
 
     private static int pixel(double v) {
         return Mth.clamp(Mth.floor(v * 16), 0, 15);
+    }
+
+    /** The solid pixel in world pixel coordinates (16 per block). */
+    public int[] worldPixel() {
+        return new int[]{pos.getX() * 16 + px, pos.getY() * 16 + py, pos.getZ() * 16 + pz};
     }
 
     public int[] pixels() {
@@ -43,7 +56,8 @@ public record WallCell(BlockPos pos, Direction face, int px, int py, int pz) {
         double[] c = {(px + 0.5) / 16, (py + 0.5) / 16, (pz + 0.5) / 16};
         int a = face.getAxis().ordinal();
         boolean positive = face.getAxisDirection() == Direction.AxisDirection.POSITIVE;
-        c[a] = (positive ? 1 : 0) + (positive ? lift : -lift);
+        int layer = pixels()[a];
+        c[a] = positive ? (layer + 1) / 16.0 + lift : layer / 16.0 - lift;
         return new Vec3(pos.getX() + c[0], pos.getY() + c[1], pos.getZ() + c[2]);
     }
 
@@ -51,9 +65,13 @@ public record WallCell(BlockPos pos, Direction face, int px, int py, int pz) {
         return point(LIFT);
     }
 
+    public boolean onBlockFace() {
+        return pixels()[face.getAxis().ordinal()] == (face.getAxisDirection() == Direction.AxisDirection.POSITIVE ? 15 : 0);
+    }
+
     /** The block the wire actually sits in. */
     public BlockPos front() {
-        return pos.relative(face);
+        return onBlockFace() ? pos.relative(face) : pos;
     }
 
     public int packLocal() {
