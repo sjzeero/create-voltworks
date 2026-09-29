@@ -9,6 +9,7 @@
     "ArmInteractionPointMixin",
     "BasinRecipeMixin",
     "BeltDeployerMixin",
+    "DyeWireInteractionBehaviourMixin",
     "InfrastructureSavedDataMixin",
     "RecipeApplierMixin",
     "WireSimulationStateMixin",

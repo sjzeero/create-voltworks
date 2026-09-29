@@ -5,6 +5,7 @@ import com.george_vi.electroenergetics.config.CEEConfigs;
 import com.george_vi.electroenergetics.content.wire_spool.WireSpoolItem;
 import com.george_vi.electroenergetics.foundation.device.ElectricalDeviceBlock;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
+import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
 import com.george_vi.electroenergetics.simulation.WireType;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
@@ -15,6 +16,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
@@ -109,7 +112,7 @@ public final class WallWirePlacement {
             deny(player, "lead_too_long", end.sourcePos());
             return;
         }
-        double length = (cells.size() - 1) / 16.0 + lead1 + lead2;
+        double length = WallRouter.pixels(cells) / 16.0 + lead1 + lead2;
         if(length > maxLength) {
             deny(player, "too_long", end.sourcePos());
             return;
@@ -125,6 +128,27 @@ public final class WallWirePlacement {
             if(!CEEConfigs.server().alternateWirePlacement.get())
                 player.getInventory().placeItemBackInInventory(CEEItems.EMPTY_SPOOL.asStack());
         }
+    }
+
+    /** Recolours a whole insulated wall wire with the dye in hand. The wire type and its electrical data stay as they are. */
+    public static boolean dye(ServerPlayer player, InWorldNodeConnection connection, ItemStack stack) {
+        ServerLevel level = player.serverLevel();
+        WallWireData data = WallWireData.get(level);
+        WallRoute route = data.get(connection);
+        if(route == null)
+            return false;
+        WireData wire = InfrastructureSavedData.load(level).getConnectionData(connection);
+        if(wire == null || !(wire.wireType() instanceof WireType.Dyeable) || !(stack.getItem() instanceof DyeItem dye) || route.color == dye.getDyeColor())
+            return true;
+        double reach = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 2;
+        Vec3 eye = player.getEyePosition();
+        WallCell near = route.cells.stream().min(java.util.Comparator.comparingDouble(c -> c.point().distanceToSqr(eye))).orElse(null);
+        if(near == null || near.point().distanceTo(eye) > reach)
+            return true;
+        data.put(route.withColor(dye.getDyeColor()));
+        level.playSound(null, BlockPos.containing(near.point()), SoundEvents.DYE_USE, SoundSource.BLOCKS, 1, 1);
+        stack.consume(1, player);
+        return true;
     }
 
     private static void deny(ServerPlayer player, String key, BlockPos pos) {
