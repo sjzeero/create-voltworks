@@ -1,0 +1,79 @@
+{
+	"format_version": "1.21.6",
+	"textures": {
+		"0": "electroenergetics:block/colored_wire",
+		"particle": "electroenergetics:block/colored_wire"
+	},
+	"elements": [
+		{
+			"from": [
+				-0.5,
+				-0.5,
+				0
+			],
+			"to": [
+				0.5,
+				0.5,
+				8
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						8,
+						14,
+						9,
+						15
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						8,
+						14,
+						9,
+						15
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						16,
+						14,
+						8,
+						16
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						8,
+						16,
+						16,
+						14
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						8,
+						16,
+						16,
+						14
+					],
+					"rotation": 90,
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						16,
+						14,
+						8,
+						16
+					],
+					"rotation": 90,
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}
