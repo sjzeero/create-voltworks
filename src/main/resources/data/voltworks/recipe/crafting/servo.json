@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "M": {
+      "tag": "electroenergetics:electric_motors"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "S": {
+      "item": "create:shaft"
+    },
+    "C": {
+      "tag": "c:circuits"
+    }
+  },
+  "pattern": [
+    " S ",
+    "RMC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "voltworks:servo"
+  }
+}
