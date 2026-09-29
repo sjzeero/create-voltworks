@@ -16,6 +16,9 @@ import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableBlock;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableBlockEntity;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableDevice;
 import io.github.sjzeero.voltworks.circuits.schematic.CircuitSchematicItem;
+import io.github.sjzeero.voltworks.servo.ServoBlock;
+import io.github.sjzeero.voltworks.servo.ServoBlockEntity;
+import io.github.sjzeero.voltworks.servo.ServoDevice;
 import io.github.sjzeero.voltworks.network.EENetwork;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.core.registries.Registries;
@@ -81,6 +84,16 @@ public class Voltworks {
                     (type, level, pos, sd) -> new CircuitDesignTableDevice(level, pos, sd, type)));
     public static final DeferredItem<CircuitSchematicItem> CIRCUIT_SCHEMATIC = ITEMS.registerItem("circuit_schematic", CircuitSchematicItem::new);
 
+    public static final DeferredBlock<ServoBlock> SERVO = BLOCKS.register("servo", () -> new ServoBlock(
+            BlockBehaviour.Properties.of().strength(0.5f).sound(SoundType.METAL).noOcclusion()));
+    public static final DeferredItem<?> SERVO_ITEM = ITEMS.registerSimpleBlockItem(SERVO);
+    @SuppressWarnings("DataFlowIssue")
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ServoBlockEntity>> SERVO_BE = BLOCK_ENTITIES.register("servo",
+            () -> BlockEntityType.Builder.of(ServoBlockEntity::new, SERVO.get()).build(null));
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<ServoDevice>> SERVO_DEVICE = DEVICES.register("servo",
+            () -> new SimulatedDeviceType<>(asResource("servo"),
+                    (type, level, pos, sd) -> new ServoDevice(level, pos, sd, type)));
+
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = TABS.register("main", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.voltworks"))
             .icon(() -> COPPER_CIRCUIT.get().getDefaultInstance())
@@ -90,6 +103,7 @@ public class Voltworks {
                 out.accept(GOLDEN_CIRCUIT);
                 out.accept(BOARD_ITEM.get());
                 out.accept(DESIGN_TABLE_ITEM.get());
+                out.accept(SERVO_ITEM.get());
                 out.accept(CIRCUIT_SCHEMATIC.get());
                 out.accept(CircuitItems.EMPTY_CIRCUIT.get());
                 out.accept(CircuitItems.UNETCHED_CIRCUIT.get());

@@ -37,6 +37,7 @@ public class EEPartialModels {
     public static final PartialModel BARRETTER_GLOW = model("component/barretter_tube_glow");
     public static final PartialModel COMPONENT_GAUGE_NEEDLE = model("component/gauge_needle");
     public static final PartialModel CIRCUIT_TABLE_GLOW = model("block/circuit_design_table_glow");
+    public static final PartialModel SERVO_SHAFT = model("block/servo_shaft");
 
     private static PartialModel model(String path) {
         return PartialModel.of(Voltworks.asResource(path));
