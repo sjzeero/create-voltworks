@@ -7,8 +7,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,11 +24,21 @@ public final class WallRoute {
     public final InWorldNodeConnection connection;
     public final List<WallCell> cells;
     public final double length;
+    public final @Nullable DyeColor color;
 
     public WallRoute(InWorldNodeConnection connection, List<WallCell> cells, double length) {
+        this(connection, cells, length, null);
+    }
+
+    public WallRoute(InWorldNodeConnection connection, List<WallCell> cells, double length, @Nullable DyeColor color) {
         this.connection = connection;
         this.cells = List.copyOf(cells);
         this.length = length;
+        this.color = color;
+    }
+
+    public WallRoute withColor(@Nullable DyeColor color) {
+        return new WallRoute(connection, cells, length, color);
     }
 
     /** Builds a route from cells ordered from {@code start}, flipping them if {@code start} is not node1. */
@@ -39,15 +51,23 @@ public final class WallRoute {
     }
 
     public double surfaceLength() {
-        return (cells.size() - 1) / 16.0;
+        return WallRouter.pixels(cells) / 16.0;
     }
 
     /** Points along the whole wire for Electro Energetics' own bookkeeping (sections, contacts, particles). */
     public List<Vec3> samplePoints(Vec3 pos1, Vec3 pos2) {
         List<Vec3> out = new ArrayList<>();
         out.add(pos1);
-        for(int i = 0; i < cells.size(); i += 8)
-            out.add(cells.get(i).point());
+        for(int i = 0; i < cells.size(); i++) {
+            if(i > 0 && WallRouter.isSpan(cells.get(i - 1), cells.get(i))) {
+                Vec3 a = cells.get(i - 1).point(), b = cells.get(i).point();
+                double d = a.distanceTo(b);
+                for(double s = 0.5; s < d; s += 0.5)
+                    out.add(a.lerp(b, s / d));
+            }
+            if(i % 8 == 0)
+                out.add(cells.get(i).point());
+        }
         out.add(cells.getLast().point());
         out.add(pos2);
         return out;
@@ -60,7 +80,12 @@ public final class WallRoute {
         return bb;
     }
 
-    public record Segment(Vec3 a, Vec3 b, Direction normal, BlockPos lightPos) {
+    /** A straight piece of wire; {@code air} pieces go straight out from a surface to the one facing it. */
+    public record Segment(Vec3 a, Vec3 b, Direction normal, BlockPos lightPos, boolean air) {
+        public Segment(Vec3 a, Vec3 b, Direction normal, BlockPos lightPos) {
+            this(a, b, normal, lightPos, false);
+        }
+
         public double length() {
             return a.distanceTo(b);
         }
@@ -78,6 +103,8 @@ public final class WallRoute {
             Vec3 pa = a.point(), pb = b.point();
             if(a.face() == b.face()) {
                 raw.add(new Segment(pa, pb, a.face(), a.front()));
+            } else if(a.face() == b.face().getOpposite()) {
+                raw.add(new Segment(pa, pb, a.face(), BlockPos.containing(pa.add(pb).scale(0.5)), true));
             } else {
                 int axis = b.face().getAxis().ordinal();
                 double[] e = {pa.x, pa.y, pa.z};
@@ -93,7 +120,7 @@ public final class WallRoute {
                 continue;
             if(!merged.isEmpty()) {
                 Segment last = merged.getLast();
-                if(last.normal() == s.normal() && last.b().distanceToSqr(s.a()) < 1e-9
+                if(!last.air() && !s.air() && last.normal() == s.normal() && last.b().distanceToSqr(s.a()) < 1e-9
                         && last.b().subtract(last.a()).normalize().dot(s.b().subtract(s.a()).normalize()) > 0.9999) {
                     merged.set(merged.size() - 1, new Segment(last.a(), s.b(), s.normal(), last.lightPos()));
                     continue;
@@ -117,6 +144,8 @@ public final class WallRoute {
         tag.putLongArray("Pos", pos);
         tag.putIntArray("Local", local);
         tag.putDouble("Length", length);
+        if(color != null)
+            tag.putString("Color", color.getSerializedName());
         return tag;
     }
 
@@ -128,7 +157,8 @@ public final class WallRoute {
         List<WallCell> cells = new ArrayList<>(pos.length);
         for(int i = 0; i < Math.min(pos.length, local.length); i++)
             cells.add(WallCell.unpack(pos[i], local[i]));
-        return new WallRoute(new InWorldNodeConnection(n1, n2), cells, tag.getDouble("Length"));
+        DyeColor color = tag.contains("Color") ? DyeColor.byName(tag.getString("Color"), null) : null;
+        return new WallRoute(new InWorldNodeConnection(n1, n2), cells, tag.getDouble("Length"), color);
     }
 
     private static CompoundTag nodeTag(InWorldNode node) {
@@ -142,6 +172,7 @@ public final class WallRoute {
         writeNode(buf, connection.node1());
         writeNode(buf, connection.node2());
         buf.writeDouble(length);
+        buf.writeByte(color == null ? -1 : color.getId());
         buf.writeVarInt(cells.size());
         for(WallCell c : cells) {
             buf.writeLong(c.pos().asLong());
@@ -152,11 +183,12 @@ public final class WallRoute {
     public static WallRoute read(FriendlyByteBuf buf) {
         InWorldNode n1 = readNode(buf), n2 = readNode(buf);
         double length = buf.readDouble();
+        byte color = buf.readByte();
         int n = buf.readVarInt();
         List<WallCell> cells = new ArrayList<>(n);
         for(int i = 0; i < n; i++)
             cells.add(WallCell.unpack(buf.readLong(), buf.readShort() & 0xffff));
-        return new WallRoute(new InWorldNodeConnection(n1, n2), cells, length);
+        return new WallRoute(new InWorldNodeConnection(n1, n2), cells, length, color < 0 ? null : DyeColor.byId(color));
     }
 
     static void writeNode(FriendlyByteBuf buf, InWorldNode node) {
