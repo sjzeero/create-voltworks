@@ -180,7 +180,18 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity
         if (this.level == null) return;
 
         if (this.level.isClientSide) {
-            this.clientAngleDiff /= 2.0f;
+            boolean clientPowered = this.averageVoltage.get() >= 10.0;
+            if (clientPowered) {
+                float diff = this.targetAngle - this.angle;
+                if (Math.abs(diff) > 0.01f) {
+                    float step = 6.0f;
+                    float move = Math.signum(diff) * Math.min(Math.abs(diff), step);
+                    this.angle += move;
+                }
+            }
+            if (this.movedContraption != null) {
+                this.applyRotation();
+            }
             return;
         }
 
@@ -202,7 +213,9 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity
         }
 
         int redstonePower = this.level.getBestNeighborSignal(this.worldPosition);
-        this.targetAngle = (redstonePower / 15.0f) * 180.0f;
+        float newTargetAngle = (redstonePower / 15.0f) * 180.0f;
+        boolean targetChanged = Math.abs(newTargetAngle - this.targetAngle) > 0.01f;
+        this.targetAngle = newTargetAngle;
 
         boolean isPowered = this.averageVoltage.get() >= 10.0;
         float prevSpeed = this.getSpeed();
@@ -215,11 +228,14 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity
                 this.angle += move;
 
                 if (this.movedContraption != null) {
-                    this.movedContraption.setAngle(this.angle);
                     this.applyRotation();
                 }
                 this.sendData();
+            } else if (targetChanged) {
+                this.sendData();
             }
+        } else if (targetChanged) {
+            this.sendData();
         }
 
         if (this.movedContraption == null) {
@@ -242,9 +258,8 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity
     }
 
     protected boolean isNearInitialAngle() {
-        float modAngle = this.angle % 360.0f;
-        if (modAngle < 0.0f) modAngle += 360.0f;
-        return modAngle < 4.5f || modAngle > 355.5f;
+        float modAngle = Math.abs(this.angle) % 360.0f;
+        return modAngle < 22.5f || modAngle > 337.5f;
     }
 
     @Override
@@ -257,6 +272,14 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity
         float baseSpeed = Math.signum(diff) * 32.0f;
         Direction facing = this.getBlockState().getValue(ServoBlock.FACING);
         return convertToDirection(baseSpeed, facing);
+    }
+
+    @Override
+    public float calculateAddedStressCapacity() {
+        if (this.movedContraption != null) return 0.0f;
+        float speed = Math.abs(this.getGeneratedSpeed());
+        if (speed == 0.0f) return 0.0f;
+        return 1024.0f / speed;
     }
 
     @Override
@@ -286,8 +309,11 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity
 
         if (this.running) {
             if (this.movedContraption == null || !this.movedContraption.isStalled()) {
-                this.clientAngleDiff = AngleHelper.getShortestAngleDiff(angleBefore, this.angle);
-                this.angle = angleBefore;
+                if (Math.abs(this.angle - angleBefore) > 12.0f) {
+                    this.prevAngle = this.angle;
+                } else {
+                    this.angle = angleBefore;
+                }
             }
         } else {
             this.movedContraption = null;
