@@ -1,8 +1,10 @@
 package io.github.sjzeero.voltworks.wallwire.client;
 
 import com.george_vi.electroenergetics.CEERegistries;
+import com.george_vi.electroenergetics.client.WireRenderer;
 import com.george_vi.electroenergetics.content.wire.interaction.WireInteractionBehaviour;
 import com.george_vi.electroenergetics.content.wire.interaction.WireInteractionHandler;
+import com.george_vi.electroenergetics.content.wire_spool.DyeWireInteractionBehaviour;
 import com.george_vi.electroenergetics.content.wire_spool.EmptySpoolWireInteractionBehaviour;
 import com.george_vi.electroenergetics.content.wire_spool.WireApplyingBehaviour;
 import com.george_vi.electroenergetics.content.wire_spool.WireCuttersWireInteractionBehaviour;
@@ -12,6 +14,7 @@ import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
 import com.george_vi.electroenergetics.foundation.nodes.NodeConnectionPoint;
 import com.george_vi.electroenergetics.simulation.WireType;
+import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.VoltworksClientConfig;
@@ -33,6 +36,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -101,6 +106,10 @@ public final class WallWireClient {
         return ((WireSpoolItemAccessor) spool).voltworks$wireType().get();
     }
 
+    static @Nullable DyeColor offhandDye(LocalPlayer player) {
+        return player.getOffhandItem().getItem() instanceof DyeItem dye ? dye.getDyeColor() : null;
+    }
+
     private static boolean holdingSpool(LocalPlayer player) {
         return player.getMainHandItem().getItem() instanceof WireSpoolItem;
     }
@@ -130,7 +139,7 @@ public final class WallWireClient {
         Vec3 s = startPos(level);
         if(s == null || committed.isEmpty())
             return 0;
-        return s.distanceTo(committed.getFirst().point()) + (committed.size() - 1) / 16.0;
+        return s.distanceTo(committed.getFirst().point()) + WallRouter.pixels(committed) / 16.0;
     }
 
     private static void tick(ClientTickEvent.Post event) {
@@ -195,7 +204,7 @@ public final class WallWireClient {
                     hoverPath = List.of(cell);
                 else {
                     int left = (int) Math.floor((maxLength(type) - placedLength(level)) * 16);
-                    hoverPath = left > 0 ? WallRouter.findPath(level, committed.getLast(), cell, Math.min(left, 16 * 24)) : null;
+                    hoverPath = left > 0 ? WallRouter.findPath(level, committed.getLast(), cell, Math.min(left, 16 * 24), WallRouter.PREVIEW_EXPANSIONS) : null;
                 }
             }
         }
@@ -366,7 +375,7 @@ public final class WallWireClient {
         }
     }
 
-    /** Lets the empty spool and wire cutters pick a wall wire by looking at it on its face. */
+    /** Lets the empty spool, wire cutters and dyes pick a wall wire by looking at it on its face. */
     public static void pickWallWire() {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
@@ -376,7 +385,8 @@ public final class WallWireClient {
         ItemStack stack = player.getMainHandItem();
         WireInteractionBehaviour behaviour = CEERegistries.WIRE_INTERACTION_BEHAVIOUR.stream()
                 .filter(h -> h.isActiveFor(stack, player)).findFirst().orElse(null);
-        if(!(behaviour instanceof EmptySpoolWireInteractionBehaviour) && !(behaviour instanceof WireCuttersWireInteractionBehaviour))
+        boolean dye = behaviour instanceof DyeWireInteractionBehaviour;
+        if(!(behaviour instanceof EmptySpoolWireInteractionBehaviour) && !(behaviour instanceof WireCuttersWireInteractionBehaviour) && !dye)
             return;
         double range = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 1;
         Vec3 from = player.getEyePosition();
@@ -385,6 +395,9 @@ public final class WallWireClient {
         ClientWallRoutes.Entry bestEntry = null;
         Vec3 bestPos = null;
         for(ClientWallRoutes.Entry entry : ClientWallRoutes.all()) {
+            if(dye && (entry.route().color == ((DyeItem) stack.getItem()).getDyeColor()
+                    || !(WireRenderer.getConnectionData(entry.route().connection) instanceof WireData data && data.wireType() instanceof WireType.Dyeable)))
+                continue;
             if(!entry.bounds().contains(from) && entry.bounds().clip(from, to).isEmpty())
                 continue;
             for(WallRoute.Segment seg : entry.segments()) {

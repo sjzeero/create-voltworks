@@ -23,9 +23,11 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -74,6 +76,11 @@ public final class WallWireRenderer {
         return false;
     }
 
+    /** Dyed insulated wires use Electro Energetics' own coloured variant; bare wires, also after burning, keep their look. */
+    private static WireType look(WireType type, @Nullable DyeColor color) {
+        return color != null && type instanceof WireType.Dyeable dyeable ? dyeable.getDyed(color) : type;
+    }
+
     static void render(RenderLevelStageEvent event) {
         if(event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES)
             return;
@@ -101,7 +108,7 @@ public final class WallWireRenderer {
             if(entry.bounds().getCenter().distanceTo(cam) > RENDER_DISTANCE + entry.bounds().getSize())
                 continue;
             InWorldNodeConnection c = entry.route().connection;
-            new Drawer(level, pose.last(), buffer, used, data.wireType(), cam)
+            new Drawer(level, pose.last(), buffer, used, data.wireType(), entry.route().color, cam)
                     .route(entry.route().cells, entry.segments(), c.node1(), c.node2());
         }
 
@@ -109,7 +116,7 @@ public final class WallWireRenderer {
             WireType type = WallWireClient.heldWireType(mc.player);
             if(type != null) {
                 List<WallCell> cells = List.copyOf(WallWireClient.committed);
-                new Drawer(level, pose.last(), buffer, used, type, cam)
+                new Drawer(level, pose.last(), buffer, used, type, WallWireClient.offhandDye(mc.player), cam)
                         .route(cells, WallRoute.segments(cells), WallWireClient.start, null);
             }
         }
@@ -204,13 +211,14 @@ public final class WallWireRenderer {
         final Vec3 cam;
         final double size;
 
-        Drawer(ClientLevel level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, Vec3 cam) {
+        Drawer(ClientLevel level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, @Nullable DyeColor color, Vec3 cam) {
             this.level = level;
             this.pose = pose;
-            RenderType rt = type.renderType();
+            WireType look = look(type, color);
+            RenderType rt = look.renderType();
             used.add(rt);
             this.vb = buffer.getBuffer(rt);
-            this.tex = texture(type);
+            this.tex = texture(look);
             this.cam = cam;
             this.size = sizePixels(type) * PX;
         }
@@ -241,6 +249,10 @@ public final class WallWireRenderer {
          */
         private void segment(List<WallRoute.Segment> segs, int i) {
             WallRoute.Segment seg = segs.get(i);
+            if(seg.air()) {
+                air(seg);
+                return;
+            }
             Vec3 dir = seg.b().subtract(seg.a());
             double len = dir.length();
             if(len < 1e-6)
@@ -252,7 +264,7 @@ public final class WallWireRenderer {
             double from = 0, to = len;
             boolean capStart = true, capEnd = true;
 
-            if(i == 0) {
+            if(i == 0 || segs.get(i - 1).air()) {
                 from -= size / 2;
             } else {
                 WallRoute.Segment prev = segs.get(i - 1);
@@ -274,7 +286,7 @@ public final class WallWireRenderer {
                     capStart = false;
                 }
             }
-            if(i == segs.size() - 1) {
+            if(i == segs.size() - 1 || segs.get(i + 1).air()) {
                 to += size / 2;
             } else {
                 WallRoute.Segment next = segs.get(i + 1);
@@ -298,6 +310,20 @@ public final class WallWireRenderer {
             Vec3 origin = a0.add(u.scale(from)).subtract(s.scale(size / 2));
             int light = LevelRenderer.getLightColor(level, seg.lightPos());
             box(origin, u, s, n, to - from, size, size, capStart, capEnd, false, light);
+        }
+
+        /** A span through the air, standing on top of the runs it leaves and lands on. */
+        private void air(WallRoute.Segment seg) {
+            Vec3 u = step(seg.normal());
+            double lift = WallCell.LIFT;
+            Vec3 start = seg.a().add(u.scale(size - lift));
+            double len = seg.b().subtract(u.scale(size - lift)).subtract(start).dot(u);
+            if(len < 1e-5)
+                return;
+            Vec3 w = Math.abs(u.y) > 0.5 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
+            Vec3 s = u.cross(w);
+            Vec3 origin = start.subtract(s.scale(size / 2)).subtract(w.scale(size / 2));
+            box(origin, u, s, w, len, size, size, false, false, true, LevelRenderer.getLightColor(level, seg.lightPos()));
         }
 
         private void pad(WallCell cell) {
