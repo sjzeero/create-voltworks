@@ -1,23 +1,78 @@
 {
-	"format_version": "1.21.6",
-	"credit": "Made with Blockbench",
-	"textures": {
-		"1": "voltworks:block/component/gauge",
-		"particle": "voltworks:block/component/gauge"
-	},
-	"elements": [
-		{
-			"from": [1.125, 3, 1],
-			"to": [1.875, 3.2, 4],
-			"rotation": {"angle": 0, "axis": "y", "origin": [2, 3, 1]},
-			"faces": {
-				"north": {"uv": [13, 0, 13.75, 0.2], "texture": "#1"},
-				"east": {"uv": [13, 0, 16, 0.2], "texture": "#1"},
-				"south": {"uv": [13, 0, 13.75, 0.2], "texture": "#1"},
-				"west": {"uv": [13, 0, 16, 0.2], "texture": "#1"},
-				"up": {"uv": [13, 0, 16, 1], "rotation": 90, "texture": "#1"},
-				"down": {"uv": [13, 0, 16, 1], "rotation": 270, "texture": "#1"}
-			}
-		}
-	]
+  "credit": "Voltworks (original)",
+  "textures": {
+    "0": "voltworks:block/component/gauge",
+    "particle": "voltworks:block/component/gauge"
+  },
+  "elements": [
+    {
+      "name": "needle",
+      "from": [
+        1.125,
+        3,
+        1
+      ],
+      "to": [
+        1.875,
+        3.2,
+        4
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            15,
+            3,
+            16,
+            4
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            15,
+            3,
+            16,
+            4
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            10,
+            6,
+            13,
+            7
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            10,
+            6,
+            13,
+            7
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            15,
+            0,
+            16,
+            3
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            15,
+            0,
+            16,
+            3
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ]
 }

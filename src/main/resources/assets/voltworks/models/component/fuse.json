@@ -1,21 +1,69 @@
 {
-	"format_version": "1.21.11",
-	"credit": "Made with Blockbench",
-	"textures": {
-		"0": "voltworks:block/component/fuse",
-		"particle": "voltworks:block/component/fuse"
-	},
-	"elements": [
-		{
-			"from": [0, 0, 0],
-			"to": [4, 2, 3],
-			"faces": {
-				"north": {"uv": [0, 3, 4, 5], "texture": "#0"},
-				"east": {"uv": [4, 2, 7, 4], "texture": "#0"},
-				"south": {"uv": [4, 0, 8, 2], "texture": "#0"},
-				"west": {"uv": [4, 4, 7, 6], "texture": "#0"},
-				"up": {"uv": [4, 3, 0, 0], "texture": "#0"}
-			}
-		}
-	]
+  "credit": "Voltworks (original)",
+  "textures": {
+    "0": "voltworks:block/component/fuse",
+    "particle": "voltworks:block/component/fuse"
+  },
+  "elements": [
+    {
+      "name": "base",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        4,
+        2,
+        3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            8,
+            2
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            8,
+            2
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            8,
+            0,
+            11,
+            2
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            8,
+            0,
+            11,
+            2
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            4,
+            3
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ]
 }

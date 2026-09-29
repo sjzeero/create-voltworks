@@ -1,61 +1,135 @@
 {
-	"format_version": "1.21.6",
-	"credit": "Made with Blockbench",
-	"parent": "block/block",
-	"textures": {
-		"0": "voltworks:block/component/neon_tube",
-		"particle": "voltworks:block/component/neon_tube"
-	},
-	"elements": [
-		{
-			"from": [0.125, 0, 0.125],
-			"to": [1.875, 1, 1.875],
-			"faces": {
-				"north": {"uv": [2, 2, 0, 3], "texture": "#0"},
-				"east": {"uv": [0, 2, 2, 3], "texture": "#0"},
-				"south": {"uv": [2, 2, 0, 3], "texture": "#0"},
-				"west": {"uv": [0, 2, 2, 3], "texture": "#0"},
-				"up": {"uv": [0, 2, 2, 4], "texture": "#0"}
-			}
-		},
-		{
-			"from": [0.5, 1, 0.35],
-			"to": [1.5, 2.5, 0.85],
-			"rotation": {"angle": 0, "axis": "y", "origin": [0, 1, 0]},
-			"faces": {
-				"north": {"uv": [2, 0, 3, 1.5], "texture": "#0"},
-				"east": {"uv": [2, 0, 2.5, 1.5], "texture": "#0"},
-				"south": {"uv": [2, 0, 3, 1.5], "texture": "#0"},
-				"west": {"uv": [2, 0, 2.5, 1.5], "texture": "#0"},
-				"up": {"uv": [2, 0, 3, 0.5], "texture": "#0"}
-			}
-		},
-		{
-			"from": [0.5, 1, 1.15],
-			"to": [1.5, 2.5, 1.65],
-			"rotation": {"angle": 0, "axis": "y", "origin": [0, 1, 0]},
-			"faces": {
-				"north": {"uv": [3, 0, 4, 1.5], "texture": "#0"},
-				"east": {"uv": [3, 0, 3.5, 1.5], "texture": "#0"},
-				"south": {"uv": [3, 0, 4, 1.5], "texture": "#0"},
-				"west": {"uv": [3, 0, 3.5, 1.5], "texture": "#0"},
-				"up": {"uv": [3, 0, 4, 0.5], "texture": "#0"}
-			}
-		}
-	],
-	"groups": [
-		0,
-		{
-			"name": "electrode",
-			"origin": [1, 1.5, 0.5],
-			"color": 0,
-			"children": [1]
-		},
-		{
-			"name": "electrode",
-			"origin": [1, 1.5, 0.5],
-			"color": 0,
-			"children": [2]
-		}
-	]
+  "credit": "Voltworks (original)",
+  "textures": {
+    "0": "voltworks:block/component/neon_tube",
+    "particle": "voltworks:block/component/neon_tube"
+  },
+  "elements": [
+    {
+      "name": "base",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        2,
+        1,
+        2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            2,
+            8,
+            3
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            6,
+            2,
+            8,
+            3
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            4,
+            2,
+            6,
+            3
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            4,
+            2,
+            6,
+            3
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            8,
+            0,
+            10,
+            2
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "electrode",
+      "from": [
+        0.5,
+        1,
+        0.5
+      ],
+      "to": [
+        1.5,
+        2,
+        0.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            15,
+            0,
+            16,
+            1
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            15,
+            0,
+            16,
+            1
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "electrode",
+      "from": [
+        0.5,
+        1,
+        1.5
+      ],
+      "to": [
+        1.5,
+        2,
+        1.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            15,
+            1,
+            16,
+            2
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            15,
+            1,
+            16,
+            2
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ]
 }
