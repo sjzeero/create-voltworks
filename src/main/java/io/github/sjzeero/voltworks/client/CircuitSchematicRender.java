@@ -117,7 +117,7 @@ public class CircuitSchematicRender {
         var mY = (mouseY - y) / scale;
         for(var placed : schematic.components()) {
             var hovering = mX >= placed.x && mY >= placed.y && mX < placed.x + placed.footprint().getWidth() && mY < placed.y + placed.footprint().getHeight();
-            FootprintRender.render(placed.footprint(), ctx, placed.component, placed.x * GRID_TO_GRID_SCALE, placed.y * GRID_TO_GRID_SCALE, hovering);
+            FootprintRender.render(placed.footprint(), ctx, placed.component, placed.x * GRID_TO_GRID_SCALE, placed.y * GRID_TO_GRID_SCALE, hovering, true);
         }
         ms.popPose();
     }

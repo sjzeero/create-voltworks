@@ -60,8 +60,7 @@ public final class SchematicSymbols {
         return out;
     }
 
-    public static List<Pixel> polarity(ComponentFootprint fp) {
-        var cells = new LinkedHashMap<Point, Pixel>();
+    public static List<Map.Entry<Point, Boolean>> marks(ComponentFootprint fp) {
         var marked = new ArrayList<Map.Entry<Point, Boolean>>();
         for(var entry : fp.getPads().entrySet()) {
             var text = entry.getValue().shortText();
@@ -73,6 +72,12 @@ public final class SchematicSymbols {
             else if(mark.equals("-") || mark.equalsIgnoreCase("N"))
                 marked.add(Map.entry(entry.getKey(), false));
         }
+        return marked;
+    }
+
+    public static List<Pixel> polarity(ComponentFootprint fp) {
+        var cells = new LinkedHashMap<Point, Pixel>();
+        var marked = marks(fp);
         for(var entry : marked)
             cells.put(entry.getKey(), new Pixel(entry.getKey().x(), entry.getKey().y(), entry.getValue() ? POSITIVE : NEGATIVE));
         for(var entry : marked) {

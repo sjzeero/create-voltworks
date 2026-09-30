@@ -32,6 +32,7 @@ import static io.github.sjzeero.voltworks.client.CircuitSchematicRender.COLOR_TE
 
 public final class FootprintRender {
     private static final ResourceLocation ARROWS = Voltworks.texture("gui/circuit_arrows");
+    private static final int MARK_OUTLINE = 0xFF10141C;
 
     private FootprintRender() {
     }
@@ -48,7 +49,29 @@ public final class FootprintRender {
         ms.popPose();
     }
 
+    private static void renderMarks(ComponentFootprint fp, @NotNull GuiGraphics ctx, int x, int y) {
+        var ms = ctx.pose();
+        ms.pushPose();
+        ms.scale(0.125f, 0.125f, 1);
+        for(var mark : SchematicSymbols.marks(fp)) {
+            int x1 = (mark.getKey().x() + x) * 8;
+            int y1 = (mark.getKey().y() + y) * 8;
+            boolean positive = mark.getValue();
+            ctx.fill(x1, y1 + 2, x1 + 8, y1 + 6, MARK_OUTLINE);
+            if(positive)
+                ctx.fill(x1 + 2, y1, x1 + 6, y1 + 8, MARK_OUTLINE);
+            ctx.fill(x1 + 1, y1 + 3, x1 + 7, y1 + 5, positive ? SchematicSymbols.POSITIVE : SchematicSymbols.NEGATIVE);
+            if(positive)
+                ctx.fill(x1 + 3, y1 + 1, x1 + 5, y1 + 7, SchematicSymbols.POSITIVE);
+        }
+        ms.popPose();
+    }
+
     public static void render(ComponentFootprint fp, @NotNull GuiGraphics ctx, @NotNull Component component, int x, int y, boolean hovering) {
+        render(fp, ctx, component, x, y, hovering, false);
+    }
+
+    public static void render(ComponentFootprint fp, @NotNull GuiGraphics ctx, @NotNull Component component, int x, int y, boolean hovering, boolean editor) {
         var ms = ctx.pose();
         int width = fp.getWidth();
         int height = fp.getHeight();
@@ -79,7 +102,9 @@ public final class FootprintRender {
                 ctx.renderItem(stack, (int) (x / scale), (int) (y / scale));
             ms.popPose();
         }
-        if(VoltworksClientConfig.polarityMarks())
+        if(editor)
+            renderMarks(fp, ctx, x, y);
+        else if(VoltworksClientConfig.polarityMarks())
             renderPixels(SchematicSymbols.polarity(fp), ctx, x, y);
 
         var arrow = fp.getArrow();
