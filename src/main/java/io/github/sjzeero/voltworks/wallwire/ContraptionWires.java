@@ -64,6 +64,8 @@ public final class ContraptionWires {
             tag.put("N1", writeNode(connection.node1(), shift, local));
             tag.put("N2", writeNode(connection.node2(), shift, local));
             writeData(tag, data);
+            tag.put("P1", vec(sd.getNodePositionOrCenter(connection.node1()).subtract(Vec3.atLowerCornerOf(shift))));
+            tag.put("P2", vec(sd.getNodePositionOrCenter(connection.node2()).subtract(Vec3.atLowerCornerOf(shift))));
             WallRoute route = walls.get(connection);
             if(route != null) {
                 long[] pos = new long[route.cells.size()];
@@ -122,6 +124,62 @@ public final class ContraptionWires {
             }
             sd.connect(n1, n2, data);
         }
+    }
+
+    private static ListTag vec(Vec3 v) {
+        ListTag l = new ListTag();
+        l.add(net.minecraft.nbt.DoubleTag.valueOf(v.x));
+        l.add(net.minecraft.nbt.DoubleTag.valueOf(v.y));
+        l.add(net.minecraft.nbt.DoubleTag.valueOf(v.z));
+        return l;
+    }
+
+    /** What a client needs to draw the wires that sit fully inside the contraption. */
+    public static ListTag renderData(ListTag wires) {
+        ListTag out = new ListTag();
+        for(Tag t : wires) {
+            CompoundTag tag = (CompoundTag) t;
+            if(!tag.contains("CPos") || !tag.getCompound("N1").getBoolean("In") || !tag.getCompound("N2").getBoolean("In") || !tag.contains("P1"))
+                continue;
+            boolean inside = true;
+            for(byte b : tag.getByteArray("CIn"))
+                inside &= b != 0;
+            if(!inside)
+                continue;
+            CompoundTag r = new CompoundTag();
+            r.putString("Type", tag.getString("Type"));
+            if(tag.contains("Color"))
+                r.putString("Color", tag.getString("Color"));
+            r.put("CPos", tag.get("CPos"));
+            r.put("CLocal", tag.get("CLocal"));
+            r.put("P1", tag.get("P1"));
+            r.put("P2", tag.get("P2"));
+            out.add(r);
+        }
+        return out;
+    }
+
+    public record Drawn(WireType type, net.minecraft.world.item.DyeColor color, List<WallCell> cells, List<WallRoute.Segment> segments, Vec3 p1, Vec3 p2) {
+    }
+
+    public static List<Drawn> parseRender(ListTag list) {
+        List<Drawn> out = new ArrayList<>();
+        for(Tag t : list) {
+            CompoundTag r = (CompoundTag) t;
+            ResourceLocation key = ResourceLocation.tryParse(r.getString("Type"));
+            WireType type = key == null ? null : CEERegistries.WIRE_TYPE.get(key);
+            long[] pos = r.getLongArray("CPos");
+            int[] loc = r.getIntArray("CLocal");
+            if(type == null || pos.length == 0 || pos.length != loc.length)
+                continue;
+            List<WallCell> cells = new ArrayList<>(pos.length);
+            for(int i = 0; i < pos.length; i++)
+                cells.add(WallCell.unpack(pos[i], loc[i]));
+            ListTag a = r.getList("P1", Tag.TAG_DOUBLE), b = r.getList("P2", Tag.TAG_DOUBLE);
+            out.add(new Drawn(type, r.contains("Color") ? DyeColor.byName(r.getString("Color"), null) : null, cells, WallRoute.segments(cells),
+                    new Vec3(a.getDouble(0), a.getDouble(1), a.getDouble(2)), new Vec3(b.getDouble(0), b.getDouble(1), b.getDouble(2))));
+        }
+        return out;
     }
 
     private static void ensure(ServerLevel level, BlockPos pos) {

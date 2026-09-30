@@ -56,6 +56,10 @@ public final class WallSpace {
         return pose == null ? pos : pose.transformPosition(pos);
     }
 
+    public static Vec3 rotate(@Nullable Pose3dc pose, Vec3 normal) {
+        return pose == null ? normal : pose.transformNormal(normal);
+    }
+
     public static Vec3 toLocal(@Nullable Pose3dc pose, Vec3 pos) {
         return pose == null ? pos : pose.transformPositionInverse(pos);
     }

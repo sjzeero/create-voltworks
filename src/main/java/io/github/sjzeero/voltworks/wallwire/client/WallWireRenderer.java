@@ -130,6 +130,19 @@ public final class WallWireRenderer {
             }
         }
 
+        for(net.minecraft.world.entity.Entity e : level.entitiesForRendering()) {
+            if(!(e instanceof com.simibubi.create.content.contraptions.AbstractContraptionEntity ace) || !(ace.getContraption() instanceof io.github.sjzeero.voltworks.wallwire.ContraptionWireView view))
+                continue;
+            if(view.voltworks$drawn().isEmpty() || e.position().distanceTo(cam) > RENDER_DISTANCE)
+                continue;
+            Pose3dc space = WallSpace.renderPose(level, e.blockPosition(), partial);
+            int light = LevelRenderer.getLightColor(level, e.blockPosition());
+            for(io.github.sjzeero.voltworks.wallwire.ContraptionWires.Drawn w : view.voltworks$drawn())
+                new Drawer(level, pose.last(), buffer, used, w.type(), w.color(), cam, space,
+                        p -> WallSpace.toWorld(space, ace.toGlobalVector(p, partial)), n -> WallSpace.rotate(space, ace.applyRotation(n, partial)), light)
+                        .route(w.cells(), w.segments(), w.p1(), w.p2());
+        }
+
         for(RenderType type : used)
             buffer.endBatch(type);
     }
@@ -220,10 +233,20 @@ public final class WallWireRenderer {
         final Vec3 cam;
         final double size;
         final @Nullable Pose3dc space;
+        final java.util.function.UnaryOperator<Vec3> mapPoint, mapNormal;
+        final int fixedLight;
 
         Drawer(ClientLevel level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, @Nullable DyeColor color, Vec3 cam, @Nullable Pose3dc space) {
+            this(level, pose, buffer, used, type, color, cam, space, p -> WallSpace.toWorld(space, p), n -> space == null ? n : space.transformNormal(n), -1);
+        }
+
+        Drawer(ClientLevel level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, @Nullable DyeColor color, Vec3 cam, @Nullable Pose3dc space,
+               java.util.function.UnaryOperator<Vec3> mapPoint, java.util.function.UnaryOperator<Vec3> mapNormal, int fixedLight) {
             this.level = level;
             this.space = space;
+            this.mapPoint = mapPoint;
+            this.mapNormal = mapNormal;
+            this.fixedLight = fixedLight;
             this.pose = pose;
             WireType look = look(type, color);
             RenderType rt = look.renderType();
@@ -235,6 +258,14 @@ public final class WallWireRenderer {
         }
 
         void route(List<WallCell> cells, List<WallRoute.Segment> segments, InWorldNode node1, InWorldNode node2) {
+            route(cells, segments, node1 == null ? null : WallSpace.nodePos(level, node1), node2 == null ? null : WallSpace.nodePos(level, node2));
+        }
+
+        int light(BlockPos pos) {
+            return fixedLight >= 0 ? fixedLight : LevelRenderer.getLightColor(level, pos);
+        }
+
+        void route(List<WallCell> cells, List<WallRoute.Segment> segments, Vec3 node1, Vec3 node2) {
             if(cells.isEmpty())
                 return;
             if(segments.isEmpty())
@@ -243,9 +274,9 @@ public final class WallWireRenderer {
                 for(int i = 0; i < segments.size(); i++)
                     segment(segments, i);
             if(node1 != null)
-                lead(WallSpace.nodePos(level, node1), cells.getFirst(), segments.isEmpty() ? null : segments.getFirst());
+                lead(node1, cells.getFirst(), segments.isEmpty() ? null : segments.getFirst());
             if(node2 != null)
-                lead(WallSpace.nodePos(level, node2), cells.getLast(), segments.isEmpty() ? null : segments.getLast());
+                lead(node2, cells.getLast(), segments.isEmpty() ? null : segments.getLast());
         }
 
         private static Vec3 step(Direction d) {
@@ -319,7 +350,7 @@ public final class WallWireRenderer {
                 return;
             Vec3 s = n.cross(u);
             Vec3 origin = a0.add(u.scale(from)).subtract(s.scale(size / 2));
-            int light = LevelRenderer.getLightColor(level, seg.lightPos());
+            int light = light(seg.lightPos());
             box(origin, u, s, n, to - from, size, size, capStart, capEnd, false, light);
         }
 
@@ -334,7 +365,7 @@ public final class WallWireRenderer {
             Vec3 w = Math.abs(u.y) > 0.5 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
             Vec3 s = u.cross(w);
             Vec3 origin = start.subtract(s.scale(size / 2)).subtract(w.scale(size / 2));
-            box(origin, u, s, w, len, size, size, false, false, true, LevelRenderer.getLightColor(level, seg.lightPos()));
+            box(origin, u, s, w, len, size, size, false, false, true, light(seg.lightPos()));
         }
 
         private void pad(WallCell cell) {
@@ -343,7 +374,7 @@ public final class WallWireRenderer {
             Vec3 s = n.cross(u);
             Vec3 c = cell.point(0);
             Vec3 origin = c.subtract(u.scale(size / 2)).subtract(s.scale(size / 2));
-            box(origin, u, s, n, size, size, size, true, true, false, LevelRenderer.getLightColor(level, cell.front()));
+            box(origin, u, s, n, size, size, size, true, true, false, light(cell.front()));
         }
 
         /** Straight wire from the node into the middle of the end of the surface run. */
@@ -365,8 +396,8 @@ public final class WallWireRenderer {
             side = side.normalize();
             Vec3 up = u.cross(side).normalize();
             Vec3 origin = node.subtract(side.scale(size / 2)).subtract(up.scale(size / 2));
-            int light = WireRenderer.maxLightLevel(LevelRenderer.getLightColor(level, BlockPos.containing(node)),
-                    LevelRenderer.getLightColor(level, cell.front()));
+            int light = WireRenderer.maxLightLevel(light(BlockPos.containing(node)),
+                    light(cell.front()));
             // stop at the near side of the surface run so the lead does not poke through it
             box(origin, u, side, up, Math.max(size / 2, len - size / 2), size, size, true, true, true, light);
         }
@@ -415,11 +446,11 @@ public final class WallWireRenderer {
             boolean flip = c1.subtract(c0).cross(c3.subtract(c0)).dot(normal) < 0;
             float shade = shade(normal);
             int col = (int) (255 * shade);
-            Vec3 worldNormal = space == null ? normal : space.transformNormal(normal);
+            Vec3 worldNormal = mapNormal.apply(normal);
             float nx = (float) worldNormal.x, ny = (float) worldNormal.y, nz = (float) worldNormal.z;
             for(int k = 0; k < 4; k++) {
                 int i = flip ? (4 - k) % 4 : k;
-                Vec3 p = WallSpace.toWorld(space, c[i]).subtract(cam);
+                Vec3 p = mapPoint.apply(c[i]).subtract(cam);
                 vb.addVertex(pose, (float) p.x, (float) p.y, (float) p.z)
                         .setColor(col, col, col, 255)
                         .setUv(tex.u(ts[i][0], ts[i][1]), tex.v(ts[i][0], ts[i][1]))
