@@ -103,7 +103,7 @@ public class CircuitSchematicRender {
         ms.translate(x, y, 0);
         ms.scale(scale, scale, scale);
         for(var placed : schematic.components()) {
-            FootprintRender.render(placed.footprint(), ctx, placed.component, placed.x * GRID_TO_GRID_SCALE, placed.y * GRID_TO_GRID_SCALE, false);
+            FootprintRender.render(placed.footprint(), ctx, placed.component, placed.x * GRID_TO_GRID_SCALE, placed.y * GRID_TO_GRID_SCALE, false, true);
         }
         ms.popPose();
     }
