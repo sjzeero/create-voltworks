@@ -32,7 +32,10 @@ import static io.github.sjzeero.voltworks.client.CircuitSchematicRender.COLOR_TE
 
 public final class FootprintRender {
     private static final ResourceLocation ARROWS = Voltworks.texture("gui/circuit_arrows");
-    private static final int MARK_OUTLINE = 0xFF10141C;
+    private static final int MARK_PLUS = 0xFFD62828;
+    private static final int MARK_SIGN = 0xFFFFFFFF;
+    private static final int MARK_MINUS = 0xFF8FD0FF;
+    private static final int MARK_MINUS_SIGN = 0xFF1B4F9C;
 
     private FootprintRender() {
     }
@@ -52,17 +55,19 @@ public final class FootprintRender {
     private static void renderMarks(ComponentFootprint fp, @NotNull GuiGraphics ctx, int x, int y) {
         var ms = ctx.pose();
         ms.pushPose();
+        ms.translate(0, 0, 200);
         ms.scale(0.125f, 0.125f, 1);
         for(var mark : PolarityMarks.marks(fp)) {
             int x1 = (mark.getKey().x() + x) * 8;
             int y1 = (mark.getKey().y() + y) * 8;
-            boolean positive = mark.getValue();
-            ctx.fill(x1, y1 + 2, x1 + 8, y1 + 6, MARK_OUTLINE);
-            if(positive)
-                ctx.fill(x1 + 2, y1, x1 + 6, y1 + 8, MARK_OUTLINE);
-            ctx.fill(x1 + 1, y1 + 3, x1 + 7, y1 + 5, positive ? PolarityMarks.POSITIVE : PolarityMarks.NEGATIVE);
-            if(positive)
-                ctx.fill(x1 + 3, y1 + 1, x1 + 5, y1 + 7, PolarityMarks.POSITIVE);
+            if(mark.getValue()) {
+                ctx.fill(x1, y1, x1 + 8, y1 + 8, MARK_PLUS);
+                ctx.fill(x1 + 1, y1 + 3, x1 + 7, y1 + 5, MARK_SIGN);
+                ctx.fill(x1 + 3, y1 + 1, x1 + 5, y1 + 7, MARK_SIGN);
+            } else {
+                ctx.fill(x1, y1 + 1, x1 + 8, y1 + 7, MARK_MINUS);
+                ctx.fill(x1 + 2, y1 + 3, x1 + 6, y1 + 5, MARK_MINUS_SIGN);
+            }
         }
         ms.popPose();
     }
