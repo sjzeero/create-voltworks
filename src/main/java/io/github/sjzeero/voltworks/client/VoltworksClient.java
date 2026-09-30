@@ -42,13 +42,18 @@ public class VoltworksClient {
 
     private static void tick(ClientTickEvent.Post event) {
         while(ModdedKeys.TOGGLE_SCHEMATIC.getKeybind().consumeClick()) {
-            VoltworksClientConfig.toggleSchematicMode();
+            toggleSchematic();
             var mc = Minecraft.getInstance();
-            if(mc.levelRenderer != null)
-                mc.levelRenderer.allChanged();
             mc.gui.setOverlayMessage(Component.translatable(VoltworksClientConfig.schematicMode()
                     ? "message.voltworks.schematic_on" : "message.voltworks.schematic_off"), false);
         }
+    }
+
+    public static void toggleSchematic() {
+        VoltworksClientConfig.toggleSchematicMode();
+        var mc = Minecraft.getInstance();
+        if(mc.levelRenderer != null)
+            mc.levelRenderer.allChanged();
     }
 
     private static void screens(RegisterMenuScreensEvent event) {

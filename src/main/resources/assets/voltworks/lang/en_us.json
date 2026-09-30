@@ -191,6 +191,7 @@
   "voltworks.gui.circuit_designer.not_saved": "You have unsaved changes!",
   "voltworks.gui.circuit_designer.placeable": "Placeable",
   "voltworks.gui.circuit_designer.save": "Save changes",
+  "voltworks.gui.circuit_designer.schematic": "Toggle schematic view (%s)",
   "voltworks.gui.circuit_designer.saving": "Saving...",
   "voltworks.gui.circuit_designer.select": "Select component (%s)",
   "voltworks.gui.edit_scroll_box.scroll": "Scroll to Select or Type in a Name",
