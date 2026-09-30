@@ -9,6 +9,7 @@
     "ArmInteractionPointMixin",
     "BasinRecipeMixin",
     "BeltDeployerMixin",
+    "ContraptionMixin",
     "DyeWireInteractionBehaviourMixin",
     "InfrastructureSavedDataMixin",
     "RecipeApplierMixin",
