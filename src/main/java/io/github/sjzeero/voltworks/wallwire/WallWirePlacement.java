@@ -63,7 +63,7 @@ public final class WallWirePlacement {
         }
         double reach = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 3;
         Vec3 eye = player.getEyePosition();
-        if(eye.distanceTo(end.sourcePos().getCenter()) > reach + 1) {
+        if(WallSpace.distance(level, eye, end.sourcePos().getCenter()) > reach + 1) {
             deny(player, "invalid", null);
             return;
         }
@@ -72,9 +72,13 @@ public final class WallWirePlacement {
                 deny(player, "no_path", c.pos());
                 return;
             }
+            if(!WallSpace.sameSpace(level, c.pos(), start.sourcePos()) || !WallSpace.sameSpace(level, c.pos(), end.sourcePos())) {
+                deny(player, "invalid", c.pos());
+                return;
+            }
         }
         // the last point is clicked right before the end node; earlier points may be behind the player now
-        if(eye.distanceTo(points.getLast().point()) > reach + 1) {
+        if(WallSpace.distance(level, eye, points.getLast().point()) > reach + 1) {
             deny(player, "invalid", null);
             return;
         }
@@ -103,8 +107,8 @@ public final class WallWirePlacement {
             deny(player, "no_path", end.sourcePos());
             return;
         }
-        Vec3 startPos = sd.getNodePositionOrCenter(start);
-        Vec3 endPos = sd.getNodePositionOrCenter(end);
+        Vec3 startPos = WallSpace.nodePos(level, start);
+        Vec3 endPos = WallSpace.nodePos(level, end);
         double lead1 = startPos.distanceTo(cells.getFirst().point());
         double lead2 = endPos.distanceTo(cells.getLast().point());
         double maxLead = VoltworksConfig.wallWireMaxLead();
@@ -120,7 +124,7 @@ public final class WallWirePlacement {
 
         WallWireData.get(level).put(WallRoute.oriented(start, end, cells, length));
         sd.connect(start, end, WireData.ofLength(type, length));
-        AllSoundEvents.WRENCH_REMOVE.playOnServer(level, end.sourcePos());
+        AllSoundEvents.WRENCH_REMOVE.playOnServer(level, BlockPos.containing(WallSpace.toWorld(level, end.sourcePos().getCenter())));
         player.displayClientMessage(Component.translatable("voltworks.wall_wire.placed", String.format(java.util.Locale.ROOT, "%.2f", length)), true);
 
         if(!player.isCreative()) {
@@ -142,17 +146,17 @@ public final class WallWirePlacement {
             return true;
         double reach = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 2;
         Vec3 eye = player.getEyePosition();
-        WallCell near = route.cells.stream().min(java.util.Comparator.comparingDouble(c -> c.point().distanceToSqr(eye))).orElse(null);
-        if(near == null || near.point().distanceTo(eye) > reach)
+        WallCell near = route.cells.stream().min(java.util.Comparator.comparingDouble(c -> WallSpace.toWorld(level, c.point()).distanceToSqr(eye))).orElse(null);
+        if(near == null || WallSpace.toWorld(level, near.point()).distanceTo(eye) > reach)
             return true;
         data.put(route.withColor(dye.getDyeColor()));
-        level.playSound(null, BlockPos.containing(near.point()), SoundEvents.DYE_USE, SoundSource.BLOCKS, 1, 1);
+        level.playSound(null, BlockPos.containing(WallSpace.toWorld(level, near.point())), SoundEvents.DYE_USE, SoundSource.BLOCKS, 1, 1);
         stack.consume(1, player);
         return true;
     }
 
     private static void deny(ServerPlayer player, String key, BlockPos pos) {
         player.displayClientMessage(Component.translatable("voltworks.wall_wire." + key), true);
-        AllSoundEvents.DENY.playOnServer(player.level(), pos != null ? pos : player.blockPosition());
+        AllSoundEvents.DENY.playOnServer(player.level(), pos != null ? BlockPos.containing(WallSpace.toWorld(player.level(), pos.getCenter())) : player.blockPosition());
     }
 }
