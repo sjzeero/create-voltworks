@@ -27,6 +27,28 @@ public final class PolarityMarks {
             else if(mark.equals("-") || mark.equalsIgnoreCase("N"))
                 marked.add(Map.entry(entry.getKey(), false));
         }
+        if(marked.isEmpty())
+            return byNodeOrder(fp);
+        return marked;
+    }
+
+    // two-pole parts without pad labels: node 0 is +, node 1 is -
+    private static List<Map.Entry<Point, Boolean>> byNodeOrder(ComponentFootprint fp) {
+        var marked = new ArrayList<Map.Entry<Point, Boolean>>();
+        if(fp.getPads().size() != 2)
+            return marked;
+        Point plus = null, minus = null;
+        for(var entry : fp.getPads().entrySet()) {
+            int node = entry.getValue().nodeIndex();
+            if(node == 0)
+                plus = entry.getKey();
+            else if(node == 1)
+                minus = entry.getKey();
+        }
+        if(plus != null && minus != null) {
+            marked.add(Map.entry(plus, true));
+            marked.add(Map.entry(minus, false));
+        }
         return marked;
     }
 
