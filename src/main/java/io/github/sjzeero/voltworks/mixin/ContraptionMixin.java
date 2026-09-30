@@ -17,47 +17,85 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Keeps the wires of moved blocks in the contraption instead of letting Electro Energetics drop them. */
+/**
+ * Keeps the wires of moved blocks in the contraption instead of letting Electro Energetics drop them.
+ * Fields have no initializers on purpose (some construction paths skip them); every access goes through a lazy getter
+ * and every hook swallows its own errors so Create's assembly is never affected.
+ */
 @Mixin(value = Contraption.class, remap = false)
 public abstract class ContraptionMixin implements io.github.sjzeero.voltworks.wallwire.ContraptionWireView {
     @Unique
-    private ListTag voltworks$wires = new ListTag();
+    private ListTag voltworks$wires;
     @Unique
-    private java.util.List<ContraptionWires.Drawn> voltworks$drawn = java.util.List.of();
+    private java.util.List<ContraptionWires.Drawn> voltworks$drawn;
+
+    @Unique
+    private ListTag voltworks$wireList() {
+        ListTag l = voltworks$wires;
+        if(l == null)
+            voltworks$wires = l = new ListTag();
+        return l;
+    }
+
+    @Unique
+    private static void voltworks$warn(String where, Throwable t) {
+        io.github.sjzeero.voltworks.Voltworks.LOGGER.warn("voltworks: contraption wire {} skipped: {}", where, String.valueOf(t));
+    }
 
     @Override
     public java.util.List<ContraptionWires.Drawn> voltworks$drawn() {
-        return voltworks$drawn;
+        java.util.List<ContraptionWires.Drawn> d = voltworks$drawn;
+        return d == null ? java.util.List.of() : d;
     }
 
     @Inject(method = "removeBlocksFromWorld", at = @At("HEAD"))
     private void voltworks$captureWires(Level world, BlockPos offset, CallbackInfo ci) {
-        if(world instanceof ServerLevel level)
-            voltworks$wires.addAll(ContraptionWires.capture(level, (Contraption) (Object) this, offset));
+        try {
+            if(world instanceof ServerLevel level)
+                voltworks$wireList().addAll(ContraptionWires.capture(level, (Contraption) (Object) this, offset));
+        } catch(Throwable t) {
+            voltworks$warn("capture", t);
+        }
     }
 
     @Inject(method = "addBlocksToWorld", at = @At("TAIL"))
     private void voltworks$restoreWires(Level world, StructureTransform transform, CallbackInfo ci) {
-        if(world instanceof ServerLevel level && !voltworks$wires.isEmpty()) {
+        try {
             ListTag wires = voltworks$wires;
-            voltworks$wires = new ListTag();
-            ContraptionWires.restore(level, wires, transform);
+            if(wires != null && !wires.isEmpty() && world instanceof ServerLevel level) {
+                voltworks$wires = new ListTag();
+                ContraptionWires.restore(level, wires, transform);
+            }
+        } catch(Throwable t) {
+            voltworks$warn("restore", t);
         }
     }
 
     @Inject(method = "writeNBT", at = @At("RETURN"))
     private void voltworks$writeWires(HolderLookup.Provider registries, boolean spawnPacket, CallbackInfoReturnable<CompoundTag> cir) {
-        if(voltworks$wires.isEmpty())
-            return;
-        if(spawnPacket)
-            cir.getReturnValue().put("VoltworksRender", ContraptionWires.renderData(voltworks$wires));
-        else
-            cir.getReturnValue().put("VoltworksWires", voltworks$wires.copy());
+        try {
+            ListTag wires = voltworks$wires;
+            CompoundTag out = cir.getReturnValue();
+            if(wires == null || wires.isEmpty() || out == null)
+                return;
+            if(spawnPacket)
+                out.put("VoltworksRender", ContraptionWires.renderData(wires));
+            else
+                out.put("VoltworksWires", wires.copy());
+        } catch(Throwable t) {
+            voltworks$warn("write", t);
+        }
     }
 
     @Inject(method = "readNBT", at = @At("TAIL"))
     private void voltworks$readWires(Level world, CompoundTag nbt, boolean spawnData, CallbackInfo ci) {
-        voltworks$wires = nbt.contains("VoltworksWires") ? nbt.getList("VoltworksWires", Tag.TAG_COMPOUND) : new ListTag();
-        voltworks$drawn = nbt.contains("VoltworksRender") ? ContraptionWires.parseRender(nbt.getList("VoltworksRender", Tag.TAG_COMPOUND)) : java.util.List.of();
+        try {
+            voltworks$wires = nbt != null && nbt.contains("VoltworksWires") ? nbt.getList("VoltworksWires", Tag.TAG_COMPOUND) : new ListTag();
+            voltworks$drawn = nbt != null && nbt.contains("VoltworksRender") ? ContraptionWires.parseRender(nbt.getList("VoltworksRender", Tag.TAG_COMPOUND)) : java.util.List.of();
+        } catch(Throwable t) {
+            voltworks$wires = new ListTag();
+            voltworks$drawn = java.util.List.of();
+            voltworks$warn("read", t);
+        }
     }
 }

@@ -133,14 +133,19 @@ public final class WallWireRenderer {
         for(net.minecraft.world.entity.Entity e : level.entitiesForRendering()) {
             if(!(e instanceof com.simibubi.create.content.contraptions.AbstractContraptionEntity ace) || !(ace.getContraption() instanceof io.github.sjzeero.voltworks.wallwire.ContraptionWireView view))
                 continue;
-            if(view.voltworks$drawn().isEmpty() || e.position().distanceTo(cam) > RENDER_DISTANCE)
+            java.util.List<io.github.sjzeero.voltworks.wallwire.ContraptionWires.Drawn> drawn = view.voltworks$drawn();
+            if(drawn == null || drawn.isEmpty() || e.position().distanceTo(cam) > RENDER_DISTANCE)
                 continue;
-            Pose3dc space = WallSpace.renderPose(level, e.blockPosition(), partial);
-            int light = LevelRenderer.getLightColor(level, e.blockPosition());
-            for(io.github.sjzeero.voltworks.wallwire.ContraptionWires.Drawn w : view.voltworks$drawn())
-                new Drawer(level, pose.last(), buffer, used, w.type(), w.color(), cam, space,
-                        p -> WallSpace.toWorld(space, ace.toGlobalVector(p, partial)), n -> WallSpace.rotate(space, ace.applyRotation(n, partial)), light)
-                        .route(w.cells(), w.segments(), w.p1(), w.p2());
+            try {
+                Pose3dc space = WallSpace.renderPose(level, e.blockPosition(), partial);
+                int light = LevelRenderer.getLightColor(level, e.blockPosition());
+                for(io.github.sjzeero.voltworks.wallwire.ContraptionWires.Drawn w : drawn)
+                    new Drawer(level, pose.last(), buffer, used, w.type(), w.color(), cam, space,
+                            p -> WallSpace.toWorld(space, ace.toGlobalVector(p, partial)), n -> WallSpace.rotate(space, ace.applyRotation(n, partial)), light)
+                            .route(w.cells(), w.segments(), w.p1(), w.p2());
+            } catch(RuntimeException ex) {
+                // a broken contraption wire must never break world rendering
+            }
         }
 
         for(RenderType type : used)
