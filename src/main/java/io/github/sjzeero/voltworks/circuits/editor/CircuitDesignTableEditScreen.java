@@ -37,8 +37,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import io.github.sjzeero.voltworks.Voltworks;
-import io.github.sjzeero.voltworks.VoltworksClientConfig;
-import io.github.sjzeero.voltworks.client.VoltworksClient;
 import io.github.sjzeero.voltworks.client.UiSounds;
 import io.github.sjzeero.voltworks.client.ModIcons;
 import io.github.sjzeero.voltworks.client.ModdedKeys;
@@ -79,8 +77,6 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
             Lang.translateDirect("gui.circuit_designer.select", ModdedKeys.PICK_COMPONENT.getBoundKey());
     private static final net.minecraft.network.chat.Component TOOLTIP_LAYER =
             Lang.translateDirect("gui.circuit_designer.layer", ModdedKeys.SWITCH_LAYER.getBoundKey());
-    private static final net.minecraft.network.chat.Component TOOLTIP_SCHEMATIC =
-            Lang.translateDirect("gui.circuit_designer.schematic", ModdedKeys.TOGGLE_SCHEMATIC.getBoundKey());
     private static final net.minecraft.network.chat.Component TOOLTIP_PLACEABLE = Lang.translate("gui.circuit_designer.placeable")
             .style(ChatFormatting.DARK_GREEN)
             .style(ChatFormatting.ITALIC)
@@ -107,7 +103,6 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
     private IconButton selectBtn;
 
     private IconButton layerBtn;
-    private IconButton schematicBtn;
 
     private ComponentPropertiesWidget propertiesWidget;
     private boolean changed = false;
@@ -148,15 +143,6 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
         layerBtn.setIcon(backLayer ? ModIcons.I_LAYER_BACK : ModIcons.I_LAYER_FRONT);
     }
 
-    private ModIcons schematicIcon() {
-        return VoltworksClientConfig.schematicMode() ? ModIcons.I_VIEW_SCHEMATIC : ModIcons.I_VIEW_MODEL;
-    }
-
-    protected void flipSchematic() {
-        VoltworksClient.toggleSchematic();
-        schematicBtn.setIcon(schematicIcon());
-    }
-
     @Override
     protected void init() {
         setWindowSize(WIDTH, HEIGHT + 4 + PLAYER_INVENTORY.getHeight());
@@ -187,7 +173,6 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
         deleteBtn = new IconButton(BUTTONS_X, topPos + 101, AllIcons.I_TRASH);
         selectBtn = new IconButton(BUTTONS_X, topPos + 119, AllIcons.I_TARGET);
         layerBtn = new IconButton(BUTTONS_X, topPos + 139, ModIcons.I_LAYER_FRONT);
-        schematicBtn = new IconButton(BUTTONS_X, topPos + 23, schematicIcon());
 
         acceptBtn.setToolTip(TOOLTIP_SAVE);
         cancelBtn.setToolTip(TOOLTIP_DISCARD);
@@ -195,7 +180,6 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
         deleteBtn.setToolTip(TOOLTIP_DELETE);
         selectBtn.setToolTip(TOOLTIP_SELECT);
         layerBtn.setToolTip(TOOLTIP_LAYER);
-        schematicBtn.setToolTip(TOOLTIP_SCHEMATIC);
 
         acceptBtn.withCallback(this::save);
 
@@ -206,7 +190,6 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
         selectBtn.withCallback(() -> toolSelect(Tool.SELECT));//toolCallback(this, Tool.SELECT));
 
         layerBtn.withCallback(this::flipLayer);
-        schematicBtn.withCallback(this::flipSchematic);
 
         editWidget.setSelectionCancelledCallback(() -> toolSelect(Tool.SELECT));
         toolSelect(Tool.SELECT);
@@ -220,7 +203,6 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
         addRenderableWidget(deleteBtn);
         addRenderableWidget(selectBtn);
         addRenderableWidget(layerBtn);
-        addRenderableWidget(schematicBtn);
     }
 
     public Rect2i ghostTarget() {
@@ -494,9 +476,6 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
             UiSounds.SELECT_COMPONENT.play();
         } else if(ModdedKeys.SWITCH_LAYER.matchesKey(keyCode, scanCode)) {
             flipLayer();
-            UiSounds.CLICK.play();
-        } else if(ModdedKeys.TOGGLE_SCHEMATIC.matchesKey(keyCode, scanCode)) {
-            flipSchematic();
             UiSounds.CLICK.play();
         }
 

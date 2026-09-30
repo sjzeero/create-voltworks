@@ -133,7 +133,6 @@
   "voltworks.gui.circuit_designer.not_saved": "Остались несохраненные изменения!",
   "voltworks.gui.circuit_designer.placeable": "Размещаемое",
   "voltworks.gui.circuit_designer.save": "Сохранить изменения",
-  "voltworks.gui.circuit_designer.schematic": "Переключить схематичный вид (%s)",
   "voltworks.gui.circuit_designer.saving": "Сохранение...",
   "voltworks.gui.circuit_designer.select": "Выбрать компонент (%s)",
   "voltworks.gui.edit_scroll_box.scroll": "Прокрутите, чтобы Выбрать или Введите имя",
