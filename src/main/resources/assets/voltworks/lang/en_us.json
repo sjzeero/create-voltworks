@@ -249,18 +249,5 @@
   "voltworks.wall_wire.need_point": "Click at least one point on a surface first",
   "voltworks.wall_wire.cancelled": "Wire placement cancelled",
   "voltworks.wall_wire.undo": "Last point removed",
-  "voltworks.wall_wire.length": "Length: %s / %s m",
-  "block.voltworks.servo": "Servo",
-  "item.voltworks.servo": "Servo",
-  "block.voltworks.servo.tooltip.summary": "Connects to the _EE electrical grid_ and rotates its shaft to a position determined by incoming _Redstone power_ (0° to 180°). Can assemble and drive bearing contraptions.",
-  "block.voltworks.servo.tooltip.condition1": "When powered (≥ 10 V)",
-  "block.voltworks.servo.tooltip.behaviour1": "Rotates smoothly toward the target setpoint angle and holds position under torque.",
-  "block.voltworks.servo.tooltip.condition2": "When unpowered or cut off",
-  "block.voltworks.servo.tooltip.behaviour2": "Stops and firmly holds its current position.",
-  "gui.goggles.servo.powered": "Powered",
-  "gui.goggles.servo.unpowered": "Unpowered",
-  "gui.goggles.servo.status": "Grid Status",
-  "gui.goggles.servo.target_angle": "Target Angle",
-  "gui.goggles.servo.current_angle": "Current Angle",
-  "gui.goggles.servo.contraption_assembled": "Contraption Assembled"
+  "voltworks.wall_wire.length": "Length: %s / %s m"
 }

@@ -55,13 +55,12 @@ public class VoltworksClient {
     private static void renderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(Voltworks.BOARD_BE.get(), CircuitBoardRenderer::new);
         event.registerBlockEntityRenderer(Voltworks.DESIGN_TABLE_BE.get(), CircuitDesignTableRenderer::new);
-        event.registerBlockEntityRenderer(Voltworks.SERVO_BE.get(), ServoRenderer::new);
     }
 
     private static void setup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             ItemBlockRenderTypes.setRenderLayer(CircuitItems.ACID.get(), RenderType.translucent());
-            for (var item : java.util.List.of(Voltworks.DESIGN_TABLE_ITEM.get(), CircuitItems.INCOMPLETE_CIRCUIT.get(), Voltworks.SERVO_ITEM.get()))
+            for (var item : java.util.List.of(Voltworks.DESIGN_TABLE_ITEM.get(), CircuitItems.INCOMPLETE_CIRCUIT.get()))
                 com.simibubi.create.foundation.item.TooltipModifier.REGISTRY.register(item,
                         new com.simibubi.create.foundation.item.ItemDescription.Modifier(item, net.createmod.catnip.lang.FontHelper.Palette.STANDARD_CREATE));
             ItemBlockRenderTypes.setRenderLayer(CircuitItems.ACID_FLOWING.get(), RenderType.translucent());
