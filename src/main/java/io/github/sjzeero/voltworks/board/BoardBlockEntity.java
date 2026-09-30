@@ -70,6 +70,10 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
     private int light;
     private int version = -1;
     private @Nullable CompoundTag pendingSchematic;
+    /** Parts carried in the block entity tag (Create moves boards through it); applied once to a device that has none. */
+    private @Nullable CompoundTag carriedSchematic;
+    private @Nullable BoardDevice carriedDevice;
+    private int carriedTries;
 
     public @Nullable Object quads;
     public @Nullable Object clientState;
@@ -273,11 +277,21 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
         if(!(level instanceof ServerLevel server))
             return;
         var device = DevicesSavedData.load(server).getDevice(pos, BoardDevice.class);
-        if(device == null)
+        if(device == null) {
             return;
+        }
         if(be.pendingSchematic != null) {
             device.queueSchematic(be.pendingSchematic);
             be.pendingSchematic = null;
+        }
+        if(be.carriedSchematic != null) {
+            // keep pushing until this device really holds the parts (the device can be recreated while a moved board settles)
+            if(!device.schematic().components().isEmpty() || be.carriedTries > 200)
+                be.carriedSchematic = null;
+            else if(be.carriedDevice != device || be.carriedTries % 20 == 0)
+                device.queueSchematic(be.carriedSchematic);
+            be.carriedDevice = device;
+            be.carriedTries++;
         }
         var full = device.fullTag();
         if(full != null && device.schematicVersion() != be.version) {
@@ -334,6 +348,27 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
         }
         if(tag.contains("Pending"))
             pendingSchematic = tag.getCompound("Pending");
+        if(tag.contains("Board")) {
+            try {
+                var carried = tag.getCompound("Board").getCompound("Schematic");
+                var parsed = CircuitSchematic.fromNbt(registries, carried);
+                if(parsed != null && !parsed.components().isEmpty()) {
+                    carriedSchematic = carried.copy();
+                    carriedTries = 0;
+                    var full = new CompoundTag();
+                    full.putInt("Version", -1);
+                    full.put("Schematic", carried.copy());
+                    applyFull(full, registries);
+                    if(level instanceof ServerLevel server) {
+                        var device = DevicesSavedData.load(server).getDevice(worldPosition, BoardDevice.class);
+                        if(device != null && device.schematic().components().isEmpty())
+                            device.queueSchematic(carried);
+                    }
+                }
+            } catch(RuntimeException e) {
+                Voltworks.LOGGER.warn("voltworks: board data in block entity tag skipped: {}", String.valueOf(e));
+            }
+        }
     }
 
     @Override
