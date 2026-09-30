@@ -30,20 +30,17 @@ import java.util.Map;
 public class CircuitBoardModelQuads {
     private final Map<CacheKey, List<BakedQuad>> quads = new Object2ObjectArrayMap<>(8);
     public BlockState state;
-    private boolean schematic;
 
     @Nullable
     public List<BakedQuad> getQuads(BlockState state, @Nullable Direction side, @Nullable RenderType type) {
-        if(this.state != state || schematic != io.github.sjzeero.voltworks.VoltworksClientConfig.schematicMode())
+        if(this.state != state)
             return null;
         return quads.get(new CacheKey(side, type));
     }
 
     public void putQuads(BlockState state, @Nullable Direction side, @Nullable RenderType type, List<BakedQuad> quads) {
-        boolean mode = io.github.sjzeero.voltworks.VoltworksClientConfig.schematicMode();
-        if(this.state != state || schematic != mode) {
+        if(this.state != state) {
             this.state = state;
-            this.schematic = mode;
             this.quads.clear();
         }
         this.quads.put(new CacheKey(side, type), quads);

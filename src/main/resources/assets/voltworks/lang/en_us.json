@@ -262,9 +262,5 @@
   "gui.goggles.servo.status": "Grid Status",
   "gui.goggles.servo.target_angle": "Target Angle",
   "gui.goggles.servo.current_angle": "Current Angle",
-  "gui.goggles.servo.contraption_assembled": "Contraption Assembled",
-  "key.categories.voltworks.board": "Voltworks Boards",
-  "voltworks.keyinfo.toggle_schematic": "Toggle schematic board mode",
-  "message.voltworks.schematic_on": "Schematic board mode",
-  "message.voltworks.schematic_off": "Model board mode"
+  "gui.goggles.servo.contraption_assembled": "Contraption Assembled"
 }

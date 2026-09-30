@@ -53,16 +53,16 @@ public final class FootprintRender {
         var ms = ctx.pose();
         ms.pushPose();
         ms.scale(0.125f, 0.125f, 1);
-        for(var mark : SchematicSymbols.marks(fp)) {
+        for(var mark : PolarityMarks.marks(fp)) {
             int x1 = (mark.getKey().x() + x) * 8;
             int y1 = (mark.getKey().y() + y) * 8;
             boolean positive = mark.getValue();
             ctx.fill(x1, y1 + 2, x1 + 8, y1 + 6, MARK_OUTLINE);
             if(positive)
                 ctx.fill(x1 + 2, y1, x1 + 6, y1 + 8, MARK_OUTLINE);
-            ctx.fill(x1 + 1, y1 + 3, x1 + 7, y1 + 5, positive ? SchematicSymbols.POSITIVE : SchematicSymbols.NEGATIVE);
+            ctx.fill(x1 + 1, y1 + 3, x1 + 7, y1 + 5, positive ? PolarityMarks.POSITIVE : PolarityMarks.NEGATIVE);
             if(positive)
-                ctx.fill(x1 + 3, y1 + 1, x1 + 5, y1 + 7, SchematicSymbols.POSITIVE);
+                ctx.fill(x1 + 3, y1 + 1, x1 + 5, y1 + 7, PolarityMarks.POSITIVE);
         }
         ms.popPose();
     }
@@ -83,9 +83,7 @@ public final class FootprintRender {
         }
         renderPads(fp, ctx, x, y);
 
-        if(VoltworksClientConfig.schematicMode()) {
-            renderPixels(SchematicSymbols.symbol(component, fp), ctx, x, y);
-        } else if(fp.hasItem() && !hovering) {
+        if(fp.hasItem() && !hovering) {
             ms.pushPose();
             final int maxSize = 2;
             var scale = Math.min(Math.min(width, height), maxSize) / 16f * GRID_TO_GRID_SCALE;
@@ -105,7 +103,7 @@ public final class FootprintRender {
         if(editor)
             renderMarks(fp, ctx, x, y);
         else if(VoltworksClientConfig.polarityMarks())
-            renderPixels(SchematicSymbols.polarity(fp), ctx, x, y);
+            renderPixels(PolarityMarks.polarity(fp), ctx, x, y);
 
         var arrow = fp.getArrow();
         if(arrow != null) {
@@ -127,7 +125,7 @@ public final class FootprintRender {
     }
 
 
-    private static void renderPixels(java.util.List<SchematicSymbols.Pixel> pixels, GuiGraphics ctx, int x, int y) {
+    private static void renderPixels(java.util.List<PolarityMarks.Pixel> pixels, GuiGraphics ctx, int x, int y) {
         for(var pixel : pixels)
             ctx.fill(x + pixel.x(), y + pixel.y(), x + pixel.x() + 1, y + pixel.y() + 1, pixel.color());
     }

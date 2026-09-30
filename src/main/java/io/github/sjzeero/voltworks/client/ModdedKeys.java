@@ -26,10 +26,6 @@ import io.github.sjzeero.voltworks.Voltworks;
  * @see com.simibubi.create.AllKeys
  */
 public enum ModdedKeys {
-    CATEGORY_BOARD("key.categories.voltworks.board"),
-
-    TOGGLE_SCHEMATIC("toggle_schematic", GLFW.GLFW_KEY_B),
-
     CATEGORY_CIRCUIT_EDITOR("key.categories.voltworks.circuit_editor"),
 
     ROTATE_COMPONENT("rotate_component", GLFW.GLFW_KEY_R),
