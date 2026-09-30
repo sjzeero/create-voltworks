@@ -6,7 +6,9 @@ import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import io.github.sjzeero.voltworks.circuits.schematic.Point;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class SchematicSymbols {
     public static final int LINE = 0xFFE8F1F2;
@@ -59,31 +61,45 @@ public final class SchematicSymbols {
     }
 
     public static List<Pixel> polarity(ComponentFootprint fp) {
-        var out = new ArrayList<Pixel>();
+        var cells = new LinkedHashMap<Point, Pixel>();
+        var marked = new ArrayList<Map.Entry<Point, Boolean>>();
         for(var entry : fp.getPads().entrySet()) {
             var text = entry.getValue().shortText();
             if(text == null)
                 continue;
             var mark = text.getString();
             if(mark.equals("+") || mark.equalsIgnoreCase("P"))
-                mark(out, entry.getKey(), fp, true);
+                marked.add(Map.entry(entry.getKey(), true));
             else if(mark.equals("-") || mark.equalsIgnoreCase("N"))
-                mark(out, entry.getKey(), fp, false);
+                marked.add(Map.entry(entry.getKey(), false));
         }
-        return out;
+        for(var entry : marked)
+            cells.put(entry.getKey(), new Pixel(entry.getKey().x(), entry.getKey().y(), entry.getValue() ? POSITIVE : NEGATIVE));
+        for(var entry : marked) {
+            var pad = entry.getKey();
+            int color = entry.getValue() ? POSITIVE : NEGATIVE;
+            double dx = (fp.getWidth() - 1) / 2.0 - pad.x();
+            double dy = (fp.getHeight() - 1) / 2.0 - pad.y();
+            if(dx == 0 && dy == 0)
+                continue;
+            int sx = Math.abs(dx) >= Math.abs(dy) ? (int) Math.signum(dx) : 0;
+            int sy = sx == 0 ? (int) Math.signum(dy) : 0;
+            int x = pad.x() + sx;
+            int y = pad.y() + sy;
+            inside(cells, fp, x, y, color);
+            if(entry.getValue()) {
+                inside(cells, fp, x + sy, y + sx, color);
+                inside(cells, fp, x - sy, y - sx, color);
+                if(Math.abs(sx) * fp.getWidth() + Math.abs(sy) * fp.getHeight() >= 5)
+                    inside(cells, fp, x + sx, y + sy, color);
+            }
+        }
+        return new ArrayList<>(cells.values());
     }
 
-    private static void mark(List<Pixel> out, Point pad, ComponentFootprint fp, boolean plus) {
-        int x = pad.x() < fp.getWidth() / 2 ? Math.min(fp.getWidth() - 2, pad.x() + 1) : Math.max(1, pad.x() - 1);
-        int y = pad.y() < fp.getHeight() / 2 ? Math.min(fp.getHeight() - 2, pad.y() + 1) : Math.max(1, pad.y() - 1);
-        int color = plus ? POSITIVE : NEGATIVE;
-        add(out, x - 1, y, color);
-        add(out, x, y, color);
-        add(out, x + 1, y, color);
-        if(plus) {
-            add(out, x, y - 1, color);
-            add(out, x, y + 1, color);
-        }
+    private static void inside(Map<Point, Pixel> cells, ComponentFootprint fp, int x, int y, int color) {
+        if(x >= 0 && y >= 0 && x < fp.getWidth() && y < fp.getHeight())
+            cells.putIfAbsent(new Point(x, y), new Pixel(x, y, color));
     }
 
     private static void zigzag(List<Pixel> out, int w, int h) {
