@@ -1,8 +1,8 @@
 {
   "credit": "Voltworks (original)",
   "textures": {
-    "0": "voltworks:block/component/gauge",
-    "particle": "voltworks:block/component/gauge"
+    "0": "voltworks:block/component/voltage_gauge",
+    "particle": "voltworks:block/component/voltage_gauge"
   },
   "elements": [
     {
@@ -27,20 +27,20 @@
           ],
           "texture": "#0"
         },
-        "south": {
-          "uv": [
-            5,
-            5,
-            10,
-            8
-          ],
-          "texture": "#0"
-        },
         "east": {
           "uv": [
             0,
             5,
             5,
+            8
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            5,
+            5,
+            10,
             8
           ],
           "texture": "#0"

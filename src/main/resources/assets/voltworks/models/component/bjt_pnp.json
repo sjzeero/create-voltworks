@@ -1,311 +1,242 @@
 {
   "credit": "Voltworks (original)",
   "textures": {
-    "0": "voltworks:block/component/transistor",
-    "particle": "voltworks:block/component/transistor"
+    "0": "voltworks:block/component/bjt",
+    "particle": "voltworks:block/component/bjt"
   },
   "elements": [
     {
-      "name": "body_front",
+      "name": "cube",
       "from": [
+        3,
         0,
-        1,
         0
       ],
       "to": [
-        3,
-        5,
-        1
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            12,
-            0,
-            15,
-            4
-          ],
-          "texture": "#0"
-        },
-        "south": {
-          "uv": [
-            0,
-            4,
-            3,
-            8
-          ],
-          "texture": "#0"
-        },
-        "east": {
-          "uv": [
-            16,
-            0,
-            15,
-            4
-          ],
-          "texture": "#0"
-        },
-        "west": {
-          "uv": [
-            15,
-            0,
-            16,
-            4
-          ],
-          "texture": "#0"
-        },
-        "up": {
-          "uv": [
-            9,
-            5,
-            12,
-            6
-          ],
-          "texture": "#0"
-        },
-        "down": {
-          "uv": [
-            12,
-            4,
-            15,
-            5
-          ],
-          "texture": "#0"
-        }
-      }
-    },
-    {
-      "name": "body_back",
-      "from": [
-        0.5,
-        1,
-        1
-      ],
-      "to": [
-        2.5,
-        5,
+        4,
+        0,
         2
       ],
       "faces": {
-        "south": {
+        "up": {
+          "uv": [
+            5,
+            12,
+            6,
+            14
+          ],
+          "texture": "#0"
+        },
+        "down": {
           "uv": [
             6,
-            4,
-            8,
-            8
+            12,
+            7,
+            14
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "cube",
+      "from": [
+        1,
+        0,
+        0
+      ],
+      "to": [
+        2,
+        0,
+        2
+      ],
+      "faces": {
+        "up": {
+          "uv": [
+            2.5,
+            12,
+            3.5,
+            14
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            3.5,
+            12,
+            4.5,
+            14
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "cube",
+      "from": [
+        -1,
+        0,
+        0
+      ],
+      "to": [
+        0,
+        0,
+        2
+      ],
+      "faces": {
+        "up": {
+          "uv": [
+            0,
+            12,
+            1,
+            14
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            1,
+            12,
+            2,
+            14
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "cube",
+      "from": [
+        -1,
+        5,
+        2
+      ],
+      "to": [
+        4,
+        7,
+        3
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            1,
+            5.75,
+            4
           ],
           "texture": "#0"
         },
         "east": {
           "uv": [
-            16,
+            2.5,
+            12,
+            3.5,
+            14
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
             0,
-            15,
+            1,
+            5.75,
             4
           ],
           "texture": "#0"
         },
         "west": {
           "uv": [
-            15,
-            0,
-            16,
-            4
+            3.5,
+            12,
+            4.5,
+            14
           ],
           "texture": "#0"
         },
         "up": {
           "uv": [
-            11,
-            7,
-            13,
-            8
+            8,
+            0,
+            14,
+            1
           ],
           "texture": "#0"
         },
         "down": {
           "uv": [
             9,
-            7,
-            11,
-            8
+            13.25,
+            14,
+            14.25
           ],
           "texture": "#0"
         }
       }
     },
     {
-      "name": "emitter",
+      "name": "cube",
       "from": [
-        0.0,
+        -1,
         0,
-        0.0
+        1
       ],
       "to": [
-        1.0,
-        1,
-        1.0
+        4,
+        5,
+        3
       ],
       "faces": {
         "north": {
           "uv": [
-            16,
-            5,
-            15,
-            6
-          ],
-          "texture": "#0"
-        },
-        "south": {
-          "uv": [
-            15,
-            5,
-            16,
-            6
-          ],
-          "texture": "#0"
-        },
-        "east": {
-          "uv": [
-            16,
-            5,
-            15,
-            6
-          ],
-          "texture": "#0"
-        },
-        "west": {
-          "uv": [
-            15,
-            5,
-            16,
-            6
-          ],
-          "texture": "#0"
-        }
-      }
-    },
-    {
-      "name": "collector",
-      "from": [
-        2.0,
-        0,
-        0.0
-      ],
-      "to": [
-        3.0,
-        1,
-        1.0
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            16,
-            5,
-            15,
-            6
-          ],
-          "texture": "#0"
-        },
-        "south": {
-          "uv": [
-            15,
-            5,
-            16,
-            6
-          ],
-          "texture": "#0"
-        },
-        "east": {
-          "uv": [
-            16,
-            5,
-            15,
-            6
-          ],
-          "texture": "#0"
-        },
-        "west": {
-          "uv": [
-            15,
-            5,
-            16,
-            6
-          ],
-          "texture": "#0"
-        }
-      }
-    },
-    {
-      "name": "base",
-      "from": [
-        1.0,
-        0,
-        1.0
-      ],
-      "to": [
-        2.0,
-        1,
-        2.0
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            16,
-            6,
-            15,
-            7
-          ],
-          "texture": "#0"
-        },
-        "south": {
-          "uv": [
-            15,
-            6,
-            16,
-            7
-          ],
-          "texture": "#0"
-        },
-        "east": {
-          "uv": [
-            16,
-            6,
-            15,
-            7
-          ],
-          "texture": "#0"
-        },
-        "west": {
-          "uv": [
-            15,
-            6,
-            16,
-            7
-          ],
-          "texture": "#0"
-        }
-      }
-    },
-    {
-      "name": "marking",
-      "from": [
-        0.75,
-        2.25,
-        -0.02
-      ],
-      "to": [
-        2.25,
-        3.75,
-        0
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            4,
             0,
+            5,
+            6,
+            10
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            14,
+            5,
+            16,
+            10
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
             8,
-            4
+            5,
+            14,
+            10
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            6,
+            5,
+            8,
+            10
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            8,
+            5,
+            14,
+            7
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            8,
+            5,
+            14,
+            10
           ],
           "texture": "#0"
         }
