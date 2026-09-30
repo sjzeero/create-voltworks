@@ -1,5 +1,6 @@
 {
   "parent": "voltworks:component/fuse_holder",
+  "gui_light": "side",
   "display": {
     "gui": {
       "rotation": [
@@ -8,14 +9,14 @@
         0
       ],
       "translation": [
-        -24.307,
-        17.157,
-        8.783
+        -25.264,
+        16.595,
+        0.0
       ],
       "scale": [
-        2.75,
-        2.75,
-        2.75
+        2.858,
+        2.858,
+        2.858
       ]
     },
     "ground": {
@@ -69,23 +70,6 @@
         0.8
       ]
     },
-    "firstperson_righthand": {
-      "rotation": [
-        0,
-        45,
-        0
-      ],
-      "translation": [
-        7.778,
-        10.16,
-        0.311
-      ],
-      "scale": [
-        0.88,
-        0.88,
-        0.88
-      ]
-    },
     "thirdperson_lefthand": {
       "rotation": [
         75,
@@ -101,6 +85,23 @@
         0.8,
         0.8,
         0.8
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "translation": [
+        7.778,
+        10.16,
+        0.311
+      ],
+      "scale": [
+        0.88,
+        0.88,
+        0.88
       ]
     },
     "firstperson_lefthand": {

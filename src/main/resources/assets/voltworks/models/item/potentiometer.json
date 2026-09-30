@@ -1,6 +1,251 @@
 {
-  "parent": "minecraft:item/generated",
+  "credit": "Voltworks (original)",
+  "gui_light": "side",
   "textures": {
-    "layer0": "voltworks:item/potentiometer"
+    "0": "voltworks:block/component/potentiometer",
+    "particle": "voltworks:block/component/potentiometer"
+  },
+  "elements": [
+    {
+      "name": "body",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        5,
+        3,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            10,
+            0,
+            15,
+            3
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            10,
+            0,
+            15,
+            3
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            5,
+            0,
+            10,
+            3
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            5,
+            0,
+            10,
+            3
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            5,
+            5
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "knob",
+      "from": [
+        1,
+        3,
+        1
+      ],
+      "to": [
+        4,
+        5,
+        4
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            11,
+            3,
+            14,
+            5
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            11,
+            3,
+            14,
+            5
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            8,
+            3,
+            11,
+            5
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            8,
+            3,
+            11,
+            5
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            5,
+            3,
+            8,
+            6
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "translation": [
+        -14.339,
+        8.781,
+        0.0
+      ],
+      "scale": [
+        1.843,
+        1.843,
+        1.843
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        5.5,
+        8.5,
+        5.5
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        9.9,
+        9.9,
+        9.9
+      ],
+      "scale": [
+        1.8,
+        1.8,
+        1.8
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        9.334,
+        4.708,
+        6.375
+      ],
+      "scale": [
+        1.2,
+        1.2,
+        1.2
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        9.334,
+        4.708,
+        6.375
+      ],
+      "scale": [
+        1.2,
+        1.2,
+        1.2
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "translation": [
+        10.889,
+        7.7,
+        0.0
+      ],
+      "scale": [
+        1.4,
+        1.4,
+        1.4
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "translation": [
+        -10.889,
+        7.7,
+        0.0
+      ],
+      "scale": [
+        1.4,
+        1.4,
+        1.4
+      ]
+    }
   }
 }

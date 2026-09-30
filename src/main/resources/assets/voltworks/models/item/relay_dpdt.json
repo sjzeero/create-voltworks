@@ -1,6 +1,125 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "voltworks:item/relay_dpdt"
+  "parent": "voltworks:component/relay_dpdt",
+  "gui_light": "side",
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "translation": [
+        -19.553,
+        12.788,
+        0.0
+      ],
+      "scale": [
+        2.304,
+        2.304,
+        2.304
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        5.5,
+        9.0,
+        6.5
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        9.9,
+        10.8,
+        11.7
+      ],
+      "scale": [
+        1.8,
+        1.8,
+        1.8
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        10.182,
+        4.044,
+        7.174
+      ],
+      "scale": [
+        1.2,
+        1.2,
+        1.2
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        10.182,
+        4.044,
+        7.174
+      ],
+      "scale": [
+        1.2,
+        1.2,
+        1.2
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "translation": [
+        11.879,
+        8.4,
+        0.99
+      ],
+      "scale": [
+        1.4,
+        1.4,
+        1.4
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "translation": [
+        -11.879,
+        8.4,
+        -0.99
+      ],
+      "scale": [
+        1.4,
+        1.4,
+        1.4
+      ]
+    }
   }
 }

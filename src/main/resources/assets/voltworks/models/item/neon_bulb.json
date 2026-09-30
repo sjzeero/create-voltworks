@@ -1,6 +1,317 @@
 {
-  "parent": "minecraft:item/generated",
+  "credit": "Voltworks (original)",
+  "gui_light": "side",
   "textures": {
-    "layer0": "voltworks:item/neon_bulb"
+    "0": "voltworks:block/component/neon_tube",
+    "particle": "voltworks:block/component/neon_tube"
+  },
+  "elements": [
+    {
+      "name": "base",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        2,
+        1,
+        2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            2,
+            8,
+            3
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            6,
+            2,
+            8,
+            3
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            4,
+            2,
+            6,
+            3
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            4,
+            2,
+            6,
+            3
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            8,
+            0,
+            10,
+            2
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "electrode",
+      "from": [
+        0.5,
+        1,
+        0.5
+      ],
+      "to": [
+        1.5,
+        2,
+        0.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            15,
+            0,
+            16,
+            1
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            15,
+            0,
+            16,
+            1
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "electrode",
+      "from": [
+        0.5,
+        1,
+        1.5
+      ],
+      "to": [
+        1.5,
+        2,
+        1.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            15,
+            1,
+            16,
+            2
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            15,
+            1,
+            16,
+            2
+          ],
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "glass",
+      "from": [
+        0,
+        1,
+        0
+      ],
+      "to": [
+        2,
+        3,
+        2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "translation": [
+        -35.776,
+        20.343,
+        0.0
+      ],
+      "scale": [
+        3.614,
+        3.614,
+        3.614
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        11.667,
+        13.833,
+        11.667
+      ],
+      "scale": [
+        1.667,
+        1.667,
+        1.667
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        21.0,
+        19.5,
+        21.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        19.799,
+        6.365,
+        12.557
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        19.799,
+        6.365,
+        12.557
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "translation": [
+        19.799,
+        13.0,
+        0.0
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "translation": [
+        -19.799,
+        13.0,
+        0.0
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ]
+    }
   }
 }

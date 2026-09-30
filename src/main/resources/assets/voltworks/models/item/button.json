@@ -1,5 +1,6 @@
 {
   "parent": "voltworks:component/button",
+  "gui_light": "side",
   "display": {
     "gui": {
       "rotation": [
@@ -8,14 +9,14 @@
         0
       ],
       "translation": [
-        -33.705,
-        20.64,
-        11.917
+        -28.243,
+        17.295,
+        0.0
       ],
       "scale": [
-        3.667,
-        3.667,
-        3.667
+        3.072,
+        3.072,
+        3.072
       ]
     },
     "ground": {
@@ -69,23 +70,6 @@
         1.067
       ]
     },
-    "firstperson_righthand": {
-      "rotation": [
-        0,
-        45,
-        0
-      ],
-      "translation": [
-        10.786,
-        11.627,
-        0.0
-      ],
-      "scale": [
-        1.173,
-        1.173,
-        1.173
-      ]
-    },
     "thirdperson_lefthand": {
       "rotation": [
         75,
@@ -101,6 +85,23 @@
         1.067,
         1.067,
         1.067
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "translation": [
+        10.786,
+        11.627,
+        0.0
+      ],
+      "scale": [
+        1.173,
+        1.173,
+        1.173
       ]
     },
     "firstperson_lefthand": {

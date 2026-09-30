@@ -1,3 +1,125 @@
 {
-  "parent": "voltworks:block/circuit_design_table"
+  "parent": "voltworks:block/circuit_design_table",
+  "gui_light": "side",
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "translation": [
+        -0.0,
+        0.57,
+        0.0
+      ],
+      "scale": [
+        0.658,
+        0.658,
+        0.658
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0.0,
+        3.312,
+        0.0
+      ],
+      "scale": [
+        0.312,
+        0.312,
+        0.312
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0.0,
+        0.562,
+        0.0
+      ],
+      "scale": [
+        0.562,
+        0.562,
+        0.562
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        0.0,
+        3.097,
+        0.362
+      ],
+      "scale": [
+        0.375,
+        0.375,
+        0.375
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        0.0,
+        3.097,
+        0.362
+      ],
+      "scale": [
+        0.375,
+        0.375,
+        0.375
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "translation": [
+        0.0,
+        0.438,
+        0.0
+      ],
+      "scale": [
+        0.438,
+        0.438,
+        0.438
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "translation": [
+        0.0,
+        0.438,
+        0.0
+      ],
+      "scale": [
+        0.438,
+        0.438,
+        0.438
+      ]
+    }
+  }
 }
