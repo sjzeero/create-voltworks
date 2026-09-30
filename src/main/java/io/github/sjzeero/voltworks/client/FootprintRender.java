@@ -18,6 +18,7 @@
 package io.github.sjzeero.voltworks.client;
 
 import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.VoltworksClientConfig;
 import io.github.sjzeero.voltworks.circuits.components.Component;
 import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import net.minecraft.client.gui.Font;
@@ -59,7 +60,9 @@ public final class FootprintRender {
         }
         renderPads(fp, ctx, x, y);
 
-        if(fp.hasItem() && !hovering) {
+        if(VoltworksClientConfig.schematicMode()) {
+            renderPixels(SchematicSymbols.symbol(component, fp), ctx, x, y);
+        } else if(fp.hasItem() && !hovering) {
             ms.pushPose();
             final int maxSize = 2;
             var scale = Math.min(Math.min(width, height), maxSize) / 16f * GRID_TO_GRID_SCALE;
@@ -76,6 +79,9 @@ public final class FootprintRender {
                 ctx.renderItem(stack, (int) (x / scale), (int) (y / scale));
             ms.popPose();
         }
+        if(VoltworksClientConfig.polarityMarks())
+            renderPixels(SchematicSymbols.polarity(fp), ctx, x, y);
+
         var arrow = fp.getArrow();
         if(arrow != null) {
             ms.pushPose();
@@ -93,6 +99,12 @@ public final class FootprintRender {
             ctx.blit(ARROWS, 0, 0, u, v, 8, 8, 16, 16);
             ms.popPose();
         }
+    }
+
+
+    private static void renderPixels(java.util.List<SchematicSymbols.Pixel> pixels, GuiGraphics ctx, int x, int y) {
+        for(var pixel : pixels)
+            ctx.fill(x + pixel.x(), y + pixel.y(), x + pixel.x() + 1, y + pixel.y() + 1, pixel.color());
     }
 
     public static void renderPadIndices(ComponentFootprint fp, @NotNull GuiGraphics ctx, @NotNull Font font, int x, int y) {

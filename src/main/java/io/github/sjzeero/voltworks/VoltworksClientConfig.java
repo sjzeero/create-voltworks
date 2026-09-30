@@ -6,12 +6,17 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 public final class VoltworksClientConfig {
     public static final ModConfigSpec SPEC;
     public static final ModConfigSpec.BooleanValue HIGH_CONTRAST_TRACES;
+    private static final ModConfigSpec.BooleanValue POLARITY_MARKS, SCHEMATIC_MODE;
     private static final ModConfigSpec.IntValue RED_TOP, GREEN_TOP, BLUE_TOP, ALPHA_TOP, ALPHA_TOP_BEHIND;
     private static final ModConfigSpec.BooleanValue WALL_WIRE_MODE;
     private static final ModConfigSpec.IntValue RED_BOTTOM, GREEN_BOTTOM, BLUE_BOTTOM, ALPHA_BOTTOM, ALPHA_BOTTOM_BEHIND;
 
     static {
         var b = new ModConfigSpec.Builder();
+        b.push("boardRendering");
+        POLARITY_MARKS = b.comment("Show polarity marks on placed board components").define("polarityMarks", true);
+        SCHEMATIC_MODE = b.comment("Draw board components as flat schematic symbols").define("schematicMode", false);
+        b.pop();
         b.push("circuitDesignTable");
         HIGH_CONTRAST_TRACES = b.comment("Higher contrast between traces in the circuit editor").define("HighContrastTraces", false);
         RED_TOP = b.comment("Amount of red in traces").defineInRange("traceRedTop", 255, 0, 255);
@@ -33,6 +38,21 @@ public final class VoltworksClientConfig {
     }
 
     private VoltworksClientConfig() {
+    }
+
+    public static boolean polarityMarks() {
+        return !SPEC.isLoaded() || POLARITY_MARKS.get();
+    }
+
+    public static boolean schematicMode() {
+        return SPEC.isLoaded() && SCHEMATIC_MODE.get();
+    }
+
+    public static void toggleSchematicMode() {
+        if(!SPEC.isLoaded())
+            return;
+        SCHEMATIC_MODE.set(!SCHEMATIC_MODE.get());
+        SCHEMATIC_MODE.save();
     }
 
     public static boolean wallMode() {

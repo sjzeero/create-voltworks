@@ -50,7 +50,8 @@ public class UnbakedCircuitBoardModel implements IUnbakedGeometry<UnbakedCircuit
         return new CircuitBoardModel(
                 plates,
                 textureProvider.apply(CircuitBoardModel.PAD_SPRITE_ID),
-                textureProvider.apply(CircuitBoardModel.COPPER_SPRITE_ID)
+                textureProvider.apply(CircuitBoardModel.COPPER_SPRITE_ID),
+                textureProvider.apply(CircuitBoardModel.SYMBOL_SPRITE_ID)
         );
     }
 }
