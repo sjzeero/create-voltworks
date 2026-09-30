@@ -1,6 +1,7 @@
 package io.github.sjzeero.voltworks.client;
 
 import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.VoltworksClientConfig;
 import io.github.sjzeero.voltworks.EEMenus;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableEditScreen;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableLoadScreen;
@@ -12,6 +13,10 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -32,6 +37,18 @@ public class VoltworksClient {
         modBus.addListener(io.github.sjzeero.voltworks.wallwire.client.WallWireClient::registerKeys);
         modBus.addListener(io.github.sjzeero.voltworks.wallwire.client.WallWireClient::registerLayers);
         io.github.sjzeero.voltworks.wallwire.client.WallWireClient.init();
+        NeoForge.EVENT_BUS.addListener(VoltworksClient::tick);
+    }
+
+    private static void tick(ClientTickEvent.Post event) {
+        while(ModdedKeys.TOGGLE_SCHEMATIC.getKeybind().consumeClick()) {
+            VoltworksClientConfig.toggleSchematicMode();
+            var mc = Minecraft.getInstance();
+            if(mc.levelRenderer != null)
+                mc.levelRenderer.allChanged();
+            mc.gui.setOverlayMessage(Component.translatable(VoltworksClientConfig.schematicMode()
+                    ? "message.voltworks.schematic_on" : "message.voltworks.schematic_off"), false);
+        }
     }
 
     private static void screens(RegisterMenuScreensEvent event) {

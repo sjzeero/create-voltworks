@@ -249,5 +249,9 @@
   "voltworks.wall_wire.need_point": "Сначала отметьте хотя бы одну точку на поверхности",
   "voltworks.wall_wire.cancelled": "Прокладка провода отменена",
   "voltworks.wall_wire.undo": "Последняя точка убрана",
-  "voltworks.wall_wire.length": "Длина: %s / %s м"
+  "voltworks.wall_wire.length": "Длина: %s / %s м",
+  "key.categories.voltworks.board": "Платы Voltworks",
+  "voltworks.keyinfo.toggle_schematic": "Переключить режим схемы платы",
+  "message.voltworks.schematic_on": "Режим схемы платы",
+  "message.voltworks.schematic_off": "Режим моделей платы"
 }
