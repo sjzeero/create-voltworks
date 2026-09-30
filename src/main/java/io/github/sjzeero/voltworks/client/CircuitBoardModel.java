@@ -272,11 +272,7 @@ public class CircuitBoardModel implements BakedModel {
                         new BlockFaceUV(new float[] { 0, 0, 1, 1 }, 0)),
                 symbolSprite, Direction.UP, BlockModelRotation.X0_Y0, null, true
         );
-        int a = color >>> 24;
-        int r = color >> 16 & 255;
-        int g = color >> 8 & 255;
-        int b = color & 255;
-        return QuadTransformers.applyingColor(r, g, b, a).process(List.of(quad)).getFirst();
+        return QuadTransformers.applyingColor(color).process(List.of(quad)).getFirst();
     }
 
     public BakedQuad emitTrace(Area area) {
