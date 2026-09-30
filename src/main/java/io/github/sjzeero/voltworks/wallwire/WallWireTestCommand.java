@@ -44,6 +44,21 @@ public final class WallWireTestCommand {
                         .executes(WallWireTestCommand::buildTrain)))
                 .then(Commands.literal("trainassemble").then(Commands.argument("pos", BlockPosArgument.blockPos())
                         .executes(WallWireTestCommand::assembleTrain)))
+                .then(Commands.literal("trainboard").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                        .executes(ctx -> buildTrainWith(ctx, true))))
+                .then(Commands.literal("boardinfo").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                        .executes(WallWireTestCommand::boardInfo)))
+                .then(Commands.literal("trainrun").then(Commands.argument("speed", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(-2, 2))
+                        .executes(ctx -> {
+                            double v = com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(ctx, "speed");
+                            var server = ctx.getSource().getServer();
+                            for(var t : com.simibubi.create.Create.RAILWAYS.trains.values())
+                                t.leaveStation();
+                            push(server, v, 600);
+                            for(var t : com.simibubi.create.Create.RAILWAYS.trains.values())
+                                ctx.getSource().sendSuccess(() -> Component.literal("train speed=" + t.speed + " target=" + t.targetSpeed + " station=" + t.currentStation + " derailed=" + t.derailed + " graph=" + t.graph + " stallBefore=" + t.speedBeforeStall), false);
+                            return 1;
+                        })))
                 .then(Commands.literal("traindisassemble").then(Commands.argument("pos", BlockPosArgument.blockPos())
                         .executes(WallWireTestCommand::disassembleTrain)))
                 .then(Commands.literal("wirestatus").executes(WallWireTestCommand::status)));
@@ -110,14 +125,37 @@ public final class WallWireTestCommand {
 
     /** One-carriage train on a short east-west track; the station sits at pos, first bogey right after it. */
     private static int buildTrain(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        return buildTrainWith(ctx, false);
+    }
+
+    private static int boardInfo(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerLevel level = ctx.getSource().getLevel();
+        BlockPos p = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
+        String out = level.getBlockState(p).getBlock() + ": ";
+        if(level.getBlockEntity(p) instanceof io.github.sjzeero.voltworks.board.BoardBlockEntity be) {
+            var d = com.george_vi.electroenergetics.devices.device.DevicesSavedData.load(level).getDevice(p, io.github.sjzeero.voltworks.board.BoardDevice.class);
+            out += "be parts=" + be.getSchematic().components().size() + " device parts=" + (d == null ? "no device" : d.schematic().components().size());
+            var sd = InfrastructureSavedData.load(level);
+            int conns = 0;
+            for(var n : sd.getNodesAt(p))
+                conns += sd.getConnections(n).size();
+            out += " nodes=" + sd.getNodesAt(p).size() + " connections=" + conns;
+        } else
+            out += "no board entity";
+        String o2 = out;
+        ctx.getSource().sendSuccess(() -> Component.literal(o2), false);
+        return 1;
+    }
+
+    private static int buildTrainWith(CommandContext<CommandSourceStack> ctx, boolean board) throws CommandSyntaxException {
         ServerLevel level = ctx.getSource().getLevel();
         BlockPos o = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
-        fill(level, o.offset(-2, -1, -3), o.offset(14, 6, 3), Blocks.AIR.defaultBlockState());
-        fill(level, o.offset(-2, -3, -3), o.offset(14, -2, 3), Blocks.STONE.defaultBlockState());
+        fill(level, o.offset(-2, -1, -3), o.offset(70, 6, 3), Blocks.AIR.defaultBlockState());
+        fill(level, o.offset(-2, -3, -3), o.offset(70, -2, 3), Blocks.STONE.defaultBlockState());
         BlockState track = create("track").defaultBlockState()
                 .setValue(com.simibubi.create.content.trains.track.TrackBlock.SHAPE, com.simibubi.create.content.trains.track.TrackShape.XO)
                 .setValue(com.simibubi.create.content.trains.track.TrackBlock.HAS_BE, true);
-        for(int x = -1; x <= 13; x++)
+        for(int x = -1; x <= 68; x++)
             level.setBlock(o.offset(x, -1, 0), track, Block.UPDATE_ALL);
         level.setBlock(o.offset(0, -1, 1), create("track_station").defaultBlockState(), Block.UPDATE_ALL);
         level.setBlock(o.offset(0, -1, 0), track, Block.UPDATE_ALL);
@@ -138,10 +176,34 @@ public final class WallWireTestCommand {
         level.setBlock(c.north(), create("controls").defaultBlockState()
                 .setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING, Direction.EAST), Block.UPDATE_ALL);
         device(level, c.east(), "creative_battery");
-        device(level, c.south(), "bulb");
-        String w = wire(level, new InWorldNode(0, c.east()), new InWorldNode(0, c.south()), CEEWireTypes.COPPER.get(), List.of());
-        ctx.getSource().sendSuccess(() -> Component.literal("train test built, wire " + w + ", wait a few seconds then /voltworks trainassemble " + o.toShortString()), true);
+        String w = "";
+        if(board) {
+            level.setBlockAndUpdate(c.south(), io.github.sjzeero.voltworks.Voltworks.BOARD.get().defaultBlockState());
+            var preset = io.github.sjzeero.voltworks.board.TestBoards.build("relay", id -> io.github.sjzeero.voltworks.circuits.components.ComponentRegistry.get(io.github.sjzeero.voltworks.Voltworks.asResource(id)));
+            if(level.getBlockEntity(c.south()) instanceof io.github.sjzeero.voltworks.board.BoardBlockEntity be)
+                be.setSchematic(preset.schematic().serializeNbt(level.registryAccess()));
+            w = "board with " + preset.schematic().components().size() + " parts";
+        } else {
+            device(level, c.south(), "bulb");
+            w = wire(level, new InWorldNode(0, c.east()), new InWorldNode(0, c.south()), CEEWireTypes.COPPER.get(), List.of());
+        }
+        final String wf = w; ctx.getSource().sendSuccess(() -> Component.literal("train test built, wire " + wf + ", wait a few seconds then /voltworks trainassemble " + o.toShortString()), true);
         return 1;
+    }
+
+    /** Test helper: holds a train at a fixed speed for a number of ticks like a player on the controls would. */
+    private static void push(net.minecraft.server.MinecraftServer server, double v, int ticks) {
+        if(ticks <= 0)
+            return;
+        server.tell(new net.minecraft.server.TickTask(server.getTickCount() + 1, () -> {
+            for(var t : com.simibubi.create.Create.RAILWAYS.trains.values()) {
+                t.manualTick = true;
+                t.targetSpeed = v;
+                t.approachTargetSpeed(1);
+                if(Math.abs(t.speed) < Math.abs(v)) t.speed = v;
+            }
+            push(server, v, ticks - 1);
+        }));
     }
 
     private static int disassembleTrain(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
