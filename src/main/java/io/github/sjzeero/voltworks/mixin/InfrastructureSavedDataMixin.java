@@ -6,6 +6,7 @@ import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureS
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import io.github.sjzeero.voltworks.wallwire.WallCell;
 import io.github.sjzeero.voltworks.wallwire.WallRoute;
+import io.github.sjzeero.voltworks.wallwire.WallSpace;
 import io.github.sjzeero.voltworks.wallwire.WallWireData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
@@ -52,7 +53,7 @@ public abstract class InfrastructureSavedDataMixin {
 
     private void drop(WallRoute route, float t, ItemStack stack) {
         WallCell cell = route.cells.get(Math.min(route.cells.size() - 1, (int) (t * route.cells.size())));
-        Vec3 pos = cell.point(0.2);
+        Vec3 pos = WallSpace.toWorld(level, cell.point(0.2));
         Containers.dropItemStack(level, pos.x, pos.y, pos.z, stack);
     }
 }
