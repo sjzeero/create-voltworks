@@ -24,6 +24,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.phys.AABB;
@@ -134,16 +135,32 @@ public final class WallWireRenderer {
             if(!(e instanceof com.simibubi.create.content.contraptions.AbstractContraptionEntity ace) || !(ace.getContraption() instanceof io.github.sjzeero.voltworks.wallwire.ContraptionWireView view))
                 continue;
             java.util.List<io.github.sjzeero.voltworks.wallwire.ContraptionWires.Drawn> drawn = view.voltworks$drawn();
-            if(drawn == null || drawn.isEmpty() || e.position().distanceTo(cam) > RENDER_DISTANCE)
+            if(drawn == null || drawn.isEmpty())
+                continue;
+            // same interpolated position as Create's ContraptionMatrices.translateToEntity, taken fresh every frame
+            double ex = Mth.lerp(partial, e.xOld, e.getX()), ey = Mth.lerp(partial, e.yOld, e.getY()), ez = Mth.lerp(partial, e.zOld, e.getZ());
+            if(Math.sqrt((ex - cam.x) * (ex - cam.x) + (ey - cam.y) * (ey - cam.y) + (ez - cam.z) * (ez - cam.z)) > RENDER_DISTANCE)
                 continue;
             try {
-                Pose3dc space = WallSpace.renderPose(level, e.blockPosition(), partial);
-                int light = LevelRenderer.getLightColor(level, e.blockPosition());
+                // same local transform Create uses for the blocks of this entity (yaw, pitch, initial yaw, carts, riding), so wires cannot drift from them
+                PoseStack local = new PoseStack();
+                ace.applyLocalTransforms(local, partial);
+                org.joml.Matrix4f m = new org.joml.Matrix4f(local.last().pose());
+                BlockPos eb = BlockPos.containing(ex, ey, ez);
+                Pose3dc space = WallSpace.renderPose(level, eb, partial);
+                int light = LevelRenderer.getLightColor(level, eb);
+                java.util.function.UnaryOperator<Vec3> point = p -> {
+                    org.joml.Vector3f v = m.transformPosition((float) p.x, (float) p.y, (float) p.z, new org.joml.Vector3f());
+                    return WallSpace.toWorld(space, new Vec3(ex + v.x, ey + v.y, ez + v.z));
+                };
+                java.util.function.UnaryOperator<Vec3> normal = n -> {
+                    org.joml.Vector3f v = m.transformDirection((float) n.x, (float) n.y, (float) n.z, new org.joml.Vector3f());
+                    return WallSpace.rotate(space, new Vec3(v.x, v.y, v.z));
+                };
                 for(io.github.sjzeero.voltworks.wallwire.ContraptionWires.Drawn w : drawn)
-                    new Drawer(level, pose.last(), buffer, used, w.type(), w.color(), cam, space,
-                            p -> WallSpace.toWorld(space, ace.toGlobalVector(p, partial)), n -> WallSpace.rotate(space, ace.applyRotation(n, partial)), light)
+                    new Drawer(level, pose.last(), buffer, used, w.type(), w.color(), cam, space, point, normal, light)
                             .route(w.cells(), w.segments(), w.p1(), w.p2());
-            } catch(RuntimeException ex) {
+            } catch(RuntimeException ex2) {
                 // a broken contraption wire must never break world rendering
             }
         }
