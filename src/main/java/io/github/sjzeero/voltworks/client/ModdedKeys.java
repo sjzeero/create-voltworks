@@ -28,7 +28,7 @@ import io.github.sjzeero.voltworks.Voltworks;
 public enum ModdedKeys {
     CATEGORY_BOARD("key.categories.voltworks.board"),
 
-    TOGGLE_SCHEMATIC("toggle_schematic", GLFW.GLFW_KEY_V),
+    TOGGLE_SCHEMATIC("toggle_schematic", GLFW.GLFW_KEY_B),
 
     CATEGORY_CIRCUIT_EDITOR("key.categories.voltworks.circuit_editor"),
 
