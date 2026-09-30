@@ -220,7 +220,7 @@ public class CircuitBoardModel implements BakedModel {
                         continue;
                     for(var pixel : SchematicSymbols.polarity(placed.footprint()))
                         quads.add(emitPixel(placed.x + pixel.x(), placed.y + pixel.y(), pixel.color(),
-                                VoltworksClientConfig.schematicMode() ? 4 : 8));
+                                VoltworksClientConfig.schematicMode() ? 4 : 9));
                 }
             }
         }
