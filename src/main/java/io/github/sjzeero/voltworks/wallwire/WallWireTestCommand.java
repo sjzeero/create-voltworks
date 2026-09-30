@@ -35,7 +35,12 @@ public final class WallWireTestCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("voltworks").requires(s -> s.hasPermission(2))
                 .then(Commands.literal("wallwiretest").then(Commands.argument("pos", BlockPosArgument.blockPos())
-                        .executes(WallWireTestCommand::build))));
+                        .executes(WallWireTestCommand::build)))
+                .then(Commands.literal("contraptiontest").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                        .executes(WallWireTestCommand::buildContraption)))
+                .then(Commands.literal("contraptiontoggle").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                        .executes(WallWireTestCommand::toggle)))
+                .then(Commands.literal("wirestatus").executes(WallWireTestCommand::status)));
     }
 
     private static int build(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
@@ -68,6 +73,51 @@ public final class WallWireTestCommand {
         // heavily insulated on the floor
         out.append(wire(level, new InWorldNode(1, battery2), new InWorldNode(1, bulb2), heavy, List.of()));
         source.sendSuccess(() -> Component.literal(out.toString().trim()), true);
+        return 1;
+    }
+
+    private static int buildContraption(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        CommandSourceStack source = ctx.getSource();
+        ServerLevel level = source.getLevel();
+        BlockPos o = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
+        fill(level, o.offset(-2, 0, -2), o.offset(8, 6, 4), Blocks.AIR.defaultBlockState());
+        Block bearing = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("create", "mechanical_bearing"));
+        level.setBlockAndUpdate(o, bearing.defaultBlockState().setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.FACING, Direction.UP));
+        Block chassis = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("create", "radial_chassis"));
+        BlockState cs = chassis.defaultBlockState();
+        for(var prop : cs.getProperties())
+            if(prop instanceof net.minecraft.world.level.block.state.properties.BooleanProperty bp && prop.getName().startsWith("sticky"))
+                cs = cs.setValue(bp, true);
+        level.setBlockAndUpdate(o.offset(0, 1, 0), cs);
+        fill(level, o.offset(1, 1, 0), o.offset(3, 1, 1), Blocks.STONE_BRICKS.defaultBlockState());
+        BlockPos battery = o.offset(1, 1, 0), bulb = o.offset(3, 1, 0);
+        device(level, battery, "creative_battery");
+        device(level, bulb, "bulb");
+        String out = wire(level, new InWorldNode(0, battery), new InWorldNode(0, bulb), CEEWireTypes.COPPER.get(), List.of());
+        source.sendSuccess(() -> Component.literal("contraption test: " + out), true);
+        return 1;
+    }
+
+    private static int toggle(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerLevel level = ctx.getSource().getLevel();
+        if(level.getBlockEntity(BlockPosArgument.getLoadedBlockPos(ctx, "pos")) instanceof com.simibubi.create.content.contraptions.bearing.MechanicalBearingBlockEntity be) {
+            if(be.isRunning())
+                be.disassemble();
+            else
+                be.assemble();
+        }
+        return 1;
+    }
+
+    private static int status(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        InfrastructureSavedData sd = InfrastructureSavedData.load(level);
+        StringBuilder out = new StringBuilder("wall routes: ");
+        for(WallRoute r : WallWireData.get(level).all())
+            out.append(r.connection).append(" first=").append(r.cells.getFirst().pos().toShortString())
+                    .append(" connected=").append(sd.isConnected(r.connection.node1(), r.connection.node2())).append("; ");
+        out.append("| contraption entities: ").append(level.getEntities().getAll().spliterator().estimateSize());
+        ctx.getSource().sendSuccess(() -> Component.literal(out.toString()), false);
         return 1;
     }
 
