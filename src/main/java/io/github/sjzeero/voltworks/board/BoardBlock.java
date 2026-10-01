@@ -267,6 +267,25 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
         return use(state, level, pos, player, hit);
     }
 
+    /** The part a ray (relative to the block) hits first, or null. */
+    public static @Nullable BoardBlockEntity.Interactable pick(Iterable<BoardBlockEntity.Interactable> list, BlockState state, Vec3 origin, Vec3 target) {
+        var o = unrotate(origin, getAngleX(state), getAngleY(state));
+        var t = unrotate(target, getAngleX(state), getAngleY(state));
+        BoardBlockEntity.Interactable best = null;
+        double bestDistance = Double.MAX_VALUE;
+        for(var interactable : list) {
+            var hit = interactable.box().inflate(1 / 32f).clip(o, t);
+            if(hit.isEmpty())
+                continue;
+            double d = o.distanceToSqr(hit.get());
+            if(d < bestDistance) {
+                bestDistance = d;
+                best = interactable;
+            }
+        }
+        return best;
+    }
+
     public static InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if(!(level.getBlockEntity(pos) instanceof BoardBlockEntity be))
             return InteractionResult.PASS;

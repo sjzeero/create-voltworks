@@ -205,6 +205,77 @@ public class FrozenDevices extends SavedData {
         }
     }
 
+    /** Original world position of the frozen device behind a contraption block, or null. */
+    public @Nullable BlockPos worldPos(@Nullable UUID id, BlockPos rel) {
+        Group g = id == null ? null : groups.get(id);
+        if(g == null)
+            return null;
+        long key = rel.asLong();
+        for(int i = 0; i < g.rel().length; i++)
+            if(g.rel()[i] == key)
+                return BlockPos.of(g.world()[i]);
+        return null;
+    }
+
+    private record Sent(int entity, long pos) {
+    }
+
+    private static final Map<Sent, Integer> SENT = new HashMap<>();
+
+    public static void startTracking(net.neoforged.neoforge.event.entity.player.PlayerEvent.StartTracking event) {
+        if(event.getTarget() instanceof com.simibubi.create.content.contraptions.AbstractContraptionEntity entity)
+            SENT.keySet().removeIf(k -> k.entity() == entity.getId());
+    }
+
+    /**
+     * The block entities of boards on an assembled contraption are not in the world, so nothing sends them the state of
+     * their frozen board device. This relays it to the players that see the contraption.
+     */
+    public static void forward(ServerLevel level) {
+        try {
+            FrozenDevices data = get(level);
+            if(data.groups.isEmpty()) {
+                SENT.clear();
+                return;
+            }
+            DevicesSavedData devices = DevicesSavedData.load(level);
+            for(net.minecraft.world.entity.Entity e : level.getAllEntities()) {
+                if(!(e instanceof com.simibubi.create.content.contraptions.AbstractContraptionEntity entity) || !(entity.getContraption() instanceof ContraptionWireView view))
+                    continue;
+                Group g = view.voltworks$frozenId() == null ? null : data.groups.get(view.voltworks$frozenId());
+                if(g == null)
+                    continue;
+                for(int i = 0; i < g.rel().length; i++) {
+                    BlockPos rel = BlockPos.of(g.rel()[i]);
+                    var info = entity.getContraption().getBlocks().get(rel);
+                    if(info == null || !(info.state().getBlock() instanceof io.github.sjzeero.voltworks.board.BoardBlock))
+                        continue;
+                    var device = devices.getDevice(BlockPos.of(g.world()[i]), io.github.sjzeero.voltworks.board.BoardDevice.class);
+                    var full = device == null ? null : device.fullTag();
+                    if(full == null)
+                        continue;
+                    Sent key = new Sent(entity.getId(), g.rel()[i]);
+                    int version = full.getInt("Version");
+                    Integer last = SENT.get(key);
+                    if(last == null || last != version) {
+                        SENT.put(key, version);
+                        while(device.pollState() != null) {
+                        }
+                        net.neoforged.neoforge.network.PacketDistributor.sendToPlayersTrackingEntity(entity,
+                                new io.github.sjzeero.voltworks.network.ContraptionBoardPayload(entity.getId(), rel, full, null));
+                    } else {
+                        io.github.sjzeero.voltworks.network.BoardStatePayload state;
+                        while((state = device.pollState()) != null)
+                            net.neoforged.neoforge.network.PacketDistributor.sendToPlayersTrackingEntity(entity,
+                                    new io.github.sjzeero.voltworks.network.ContraptionBoardPayload(entity.getId(), rel, null, state));
+                    }
+                }
+            }
+        } catch(Throwable t) {
+            io.github.sjzeero.voltworks.Voltworks.LOGGER.warn("voltworks: frozen board sync skipped: {}", String.valueOf(t));
+        }
+    }
+
     /** Adds the wires of assembled contraptions to the circuit. */
     public static void addToGraph(AddToElectricGraphEvent event) {
         try {

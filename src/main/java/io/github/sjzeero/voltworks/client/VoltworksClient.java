@@ -31,6 +31,7 @@ public class VoltworksClient {
         modBus.addListener(VoltworksClient::setup);
         modBus.addListener(io.github.sjzeero.voltworks.wallwire.client.WallWireClient::registerKeys);
         modBus.addListener(io.github.sjzeero.voltworks.wallwire.client.WallWireClient::registerLayers);
+        modBus.addListener(ContraptionGoggles::registerLayers);
         io.github.sjzeero.voltworks.wallwire.client.WallWireClient.init();
     }
 

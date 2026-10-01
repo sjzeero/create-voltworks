@@ -121,6 +121,8 @@ public class Voltworks {
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent e) -> BoardTestCommand.register(e.getDispatcher()));
         NeoForge.EVENT_BUS.addListener(CircuitInsertion::onDeployerRecipeSearch);
         NeoForge.EVENT_BUS.addListener(BoardTestCommand::onServerTick);
+        com.simibubi.create.api.behaviour.interaction.MovingInteractionBehaviour.REGISTRY.registerProvider(
+                block -> block instanceof BoardBlock ? io.github.sjzeero.voltworks.board.BoardMovingInteraction.INSTANCE : null);
         io.github.sjzeero.voltworks.wallwire.WallWireEvents.register();
     }
 

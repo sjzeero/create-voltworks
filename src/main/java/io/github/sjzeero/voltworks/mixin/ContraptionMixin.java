@@ -45,6 +45,11 @@ public abstract class ContraptionMixin implements io.github.sjzeero.voltworks.wa
     }
 
     @Override
+    public java.util.UUID voltworks$frozenId() {
+        return voltworks$frozen;
+    }
+
+    @Override
     public java.util.List<ContraptionWires.Drawn> voltworks$drawn() {
         java.util.List<ContraptionWires.Drawn> d = voltworks$drawn;
         return d == null ? java.util.List.of() : d;

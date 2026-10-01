@@ -132,6 +132,25 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
         });
     }
 
+    /** Press of the part under a ray given relative to the board block (used when the board rides on a contraption). */
+    public void queueUseRay(net.minecraft.world.level.block.state.BlockState state, Vec3 origin, Vec3 target, net.minecraft.world.entity.player.Player player) {
+        queue(device -> {
+            if(device.baked == null)
+                return;
+            var list = new ArrayList<BoardBlockEntity.Interactable>();
+            for(var placed : device.baked.components) {
+                if(!placed.destroyed && placed.component instanceof io.github.sjzeero.voltworks.circuits.components.IInteractableComponent i)
+                    list.add(new BoardBlockEntity.Interactable(placed.uuid, i.getShape(placed).bounds(), i.hasClientScreen(placed)));
+            }
+            var hit = BoardBlock.pick(list, state, origin, target);
+            if(hit == null || hit.clientScreen())
+                return;
+            var placed = device.baked.get(hit.uuid());
+            if(placed != null && !placed.destroyed && placed.component instanceof io.github.sjzeero.voltworks.circuits.components.IInteractableComponent i)
+                i.use(device, placed, player);
+        });
+    }
+
     public void queueRedstone(@Nullable Orientation side, int power) {
         queue(device -> {
             if(device.baked == null)

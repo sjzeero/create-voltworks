@@ -61,6 +61,8 @@ public final class WallWireTestCommand {
                         })))
                 .then(Commands.literal("circuitinfo").then(Commands.argument("pos", BlockPosArgument.blockPos())
                         .executes(WallWireTestCommand::circuitInfo)))
+                .then(Commands.literal("trainuse").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                        .executes(WallWireTestCommand::trainUse)))
                 .then(Commands.literal("trainwire").then(Commands.argument("pos", BlockPosArgument.blockPos())
                         .executes(WallWireTestCommand::trainWire)))
                 .then(Commands.literal("traindisassemble").then(Commands.argument("pos", BlockPosArgument.blockPos())
@@ -227,6 +229,35 @@ public final class WallWireTestCommand {
         if(device instanceof io.github.sjzeero.voltworks.board.BoardDevice b)
             out += " boardParts=" + b.schematic().components().size() + " pinU=" + java.util.Arrays.toString(b.readings().pinU());
         String o2 = out;
+        ctx.getSource().sendSuccess(() -> Component.literal(o2), false);
+        return 1;
+    }
+
+    /** Test helper: a fake player presses the switch of the board on the assembled test carriage the way Create forwards a click. */
+    private static int trainUse(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerLevel level = ctx.getSource().getLevel();
+        BlockPos o = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
+        BlockPos rel = o.offset(2, 0, 1);
+        String out = "";
+        for(var e : level.getAllEntities()) {
+            if(!(e instanceof com.simibubi.create.content.contraptions.AbstractContraptionEntity entity) || entity.getContraption() == null)
+                continue;
+            BlockPos local = null;
+            for(var info : entity.getContraption().getBlocks().values())
+                if(info.state().getBlock() instanceof io.github.sjzeero.voltworks.board.BoardBlock)
+                    local = info.pos();
+            if(local == null)
+                continue;
+            var player = net.neoforged.neoforge.common.util.FakePlayerFactory.getMinecraft(level);
+            Vec3 point = entity.toGlobalVector(new Vec3(local.getX() + 4.5 / 16, local.getY() + 0.1, local.getZ() + 12.5 / 16), 1f);
+            player.setPos(point.x, point.y + 0.9 - player.getEyeHeight(), point.z);
+            player.setXRot(90);
+            player.setYRot(0);
+            player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.ItemStack.EMPTY);
+            boolean ok = entity.handlePlayerInteraction(player, local, Direction.UP, net.minecraft.world.InteractionHand.MAIN_HAND);
+            out += "entity=" + entity.getId() + " local=" + local.toShortString() + " handled=" + ok + " ";
+        }
+        String o2 = "trainuse " + out;
         ctx.getSource().sendSuccess(() -> Component.literal(o2), false);
         return 1;
     }
