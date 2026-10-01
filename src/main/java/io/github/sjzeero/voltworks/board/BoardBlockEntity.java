@@ -214,7 +214,7 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
         }
         if(state.temperatures() != null)
             applyTemperatures(state.temperatures());
-        if(state.burnt() != null) {
+        if(state.burnt() != null && !java.util.Arrays.equals(state.burnt(), burntIndices)) {
             applyBurnt(state.burnt());
             modelChanged = true;
         }

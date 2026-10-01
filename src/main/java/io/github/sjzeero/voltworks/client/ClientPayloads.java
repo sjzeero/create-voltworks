@@ -28,6 +28,9 @@ public final class ClientPayloads {
         }
         if(payload.state() != null)
             changed |= be.applyState(payload.state(), level.registryAccess());
+        // block entities inside a contraption are never ticked, so the previous value of glowing parts has to follow by hand
+        if(be.baked() != null)
+            be.baked().clientTick();
         var client = entity.getContraption().getOrCreateClientContraptionLazy();
         var renderLevel = client.getRenderLevel();
         var state = renderLevel.getBlockState(payload.pos());
