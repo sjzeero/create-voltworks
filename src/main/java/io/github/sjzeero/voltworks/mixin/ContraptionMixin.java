@@ -28,6 +28,8 @@ public abstract class ContraptionMixin implements io.github.sjzeero.voltworks.wa
     private ListTag voltworks$wires;
     @Unique
     private java.util.List<ContraptionWires.Drawn> voltworks$drawn;
+    @Unique
+    private java.util.UUID voltworks$frozen;
 
     @Unique
     private ListTag voltworks$wireList() {
@@ -51,8 +53,16 @@ public abstract class ContraptionMixin implements io.github.sjzeero.voltworks.wa
     @Inject(method = "removeBlocksFromWorld", at = @At("HEAD"))
     private void voltworks$captureWires(Level world, BlockPos offset, CallbackInfo ci) {
         try {
-            if(world instanceof ServerLevel level)
-                voltworks$wireList().addAll(ContraptionWires.capture(level, (Contraption) (Object) this, offset));
+            if(world instanceof ServerLevel level) {
+                ListTag captured = ContraptionWires.capture(level, (Contraption) (Object) this, offset);
+                voltworks$wireList().addAll(captured);
+                try {
+                    if(voltworks$frozen == null)
+                        voltworks$frozen = io.github.sjzeero.voltworks.wallwire.FrozenDevices.get(level).freeze(level, (Contraption) (Object) this, offset, captured);
+                } catch(Throwable t) {
+                    voltworks$warn("freeze", t);
+                }
+            }
         } catch(Throwable t) {
             voltworks$warn("capture", t);
         }
@@ -69,6 +79,15 @@ public abstract class ContraptionMixin implements io.github.sjzeero.voltworks.wa
         } catch(Throwable t) {
             voltworks$warn("restore", t);
         }
+        try {
+            java.util.UUID id = voltworks$frozen;
+            if(id != null && world instanceof ServerLevel level) {
+                voltworks$frozen = null;
+                io.github.sjzeero.voltworks.wallwire.FrozenDevices.get(level).thaw(level, id, transform);
+            }
+        } catch(Throwable t) {
+            voltworks$warn("thaw", t);
+        }
     }
 
     @Inject(method = "writeNBT", at = @At("RETURN"))
@@ -76,6 +95,8 @@ public abstract class ContraptionMixin implements io.github.sjzeero.voltworks.wa
         try {
             ListTag wires = voltworks$wires;
             CompoundTag out = cir.getReturnValue();
+            if(out != null && !spawnPacket && voltworks$frozen != null)
+                out.putString("VoltworksFrozen", voltworks$frozen.toString());
             if(wires == null || wires.isEmpty() || out == null)
                 return;
             if(spawnPacket)
@@ -90,6 +111,7 @@ public abstract class ContraptionMixin implements io.github.sjzeero.voltworks.wa
     @Inject(method = "readNBT", at = @At("TAIL"))
     private void voltworks$readWires(Level world, CompoundTag nbt, boolean spawnData, CallbackInfo ci) {
         try {
+            voltworks$frozen = nbt != null && nbt.contains("VoltworksFrozen") ? java.util.UUID.fromString(nbt.getString("VoltworksFrozen")) : null;
             voltworks$wires = nbt != null && nbt.contains("VoltworksWires") ? nbt.getList("VoltworksWires", Tag.TAG_COMPOUND) : new ListTag();
             voltworks$drawn = nbt != null && nbt.contains("VoltworksRender") ? ContraptionWires.parseRender(nbt.getList("VoltworksRender", Tag.TAG_COMPOUND)) : java.util.List.of();
         } catch(Throwable t) {

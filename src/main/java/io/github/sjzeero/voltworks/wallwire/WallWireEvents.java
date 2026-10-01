@@ -13,6 +13,7 @@ public final class WallWireEvents {
 
     public static void register() {
         NeoForge.EVENT_BUS.addListener(WallWireEvents::levelTick);
+        NeoForge.EVENT_BUS.addListener(FrozenDevices::addToGraph);
         NeoForge.EVENT_BUS.addListener(WallWireEvents::neighbourNotify);
         NeoForge.EVENT_BUS.addListener(WallWireEvents::login);
         NeoForge.EVENT_BUS.addListener(WallWireEvents::changedDimension);

@@ -224,7 +224,7 @@ public final class ContraptionWires {
         tag.put("Attachments", attachments);
     }
 
-    private static WireData readData(CompoundTag tag) {
+    static WireData readData(CompoundTag tag) {
         ResourceLocation key = ResourceLocation.tryParse(tag.getString("Type"));
         WireType type = key == null ? null : CEERegistries.WIRE_TYPE.get(key);
         if(type == null)

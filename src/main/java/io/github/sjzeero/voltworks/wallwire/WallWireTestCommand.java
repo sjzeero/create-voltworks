@@ -59,6 +59,10 @@ public final class WallWireTestCommand {
                                 ctx.getSource().sendSuccess(() -> Component.literal("train speed=" + t.speed + " target=" + t.targetSpeed + " station=" + t.currentStation + " derailed=" + t.derailed + " graph=" + t.graph + " stallBefore=" + t.speedBeforeStall), false);
                             return 1;
                         })))
+                .then(Commands.literal("circuitinfo").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                        .executes(WallWireTestCommand::circuitInfo)))
+                .then(Commands.literal("trainwire").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                        .executes(WallWireTestCommand::trainWire)))
                 .then(Commands.literal("traindisassemble").then(Commands.argument("pos", BlockPosArgument.blockPos())
                         .executes(WallWireTestCommand::disassembleTrain)))
                 .then(Commands.literal("wirestatus").executes(WallWireTestCommand::status)));
@@ -204,6 +208,51 @@ public final class WallWireTestCommand {
             }
             push(server, v, ticks - 1);
         }));
+    }
+
+    /** Test helper: voltage and node state of the device at pos, read from the last electrical simulation. */
+    private static int circuitInfo(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerLevel level = ctx.getSource().getLevel();
+        BlockPos p = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
+        var sd = InfrastructureSavedData.load(level);
+        var devices = com.george_vi.electroenergetics.devices.device.DevicesSavedData.load(level);
+        var device = devices.getDevice(p);
+        var frozen = FrozenDevices.get(level);
+        String out = p.toShortString() + ": block=" + level.getBlockState(p).getBlock() + " device=" + (device == null ? "none" : device.getClass().getSimpleName())
+                + " nodes=" + sd.getNodesAt(p).size() + " frozen=" + frozen.isFrozen(p) + " groups=" + frozen.groupCount() + " frozenDevices=" + frozen.deviceCount()
+                + " allDevices=" + devices.getDevices().size() + " allNodes=" + sd.getNodes().size();
+        var results = sd.ticker.lastResults;
+        if(results != null && sd.getNodesAt(p).size() >= 2)
+            out += String.format(java.util.Locale.ROOT, " V01=%.3f", results.getVoltageAt(p, 0, 1));
+        if(device instanceof io.github.sjzeero.voltworks.board.BoardDevice b)
+            out += " boardParts=" + b.schematic().components().size() + " pinU=" + java.util.Arrays.toString(b.readings().pinU());
+        String o2 = out;
+        ctx.getSource().sendSuccess(() -> Component.literal(o2), false);
+        return 1;
+    }
+
+    /** Test helper: wires the battery on the test carriage to the board next to it. */
+    private static int trainWire(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerLevel level = ctx.getSource().getLevel();
+        BlockPos o = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
+        BlockPos battery = o.offset(3, 0, 0), board = o.offset(2, 0, 1);
+        for(BlockPos p : new BlockPos[]{battery, board}) {
+            BlockState st = level.getBlockState(p);
+            if(st.getBlock() instanceof ElectricalDeviceBlock<?> d)
+                d.ensureNodesExist(level, p, st);
+        }
+        var sd = InfrastructureSavedData.load(level);
+        String out = "";
+        for(int i = 0; i < 2; i++) {
+            InWorldNode a = new InWorldNode(i, battery), b = new InWorldNode(i, board);
+            if(sd.getNodes().contains(a) && sd.getNodes().contains(b) && !sd.isConnected(a, b)) {
+                sd.connect(a, b, WireData.ofLength(CEEWireTypes.COPPER.get(), 1.0));
+                out += "w" + i + " ";
+            }
+        }
+        String o2 = "trainwire " + out;
+        ctx.getSource().sendSuccess(() -> Component.literal(o2), false);
+        return 1;
     }
 
     private static int disassembleTrain(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {

@@ -10,6 +10,7 @@
     "BasinRecipeMixin",
     "BeltDeployerMixin",
     "ContraptionMixin",
+    "DevicesSavedDataMixin",
     "DyeWireInteractionBehaviourMixin",
     "InfrastructureSavedDataMixin",
     "RecipeApplierMixin",
