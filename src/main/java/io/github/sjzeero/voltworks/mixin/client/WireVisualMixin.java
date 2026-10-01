@@ -26,8 +26,9 @@ public abstract class WireVisualMixin {
     @Unique
     private boolean voltworks$hidden;
 
-    @Inject(method = "recreateInstances(F)V", at = @At("HEAD"), cancellable = true)
-    private void voltworks$hideWallWire(float partialTick, CallbackInfo ci) {
+    // matched by name only: recreateInstances takes (float) in Electro Energetics 1.2.0 and (level, float, boolean) in 1.1.2
+    @Inject(method = "recreateInstances", at = @At("HEAD"), cancellable = true, require = 0)
+    private void voltworks$hideWallWire(CallbackInfo ci) {
         if(!ClientWallRoutes.isWall(connection)) {
             if(voltworks$hidden) {
                 voltworks$hidden = false;
