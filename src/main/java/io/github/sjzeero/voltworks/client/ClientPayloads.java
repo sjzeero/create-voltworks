@@ -21,14 +21,23 @@ public final class ClientPayloads {
             return;
         if(!(entity.getContraption().getOrCreateClientContraptionLazy().getBlockEntity(payload.pos()) instanceof BoardBlockEntity be))
             return;
-        boolean changed;
-        if(payload.full() != null) {
+        boolean changed = false;
+        if(payload.full() != null && payload.full().getInt("Version") != be.version()) {
             be.applyFull(payload.full(), level.registryAccess());
             changed = true;
-        } else
-            changed = payload.state() != null && be.applyState(payload.state(), level.registryAccess());
+        }
+        if(payload.state() != null)
+            changed |= be.applyState(payload.state(), level.registryAccess());
+        var client = entity.getContraption().getOrCreateClientContraptionLazy();
+        var renderLevel = client.getRenderLevel();
+        var state = renderLevel.getBlockState(payload.pos());
+        if(state.getBlock() instanceof io.github.sjzeero.voltworks.board.BoardBlock && state.getValue(io.github.sjzeero.voltworks.board.BoardBlock.LIGHT) != be.light()) {
+            renderLevel.setBlock(payload.pos(), state.setValue(io.github.sjzeero.voltworks.board.BoardBlock.LIGHT, be.light()), 0);
+            renderLevel.runLightEngine();
+            changed = true;
+        }
         if(changed)
-            entity.getContraption().getOrCreateClientContraptionLazy().invalidateStructure();
+            client.invalidateStructure();
     }
 
     public static void state(BoardStatePayload payload) {

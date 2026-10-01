@@ -344,6 +344,24 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
         return list.stream().mapToInt(Integer::intValue).toArray();
     }
 
+    /** Every non-constant property, the temperatures and the burnt parts as they are now (server thread). */
+    public @Nullable BoardStatePayload snapshotState() {
+        if(baked == null)
+            return null;
+        var changes = new ArrayList<BoardStatePayload.Change>();
+        for(int i = 0; i < baked.components.size(); i++) {
+            var placed = baked.components.get(i);
+            for(var property : placed.component.getProperties()) {
+                if(property instanceof ConstantProperty)
+                    continue;
+                var value = new CompoundTag();
+                placed.getEntry(property).write(level.registryAccess(), value);
+                changes.add(new BoardStatePayload.Change(i, property.id(), value));
+            }
+        }
+        return new BoardStatePayload(pos, schematicVersion, changes, temperatures(), burntIndices(), lightLevel());
+    }
+
     private void publishState() {
         var changes = new ArrayList<BoardStatePayload.Change>();
         for(int i = 0; i < baked.components.size(); i++) {

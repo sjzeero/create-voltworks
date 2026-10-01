@@ -220,7 +220,8 @@ public class FrozenDevices extends SavedData {
     private record Sent(int entity, long pos) {
     }
 
-    private static final Map<Sent, Integer> SENT = new HashMap<>();
+    private static final Map<Sent, long[]> SENT = new HashMap<>();
+    private static final int RESEND = 100;
 
     public static void startTracking(net.neoforged.neoforge.event.entity.player.PlayerEvent.StartTracking event) {
         if(event.getTarget() instanceof com.simibubi.create.content.contraptions.AbstractContraptionEntity entity)
@@ -255,14 +256,16 @@ public class FrozenDevices extends SavedData {
                     if(full == null)
                         continue;
                     Sent key = new Sent(entity.getId(), g.rel()[i]);
-                    int version = full.getInt("Version");
-                    Integer last = SENT.get(key);
-                    if(last == null || last != version) {
-                        SENT.put(key, version);
+                    long version = full.getInt("Version");
+                    long now = level.getGameTime();
+                    long[] last = SENT.get(key);
+                    if(last == null || last[0] != version || now - last[1] >= RESEND) {
+                        SENT.put(key, new long[]{version, now});
+                        var snapshot = device.snapshotState();
                         while(device.pollState() != null) {
                         }
                         net.neoforged.neoforge.network.PacketDistributor.sendToPlayersTrackingEntity(entity,
-                                new io.github.sjzeero.voltworks.network.ContraptionBoardPayload(entity.getId(), rel, full, null));
+                                new io.github.sjzeero.voltworks.network.ContraptionBoardPayload(entity.getId(), rel, full, snapshot));
                     } else {
                         io.github.sjzeero.voltworks.network.BoardStatePayload state;
                         while((state = device.pollState()) != null)
