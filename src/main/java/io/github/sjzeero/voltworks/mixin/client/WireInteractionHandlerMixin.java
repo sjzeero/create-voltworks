@@ -19,12 +19,12 @@ import java.util.List;
 @Mixin(value = WireInteractionHandler.class, remap = false)
 public abstract class WireInteractionHandlerMixin {
     @Redirect(method = "tick", at = @At(value = "INVOKE",
-            target = "Lcom/george_vi/electroenergetics/client/WireRenderer;getAllConnections()Ljava/util/List;"))
+            target = "Lcom/george_vi/electroenergetics/client/WireRenderer;getAllConnections()Ljava/util/List;"), require = 0)
     private static List<Pair<InWorldNodeConnection, WireData>> voltworks$skipWallWires() {
         return ClientWallRoutes.withoutWallWires(WireRenderer.getAllConnections());
     }
 
-    @Inject(method = "tick", at = @At("RETURN"))
+    @Inject(method = "tick", at = @At("RETURN"), require = 0)
     private static void voltworks$pickWallWires(CallbackInfo ci) {
         WallWireClient.pickWallWire();
     }

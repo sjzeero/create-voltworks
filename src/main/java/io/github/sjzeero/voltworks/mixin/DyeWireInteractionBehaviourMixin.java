@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /** Dyeing a wall wire only changes its colour, never the wire type. */
 @Mixin(value = DyeWireInteractionBehaviour.class, remap = false)
 public abstract class DyeWireInteractionBehaviourMixin {
-    @Inject(method = "interactWire", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "interactWire", at = @At("HEAD"), cancellable = true, require = 0)
     private void voltworks$dyeWallWire(NodeConnectionPoint point, Level level, Player player, ItemStack stack, CallbackInfo ci) {
         if(player instanceof ServerPlayer sp && WallWirePlacement.dye(sp, point.connection(), stack))
             ci.cancel();

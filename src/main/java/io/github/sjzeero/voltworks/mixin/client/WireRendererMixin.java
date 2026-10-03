@@ -15,7 +15,7 @@ import java.util.List;
 @Mixin(value = WireRenderer.class, remap = false)
 public abstract class WireRendererMixin {
     @Redirect(method = "render", at = @At(value = "INVOKE",
-            target = "Lcom/george_vi/electroenergetics/client/WireRenderer;getAllConnections()Ljava/util/List;"))
+            target = "Lcom/george_vi/electroenergetics/client/WireRenderer;getAllConnections()Ljava/util/List;"), require = 0)
     private static List<Pair<InWorldNodeConnection, WireData>> voltworks$skipWallWires() {
         return ClientWallRoutes.withoutWallWires(WireRenderer.getAllConnections());
     }

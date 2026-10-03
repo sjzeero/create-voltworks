@@ -384,6 +384,46 @@ public final class WallWireClient {
 
     /** Lets the empty spool, wire cutters and dyes pick a wall wire by looking at it on its face. */
     public static void pickWallWire() {
+        try {
+            pick();
+        } catch(Throwable t) {
+            if(!pickFailureLogged) {
+                pickFailureLogged = true;
+                Voltworks.LOGGER.error("wall wire picking failed", t);
+            }
+        }
+    }
+
+    private static boolean pickFailureLogged;
+    private static boolean targetedPosResolved;
+    private static java.lang.reflect.Field targetedPosField;
+    private static java.lang.reflect.Method targetedPosSetter;
+
+    private static void setTargetedPos(Vec3 pos) {
+        try {
+            if(!targetedPosResolved) {
+                targetedPosResolved = true;
+                java.lang.reflect.Field field = WireInteractionHandler.class.getField("targetedPos");
+                if(!field.getType().isAssignableFrom(Vec3.class))
+                    targetedPosSetter = field.getType().getMethod("setPos", Vec3.class);
+                targetedPosField = field;
+            }
+            if(targetedPosField == null)
+                return;
+            if(targetedPosSetter == null)
+                targetedPosField.set(null, pos);
+            else {
+                Object holder = targetedPosField.get(null);
+                if(holder != null)
+                    targetedPosSetter.invoke(holder, pos);
+            }
+        } catch(Throwable t) {
+            targetedPosField = null;
+            targetedPosSetter = null;
+        }
+    }
+
+    private static void pick() {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         ClientLevel level = mc.level;
@@ -432,7 +472,7 @@ public final class WallWireClient {
         if(!behaviour.isActuallyActiveFor(point, level, player, stack))
             return;
         WireInteractionHandler.targetedPoint = point;
-        WireInteractionHandler.targetedPos = bestPos;
+        setTargetedPos(bestPos);
         int color = behaviour.getWireDisplayColor(point, level, player, stack);
         List<WallRoute.Segment> segments = bestEntry.segments();
         for(int i = 0; i < segments.size() && i < 128; i++)
