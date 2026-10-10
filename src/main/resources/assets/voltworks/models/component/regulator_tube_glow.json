@@ -1,79 +1,26 @@
 {
-  "credit": "Voltworks (original)",
-  "parent": "block/block",
-  "textures": {
-    "0": "voltworks:block/component/regulator_tube",
-    "particle": "voltworks:block/component/regulator_tube"
-  },
-  "elements": [
-    {
-      "name": "glow",
-      "from": [
-        -0.125,
-        1.375,
-        -0.125
-      ],
-      "to": [
-        3.125,
-        5.625,
-        3.125
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            0,
-            0,
-            3,
-            4
-          ],
-          "texture": "#0"
-        },
-        "south": {
-          "uv": [
-            0,
-            0,
-            3,
-            4
-          ],
-          "texture": "#0"
-        },
-        "east": {
-          "uv": [
-            0,
-            0,
-            3,
-            4
-          ],
-          "texture": "#0"
-        },
-        "west": {
-          "uv": [
-            0,
-            0,
-            3,
-            4
-          ],
-          "texture": "#0"
-        },
-        "up": {
-          "uv": [
-            6,
-            3,
-            9,
-            6
-          ],
-          "texture": "#0"
-        },
-        "down": {
-          "uv": [
-            3,
-            3,
-            6,
-            6
-          ],
-          "texture": "#0"
-        }
-      }
-    }
-  ]
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"ambientocclusion": false,
+	"textures": {
+		"0": "voltworks:block/component/regulator_tube",
+		"particle": "voltworks:block/component/regulator_tube"
+	},
+	"elements": [
+		{
+			"from": [-0.125, 1.375, -0.125],
+			"to": [3.125, 5.625, 3.125],
+			"light_emission": 7,
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 5, 0]},
+			"faces": {
+				"north": {"uv": [14, 0, 15, 1], "texture": "#0"},
+				"east": {"uv": [14, 0, 15, 1], "texture": "#0"},
+				"south": {"uv": [14, 0, 15, 1], "texture": "#0"},
+				"west": {"uv": [14, 0, 15, 1], "texture": "#0"},
+				"up": {"uv": [14, 0, 15, 1], "texture": "#0"},
+				"down": {"uv": [14, 0, 15, 1], "texture": "#0"}
+			}
+		}
+	]
 }

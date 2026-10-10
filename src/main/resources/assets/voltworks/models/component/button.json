@@ -1,129 +1,33 @@
 {
-  "credit": "Voltworks (original)",
-  "textures": {
-    "0": "voltworks:block/component/button",
-    "particle": "voltworks:block/component/button"
-  },
-  "elements": [
-    {
-      "name": "base",
-      "from": [
-        0,
-        0,
-        0
-      ],
-      "to": [
-        3,
-        2,
-        3
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            6,
-            0,
-            9,
-            2
-          ],
-          "texture": "#0"
-        },
-        "south": {
-          "uv": [
-            6,
-            0,
-            9,
-            2
-          ],
-          "texture": "#0"
-        },
-        "east": {
-          "uv": [
-            3,
-            0,
-            6,
-            2
-          ],
-          "texture": "#0"
-        },
-        "west": {
-          "uv": [
-            3,
-            0,
-            6,
-            2
-          ],
-          "texture": "#0"
-        },
-        "up": {
-          "uv": [
-            0,
-            0,
-            3,
-            3
-          ],
-          "texture": "#0"
-        }
-      }
-    },
-    {
-      "name": "cap",
-      "from": [
-        0.5,
-        2,
-        0.5
-      ],
-      "to": [
-        2.5,
-        3,
-        2.5
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            13,
-            1,
-            15,
-            2
-          ],
-          "texture": "#0"
-        },
-        "south": {
-          "uv": [
-            13,
-            1,
-            15,
-            2
-          ],
-          "texture": "#0"
-        },
-        "east": {
-          "uv": [
-            13,
-            0,
-            15,
-            1
-          ],
-          "texture": "#0"
-        },
-        "west": {
-          "uv": [
-            13,
-            0,
-            15,
-            1
-          ],
-          "texture": "#0"
-        },
-        "up": {
-          "uv": [
-            11,
-            0,
-            13,
-            2
-          ],
-          "texture": "#0"
-        }
-      }
-    }
-  ]
+	"credit": "Made with Blockbench",
+	"textures": {
+		"0": "voltworks:block/component/button",
+		"particle": "voltworks:block/component/button"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [3, 2, 3],
+			"faces": {
+				"north": {"uv": [0, 0, 3, 2], "texture": "#0"},
+				"east": {"uv": [0, 0, 3, 2], "texture": "#0"},
+				"south": {"uv": [0, 0, 3, 2], "texture": "#0"},
+				"west": {"uv": [0, 0, 3, 2], "texture": "#0"},
+				"up": {"uv": [3, 0, 6, 3], "texture": "#0"}
+			}
+		},
+		{
+			"from": [0.5, 2, 0.5],
+			"to": [2.5, 3, 2.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 2, 0]},
+			"faces": {
+				"north": {"uv": [6, 1, 8, 2], "texture": "#0"},
+				"east": {"uv": [6, 0, 8, 1], "texture": "#0"},
+				"south": {"uv": [6, 1, 8, 2], "texture": "#0"},
+				"west": {"uv": [6, 0, 8, 1], "texture": "#0"},
+				"up": {"uv": [6, 0, 8, 2], "texture": "#0"},
+				"down": {"uv": [0, 0, 2, 2], "texture": "#missing"}
+			}
+		}
+	]
 }

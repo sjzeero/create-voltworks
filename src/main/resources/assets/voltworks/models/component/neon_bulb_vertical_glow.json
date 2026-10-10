@@ -1,78 +1,23 @@
 {
-  "credit": "Voltworks (original)",
-  "textures": {
-    "0": "voltworks:block/component/neon_tube",
-    "particle": "voltworks:block/component/neon_tube"
-  },
-  "elements": [
-    {
-      "name": "glow",
-      "from": [
-        -0.05,
-        1.95,
-        -0.05
-      ],
-      "to": [
-        2.05,
-        3.05,
-        2.05
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            8,
-            2,
-            10,
-            3
-          ],
-          "texture": "#0"
-        },
-        "south": {
-          "uv": [
-            8,
-            2,
-            10,
-            3
-          ],
-          "texture": "#0"
-        },
-        "east": {
-          "uv": [
-            8,
-            2,
-            10,
-            3
-          ],
-          "texture": "#0"
-        },
-        "west": {
-          "uv": [
-            8,
-            2,
-            10,
-            3
-          ],
-          "texture": "#0"
-        },
-        "up": {
-          "uv": [
-            12,
-            0,
-            14,
-            2
-          ],
-          "texture": "#0"
-        },
-        "down": {
-          "uv": [
-            10,
-            0,
-            12,
-            2
-          ],
-          "texture": "#0"
-        }
-      }
-    }
-  ]
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"textures": {
+		"0": "voltworks:block/component/neon_tube",
+		"particle": "voltworks:block/component/neon_tube"
+	},
+	"elements": [
+		{
+			"from": [-0.05, 1.95, -0.05],
+			"to": [2.05, 3.05, 2.05],
+			"faces": {
+				"north": {"uv": [5, 1, 7, 2], "texture": "#0"},
+				"east": {"uv": [5, 1, 7, 2], "texture": "#0"},
+				"south": {"uv": [5, 1, 7, 2], "texture": "#0"},
+				"west": {"uv": [5, 1, 7, 2], "texture": "#0"},
+				"up": {"uv": [5, 0, 7, 1], "texture": "#0"},
+				"down": {"uv": [5, 1, 7, 2], "texture": "#0"}
+			}
+		}
+	]
 }

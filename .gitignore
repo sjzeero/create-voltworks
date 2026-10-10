@@ -6,3 +6,5 @@ out/
 *.iml
 .vscode/
 logs/
+tools/.venv/
+previews/

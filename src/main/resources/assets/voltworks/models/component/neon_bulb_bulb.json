@@ -1,69 +1,24 @@
 {
-  "credit": "Voltworks (original)",
-  "textures": {
-    "0": "voltworks:block/component/neon_tube",
-    "particle": "voltworks:block/component/neon_tube"
-  },
-  "elements": [
-    {
-      "name": "glass",
-      "from": [
-        0,
-        1,
-        0
-      ],
-      "to": [
-        2,
-        3,
-        2
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            2,
-            0,
-            4,
-            2
-          ],
-          "texture": "#0"
-        },
-        "south": {
-          "uv": [
-            2,
-            0,
-            4,
-            2
-          ],
-          "texture": "#0"
-        },
-        "east": {
-          "uv": [
-            0,
-            0,
-            2,
-            2
-          ],
-          "texture": "#0"
-        },
-        "west": {
-          "uv": [
-            0,
-            0,
-            2,
-            2
-          ],
-          "texture": "#0"
-        },
-        "up": {
-          "uv": [
-            4,
-            0,
-            6,
-            2
-          ],
-          "texture": "#0"
-        }
-      }
-    }
-  ]
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"textures": {
+		"1": "voltworks:block/component/neon_tube",
+		"particle": "voltworks:block/component/neon_tube"
+	},
+	"elements": [
+		{
+			"from": [0, 0.95, 0],
+			"to": [2, 2.95, 2],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 1, 0]},
+			"faces": {
+				"north": {"uv": [2, 0, 0, 2], "texture": "#1"},
+				"east": {"uv": [0, 0, 2, 2], "texture": "#1"},
+				"south": {"uv": [2, 0, 0, 2], "texture": "#1"},
+				"west": {"uv": [0, 0, 2, 2], "texture": "#1"},
+				"up": {"uv": [0, 0, 2, 2], "texture": "#1"},
+				"down": {"uv": [0, 0, 0, 0], "texture": "#1"}
+			}
+		}
+	]
 }

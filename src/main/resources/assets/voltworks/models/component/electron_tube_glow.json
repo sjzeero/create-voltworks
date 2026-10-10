@@ -1,78 +1,22 @@
 {
-  "credit": "Voltworks (original)",
-  "textures": {
-    "0": "voltworks:block/component/electron_tube",
-    "particle": "voltworks:block/component/electron_tube"
-  },
-  "elements": [
-    {
-      "name": "glow",
-      "from": [
-        -0.125,
-        1.375,
-        -0.125
-      ],
-      "to": [
-        3.125,
-        5.625,
-        3.125
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            0,
-            0,
-            3,
-            4
-          ],
-          "texture": "#0"
-        },
-        "south": {
-          "uv": [
-            0,
-            0,
-            3,
-            4
-          ],
-          "texture": "#0"
-        },
-        "east": {
-          "uv": [
-            0,
-            0,
-            3,
-            4
-          ],
-          "texture": "#0"
-        },
-        "west": {
-          "uv": [
-            0,
-            0,
-            3,
-            4
-          ],
-          "texture": "#0"
-        },
-        "up": {
-          "uv": [
-            12,
-            0,
-            15,
-            3
-          ],
-          "texture": "#0"
-        },
-        "down": {
-          "uv": [
-            9,
-            0,
-            12,
-            3
-          ],
-          "texture": "#0"
-        }
-      }
-    }
-  ]
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"0": "voltworks:block/component/electron_tube",
+		"particle": "voltworks:block/component/electron_tube"
+	},
+	"elements": [
+		{
+			"from": [-0.125, 1.375, -0.125],
+			"to": [3.125, 5.625, 3.125],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 2, 0]},
+			"faces": {
+				"north": {"uv": [16, 12, 13, 16], "texture": "#0"},
+				"east": {"uv": [13, 12, 16, 16], "texture": "#0"},
+				"south": {"uv": [16, 12, 13, 16], "texture": "#0"},
+				"west": {"uv": [13, 12, 16, 16], "texture": "#0"},
+				"up": {"uv": [13, 9, 16, 12], "texture": "#0"}
+			}
+		}
+	]
 }
