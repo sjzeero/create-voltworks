@@ -16,6 +16,7 @@
   ],
   "client": [
     "client.WireInteractionHandlerMixin",
+    "client.WireApplyingBehaviourMixin",
     "client.WireRendererMixin",
     "client.WireVisualMixin",
     "client.CreativeScreenSelectedTabAccessor",
