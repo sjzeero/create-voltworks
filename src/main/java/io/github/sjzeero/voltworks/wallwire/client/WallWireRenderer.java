@@ -215,6 +215,7 @@ public final class WallWireRenderer {
 
     /** Emits the boxes of one wire. */
     private static final class Drawer {
+        private final WireType type;
         final ClientLevel level;
         final PoseStack.Pose pose;
         final VertexConsumer vb;
@@ -232,6 +233,7 @@ public final class WallWireRenderer {
             this.vb = buffer.getBuffer(rt);
             this.tex = texture(look);
             this.cam = cam;
+            this.type = type;
             this.w = widthPixels(type) * PX;
             this.h = heightPixels(type) * PX;
         }
@@ -245,9 +247,43 @@ public final class WallWireRenderer {
                 for(int i = 0; i < segments.size(); i++)
                     segment(segments, i);
             if(node1 != null)
-                lead(node1.getPosition(level), cells.getFirst(), segments.isEmpty() ? null : segments.getFirst());
+                end(node1, cells.getFirst(), segments.isEmpty() ? null : segments.getFirst());
             if(node2 != null)
-                lead(node2.getPosition(level), cells.getLast(), segments.isEmpty() ? null : segments.getLast());
+                end(node2, cells.getLast(), segments.isEmpty() ? null : segments.getLast());
+        }
+
+        private void end(InWorldNode node, WallCell cell, WallRoute.Segment seg) {
+            InWorldNode[] pair = CordPair.isCord(type) ? CordPair.ends(level, node.sourcePos()) : null;
+            Vec3 a = pair == null ? null : pair[0].getPosition(level), b = pair == null ? null : pair[1].getPosition(level);
+            if(a == null || b == null) {
+                lead(node.getPosition(level), cell, seg);
+                return;
+            }
+            // cord: leave the socket between its two contacts, run flat at contact height, then drop onto the surface
+            Vec3 plug = a.add(b).scale(0.5);
+            Vec3 n = step(cell.face());
+            Vec3 end = cell.point(0).add(n.scale(h / 2));
+            Vec3 corner = end.add(n.scale(plug.subtract(end).dot(n)));
+            if(corner.distanceTo(plug) < h / 2 || corner.distanceTo(end) < h / 2) {
+                lead(plug, cell, seg);
+                return;
+            }
+            straight(plug, corner.add(corner.subtract(plug).normalize().scale(w / 2)), n, cell, false);
+            straight(corner.add(n.scale(h / 2)), end, corner.subtract(plug).normalize(), cell, true);
+        }
+
+        /** Box of the wire's cross section from a to b; {@code flat} is the direction its height goes along. */
+        private void straight(Vec3 a, Vec3 b, Vec3 flat, WallCell cell, boolean bottom) {
+            Vec3 d = b.subtract(a);
+            double len = d.length();
+            if(len < 1e-4)
+                return;
+            Vec3 u = d.scale(1 / len);
+            Vec3 side = flat.cross(u).normalize();
+            Vec3 up = u.cross(side).normalize();
+            int light = WireRenderer.maxLightLevel(LevelRenderer.getLightColor(level, BlockPos.containing(a)),
+                    LevelRenderer.getLightColor(level, cell.front()));
+            box(a.subtract(side.scale(w / 2)).subtract(up.scale(h / 2)), u, side, up, len, w, h, true, true, bottom, light);
         }
 
         private static Vec3 step(Direction d) {
