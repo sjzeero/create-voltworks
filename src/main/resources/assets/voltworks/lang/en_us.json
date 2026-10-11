@@ -285,5 +285,5 @@
   "voltworks.node.socket_0": "+",
   "voltworks.node.socket_1": "-",
   "voltworks.node.socket_2": "Socket contact",
-  "voltworks.wall_wire.cord_ends": "A cord goes between a socket or a device with two terminals"
+  "voltworks.wall_wire.cord_ends": "A cord only goes from socket to socket"
 }

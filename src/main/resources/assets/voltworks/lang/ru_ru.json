@@ -285,5 +285,5 @@
   "voltworks.node.socket_0": "+",
   "voltworks.node.socket_1": "-",
   "voltworks.node.socket_2": "Контакт розетки",
-  "voltworks.wall_wire.cord_ends": "Кабель подключается к розетке или устройству с двумя клеммами"
+  "voltworks.wall_wire.cord_ends": "Кабель подключается только от розетки к розетке"
 }

@@ -1,6 +1,5 @@
 package io.github.sjzeero.voltworks.cord;
 
-import com.george_vi.electroenergetics.foundation.device.ElectricalDeviceBlock;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
 import com.george_vi.electroenergetics.simulation.WireType;
@@ -12,8 +11,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * The copper cord is laid as a Voltworks wall wire carrying two strands over the same cells: a supply strand
- * between the even nodes of both ends and a return strand between the odd ones. On a socket these are its two
- * contacts (2, 3), on any other device with exactly two terminals its terminals (0, 1). Only the supply strand
+ * between the even nodes of both ends and a return strand between the odd ones. It only plugs into sockets,
+ * into their two contacts (2, 3); it is not a general purpose wire. Only the supply strand
  * is drawn, as one 2x1 px band; losing either strand removes the other without a second drop.
  */
 public final class CordPair {
@@ -23,13 +22,11 @@ public final class CordPair {
         return type != null && type == VoltworksWireTypes.COPPER_CORD.get();
     }
 
-    /** Supply and return node a cord plugs into on this block, or null when it takes no cord. */
+    /** Supply and return contact of the socket at pos, or null when it is not a socket. */
     public static InWorldNode @Nullable [] ends(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if(state.getBlock() instanceof SocketBlock)
             return new InWorldNode[]{new InWorldNode(SocketBlock.CORD_POSITIVE, pos), new InWorldNode(SocketBlock.CORD_NEGATIVE, pos)};
-        if(state.getBlock() instanceof ElectricalDeviceBlock<?> block && block.getNodePositions(level, pos, state).size() == 2)
-            return new InWorldNode[]{new InWorldNode(0, pos), new InWorldNode(1, pos)};
         return null;
     }
 
