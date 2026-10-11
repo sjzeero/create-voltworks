@@ -25,6 +25,17 @@ import io.github.sjzeero.voltworks.board.BoardColor;
 import io.github.sjzeero.voltworks.circuits.CircuitItems;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
+import com.simibubi.create.foundation.block.connected.CTModel;
+import com.simibubi.create.foundation.item.ItemDescription;
+import com.simibubi.create.foundation.item.TooltipModifier;
+import com.simibubi.create.foundation.model.ModelSwapper;
+import io.github.sjzeero.voltworks.circuits.editor.CircuitBoardEditMenu;
+import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableEditMenu;
+import io.github.sjzeero.voltworks.motor.PGMotorRenderer;
+import io.github.sjzeero.voltworks.registry.VoltworksBlocks;
+import io.github.sjzeero.voltworks.solar.SolarPanelCTBehaviour;
+import io.github.sjzeero.voltworks.wallwire.client.WallWireClient;
+import net.createmod.catnip.lang.FontHelper;
 
 @Mod(value = Voltworks.MOD_ID, dist = Dist.CLIENT)
 public class VoltworksClient {
@@ -37,9 +48,9 @@ public class VoltworksClient {
         modBus.addListener(VoltworksClient::models);
         modBus.addListener(VoltworksClient::renderers);
         modBus.addListener(VoltworksClient::setup);
-        modBus.addListener(io.github.sjzeero.voltworks.wallwire.client.WallWireClient::registerKeys);
-        modBus.addListener(io.github.sjzeero.voltworks.wallwire.client.WallWireClient::registerLayers);
-        io.github.sjzeero.voltworks.wallwire.client.WallWireClient.init();
+        modBus.addListener(WallWireClient::registerKeys);
+        modBus.addListener(WallWireClient::registerLayers);
+        WallWireClient.init();
         NeoForge.EVENT_BUS.addListener(VoltworksClient::tick);
     }
 
@@ -56,9 +67,9 @@ public class VoltworksClient {
 
     private static void screens(RegisterMenuScreensEvent event) {
         event.register(VoltworksMenus.CIRCUIT_DESIGN_TABLE.get(), CircuitDesignTableScreen::new);
-        event.<io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableEditMenu, CircuitDesignTableEditScreen<io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableEditMenu>>register(
+        event.<CircuitDesignTableEditMenu, CircuitDesignTableEditScreen<CircuitDesignTableEditMenu>>register(
                 VoltworksMenus.CIRCUIT_DESIGN_TABLE_EDIT.get(), CircuitDesignTableEditScreen::new);
-        event.<io.github.sjzeero.voltworks.circuits.editor.CircuitBoardEditMenu, CircuitDesignTableEditScreen<io.github.sjzeero.voltworks.circuits.editor.CircuitBoardEditMenu>>register(
+        event.<CircuitBoardEditMenu, CircuitDesignTableEditScreen<CircuitBoardEditMenu>>register(
                 VoltworksMenus.CIRCUIT_BOARD_EDIT.get(), CircuitDesignTableEditScreen::new);
         event.register(VoltworksMenus.CIRCUIT_DESIGN_TABLE_LOAD.get(), CircuitDesignTableLoadScreen::new);
     }
@@ -77,25 +88,25 @@ public class VoltworksClient {
         event.registerBlockEntityRenderer(VoltworksBlockEntities.DESIGN_TABLE_BE.get(), CircuitDesignTableRenderer::new);
         event.registerBlockEntityRenderer(VoltworksBlockEntities.SERVO_BE.get(), ServoRenderer::new);
         event.registerBlockEntityRenderer(VoltworksBlockEntities.SOLAR_PANEL_BEARING_BE.get(), SolarPanelBearingRenderer::new);
-        event.registerBlockEntityRenderer(VoltworksBlockEntities.CONSTANT_SPEED_MOTOR_BE.get(), io.github.sjzeero.voltworks.motor.PGMotorRenderer::new);
+        event.registerBlockEntityRenderer(VoltworksBlockEntities.CONSTANT_SPEED_MOTOR_BE.get(), PGMotorRenderer::new);
     }
 
     private static void setup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             ItemBlockRenderTypes.setRenderLayer(CircuitItems.ACID.get(), RenderType.translucent());
             for (var item : java.util.List.of(VoltworksItems.DESIGN_TABLE_ITEM.get(), CircuitItems.INCOMPLETE_CIRCUIT.get(), VoltworksItems.SERVO_ITEM.get()))
-                com.simibubi.create.foundation.item.TooltipModifier.REGISTRY.register(item,
-                        new com.simibubi.create.foundation.item.ItemDescription.Modifier(item, net.createmod.catnip.lang.FontHelper.Palette.STANDARD_CREATE));
+                TooltipModifier.REGISTRY.register(item,
+                        new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE));
             ItemBlockRenderTypes.setRenderLayer(CircuitItems.ACID_FLOWING.get(), RenderType.translucent());
             ItemProperties.register(VoltworksItems.BOARD_ITEM.get(), Voltworks.asResource("board_color"),
                     (stack, level, entity, seed) -> BoardColor.ofBoard(stack).ordinal() / 10f);
         });
     }
 
-    private static void solarPanelCT(net.neoforged.neoforge.client.event.ModelEvent.ModifyBakingResult event) {
-        var behaviour = new io.github.sjzeero.voltworks.solar.SolarPanelCTBehaviour();
-        com.simibubi.create.foundation.model.ModelSwapper.swapModels(event.getModels(),
-                com.simibubi.create.foundation.model.ModelSwapper.getAllBlockStateModelLocations(io.github.sjzeero.voltworks.registry.VoltworksBlocks.SOLAR_PANEL.get()),
-                m -> new com.simibubi.create.foundation.block.connected.CTModel(m, behaviour));
+    private static void solarPanelCT(ModelEvent.ModifyBakingResult event) {
+        var behaviour = new SolarPanelCTBehaviour();
+        ModelSwapper.swapModels(event.getModels(),
+                ModelSwapper.getAllBlockStateModelLocations(VoltworksBlocks.SOLAR_PANEL.get()),
+                m -> new CTModel(m, behaviour));
     }
 }

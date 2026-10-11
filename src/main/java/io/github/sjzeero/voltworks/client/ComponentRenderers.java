@@ -37,6 +37,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 
 public final class ComponentRenderers {
     @FunctionalInterface
@@ -104,7 +105,7 @@ public final class ComponentRenderers {
         return state[1];
     }
 
-    private static void glow(BlockState state, dev.engine_room.flywheel.lib.model.baked.PartialModel model, int a, PoseStack ms, MultiBufferSource buf) {
+    private static void glow(BlockState state, PartialModel model, int a, PoseStack ms, MultiBufferSource buf) {
         if(a <= 0)
             return;
         CachedBuffers.partial(model, state)

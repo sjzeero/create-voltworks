@@ -28,6 +28,8 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksDevices;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 /**
  * Ported from Create: Power Grid (patryk3211, Apache-2.0) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
@@ -178,7 +180,7 @@ public class ServoBlock extends DirectionalKineticElectricBlock<ServoDevice> imp
     }
 
     @Override
-    public net.minecraft.network.chat.MutableComponent getNodeLabel(Level level, BlockPos pos, BlockState state, int id) {
-        return net.minecraft.network.chat.Component.translatable("voltworks.node.servo_" + id);
+    public MutableComponent getNodeLabel(Level level, BlockPos pos, BlockState state, int id) {
+        return Component.translatable("voltworks.node.servo_" + id);
     }
 }

@@ -6,6 +6,7 @@ import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import com.simibubi.create.content.processing.sequenced.SequencedAssemblyItem;
 
 public final class VoltworksItems {
     private VoltworksItems() {}
@@ -34,7 +35,7 @@ public final class VoltworksItems {
 
     public static final DeferredItem<?> SOLAR_PANEL_BEARING_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SOLAR_PANEL_BEARING);
 
-    public static final DeferredItem<com.simibubi.create.content.processing.sequenced.SequencedAssemblyItem> INCOMPLETE_SOLAR_PANEL = ITEMS.registerItem("incomplete_solar_panel", com.simibubi.create.content.processing.sequenced.SequencedAssemblyItem::new);
+    public static final DeferredItem<SequencedAssemblyItem> INCOMPLETE_SOLAR_PANEL = ITEMS.registerItem("incomplete_solar_panel", SequencedAssemblyItem::new);
 
     public static void register(IEventBus bus) {
         ITEMS.register(bus);

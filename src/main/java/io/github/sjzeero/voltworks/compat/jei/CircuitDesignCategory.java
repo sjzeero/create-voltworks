@@ -34,6 +34,7 @@ import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.circuits.CircuitTags;
 import io.github.sjzeero.voltworks.utility.Lang;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 public class CircuitDesignCategory implements IRecipeCategory<Object> {
     public static final ResourceLocation IDENTIFIER = Voltworks.asResource("circuit_design");
@@ -75,7 +76,7 @@ public class CircuitDesignCategory implements IRecipeCategory<Object> {
     public void setRecipe(IRecipeLayoutBuilder builder, Object recipe, IFocusGroup focuses) {
         var schematicIn = builder.addInputSlot(21, 38)
 //                .setOutputSlotBackground()
-                .addItemLike(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("create", "empty_schematic")));
+                .addItemLike(BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("create", "empty_schematic")));
         var schematicOut = builder.addOutputSlot(113, 38)
                 .addItemLike(VoltworksItems.CIRCUIT_SCHEMATIC.get());
         var components = builder.addInputSlot(67, 15)

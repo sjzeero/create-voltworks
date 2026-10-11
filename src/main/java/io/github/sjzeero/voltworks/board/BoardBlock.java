@@ -72,6 +72,8 @@ import java.util.HashMap;
 import java.util.Map;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksDevices;
+import io.github.sjzeero.voltworks.client.ClientHooks;
+import io.github.sjzeero.voltworks.utility.WiringTools;
 
 public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> implements EntityBlock {
     public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -272,7 +274,7 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
     public static InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if(!(level.getBlockEntity(pos) instanceof BoardBlockEntity be))
             return InteractionResult.PASS;
-        if(io.github.sjzeero.voltworks.utility.WiringTools.isWiringTool(player.getMainHandItem()))
+        if(WiringTools.isWiringTool(player.getMainHandItem()))
             return InteractionResult.PASS;
         var local = unrotate(hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()), getAngleX(state), getAngleY(state));
         for(var interactable : be.interactables()) {
@@ -280,7 +282,7 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
                 continue;
             if(interactable.clientScreen()) {
                 if(level.isClientSide)
-                    io.github.sjzeero.voltworks.client.ClientHooks.openComponentScreen(be, interactable.uuid());
+                    ClientHooks.openComponentScreen(be, interactable.uuid());
                 return InteractionResult.sidedSuccess(level.isClientSide);
             }
             if(level instanceof ServerLevel server) {

@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksDevices;
+import io.github.sjzeero.voltworks.utility.WiringTools;
 
 public class CircuitDesignTableBlock extends SimpleElectricalDeviceBlock<CircuitDesignTableDevice> implements EntityBlock {
     public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -132,7 +133,7 @@ public class CircuitDesignTableBlock extends SimpleElectricalDeviceBlock<Circuit
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if(io.github.sjzeero.voltworks.utility.WiringTools.isWiringTool(player.getItemInHand(InteractionHand.MAIN_HAND)))
+        if(WiringTools.isWiringTool(player.getItemInHand(InteractionHand.MAIN_HAND)))
             return InteractionResult.PASS;
         if(level.isClientSide)
             return InteractionResult.SUCCESS;

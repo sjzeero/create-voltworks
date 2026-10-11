@@ -24,6 +24,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.EnumMap;
 import java.util.Map;
 import io.github.sjzeero.voltworks.Voltworks;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 /**
  * Ported from Create: Power Grid (patryk3211) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
@@ -166,7 +168,7 @@ public abstract class AbstractPGMotorBlock extends DirectionalKineticElectricBlo
     }
 
     @Override
-    public net.minecraft.network.chat.MutableComponent getNodeLabel(Level level, BlockPos pos, BlockState state, int id) {
-        return net.minecraft.network.chat.Component.translatable("voltworks.node.motor_" + id);
+    public MutableComponent getNodeLabel(Level level, BlockPos pos, BlockState state, int id) {
+        return Component.translatable("voltworks.node.motor_" + id);
     }
 }

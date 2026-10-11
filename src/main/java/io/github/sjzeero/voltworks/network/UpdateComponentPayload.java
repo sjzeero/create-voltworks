@@ -34,12 +34,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.UUID;
+import net.minecraft.core.UUIDUtil;
 
 public record UpdateComponentPayload(BlockPos pos, UUID component, ResourceLocation propertyId, CompoundTag value) implements CustomPacketPayload {
     public static final Type<UpdateComponentPayload> TYPE = new Type<>(Voltworks.asResource("update_component"));
     public static final StreamCodec<RegistryFriendlyByteBuf, UpdateComponentPayload> CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, UpdateComponentPayload::pos,
-            net.minecraft.core.UUIDUtil.STREAM_CODEC, UpdateComponentPayload::component,
+            UUIDUtil.STREAM_CODEC, UpdateComponentPayload::component,
             ResourceLocation.STREAM_CODEC, UpdateComponentPayload::propertyId,
             ByteBufCodecs.COMPOUND_TAG, UpdateComponentPayload::value,
             UpdateComponentPayload::new);

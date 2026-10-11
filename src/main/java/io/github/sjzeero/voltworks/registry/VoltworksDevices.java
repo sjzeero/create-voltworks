@@ -9,6 +9,9 @@ import io.github.sjzeero.voltworks.servo.ServoDevice;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import io.github.sjzeero.voltworks.motor.PGMotorDevice;
+import io.github.sjzeero.voltworks.solar.SolarPanelBearingDevice;
+import io.github.sjzeero.voltworks.solar.SolarPanelDevice;
 
 public final class VoltworksDevices {
     private VoltworksDevices() {}
@@ -27,14 +30,14 @@ public final class VoltworksDevices {
             () -> new SimulatedDeviceType<>(Voltworks.asResource("servo"),
                     (type, level, pos, sd) -> new ServoDevice(level, pos, sd, type)));
 
-    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.motor.PGMotorDevice>> CONSTANT_SPEED_MOTOR_DEVICE = DEVICES.register("constant_speed_motor",
-            () -> new SimulatedDeviceType<>(Voltworks.asResource("constant_speed_motor"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.motor.PGMotorDevice(level, pos, sd, type)));
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<PGMotorDevice>> CONSTANT_SPEED_MOTOR_DEVICE = DEVICES.register("constant_speed_motor",
+            () -> new SimulatedDeviceType<>(Voltworks.asResource("constant_speed_motor"), (type, level, pos, sd) -> new PGMotorDevice(level, pos, sd, type)));
 
-    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.solar.SolarPanelDevice>> SOLAR_PANEL_DEVICE = DEVICES.register("solar_panel",
-            () -> new SimulatedDeviceType<>(Voltworks.asResource("solar_panel"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.solar.SolarPanelDevice(level, pos, sd, type)));
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<SolarPanelDevice>> SOLAR_PANEL_DEVICE = DEVICES.register("solar_panel",
+            () -> new SimulatedDeviceType<>(Voltworks.asResource("solar_panel"), (type, level, pos, sd) -> new SolarPanelDevice(level, pos, sd, type)));
 
-    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.solar.SolarPanelBearingDevice>> SOLAR_PANEL_BEARING_DEVICE = DEVICES.register("solar_panel_bearing",
-            () -> new SimulatedDeviceType<>(Voltworks.asResource("solar_panel_bearing"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.solar.SolarPanelBearingDevice(level, pos, sd, type)));
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<SolarPanelBearingDevice>> SOLAR_PANEL_BEARING_DEVICE = DEVICES.register("solar_panel_bearing",
+            () -> new SimulatedDeviceType<>(Voltworks.asResource("solar_panel_bearing"), (type, level, pos, sd) -> new SolarPanelBearingDevice(level, pos, sd, type)));
 
     public static void register(IEventBus bus) {
         DEVICES.register(bus);

@@ -24,6 +24,7 @@ import io.github.sjzeero.voltworks.registry.VoltworksDevices;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
 import io.github.sjzeero.voltworks.registry.VoltworksRecipes;
 import io.github.sjzeero.voltworks.registry.VoltworksMenus;
+import io.github.sjzeero.voltworks.wallwire.WallWireEvents;
 
 @Mod(Voltworks.MOD_ID)
 public class Voltworks {
@@ -48,7 +49,7 @@ public class Voltworks {
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent e) -> BoardTestCommand.register(e.getDispatcher()));
         NeoForge.EVENT_BUS.addListener(CircuitInsertion::onDeployerRecipeSearch);
         NeoForge.EVENT_BUS.addListener(BoardTestCommand::onServerTick);
-        io.github.sjzeero.voltworks.wallwire.WallWireEvents.register();
+        WallWireEvents.register();
     }
 
     public static ResourceLocation asResource(String path) {

@@ -31,6 +31,15 @@ import java.util.List;
 import java.util.Locale;
 import io.github.sjzeero.voltworks.registry.VoltworksBlocks;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.github.sjzeero.voltworks.circuits.components.ResistorComponent;
+import io.github.sjzeero.voltworks.circuits.components.ViaComponent;
+import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.TickTask;
+import net.minecraft.world.item.component.CustomData;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 public class BoardTestCommand {
     private static TestBoards.Preset current;
@@ -123,19 +132,19 @@ public class BoardTestCommand {
         return reply(source, "setup " + name + " with " + preset.schematic().components().size() + " components");
     }
 
-    private static int schematic(CommandContext<CommandSourceStack> ctx, String name) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+    private static int schematic(CommandContext<CommandSourceStack> ctx, String name) throws CommandSyntaxException {
         var preset = TestBoards.build(name, BoardTestCommand::component);
         if(preset == null)
             return reply(ctx.getSource(), "unknown preset " + name + ", one of " + TestBoards.NAMES);
-        var tag = new net.minecraft.nbt.CompoundTag();
+        var tag = new CompoundTag();
         tag.put("Schematic", preset.schematic().serializeNbt(ctx.getSource().registryAccess()));
-        var stack = new net.minecraft.world.item.ItemStack(VoltworksItems.CIRCUIT_SCHEMATIC.get());
-        stack.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag));
+        var stack = new ItemStack(VoltworksItems.CIRCUIT_SCHEMATIC.get());
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
         ctx.getSource().getPlayerOrException().getInventory().add(stack);
         return reply(ctx.getSource(), "schematic " + name);
     }
 
-    private static int attach(CommandContext<CommandSourceStack> ctx) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+    private static int attach(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         CommandSourceStack source = ctx.getSource();
         ServerLevel level = source.getLevel();
         var board = BlockPosArgument.getLoadedBlockPos(ctx, "board");
@@ -151,7 +160,7 @@ public class BoardTestCommand {
         if(battery != null)
             battery.voltage = volts;
         var server = level.getServer();
-        server.tell(new net.minecraft.server.TickTask(server.getTickCount() + 2, () -> {
+        server.tell(new TickTask(server.getTickCount() + 2, () -> {
             var later = DevicesSavedData.load(level).getDevice(p, CreativeBatteryDevice.class);
             if(later != null)
                 later.voltage = volts;
@@ -236,7 +245,7 @@ public class BoardTestCommand {
         var state = level.getBlockState(pos);
         List<String> out = new ArrayList<>();
         out.add("light=" + state.getLightEmission(level, pos) + "/" + state.getValue(BoardBlock.LIGHT));
-        for(var dir : net.minecraft.core.Direction.values())
+        for(var dir : Direction.values())
             out.add(dir.getName() + "=" + level.getSignal(pos.relative(dir), dir));
         if(level.getBlockEntity(pos) instanceof BoardBlockEntity be) {
             out.add("boardLight=" + be.light());
@@ -266,7 +275,7 @@ public class BoardTestCommand {
         deferred.add(new Deferred(ticks + delay, task));
     }
 
-    public static void onServerTick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) {
+    public static void onServerTick(ServerTickEvent.Post event) {
         ticks++;
         if(deferred.isEmpty())
             return;
@@ -301,19 +310,19 @@ public class BoardTestCommand {
         sb.place("connector", 0, 13);
         if(kind.equals("header")) {
             // Upper board looks down onto the lower one; same facing mirrors x (Power Grid rule).
-            sa.place("via", 8, 7, io.github.sjzeero.voltworks.circuits.components.ViaComponent.VERTICAL_PASSTHROUGH, true)
-                    .set(io.github.sjzeero.voltworks.circuits.components.ViaComponent.EDGE_CONNECTIONS, false);
+            sa.place("via", 8, 7, ViaComponent.VERTICAL_PASSTHROUGH, true)
+                    .set(ViaComponent.EDGE_CONNECTIONS, false);
             sa.h(14, 1, 8).v(8, 7, 14);
-            sb.place("via", 7, 7, io.github.sjzeero.voltworks.circuits.components.ViaComponent.VERTICAL_PASSTHROUGH, true)
-                    .set(io.github.sjzeero.voltworks.circuits.components.ViaComponent.EDGE_CONNECTIONS, false);
-            sb.place("resistor", 9, 6, io.github.sjzeero.voltworks.circuits.components.ResistorComponent.RESISTANCE, 100f);
+            sb.place("via", 7, 7, ViaComponent.VERTICAL_PASSTHROUGH, true)
+                    .set(ViaComponent.EDGE_CONNECTIONS, false);
+            sb.place("resistor", 9, 6, ResistorComponent.RESISTANCE, 100f);
             sb.h(7, 7, 9);
             sb.v(13, 1, 7).h(1, 1, 13);
         } else {
             sa.place("via", 15, 7);
             sa.h(14, 1, 15).v(15, 7, 14);
             sb.place("via", 0, 7);
-            sb.place("resistor", 5, 6, io.github.sjzeero.voltworks.circuits.components.ResistorComponent.RESISTANCE, 100f);
+            sb.place("resistor", 5, 6, ResistorComponent.RESISTANCE, 100f);
             sb.h(7, 0, 5);
             sb.v(9, 1, 7).h(1, 1, 9);
         }

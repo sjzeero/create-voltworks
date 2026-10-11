@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.VoltworksClientConfig;
 
 public class CircuitBoardModelQuads {
     private final Map<CacheKey, List<BakedQuad>> quads = new Object2ObjectArrayMap<>(8);
@@ -35,13 +36,13 @@ public class CircuitBoardModelQuads {
 
     @Nullable
     public List<BakedQuad> getQuads(BlockState state, @Nullable Direction side, @Nullable RenderType type) {
-        if(this.state != state || schematic != io.github.sjzeero.voltworks.VoltworksClientConfig.schematicMode())
+        if(this.state != state || schematic != VoltworksClientConfig.schematicMode())
             return null;
         return quads.get(new CacheKey(side, type));
     }
 
     public void putQuads(BlockState state, @Nullable Direction side, @Nullable RenderType type, List<BakedQuad> quads) {
-        boolean mode = io.github.sjzeero.voltworks.VoltworksClientConfig.schematicMode();
+        boolean mode = VoltworksClientConfig.schematicMode();
         if(this.state != state || schematic != mode) {
             this.state = state;
             this.schematic = mode;

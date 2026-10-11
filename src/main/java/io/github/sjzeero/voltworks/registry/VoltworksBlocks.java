@@ -10,6 +10,9 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import io.github.sjzeero.voltworks.motor.ConstantSpeedMotorBlock;
+import io.github.sjzeero.voltworks.solar.SolarPanelBearingBlock;
+import io.github.sjzeero.voltworks.solar.SolarPanelBlock;
 
 public final class VoltworksBlocks {
     private VoltworksBlocks() {}
@@ -25,13 +28,13 @@ public final class VoltworksBlocks {
     public static final DeferredBlock<ServoBlock> SERVO = BLOCKS.register("servo", () -> new ServoBlock(
             BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));
 
-    public static final DeferredBlock<io.github.sjzeero.voltworks.motor.ConstantSpeedMotorBlock> CONSTANT_SPEED_MOTOR = BLOCKS.register("constant_speed_motor", () -> new io.github.sjzeero.voltworks.motor.ConstantSpeedMotorBlock(
+    public static final DeferredBlock<ConstantSpeedMotorBlock> CONSTANT_SPEED_MOTOR = BLOCKS.register("constant_speed_motor", () -> new ConstantSpeedMotorBlock(
             BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));
 
-    public static final DeferredBlock<io.github.sjzeero.voltworks.solar.SolarPanelBlock> SOLAR_PANEL = BLOCKS.register("solar_panel", () -> new io.github.sjzeero.voltworks.solar.SolarPanelBlock(
+    public static final DeferredBlock<SolarPanelBlock> SOLAR_PANEL = BLOCKS.register("solar_panel", () -> new SolarPanelBlock(
             BlockBehaviour.Properties.of().strength(1.0f).sound(SoundType.METAL).noOcclusion()));
 
-    public static final DeferredBlock<io.github.sjzeero.voltworks.solar.SolarPanelBearingBlock> SOLAR_PANEL_BEARING = BLOCKS.register("solar_panel_bearing", () -> new io.github.sjzeero.voltworks.solar.SolarPanelBearingBlock(
+    public static final DeferredBlock<SolarPanelBearingBlock> SOLAR_PANEL_BEARING = BLOCKS.register("solar_panel_bearing", () -> new SolarPanelBearingBlock(
             BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));
 
     public static void register(IEventBus bus) {

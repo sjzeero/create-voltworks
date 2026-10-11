@@ -22,13 +22,24 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.HashMap;
 import java.util.Map;
 import io.github.sjzeero.voltworks.registry.VoltworksDevices;
+import net.createmod.catnip.placement.IPlacementHelper;
+import net.createmod.catnip.placement.PlacementHelpers;
+import net.createmod.catnip.placement.PlacementOffset;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.BlockHitResult;
 
 /**
  * Ported from Create: Power Grid (patryk3211) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
  * A 4 px thick panel; FACING points at its back, the cells face the opposite way.
  */
 public class SolarPanelBlock extends SimpleElectricalDeviceBlock<SolarPanelDevice> {
-    private static final int PLACEMENT_HELPER_ID = net.createmod.catnip.placement.PlacementHelpers.register(new PanelPlacementHelper());
+    private static final int PLACEMENT_HELPER_ID = PlacementHelpers.register(new PanelPlacementHelper());
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     private static final VoxelShape Y = Block.box(0, 6, 0, 16, 10, 16), X = Block.box(6, 0, 0, 10, 16, 16), Z = Block.box(0, 0, 6, 16, 16, 10);
 
@@ -96,8 +107,8 @@ public class SolarPanelBlock extends SimpleElectricalDeviceBlock<SolarPanelDevic
     }
 
     @Override
-    public net.minecraft.network.chat.MutableComponent getNodeLabel(Level level, BlockPos pos, BlockState state, int id) {
-        return net.minecraft.network.chat.Component.translatable("voltworks.node.solar_panel_" + id);
+    public MutableComponent getNodeLabel(Level level, BlockPos pos, BlockState state, int id) {
+        return Component.translatable("voltworks.node.solar_panel_" + id);
     }
 
     @Override
@@ -111,24 +122,24 @@ public class SolarPanelBlock extends SimpleElectricalDeviceBlock<SolarPanelDevic
     }
 
     @Override
-    protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack stack, BlockState state, Level level, BlockPos pos,
-            net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand, net.minecraft.world.phys.BlockHitResult hit) {
-        var helper = net.createmod.catnip.placement.PlacementHelpers.get(PLACEMENT_HELPER_ID);
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+            Player player, InteractionHand hand, BlockHitResult hit) {
+        var helper = PlacementHelpers.get(PLACEMENT_HELPER_ID);
         if (!player.isShiftKeyDown() && player.mayBuild() && helper.matchesItem(stack)) {
             var offset = helper.getOffset(player, level, state, pos, hit);
             if (offset.isSuccessful()) {
-                offset.placeInWorld(level, (net.minecraft.world.item.BlockItem) stack.getItem(), player, hand, hit);
-                return net.minecraft.world.ItemInteractionResult.SUCCESS;
+                offset.placeInWorld(level, (BlockItem) stack.getItem(), player, hand, hit);
+                return ItemInteractionResult.SUCCESS;
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hit);
     }
 
     /** Ported from Create: Power Grid (patryk3211, Apache-2.0): ghost preview + side placement keeping the panel facing. */
-    private static class PanelPlacementHelper implements net.createmod.catnip.placement.IPlacementHelper {
+    private static class PanelPlacementHelper implements IPlacementHelper {
         @Override
-        public java.util.function.Predicate<net.minecraft.world.item.ItemStack> getItemPredicate() {
-            return i -> i.getItem() instanceof net.minecraft.world.item.BlockItem bi && bi.getBlock() instanceof SolarPanelBlock;
+        public java.util.function.Predicate<ItemStack> getItemPredicate() {
+            return i -> i.getItem() instanceof BlockItem bi && bi.getBlock() instanceof SolarPanelBlock;
         }
 
         @Override
@@ -137,12 +148,12 @@ public class SolarPanelBlock extends SimpleElectricalDeviceBlock<SolarPanelDevic
         }
 
         @Override
-        public net.createmod.catnip.placement.PlacementOffset getOffset(net.minecraft.world.entity.player.Player player, Level world, BlockState state, BlockPos pos,
-                net.minecraft.world.phys.BlockHitResult ray) {
-            var dirs = net.createmod.catnip.placement.IPlacementHelper.orderedByDistanceExceptAxis(pos, ray.getLocation(),
+        public PlacementOffset getOffset(Player player, Level world, BlockState state, BlockPos pos,
+                BlockHitResult ray) {
+            var dirs = IPlacementHelper.orderedByDistanceExceptAxis(pos, ray.getLocation(),
                     state.getValue(FACING).getAxis(), d -> world.getBlockState(pos.relative(d)).canBeReplaced());
-            if (dirs.isEmpty()) return net.createmod.catnip.placement.PlacementOffset.fail();
-            return net.createmod.catnip.placement.PlacementOffset.success(pos.relative(dirs.get(0)), s -> s.setValue(FACING, state.getValue(FACING)));
+            if (dirs.isEmpty()) return PlacementOffset.fail();
+            return PlacementOffset.success(pos.relative(dirs.get(0)), s -> s.setValue(FACING, state.getValue(FACING)));
         }
     }
 }

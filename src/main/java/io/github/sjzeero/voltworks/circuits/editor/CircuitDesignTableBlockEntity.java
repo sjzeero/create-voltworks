@@ -45,8 +45,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
+import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 
-public class CircuitDesignTableBlockEntity extends BlockEntity implements IMultiScreenHandlerFactory, ISchematicHolder, IMenuContent, com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation {
+public class CircuitDesignTableBlockEntity extends BlockEntity implements IMultiScreenHandlerFactory, ISchematicHolder, IMenuContent, IHaveGoggleInformation {
     private final Container inventory = new SimpleContainer(3);
 
     CircuitSchematic schematic = new CircuitSchematic();

@@ -26,6 +26,8 @@ import net.minecraft.world.item.ItemStack;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.registry.VoltworksMenus;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 
 public class CircuitDesignTableMenu extends AbstractCircuitDesignTableMenu<CircuitDesignTableBlockEntity> {
     public CircuitDesignTableMenu(MenuType<?> type, int id, Inventory inv, RegistryFriendlyByteBuf extraData) {
@@ -60,7 +62,7 @@ public class CircuitDesignTableMenu extends AbstractCircuitDesignTableMenu<Circu
         addSlot(new Slot(beInv, 1, X_OFFSET + 117, Y_OFFSET + 21) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.is(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("create", "empty_schematic"))) || stack.is(VoltworksItems.CIRCUIT_SCHEMATIC.get());
+                return stack.is(BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("create", "empty_schematic"))) || stack.is(VoltworksItems.CIRCUIT_SCHEMATIC.get());
             }
         });
         addSlot(new Slot(beInv, 2, X_OFFSET + 145, Y_OFFSET + 44) {

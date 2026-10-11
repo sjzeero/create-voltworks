@@ -60,6 +60,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import io.github.sjzeero.voltworks.compat.CeeCompat;
 
 /** Wire placement mode toggle and the click by click wall wire placement. */
 public final class WallWireClient {
@@ -419,7 +420,7 @@ public final class WallWireClient {
         if(!behaviour.isActuallyActiveFor(point, level, player, stack))
             return;
         WireInteractionHandler.targetedPoint = point;
-        io.github.sjzeero.voltworks.compat.CeeCompat.setTargetedPos(bestPos);
+        CeeCompat.setTargetedPos(bestPos);
         int color = behaviour.getWireDisplayColor(point, level, player, stack);
         List<WallRoute.Segment> segments = bestEntry.segments();
         for(int i = 0; i < segments.size() && i < 128; i++)

@@ -59,6 +59,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
+import io.github.sjzeero.voltworks.circuits.components.ComponentRegistry;
+import io.github.sjzeero.voltworks.client.ClientHooks;
 
 public class BoardBlockEntity extends BlockEntity implements BoardContext, IHaveGoggleInformation, ISchematicHolder, IMenuContent {
     private CircuitSchematic schematic = new CircuitSchematic();
@@ -258,7 +260,7 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
     public final long[] syncStats = new long[4];
 
     private static int encodedSize(Level level, BoardSchematicPayload full, BoardStatePayload state) {
-        var buf = new net.minecraft.network.RegistryFriendlyByteBuf(io.netty.buffer.Unpooled.buffer(), level.registryAccess());
+        var buf = new RegistryFriendlyByteBuf(io.netty.buffer.Unpooled.buffer(), level.registryAccess());
         try {
             if(full != null)
                 BoardSchematicPayload.CODEC.encode(buf, full);
@@ -372,7 +374,7 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
             if(hovered.component instanceof IComponentGoggleInformation info)
                 info.addToGoggleTooltip(hovered, tooltip, isPlayerSneaking);
             if(isPlayerSneaking) {
-                var item = io.github.sjzeero.voltworks.circuits.components.ComponentRegistry.getItem(level, hovered.component);
+                var item = ComponentRegistry.getItem(level, hovered.component);
                 var line = Component.literal("    ").append(item.getDescription().copy().withStyle(ChatFormatting.GRAY));
                 float t = partTemperature(hovered);
                 if(Float.isFinite(t))
@@ -406,7 +408,7 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
     private @Nullable PlacedComponent hoveredComponent() {
         if(level == null || !level.isClientSide)
             return null;
-        var hit = io.github.sjzeero.voltworks.client.ClientHooks.hitLocation();
+        var hit = ClientHooks.hitLocation();
         if(hit == null)
             return null;
         var local = BoardBlock.unrotate(hit.subtract(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ()),

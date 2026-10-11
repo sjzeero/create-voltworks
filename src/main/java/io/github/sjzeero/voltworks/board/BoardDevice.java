@@ -40,6 +40,11 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
+import com.george_vi.electroenergetics.simulation.electrical_properties.ElectricalProperties;
+import com.simibubi.create.content.kinetics.fan.AirCurrent;
+import io.github.sjzeero.voltworks.circuits.components.IInteractableComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BoardDevice extends SimpleElectricalDevice implements BoardContext {
     public static final int SYNC_INTERVAL = 5;
@@ -71,7 +76,7 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
     private boolean hasLinkVias;
     private long ownLinksTick = Long.MIN_VALUE;
     private List<BoardLinks.Link> ownLinks = List.of();
-    private final Map<com.simibubi.create.content.kinetics.fan.AirCurrent, Float> coolingAir = new HashMap<>();
+    private final Map<AirCurrent, Float> coolingAir = new HashMap<>();
     private float coolingMultiplier = 1.0f;
 
     public record Readings(long tick, double[] pinU, double[] pinI, List<String> parts, boolean converged, int badSteps) {
@@ -121,12 +126,12 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
         actions.add(action);
     }
 
-    public void queueUse(UUID component, net.minecraft.world.entity.player.Player player) {
+    public void queueUse(UUID component, Player player) {
         queue(device -> {
             if(device.baked == null)
                 return;
             var placed = device.baked.get(component);
-            if(placed != null && !placed.destroyed && placed.component instanceof io.github.sjzeero.voltworks.circuits.components.IInteractableComponent interactable)
+            if(placed != null && !placed.destroyed && placed.component instanceof IInteractableComponent interactable)
                 interactable.use(device, placed, player);
         });
     }
@@ -183,14 +188,14 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
         });
     }
 
-    public void addCoolingMultiplier(com.simibubi.create.content.kinetics.fan.AirCurrent current, float value) {
+    public void addCoolingMultiplier(AirCurrent current, float value) {
         var previous = coolingAir.put(current, value);
         if(previous != null)
             coolingMultiplier = Math.max(1, coolingMultiplier - previous);
         coolingMultiplier += value;
     }
 
-    public void removeCoolingMultiplier(com.simibubi.create.content.kinetics.fan.AirCurrent current) {
+    public void removeCoolingMultiplier(AirCurrent current) {
         var previous = coolingAir.remove(current);
         if(previous != null)
             coolingMultiplier = Math.max(1, coolingMultiplier - previous);
@@ -399,7 +404,7 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
             if(otherSim == null || !otherSim.linkVias.contains(link.theirs()) || !sim.linkVias.contains(link.mine()))
                 continue;
             bridges.bridge(linkNode(link.mine()), link.other().linkNode(link.theirs()),
-                    com.george_vi.electroenergetics.simulation.electrical_properties.ElectricalProperties.resistor(BoardLinks.LINK_RESISTANCE));
+                    ElectricalProperties.resistor(BoardLinks.LINK_RESISTANCE));
         }
     }
 
@@ -549,7 +554,7 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
             for(var property : placed.component.getProperties()) {
                 if(property.id().getPath().equals("label") || property.id().getPath().equals("color"))
                     continue;
-                if(property instanceof io.github.sjzeero.voltworks.circuits.components.properties.ConstantProperty)
+                if(property instanceof ConstantProperty)
                     continue;
                 sb.append(' ').append(property.id().getPath()).append('=').append(placed.getString(property));
             }
@@ -575,7 +580,7 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
     }
 
     @Override
-    public boolean shouldRemove(net.minecraft.world.level.block.state.BlockState oldState, net.minecraft.world.level.block.state.BlockState newState) {
+    public boolean shouldRemove(BlockState oldState, BlockState newState) {
         return !(newState.getBlock() instanceof BoardBlock);
     }
 

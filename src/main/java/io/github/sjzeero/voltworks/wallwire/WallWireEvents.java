@@ -6,6 +6,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 public final class WallWireEvents {
     private WallWireEvents() {
@@ -17,7 +18,7 @@ public final class WallWireEvents {
         NeoForge.EVENT_BUS.addListener(WallWireEvents::login);
         NeoForge.EVENT_BUS.addListener(WallWireEvents::changedDimension);
         NeoForge.EVENT_BUS.addListener(WallWireEvents::respawn);
-        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.RegisterCommandsEvent e) -> WallWireTestCommand.register(e.getDispatcher()));
+        NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent e) -> WallWireTestCommand.register(e.getDispatcher()));
     }
 
     private static void levelTick(LevelTickEvent.Post event) {

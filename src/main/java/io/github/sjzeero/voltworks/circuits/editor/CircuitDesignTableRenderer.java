@@ -26,6 +26,7 @@ import net.createmod.catnip.render.CachedBuffers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import io.github.sjzeero.voltworks.Voltworks;
+import net.minecraft.core.Direction;
 
 public class CircuitDesignTableRenderer extends SafeBlockEntityRenderer<CircuitDesignTableBlockEntity> {
     public CircuitDesignTableRenderer(BlockEntityRendererProvider.Context context) {
@@ -37,7 +38,7 @@ public class CircuitDesignTableRenderer extends SafeBlockEntityRenderer<CircuitD
         var state = be.getBlockState();
         var glow = CachedBuffers.partial(VoltworksPartialModels.CIRCUIT_TABLE_GLOW, state);
         int a = (int) (power * 192);
-        glow.rotateYCenteredDegrees(state.getValue(CircuitDesignTableBlock.HORIZONTAL_FACING).getAxis() == net.minecraft.core.Direction.Axis.X ? 90 : 0)
+        glow.rotateYCenteredDegrees(state.getValue(CircuitDesignTableBlock.HORIZONTAL_FACING).getAxis() == Direction.Axis.X ? 90 : 0)
                 .disableDiffuse()
                 .color(a, a, a, 255)
                 .renderInto(ms, bufferSource.getBuffer(RenderTypes.additive()));

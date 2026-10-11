@@ -55,6 +55,8 @@ import static com.simibubi.create.foundation.gui.AllGuiTextures.PLAYER_INVENTORY
 import static io.github.sjzeero.voltworks.circuits.schematic.CircuitLayer.GRID_SIZE;
 import static io.github.sjzeero.voltworks.circuits.schematic.CircuitLayer.GRID_TO_GRID_SCALE;
 import static io.github.sjzeero.voltworks.client.CircuitSchematicRender.*;
+import io.github.sjzeero.voltworks.VoltworksClientConfig;
+import net.minecraft.network.chat.Component;
 
 public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends AbstractSimiContainerScreen<T> {
     private static final ResourceLocation BACKGROUND = Voltworks.asResource("textures/gui/circuit_design_table_edit.png");
@@ -64,22 +66,22 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
     public static final int CIRCUIT_SCALE = 8;
     public static final int TRACE_PADDING = 1;
 
-    private static final net.minecraft.network.chat.Component TOOLTIP_SAVE = Lang.translateDirect("gui.circuit_designer.save");
-    private static final net.minecraft.network.chat.Component TOOLTIP_DISCARD = Lang.translateDirect("gui.circuit_designer.discard");
-    private static final net.minecraft.network.chat.Component TOOLTIP_CONNECT =
+    private static final Component TOOLTIP_SAVE = Lang.translateDirect("gui.circuit_designer.save");
+    private static final Component TOOLTIP_DISCARD = Lang.translateDirect("gui.circuit_designer.discard");
+    private static final Component TOOLTIP_CONNECT =
             Lang.translateDirect("gui.circuit_designer.connect", ModdedKeys.PLACE_TRACE.getBoundKey());
-    private static final net.minecraft.network.chat.Component TOOLTIP_DELETE =
+    private static final Component TOOLTIP_DELETE =
             Lang.translateDirect("gui.circuit_designer.delete", ModdedKeys.DELETE_AREA.getBoundKey());
-    private static final net.minecraft.network.chat.Component TOOLTIP_SELECT =
+    private static final Component TOOLTIP_SELECT =
             Lang.translateDirect("gui.circuit_designer.select", ModdedKeys.PICK_COMPONENT.getBoundKey());
-    private static final net.minecraft.network.chat.Component TOOLTIP_LAYER =
+    private static final Component TOOLTIP_LAYER =
             Lang.translateDirect("gui.circuit_designer.layer", ModdedKeys.SWITCH_LAYER.getBoundKey());
-    private static final net.minecraft.network.chat.Component TOOLTIP_PLACEABLE = Lang.translate("gui.circuit_designer.placeable")
+    private static final Component TOOLTIP_PLACEABLE = Lang.translate("gui.circuit_designer.placeable")
             .style(ChatFormatting.DARK_GREEN)
             .style(ChatFormatting.ITALIC)
             .component();
-    private static final net.minecraft.network.chat.Component TEXT_SAVING = Lang.translateDirect("gui.circuit_designer.saving");
-    private static final net.minecraft.network.chat.Component TEXT_NOT_SAVED = Lang.translateDirect("gui.circuit_designer.not_saved");
+    private static final Component TEXT_SAVING = Lang.translateDirect("gui.circuit_designer.saving");
+    private static final Component TEXT_NOT_SAVED = Lang.translateDirect("gui.circuit_designer.not_saved");
 
     private final CircuitSchematic schematic;
 
@@ -107,7 +109,7 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
     private boolean saving = false;
     private int unsavedPopupTimeout = 0;
 
-    public CircuitDesignTableEditScreen(T container, Inventory inv, net.minecraft.network.chat.Component title) {
+    public CircuitDesignTableEditScreen(T container, Inventory inv, Component title) {
         super(container, inv, title);
 
         // For the editor we take a copy since the underlying circuit can change
@@ -151,7 +153,7 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
         propertiesWidget = new ComponentPropertiesWidget(font, leftPos - 15, topPos + 12);
 
         var name = menu.contentHolder.getSchematicName();
-        nameField = new EditBox(font, leftPos + 4 - 11, topPos + 3, 148, 9, net.minecraft.network.chat.Component.empty());
+        nameField = new EditBox(font, leftPos + 4 - 11, topPos + 3, 148, 9, Component.empty());
         nameField.setValue(name);
         nameField.setTextColor(-1);
         nameField.setTextColorUneditable(-1);
@@ -207,7 +209,7 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
     }
 
     @Override
-    protected List<net.minecraft.network.chat.Component> getTooltipFromContainerItem(ItemStack stack) {
+    protected List<Component> getTooltipFromContainerItem(ItemStack stack) {
         var lines = super.getTooltipFromContainerItem(stack);
         if(ComponentRegistry.getComponent(stack.getItem()) != null) {
             lines.add(TOOLTIP_PLACEABLE);
@@ -345,11 +347,11 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
 
         int bpX = bgX + 13, bpY = topPos + 22;
 
-        if(io.github.sjzeero.voltworks.VoltworksClientConfig.highContrast()) {
+        if(VoltworksClientConfig.highContrast()) {
             CircuitSchematicRender.renderLayer(schematic.back(), ctx, bpX, bpY, CIRCUIT_SCALE,
-                    backLayer ? io.github.sjzeero.voltworks.VoltworksClientConfig.activeBack() : io.github.sjzeero.voltworks.VoltworksClientConfig.back());
+                    backLayer ? VoltworksClientConfig.activeBack() : VoltworksClientConfig.back());
             CircuitSchematicRender.renderLayer(schematic.front(), ctx, bpX, bpY, CIRCUIT_SCALE,
-                    backLayer ? io.github.sjzeero.voltworks.VoltworksClientConfig.front() : io.github.sjzeero.voltworks.VoltworksClientConfig.activeFront());
+                    backLayer ? VoltworksClientConfig.front() : VoltworksClientConfig.activeFront());
         } else {
             CircuitSchematicRender.renderLayer(schematic.back(), ctx, bpX, bpY, CIRCUIT_SCALE,
                     backLayer ? COLOR_TRACE_FRONT : COLOR_TRACE_BACK);

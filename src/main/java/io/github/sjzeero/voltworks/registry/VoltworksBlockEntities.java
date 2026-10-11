@@ -9,6 +9,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import io.github.sjzeero.voltworks.motor.ConstantSpeedMotorBlockEntity;
+import io.github.sjzeero.voltworks.solar.SolarPanelBearingBlockEntity;
 
 public final class VoltworksBlockEntities {
     private VoltworksBlockEntities() {}
@@ -28,12 +30,12 @@ public final class VoltworksBlockEntities {
             () -> BlockEntityType.Builder.of(ServoBlockEntity::new, VoltworksBlocks.SERVO.get()).build(null));
 
     @SuppressWarnings("DataFlowIssue")
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<io.github.sjzeero.voltworks.motor.ConstantSpeedMotorBlockEntity>> CONSTANT_SPEED_MOTOR_BE = BLOCK_ENTITIES.register("constant_speed_motor",
-            () -> BlockEntityType.Builder.of(io.github.sjzeero.voltworks.motor.ConstantSpeedMotorBlockEntity::new, VoltworksBlocks.CONSTANT_SPEED_MOTOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ConstantSpeedMotorBlockEntity>> CONSTANT_SPEED_MOTOR_BE = BLOCK_ENTITIES.register("constant_speed_motor",
+            () -> BlockEntityType.Builder.of(ConstantSpeedMotorBlockEntity::new, VoltworksBlocks.CONSTANT_SPEED_MOTOR.get()).build(null));
 
     @SuppressWarnings("DataFlowIssue")
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<io.github.sjzeero.voltworks.solar.SolarPanelBearingBlockEntity>> SOLAR_PANEL_BEARING_BE = BLOCK_ENTITIES.register("solar_panel_bearing",
-            () -> BlockEntityType.Builder.of(io.github.sjzeero.voltworks.solar.SolarPanelBearingBlockEntity::new, VoltworksBlocks.SOLAR_PANEL_BEARING.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SolarPanelBearingBlockEntity>> SOLAR_PANEL_BEARING_BE = BLOCK_ENTITIES.register("solar_panel_bearing",
+            () -> BlockEntityType.Builder.of(SolarPanelBearingBlockEntity::new, VoltworksBlocks.SOLAR_PANEL_BEARING.get()).build(null));
 
     public static void register(IEventBus bus) {
         BLOCK_ENTITIES.register(bus);

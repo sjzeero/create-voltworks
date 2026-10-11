@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
+import net.minecraft.world.phys.Vec3;
 
 /** Hides the flywheel hanging wire of a wall wire. */
 @Mixin(value = WireVisual.class, remap = false)
@@ -21,7 +22,7 @@ public abstract class WireVisualMixin {
     @Shadow @Final private List<TransformedInstance> instances;
     @Shadow private TransformedInstance startInstance;
     @Shadow private TransformedInstance endInstance;
-    @Shadow private net.minecraft.world.phys.Vec3 prevPos1;
+    @Shadow private Vec3 prevPos1;
 
     @Unique
     private boolean voltworks$hidden;

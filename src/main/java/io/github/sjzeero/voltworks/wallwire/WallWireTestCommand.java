@@ -26,6 +26,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
 
 /** {@code /voltworks wallwiretest <pos>}: builds a small test room with wall wires over a wall and along a ceiling. */
 public final class WallWireTestCommand {
@@ -101,7 +102,7 @@ public final class WallWireTestCommand {
             return "no path; ";
         double length = WallRouter.pixels(cells) / 16.0 + pa.distanceTo(first.point()) + pb.distanceTo(last.point());
         if(sd.isConnected(a, b))
-            sd.removeConnectionNoDrops(new com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection(a, b));
+            sd.removeConnectionNoDrops(new InWorldNodeConnection(a, b));
         WallWireData.get(level).put(WallRoute.oriented(a, b, cells, length));
         sd.connect(a, b, WireData.ofLength(type, length));
         return String.format(java.util.Locale.ROOT, "%.2f m; ", length);
