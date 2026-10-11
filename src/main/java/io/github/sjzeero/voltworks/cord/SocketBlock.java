@@ -1,0 +1,167 @@
+package io.github.sjzeero.voltworks.cord;
+
+import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
+import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
+import io.github.sjzeero.voltworks.registry.VoltworksDevices;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Socket, ported from Create: Power Grid (patryk3211, Apache-2.0); electrical side reimplemented on CEE devices.
+ * Nodes 0 (+) and 1 (-) are the screw terminals for ordinary wires, 2 and 3 are the hidden contacts a cord plugs into.
+ * FACING points at the block the socket is mounted on, like in Power Grid, so PG's blockstate is used unchanged.
+ */
+public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
+    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final IntegerProperty ROTATION = IntegerProperty.create("rotation", 0, 3);
+    public static final int POSITIVE = 0, NEGATIVE = 1, CORD_POSITIVE = 2, CORD_NEGATIVE = 3;
+
+    /** In pixels, in the floor model (power_plug_v). */
+    private static final double[][] FLOOR_NODES = {{8, 1, 3.5}, {8, 1, 12.5}, {7.25, 3.5, 8}, {8.75, 3.5, 8}};
+    private static final double[] FLOOR_BOX = {4, 0, 4, 12, 3, 12};
+    private static final int[] FLOOR_Y = {-90, 0, 90, 180};
+    private static final int[] WALL_X = {-90, 180, 90, 0};
+
+    private static final Map<BlockState, Vec3[]> NODE_CACHE = new HashMap<>();
+    private static final Map<BlockState, VoxelShape> SHAPE_CACHE = new HashMap<>();
+
+    public SocketBlock(Properties properties) {
+        super(properties);
+        registerDefaultState(defaultBlockState().setValue(FACING, Direction.DOWN).setValue(ROTATION, 0));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING, ROTATION);
+    }
+
+    /** Same rotation the blockstate applies to the model: x/y as in PG's socket.json, around the block center. */
+    private static Vec3 place(BlockState state, double px, double py, double pz) {
+        Direction facing = state.getValue(FACING);
+        int rot = state.getValue(ROTATION);
+        boolean wall = facing.getAxis().isHorizontal();
+        double x = px, y = py, z = pz;
+        if (wall) {
+            x = 16 - py;
+            y = px;
+        }
+        int rx = wall ? WALL_X[rot] : facing == Direction.UP ? 180 : 0;
+        int ry = !wall ? FLOOR_Y[rot] : switch (facing) {
+            case NORTH -> -90;
+            case SOUTH -> 90;
+            case WEST -> 180;
+            default -> 0;
+        };
+        Vector3f v = new Vector3f((float) (x / 16 - 0.5), (float) (y / 16 - 0.5), (float) (z / 16 - 0.5));
+        new Quaternionf().rotateYXZ((float) Math.toRadians(-ry), (float) Math.toRadians(-rx), 0).transform(v);
+        return new Vec3(round(v.x + 0.5), round(v.y + 0.5), round(v.z + 0.5));
+    }
+
+    private static double round(double v) {
+        return Math.round(v * 1024) / 1024.0;
+    }
+
+    private static Vec3[] nodes(BlockState state) {
+        return NODE_CACHE.computeIfAbsent(state, s -> {
+            Vec3[] out = new Vec3[FLOOR_NODES.length];
+            for (int i = 0; i < out.length; i++)
+                out[i] = place(s, FLOOR_NODES[i][0], FLOOR_NODES[i][1], FLOOR_NODES[i][2]);
+            return out;
+        });
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
+        return SHAPE_CACHE.computeIfAbsent(state, s -> {
+            Vec3 a = place(s, FLOOR_BOX[0], FLOOR_BOX[1], FLOOR_BOX[2]);
+            Vec3 b = place(s, FLOOR_BOX[3], FLOOR_BOX[4], FLOOR_BOX[5]);
+            return Block.box(Math.min(a.x, b.x) * 16, Math.min(a.y, b.y) * 16, Math.min(a.z, b.z) * 16,
+                    Math.max(a.x, b.x) * 16, Math.max(a.y, b.y) * 16, Math.max(a.z, b.z) * 16);
+        });
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        Direction facing = context.getClickedFace().getOpposite();
+        int rotation = facing.getAxis().isVertical() ? context.getHorizontalDirection().get2DDataValue() : 3;
+        return defaultBlockState().setValue(FACING, facing).setValue(ROTATION, rotation);
+    }
+
+    @Override
+    public BlockState getRotatedBlockState(BlockState originalState, Direction targetedFace) {
+        return originalState.cycle(ROTATION);
+    }
+
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+    }
+
+    /** Empty hand pulls the cord out, like in Power Grid. */
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        if (!(level instanceof ServerLevel sl))
+            return InteractionResult.SUCCESS;
+        return CordWires.unplug(sl, pos, player) ? InteractionResult.SUCCESS : InteractionResult.PASS;
+    }
+
+    @Override
+    public Map<Integer, Vec3> getNodePositions(Level level, BlockPos pos, BlockState state) {
+        Vec3[] n = nodes(state);
+        Map<Integer, Vec3> m = new HashMap<>();
+        for (int i = 0; i < n.length; i++)
+            m.put(i, n[i]);
+        return m;
+    }
+
+    @Override
+    public Vec3 getNodePosition(Level level, BlockPos pos, BlockState state, int id) {
+        Vec3[] n = nodes(state);
+        return id >= 0 && id < n.length ? n[id] : n[0];
+    }
+
+    @Override
+    public boolean isNodeAccessible(Level level, BlockPos pos, BlockState state, int id) {
+        return id == POSITIVE || id == NEGATIVE;
+    }
+
+    @Override
+    public MutableComponent getNodeLabel(Level level, BlockPos pos, BlockState state, int id) {
+        return Component.translatable("voltworks.node.socket_" + Math.min(id, 2));
+    }
+
+    @Override
+    public SimulatedDeviceType<SocketDevice> getDevice() {
+        return VoltworksDevices.SOCKET_DEVICE.get();
+    }
+}

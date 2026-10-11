@@ -279,5 +279,17 @@
   "voltworks.contraption.assembly.invalid_panel_amount": "Sum of Solar Panels is not divisible by 1-9 with less than 26 quotient, add or remove Solar Panels",
   "voltworks.contraption.assembly.mismatched_panel_facing": "All Solar Panels need to be facing the same direction",
   "voltworks.contraption.assembly.not_enough_panels": "Attached structure does not include enough Solar Panels, a minimum of 1 is required",
-  "gui.goggles.voltworks.solar.irradiance": "Irradiance:"
+  "gui.goggles.voltworks.solar.irradiance": "Irradiance:",
+  "block.voltworks.socket": "Socket",
+  "item.voltworks.copper_cord": "Copper Cord",
+  "voltworks.node.socket_0": "+",
+  "voltworks.node.socket_1": "-",
+  "voltworks.node.socket_2": "Socket contact",
+  "voltworks.cord.next": "Connect the second end of the cord",
+  "voltworks.cord.cancelled": "Cord connection cancelled",
+  "voltworks.cord.socket_taken": "This socket already has a cord",
+  "voltworks.cord.already_connected": "These are already connected by a cord",
+  "voltworks.cord.too_far": "Too far apart, a cord is at most 16 blocks long",
+  "voltworks.cord.not_ready": "This block is not ready for a cord yet, try again",
+  "voltworks.cord.start_gone": "The first end of the cord is gone"
 }

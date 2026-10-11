@@ -1,5 +1,6 @@
 package io.github.sjzeero.voltworks.registry;
 
+import io.github.sjzeero.voltworks.cord.SocketBlock;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.board.BoardBlock;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableBlock;
@@ -27,6 +28,9 @@ public final class VoltworksBlocks {
 
     public static final DeferredBlock<ServoBlock> SERVO = BLOCKS.register("servo", () -> new ServoBlock(
             BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));
+
+    public static final DeferredBlock<SocketBlock> SOCKET = BLOCKS.register("socket", () -> new SocketBlock(
+            BlockBehaviour.Properties.of().strength(1.0f).sound(SoundType.METAL).noOcclusion()));
 
     public static final DeferredBlock<ConstantSpeedMotorBlock> CONSTANT_SPEED_MOTOR = BLOCKS.register("constant_speed_motor", () -> new ConstantSpeedMotorBlock(
             BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));

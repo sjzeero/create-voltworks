@@ -279,5 +279,17 @@
   "gui.goggles.voltworks.solar.irradiance": "Освещённость:",
   "voltworks.contraption.assembly.invalid_panel_amount": "Общее число солнечных панелей должно делиться на число от 1 до 9 с частным меньше 26. Добавьте или уберите солнечные панели",
   "voltworks.contraption.assembly.mismatched_panel_facing": "Все Солнечные панели должны быть обращены в одну сторону",
-  "voltworks.contraption.assembly.not_enough_panels": "В прилагаемой конструкции не хватает Солнечных панелей; требуется как минимум 1"
+  "voltworks.contraption.assembly.not_enough_panels": "В прилагаемой конструкции не хватает Солнечных панелей; требуется как минимум 1",
+  "block.voltworks.socket": "Розетка",
+  "item.voltworks.copper_cord": "Медный кабель",
+  "voltworks.node.socket_0": "+",
+  "voltworks.node.socket_1": "-",
+  "voltworks.node.socket_2": "Контакт розетки",
+  "voltworks.cord.next": "Подключите второй конец кабеля",
+  "voltworks.cord.cancelled": "Подключение кабеля отменено",
+  "voltworks.cord.socket_taken": "К этой розетке уже подключён кабель",
+  "voltworks.cord.already_connected": "Эти блоки уже соединены кабелем",
+  "voltworks.cord.too_far": "Слишком далеко: кабель не длиннее 16 блоков",
+  "voltworks.cord.not_ready": "Блок ещё не готов к подключению, попробуйте снова",
+  "voltworks.cord.start_gone": "Первый конец кабеля пропал"
 }

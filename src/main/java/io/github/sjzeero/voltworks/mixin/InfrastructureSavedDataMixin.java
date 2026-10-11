@@ -4,6 +4,7 @@ import com.george_vi.electroenergetics.config.CEEConfigs;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
+import io.github.sjzeero.voltworks.cord.CordWires;
 import io.github.sjzeero.voltworks.wallwire.WallCell;
 import io.github.sjzeero.voltworks.wallwire.WallRoute;
 import io.github.sjzeero.voltworks.wallwire.WallWireData;
@@ -27,6 +28,30 @@ public abstract class InfrastructureSavedDataMixin {
     private void voltworks$forgetWallRoute(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
         if(level != null)
             WallWireData.get(level).queueCheck(connection);
+    }
+
+    /** A cord is two strands: whichever path removed one of them, take the other one too. */
+    @Inject(method = "removeConnection", at = @At("RETURN"))
+    private void voltworks$removeCordSibling(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
+        CordWires.removeSibling((InfrastructureSavedData) (Object) this, connection, cir.getReturnValue());
+    }
+
+    /** One cord item per cord, instead of CEE's per-wire drops (which would also count both strands). */
+    @Inject(method = "removeAndDropConnection", at = @At("HEAD"), cancellable = true)
+    private void voltworks$dropCord(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
+        InfrastructureSavedData self = (InfrastructureSavedData) (Object) this;
+        if(level == null)
+            return;
+        WireData existing = self.getConnectionData(connection);
+        if(existing == null) {
+            cir.setReturnValue(null);
+            return;
+        }
+        if(!CordWires.isCord(existing))
+            return;
+        Vec3 mid = self.getNodePositionOrCenter(connection.node1()).add(self.getNodePositionOrCenter(connection.node2())).scale(0.5);
+        cir.setReturnValue(removeConnection(connection));
+        CordWires.give(level, mid, null);
     }
 
     /** Same drops as a hanging wire, but spread along the faces the wire ran on. */

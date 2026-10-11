@@ -1,5 +1,6 @@
 package io.github.sjzeero.voltworks.registry;
 
+import io.github.sjzeero.voltworks.cord.SocketDevice;
 import com.george_vi.electroenergetics.CEERegistries;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import io.github.sjzeero.voltworks.Voltworks;
@@ -29,6 +30,9 @@ public final class VoltworksDevices {
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<ServoDevice>> SERVO_DEVICE = DEVICES.register("servo",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("servo"),
                     (type, level, pos, sd) -> new ServoDevice(level, pos, sd, type)));
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<SocketDevice>> SOCKET_DEVICE = DEVICES.register("socket",
+            () -> new SimulatedDeviceType<>(Voltworks.asResource("socket"),
+                    (type, level, pos, sd) -> new SocketDevice(level, pos, sd, type)));
 
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<PGMotorDevice>> CONSTANT_SPEED_MOTOR_DEVICE = DEVICES.register("constant_speed_motor",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("constant_speed_motor"), (type, level, pos, sd) -> new PGMotorDevice(level, pos, sd, type)));

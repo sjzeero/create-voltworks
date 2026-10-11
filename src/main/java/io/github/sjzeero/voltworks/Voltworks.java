@@ -1,5 +1,6 @@
 package io.github.sjzeero.voltworks;
 
+import io.github.sjzeero.voltworks.registry.VoltworksWireTypes;
 import com.mojang.logging.LogUtils;
 import io.github.sjzeero.voltworks.board.BoardTestCommand;
 import io.github.sjzeero.voltworks.circuits.CircuitItems;
@@ -38,6 +39,7 @@ public class Voltworks {
         VoltworksItems.register(modBus);
         VoltworksBlockEntities.register(modBus);
         VoltworksDevices.register(modBus);
+        VoltworksWireTypes.register(modBus);
         VoltworksContraptions.register(modBus);
         VoltworksRecipes.register(modBus);
         VoltworksCreativeTabs.register(modBus);

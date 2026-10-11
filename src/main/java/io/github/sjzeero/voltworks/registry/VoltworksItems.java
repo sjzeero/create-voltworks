@@ -1,5 +1,6 @@
 package io.github.sjzeero.voltworks.registry;
 
+import io.github.sjzeero.voltworks.cord.CordItem;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.circuits.schematic.CircuitSchematicItem;
 import net.minecraft.world.item.Item;
@@ -28,6 +29,8 @@ public final class VoltworksItems {
     public static final DeferredItem<CircuitSchematicItem> CIRCUIT_SCHEMATIC = ITEMS.registerItem("circuit_schematic", CircuitSchematicItem::new);
 
     public static final DeferredItem<?> SERVO_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SERVO);
+    public static final DeferredItem<?> SOCKET_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SOCKET);
+    public static final DeferredItem<CordItem> COPPER_CORD = ITEMS.registerItem("copper_cord", CordItem::new);
 
     public static final DeferredItem<?> CONSTANT_SPEED_MOTOR_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.CONSTANT_SPEED_MOTOR);
 
