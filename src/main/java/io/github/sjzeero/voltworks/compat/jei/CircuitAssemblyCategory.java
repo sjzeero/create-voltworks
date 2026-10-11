@@ -35,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.circuits.CircuitItems;
 import io.github.sjzeero.voltworks.circuits.CircuitTags;
-import io.github.sjzeero.voltworks.utility.Lang;
+import io.github.sjzeero.voltworks.util.Lang;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
 
 public class CircuitAssemblyCategory implements IRecipeCategory<Object> {

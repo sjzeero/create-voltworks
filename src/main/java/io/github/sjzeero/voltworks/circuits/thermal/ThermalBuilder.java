@@ -18,7 +18,7 @@
 package io.github.sjzeero.voltworks.circuits.thermal;
 
 import io.github.sjzeero.voltworks.circuits.Thermal;
-import io.github.sjzeero.voltworks.pgsim.AbstractElectricWire;
+import io.github.sjzeero.voltworks.sim.AbstractElectricWire;
 
 import java.util.HashSet;
 import java.util.Set;

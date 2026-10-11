@@ -138,7 +138,7 @@ class BoardSimTest {
         var bulb = rig.part("light_bulb");
         double off = bulb.wires.get(0).current();
         log("relay off: state=%s bulbI=%.6f", relay.get(RelayComponent.STATE), off);
-        assertFalse(((io.github.sjzeero.voltworks.pgsim.special.RelaySwitchWire) relay.wires.get(1)).getState());
+        assertFalse(((io.github.sjzeero.voltworks.sim.special.RelaySwitchWire) relay.wires.get(1)).getState());
         assertEquals(0, off, 1e-6);
 
         var sw = rig.part("switch");
@@ -146,8 +146,8 @@ class BoardSimTest {
         rig.tick(40);
         double on = Math.abs(bulb.wires.get(0).current());
         float t = rig.temperature(bulb);
-        log("relay on: NO=%s bulbI=%.6f bulbT=%.1f light=%d", ((io.github.sjzeero.voltworks.pgsim.special.RelaySwitchWire) relay.wires.get(1)).getState(), on, t, BoardLights.lightOf(bulb));
-        assertTrue(((io.github.sjzeero.voltworks.pgsim.special.RelaySwitchWire) relay.wires.get(1)).getState());
+        log("relay on: NO=%s bulbI=%.6f bulbT=%.1f light=%d", ((io.github.sjzeero.voltworks.sim.special.RelaySwitchWire) relay.wires.get(1)).getState(), on, t, BoardLights.lightOf(bulb));
+        assertTrue(((io.github.sjzeero.voltworks.sim.special.RelaySwitchWire) relay.wires.get(1)).getState());
         assertTrue(on > 0.2 && on < 0.6, "bulb current " + on);
         assertTrue(BoardLights.lightOf(bulb) > 0);
 

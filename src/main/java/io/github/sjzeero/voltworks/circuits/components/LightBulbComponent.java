@@ -28,7 +28,7 @@ import io.github.sjzeero.voltworks.circuits.components.properties.EnumProperty;
 import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
-import io.github.sjzeero.voltworks.pgsim.ElectricWire;
+import io.github.sjzeero.voltworks.sim.ElectricWire;
 
 public class LightBulbComponent extends OrientableComponent implements IGoggleLabel {
     

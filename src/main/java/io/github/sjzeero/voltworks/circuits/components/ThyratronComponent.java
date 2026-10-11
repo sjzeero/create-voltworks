@@ -30,7 +30,7 @@ import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
 import io.github.sjzeero.voltworks.circuits.CircuitSounds;
 import io.github.sjzeero.voltworks.circuits.Thermal;
-import io.github.sjzeero.voltworks.pgsim.special.ThyratronWire;
+import io.github.sjzeero.voltworks.sim.special.ThyratronWire;
 import io.github.sjzeero.voltworks.circuits.Unit;
 
 import java.util.List;

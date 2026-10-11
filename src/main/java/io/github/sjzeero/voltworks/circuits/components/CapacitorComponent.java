@@ -27,7 +27,7 @@ import io.github.sjzeero.voltworks.circuits.components.properties.FloatProperty;
 import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
-import io.github.sjzeero.voltworks.pgsim.special.CRSeriesWire;
+import io.github.sjzeero.voltworks.sim.special.CRSeriesWire;
 
 public class CapacitorComponent extends OrientableComponent {
     public static final FloatProperty CAPACITANCE = new FloatProperty(Voltworks.MOD_ID, "capacitor_value", 0.0001f, 1e-12f, 1.0f);

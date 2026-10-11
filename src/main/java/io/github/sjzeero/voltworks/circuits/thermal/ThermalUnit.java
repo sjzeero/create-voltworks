@@ -21,7 +21,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import io.github.sjzeero.voltworks.circuits.Thermal;
-import io.github.sjzeero.voltworks.pgsim.AbstractElectricWire;
+import io.github.sjzeero.voltworks.sim.AbstractElectricWire;
 
 import java.util.Collection;
 import java.util.UUID;

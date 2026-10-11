@@ -26,7 +26,7 @@ import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
 import io.github.sjzeero.voltworks.VoltworksConfig;
 import io.github.sjzeero.voltworks.circuits.CircuitSounds;
-import io.github.sjzeero.voltworks.pgsim.special.RelaySwitchWire;
+import io.github.sjzeero.voltworks.sim.special.RelaySwitchWire;
 
 import static io.github.sjzeero.voltworks.circuits.components.RelayComponent.*;
 import io.github.sjzeero.voltworks.Voltworks;

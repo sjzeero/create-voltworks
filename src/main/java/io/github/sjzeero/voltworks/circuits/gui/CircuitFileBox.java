@@ -20,8 +20,8 @@ package io.github.sjzeero.voltworks.circuits.gui;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import io.github.sjzeero.voltworks.Voltworks;
-import io.github.sjzeero.voltworks.utility.EditableScrollBox;
-import io.github.sjzeero.voltworks.utility.Lang;
+import io.github.sjzeero.voltworks.util.EditableScrollBox;
+import io.github.sjzeero.voltworks.util.Lang;
 
 import java.io.IOException;
 import java.nio.file.Files;

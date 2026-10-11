@@ -33,7 +33,7 @@ import io.github.sjzeero.voltworks.client.ModIcons;
 import io.github.sjzeero.voltworks.network.ChangeScreenPayload;
 import io.github.sjzeero.voltworks.network.SaveSchematicPayload;
 import net.neoforged.neoforge.network.PacketDistributor;
-import io.github.sjzeero.voltworks.utility.Lang;
+import io.github.sjzeero.voltworks.util.Lang;
 
 import static com.simibubi.create.foundation.gui.AllGuiTextures.PLAYER_INVENTORY;
 import static io.github.sjzeero.voltworks.client.CircuitSchematicRender.COLOR_TRACE_BACK;

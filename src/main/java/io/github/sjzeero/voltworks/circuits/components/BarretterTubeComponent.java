@@ -28,7 +28,7 @@ import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
 import io.github.sjzeero.voltworks.circuits.Thermal;
-import io.github.sjzeero.voltworks.pgsim.special.BarretterWire;
+import io.github.sjzeero.voltworks.sim.special.BarretterWire;
 
 public class BarretterTubeComponent extends OrientableComponent {
     public static final FloatProperty MINIMUM_RESISTANCE = new FloatProperty(Voltworks.MOD_ID, "barretter_resistance", 10, 10, 1000);

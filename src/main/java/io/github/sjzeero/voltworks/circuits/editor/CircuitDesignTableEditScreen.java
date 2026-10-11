@@ -46,7 +46,7 @@ import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.network.ChangeScreenPayload;
 import io.github.sjzeero.voltworks.network.SaveSchematicPayload;
 import net.neoforged.neoforge.network.PacketDistributor;
-import io.github.sjzeero.voltworks.utility.Lang;
+import io.github.sjzeero.voltworks.util.Lang;
 
 import java.util.List;
 import java.util.UUID;

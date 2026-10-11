@@ -32,7 +32,7 @@ import io.github.sjzeero.voltworks.circuits.components.properties.IntProperty;
 import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
-import io.github.sjzeero.voltworks.pgsim.ElectricWire;
+import io.github.sjzeero.voltworks.sim.ElectricWire;
 
 
 public class PotentiometerComponent extends OrientableComponent implements IInteractableComponent, IGoggleLabel {

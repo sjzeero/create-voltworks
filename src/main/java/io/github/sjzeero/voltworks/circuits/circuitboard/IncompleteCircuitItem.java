@@ -40,7 +40,7 @@ import io.github.sjzeero.voltworks.circuits.components.ComponentRegistry;
 import io.github.sjzeero.voltworks.circuits.schematic.CircuitSchematic;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.circuits.CircuitItems;
-import io.github.sjzeero.voltworks.utility.Lang;
+import io.github.sjzeero.voltworks.util.Lang;
 
 import java.util.HashMap;
 import java.util.List;

@@ -30,7 +30,7 @@ import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
 import io.github.sjzeero.voltworks.circuits.Thermal;
-import io.github.sjzeero.voltworks.pgsim.special.ElectronTubeWire;
+import io.github.sjzeero.voltworks.sim.special.ElectronTubeWire;
 
 public class ElectronTubeComponent extends MirrorableComponent {
     // Koren mu (amplification factor), not small-signal voltage gain

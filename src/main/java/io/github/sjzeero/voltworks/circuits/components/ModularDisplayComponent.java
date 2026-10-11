@@ -27,7 +27,7 @@ import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
 import io.github.sjzeero.voltworks.circuits.CircuitSounds;
-import io.github.sjzeero.voltworks.pgsim.SwitchedWire;
+import io.github.sjzeero.voltworks.sim.SwitchedWire;
 import io.github.sjzeero.voltworks.circuits.Unit;
 
 public class ModularDisplayComponent extends OrientableComponent {

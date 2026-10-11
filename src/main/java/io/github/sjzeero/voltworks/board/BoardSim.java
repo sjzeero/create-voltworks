@@ -1,13 +1,13 @@
 package io.github.sjzeero.voltworks.board;
 
 import io.github.sjzeero.voltworks.circuits.circuitboard.BakedCircuit;
-import io.github.sjzeero.voltworks.pgsim.ElectricalNetwork;
-import io.github.sjzeero.voltworks.pgsim.node.FloatingNode;
-import io.github.sjzeero.voltworks.pgsim.node.VoltageSourceCoupling;
-import io.github.sjzeero.voltworks.pgsim.solver.JavaMNA;
+import io.github.sjzeero.voltworks.sim.ElectricalNetwork;
+import io.github.sjzeero.voltworks.sim.node.FloatingNode;
+import io.github.sjzeero.voltworks.sim.node.VoltageSourceCoupling;
+import io.github.sjzeero.voltworks.sim.solver.JavaMNA;
 import io.github.sjzeero.voltworks.circuits.schematic.CircuitSchematic;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
-import io.github.sjzeero.voltworks.pgsim.node.INode;
+import io.github.sjzeero.voltworks.sim.node.INode;
 import org.ejml.data.DMatrixRMaj;
 
 import java.util.Collections;

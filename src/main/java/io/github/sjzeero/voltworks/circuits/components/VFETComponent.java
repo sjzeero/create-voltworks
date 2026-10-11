@@ -27,8 +27,8 @@ import io.github.sjzeero.voltworks.circuits.components.properties.FloatProperty;
 import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
-import io.github.sjzeero.voltworks.pgsim.node.IElectricNode;
-import io.github.sjzeero.voltworks.pgsim.special.ElectronTubeWire;
+import io.github.sjzeero.voltworks.sim.node.IElectricNode;
+import io.github.sjzeero.voltworks.sim.special.ElectronTubeWire;
 import io.github.sjzeero.voltworks.circuits.Unit;
 
 public class VFETComponent extends MirrorableComponent {

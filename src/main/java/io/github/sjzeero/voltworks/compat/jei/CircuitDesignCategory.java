@@ -32,7 +32,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.circuits.CircuitTags;
-import io.github.sjzeero.voltworks.utility.Lang;
+import io.github.sjzeero.voltworks.util.Lang;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 

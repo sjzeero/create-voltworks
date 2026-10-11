@@ -31,7 +31,7 @@ import io.github.sjzeero.voltworks.circuits.components.properties.FloatProperty;
 import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
-import io.github.sjzeero.voltworks.pgsim.special.NeonBulbWire;
+import io.github.sjzeero.voltworks.sim.special.NeonBulbWire;
 import io.github.sjzeero.voltworks.circuits.Unit;
 
 import java.util.Collection;

@@ -26,7 +26,7 @@ import io.github.sjzeero.voltworks.circuits.components.properties.FloatProperty;
 import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
-import io.github.sjzeero.voltworks.pgsim.special.BJTWire;
+import io.github.sjzeero.voltworks.sim.special.BJTWire;
 
 public abstract class BJTComponent extends MirrorableComponent {
     public static final FloatProperty GAIN = new FloatProperty(Voltworks.MOD_ID, "bjt_gain", 20, 5, 100);

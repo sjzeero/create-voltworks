@@ -26,7 +26,7 @@ import io.github.sjzeero.voltworks.circuits.components.properties.FloatProperty;
 import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
-import io.github.sjzeero.voltworks.pgsim.special.VaristorWire;
+import io.github.sjzeero.voltworks.sim.special.VaristorWire;
 
 public class VaristorComponent extends OrientableComponent {
     public static final FloatProperty THRESHOLD_VOLTAGE = new FloatProperty(Voltworks.MOD_ID, "varistor_voltage", 100f, 50f, 1000f);

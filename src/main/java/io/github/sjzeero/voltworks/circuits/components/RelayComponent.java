@@ -30,7 +30,7 @@ import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
 import io.github.sjzeero.voltworks.VoltworksConfig;
 import io.github.sjzeero.voltworks.circuits.CircuitSounds;
-import io.github.sjzeero.voltworks.pgsim.special.RelaySwitchWire;
+import io.github.sjzeero.voltworks.sim.special.RelaySwitchWire;
 import io.github.sjzeero.voltworks.circuits.Unit;
 
 public class RelayComponent extends MirrorableComponent {

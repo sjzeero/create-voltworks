@@ -27,7 +27,7 @@ import io.github.sjzeero.voltworks.circuits.components.properties.FloatProperty;
 import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
-import io.github.sjzeero.voltworks.pgsim.special.LRSeriesWire;
+import io.github.sjzeero.voltworks.sim.special.LRSeriesWire;
 
 public class InductorComponent extends OrientableComponent {
     public static final FloatProperty INDUCTANCE = new FloatProperty(Voltworks.MOD_ID, "inductor_value", 0.0001f, 1e-7f, 1.0f);

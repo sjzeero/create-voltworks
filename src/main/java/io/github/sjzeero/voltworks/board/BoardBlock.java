@@ -73,7 +73,7 @@ import java.util.Map;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksDevices;
 import io.github.sjzeero.voltworks.client.ClientHooks;
-import io.github.sjzeero.voltworks.utility.WiringTools;
+import io.github.sjzeero.voltworks.util.WiringTools;
 
 public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> implements EntityBlock {
     public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;

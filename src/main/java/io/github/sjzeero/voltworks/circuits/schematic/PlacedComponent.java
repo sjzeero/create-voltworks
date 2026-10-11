@@ -30,8 +30,8 @@ import io.github.sjzeero.voltworks.circuits.components.Component;
 import io.github.sjzeero.voltworks.circuits.components.ComponentRegistry;
 import io.github.sjzeero.voltworks.circuits.components.properties.ComponentProperty;
 import io.github.sjzeero.voltworks.circuits.components.properties.PropertyEntry;
-import io.github.sjzeero.voltworks.pgsim.AbstractElectricWire;
-import io.github.sjzeero.voltworks.pgsim.node.INode;
+import io.github.sjzeero.voltworks.sim.AbstractElectricWire;
+import io.github.sjzeero.voltworks.sim.node.INode;
 
 import java.util.ArrayList;
 import java.util.List;

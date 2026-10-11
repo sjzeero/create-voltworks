@@ -30,7 +30,7 @@ import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
 import io.github.sjzeero.voltworks.circuits.Thermal;
-import io.github.sjzeero.voltworks.pgsim.special.PentodeWire;
+import io.github.sjzeero.voltworks.sim.special.PentodeWire;
 
 public class PentodeComponent extends MirrorableComponent {
     public static final FloatProperty GAIN = new FloatProperty(Voltworks.MOD_ID, "tube_gain", 8, 1, 100);

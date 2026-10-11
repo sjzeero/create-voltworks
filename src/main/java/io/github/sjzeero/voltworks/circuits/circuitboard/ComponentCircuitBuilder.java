@@ -17,12 +17,12 @@
  */
 package io.github.sjzeero.voltworks.circuits.circuitboard;
 
-import io.github.sjzeero.voltworks.pgsim.AbstractElectricWire;
-import io.github.sjzeero.voltworks.pgsim.ElectricWire;
-import io.github.sjzeero.voltworks.pgsim.SwitchedWire;
-import io.github.sjzeero.voltworks.pgsim.node.FloatingNode;
-import io.github.sjzeero.voltworks.pgsim.node.IElectricNode;
-import io.github.sjzeero.voltworks.pgsim.node.INode;
+import io.github.sjzeero.voltworks.sim.AbstractElectricWire;
+import io.github.sjzeero.voltworks.sim.ElectricWire;
+import io.github.sjzeero.voltworks.sim.SwitchedWire;
+import io.github.sjzeero.voltworks.sim.node.FloatingNode;
+import io.github.sjzeero.voltworks.sim.node.IElectricNode;
+import io.github.sjzeero.voltworks.sim.node.INode;
 
 import java.util.Collection;
 import java.util.function.Function;

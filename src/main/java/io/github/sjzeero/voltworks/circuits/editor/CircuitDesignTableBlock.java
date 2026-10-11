@@ -20,7 +20,7 @@ package io.github.sjzeero.voltworks.circuits.editor;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
 import io.github.sjzeero.voltworks.Voltworks;
-import io.github.sjzeero.voltworks.utility.Lang;
+import io.github.sjzeero.voltworks.util.Lang;
 import net.createmod.catnip.math.VoxelShaper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -60,7 +60,7 @@ import java.util.List;
 import java.util.Map;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksDevices;
-import io.github.sjzeero.voltworks.utility.WiringTools;
+import io.github.sjzeero.voltworks.util.WiringTools;
 
 public class CircuitDesignTableBlock extends SimpleElectricalDeviceBlock<CircuitDesignTableDevice> implements EntityBlock {
     public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
