@@ -8,6 +8,7 @@ import com.george_vi.electroenergetics.simulation.WireType;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.github.sjzeero.voltworks.cord.CordPair;
 import io.github.sjzeero.voltworks.registry.VoltworksWireTypes;
 import io.github.sjzeero.voltworks.wallwire.WallCell;
 import io.github.sjzeero.voltworks.wallwire.WallRoute;
@@ -116,6 +117,8 @@ public final class WallWireRenderer {
             if(entry.bounds().getCenter().distanceTo(cam) > RENDER_DISTANCE + entry.bounds().getSize())
                 continue;
             InWorldNodeConnection c = entry.route().connection;
+            if(CordPair.isCord(data.wireType()) && CordPair.isReturn(c))
+                continue;
             new Drawer(level, pose.last(), buffer, used, data.wireType(), entry.route().color, cam)
                     .route(entry.route().cells, entry.segments(), c.node1(), c.node2());
         }

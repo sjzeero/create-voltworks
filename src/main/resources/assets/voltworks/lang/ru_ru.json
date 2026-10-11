@@ -285,11 +285,5 @@
   "voltworks.node.socket_0": "+",
   "voltworks.node.socket_1": "-",
   "voltworks.node.socket_2": "Контакт розетки",
-  "voltworks.cord.next": "Подключите второй конец кабеля",
-  "voltworks.cord.cancelled": "Подключение кабеля отменено",
-  "voltworks.cord.socket_taken": "К этой розетке уже подключён кабель",
-  "voltworks.cord.already_connected": "Эти блоки уже соединены кабелем",
-  "voltworks.cord.too_far": "Слишком далеко: кабель не длиннее 16 блоков",
-  "voltworks.cord.not_ready": "Блок ещё не готов к подключению, попробуйте снова",
-  "voltworks.cord.start_gone": "Первый конец кабеля пропал"
+  "voltworks.wall_wire.cord_ends": "Кабель подключается к розетке или устройству с двумя клеммами"
 }

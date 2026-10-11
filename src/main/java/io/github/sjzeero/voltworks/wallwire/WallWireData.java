@@ -1,6 +1,9 @@
 package io.github.sjzeero.voltworks.wallwire;
 
+import io.github.sjzeero.voltworks.cord.CordPair;
+
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
+import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -143,14 +146,31 @@ public class WallWireData extends SavedData {
             List<InWorldNodeConnection> checks = new ArrayList<>(pendingChecks);
             pendingChecks.clear();
             for(InWorldNodeConnection c : checks)
-                if(!sd.isConnected(c.node1(), c.node2()))
+                if(!sd.isConnected(c.node1(), c.node2())) {
                     remove(c);
+                    InWorldNodeConnection s = CordPair.sibling(c);
+                    WireData sw = sd.getConnectionData(s);
+                    if(routes.containsKey(s) && sw != null && CordPair.isCord(sw.wireType()))
+                        sd.removeConnectionNoDrops(s);
+                    if(routes.containsKey(s) && !sd.isConnected(s.node1(), s.node2()))
+                        remove(s);
+                }
         }
     }
 
     private void breakWire(InfrastructureSavedData sd, InWorldNodeConnection c) {
-        if(sd.getConnectionData(c) != null)
+        WireData data = sd.getConnectionData(c);
+        if(data != null) {
+            if(CordPair.isCord(data.wireType())) {
+                InWorldNodeConnection s = CordPair.sibling(c);
+                WireData sw = sd.getConnectionData(s);
+                if(sw != null && CordPair.isCord(sw.wireType())) {
+                    sd.removeConnectionNoDrops(s);
+                    pendingChecks.add(s);
+                }
+            }
             sd.removeAndDropConnection(c);
+        }
         pendingChecks.add(c);
     }
 

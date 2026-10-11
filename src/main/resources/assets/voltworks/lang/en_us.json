@@ -285,11 +285,5 @@
   "voltworks.node.socket_0": "+",
   "voltworks.node.socket_1": "-",
   "voltworks.node.socket_2": "Socket contact",
-  "voltworks.cord.next": "Connect the second end of the cord",
-  "voltworks.cord.cancelled": "Cord connection cancelled",
-  "voltworks.cord.socket_taken": "This socket already has a cord",
-  "voltworks.cord.already_connected": "These are already connected by a cord",
-  "voltworks.cord.too_far": "Too far apart, a cord is at most 16 blocks long",
-  "voltworks.cord.not_ready": "This block is not ready for a cord yet, try again",
-  "voltworks.cord.start_gone": "The first end of the cord is gone"
+  "voltworks.wall_wire.cord_ends": "A cord goes between a socket or a device with two terminals"
 }

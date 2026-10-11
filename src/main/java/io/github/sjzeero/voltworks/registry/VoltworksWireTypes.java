@@ -26,6 +26,7 @@ public final class VoltworksWireTypes {
                     .maxTemperature(() -> 3540.0)
                     .insulationResistance(330000.0)
                     .maxLength(() -> 16)
+                    .renderType(WireType.WireRenderType.SOLID)
                     .build());
 
     public static void register(IEventBus bus) {

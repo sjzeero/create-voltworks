@@ -1,5 +1,7 @@
 package io.github.sjzeero.voltworks.wallwire;
 
+import io.github.sjzeero.voltworks.cord.CordPair;
+
 import com.george_vi.electroenergetics.CEEItems;
 import com.george_vi.electroenergetics.config.CEEConfigs;
 import com.george_vi.electroenergetics.content.wire_spool.WireSpoolItem;
@@ -57,6 +59,19 @@ public final class WallWirePlacement {
         }
 
         InWorldNode start = p.start(), end = p.end();
+        boolean cord = CordPair.isCord(type);
+        InWorldNode startRet = null, endRet = null;
+        if(cord) {
+            InWorldNode[] a = CordPair.ends(level, start.sourcePos()), b = CordPair.ends(level, end.sourcePos());
+            if(a == null || b == null || start.sourcePos().equals(end.sourcePos())) {
+                deny(player, "cord_ends", end.sourcePos());
+                return;
+            }
+            start = a[0];
+            startRet = a[1];
+            end = b[0];
+            endRet = b[1];
+        }
         if(start.equals(end)) {
             deny(player, "invalid", end.sourcePos());
             return;
@@ -92,7 +107,8 @@ public final class WallWirePlacement {
         }
         startBlock.ensureNodesExist(level, start.sourcePos(), startState);
         endBlock.ensureNodesExist(level, end.sourcePos(), endState);
-        if(!sd.getNodes().contains(start) || !sd.getNodes().contains(end) || sd.isConnected(start, end)) {
+        if(!sd.getNodes().contains(start) || !sd.getNodes().contains(end) || sd.isConnected(start, end)
+                || cord && (!sd.getNodes().contains(startRet) || !sd.getNodes().contains(endRet) || sd.isConnected(startRet, endRet))) {
             deny(player, "invalid", end.sourcePos());
             return;
         }
@@ -120,6 +136,10 @@ public final class WallWirePlacement {
 
         WallWireData.get(level).put(WallRoute.oriented(start, end, cells, length));
         sd.connect(start, end, WireData.ofLength(type, length));
+        if(cord) {
+            WallWireData.get(level).put(WallRoute.oriented(startRet, endRet, cells, length));
+            sd.connect(startRet, endRet, WireData.ofLength(type, length));
+        }
         AllSoundEvents.WRENCH_REMOVE.playOnServer(level, end.sourcePos());
         player.displayClientMessage(Component.translatable("voltworks.wall_wire.placed", String.format(java.util.Locale.ROOT, "%.2f", length)), true);
 
