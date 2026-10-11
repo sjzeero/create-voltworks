@@ -1,5 +1,7 @@
 package io.github.sjzeero.voltworks.wallwire.client;
 
+import io.github.sjzeero.voltworks.cord.CordPair;
+
 import com.george_vi.electroenergetics.CEERegistries;
 import com.george_vi.electroenergetics.client.WireRenderer;
 import com.george_vi.electroenergetics.content.wire.interaction.WireInteractionBehaviour;
@@ -111,6 +113,11 @@ public final class WallWireClient {
         return player.getOffhandItem().getItem() instanceof DyeItem dye ? dye.getDyeColor() : null;
     }
 
+    /** The copper cord is only ever laid along surfaces, whatever the toggle says. */
+    static boolean wall(LocalPlayer player) {
+        return mode == Mode.WALL || CordPair.isCord(heldWireType(player));
+    }
+
     private static boolean holdingSpool(LocalPlayer player) {
         return player.getMainHandItem().getItem() instanceof WireSpoolItem;
     }
@@ -164,7 +171,7 @@ public final class WallWireClient {
                     .withStyle(ChatFormatting.GOLD), true);
             player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.3f, mode == Mode.WALL ? 1.3f : 0.9f);
         }
-        if(!holdingSpool(player) || mode != Mode.WALL) {
+        if(!holdingSpool(player) || !wall(player)) {
             if(start != null)
                 reset();
             return;
@@ -230,7 +237,13 @@ public final class WallWireClient {
         BlockState state = level.getBlockState(hit.getBlockPos());
         if(!(state.getBlock() instanceof ElectricalDeviceBlock<?>))
             return null;
-        return InWorldNode.getHitNode(hit, level);
+        InWorldNode node = InWorldNode.getHitNode(hit, level);
+        LocalPlayer player = Minecraft.getInstance().player;
+        if(node == null || player == null || !CordPair.isCord(heldWireType(player)))
+            return node;
+        // a cord always plugs into the supply contact of the block; the return strand follows on the server
+        InWorldNode[] ends = CordPair.ends(level, node.sourcePos());
+        return ends == null ? null : ends[0];
     }
 
     private static void click(InputEvent.InteractionKeyMappingTriggered event) {
@@ -239,7 +252,7 @@ public final class WallWireClient {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         ClientLevel level = mc.level;
-        if(player == null || level == null || mode != Mode.WALL || !holdingSpool(player))
+        if(player == null || level == null || !holdingSpool(player) || !wall(player))
             return;
         event.setCanceled(true);
         event.setSwingHand(false);
@@ -363,13 +376,13 @@ public final class WallWireClient {
         LocalPlayer player = mc.player;
         if(player == null || mc.options.hideGui || mc.level == null || !holdingSpool(player) || toggleKey == null)
             return;
-        Component text = Component.translatable(mode == Mode.WALL ? "voltworks.wire_mode.wall" : "voltworks.wire_mode.air")
+        Component text = Component.translatable(wall(player) ? "voltworks.wire_mode.wall" : "voltworks.wire_mode.air")
                 .append(Component.literal(" [").append(toggleKey.getTranslatedKeyMessage()).append("]").withStyle(ChatFormatting.GRAY));
         int x = Math.min(g.guiWidth() / 2 + 91 + 8, g.guiWidth() - mc.font.width(text) - 2);
         int y = g.guiHeight() - 12;
-        g.drawString(mc.font, text, x, y, mode == Mode.WALL ? 0xffd27a : 0xdddddd, true);
+        g.drawString(mc.font, text, x, y, wall(player) ? 0xffd27a : 0xdddddd, true);
         WireType type = heldWireType(player);
-        if(mode == Mode.WALL && start != null && type != null) {
+        if(wall(player) && start != null && type != null) {
             Component len = Component.translatable("voltworks.wall_wire.length",
                     String.format(Locale.ROOT, "%.2f", placedLength(mc.level)), String.format(Locale.ROOT, "%.0f", maxLength(type)));
             g.drawString(mc.font, len, x, y - 10, 0xaaaaaa, true);
