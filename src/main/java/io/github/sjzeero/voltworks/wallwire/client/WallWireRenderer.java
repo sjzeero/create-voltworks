@@ -8,6 +8,7 @@ import com.george_vi.electroenergetics.simulation.WireType;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.github.sjzeero.voltworks.registry.VoltworksWireTypes;
 import io.github.sjzeero.voltworks.wallwire.WallCell;
 import io.github.sjzeero.voltworks.wallwire.WallRoute;
 import net.createmod.catnip.data.Pair;
@@ -62,8 +63,15 @@ public final class WallWireRenderer {
         }
     }
 
-    /** Side of the wire's square cross-section in pixels. */
-    public static int sizePixels(WireType type) {
+    /** Width of the wire's cross-section along the surface, in pixels. */
+    public static int widthPixels(WireType type) {
+        if(type == VoltworksWireTypes.COPPER_CORD.get())
+            return 2;
+        return isHeavy(type) ? 3 : 1;
+    }
+
+    /** Height of the wire's cross-section above the surface, in pixels. */
+    public static int heightPixels(WireType type) {
         return isHeavy(type) ? 3 : 1;
     }
 
@@ -209,7 +217,8 @@ public final class WallWireRenderer {
         final VertexConsumer vb;
         final Tex tex;
         final Vec3 cam;
-        final double size;
+        /** Cross-section: {@code w} across the run on the surface, {@code h} off the surface. */
+        final double w, h;
 
         Drawer(ClientLevel level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, @Nullable DyeColor color, Vec3 cam) {
             this.level = level;
@@ -220,7 +229,8 @@ public final class WallWireRenderer {
             this.vb = buffer.getBuffer(rt);
             this.tex = texture(look);
             this.cam = cam;
-            this.size = sizePixels(type) * PX;
+            this.w = widthPixels(type) * PX;
+            this.h = heightPixels(type) * PX;
         }
 
         void route(List<WallCell> cells, List<WallRoute.Segment> segments, InWorldNode node1, InWorldNode node2) {
@@ -265,7 +275,7 @@ public final class WallWireRenderer {
             boolean capStart = true, capEnd = true;
 
             if(i == 0 || segs.get(i - 1).air()) {
-                from -= size / 2;
+                from -= w / 2;
             } else {
                 WallRoute.Segment prev = segs.get(i - 1);
                 Vec3 pu = prev.b().subtract(prev.a()).normalize();
@@ -273,12 +283,12 @@ public final class WallWireRenderer {
                     if(pu.dot(u) > 0.99)
                         capStart = false;
                     else {
-                        from += size / 2;
+                        from += w / 2;
                         capStart = false;
                     }
                 } else if(pu.dot(n) < 0) {
                     // inner corner: we start on top of the previous run
-                    from += size - lift;
+                    from += h - lift;
                     capStart = false;
                 } else {
                     // outer corner: the previous run overhangs down to the face we are on
@@ -287,7 +297,7 @@ public final class WallWireRenderer {
                 }
             }
             if(i == segs.size() - 1 || segs.get(i + 1).air()) {
-                to += size / 2;
+                to += w / 2;
             } else {
                 WallRoute.Segment next = segs.get(i + 1);
                 Vec3 nu = next.b().subtract(next.a()).normalize();
@@ -296,34 +306,34 @@ public final class WallWireRenderer {
                     if(nu.dot(u) > 0.99)
                         capEnd = false;
                     else
-                        to += size / 2;
+                        to += w / 2;
                 } else if(u.dot(nn) < 0) {
                     to += lift;
                     capEnd = false;
                 } else {
-                    to += size - lift;
+                    to += h - lift;
                 }
             }
             if(to - from < 1e-5)
                 return;
             Vec3 s = n.cross(u);
-            Vec3 origin = a0.add(u.scale(from)).subtract(s.scale(size / 2));
+            Vec3 origin = a0.add(u.scale(from)).subtract(s.scale(w / 2));
             int light = LevelRenderer.getLightColor(level, seg.lightPos());
-            box(origin, u, s, n, to - from, size, size, capStart, capEnd, false, light);
+            box(origin, u, s, n, to - from, w, h, capStart, capEnd, false, light);
         }
 
         /** A span through the air, standing on top of the runs it leaves and lands on. */
         private void air(WallRoute.Segment seg) {
             Vec3 u = step(seg.normal());
             double lift = WallCell.LIFT;
-            Vec3 start = seg.a().add(u.scale(size - lift));
-            double len = seg.b().subtract(u.scale(size - lift)).subtract(start).dot(u);
+            Vec3 start = seg.a().add(u.scale(h - lift));
+            double len = seg.b().subtract(u.scale(h - lift)).subtract(start).dot(u);
             if(len < 1e-5)
                 return;
-            Vec3 w = Math.abs(u.y) > 0.5 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
-            Vec3 s = u.cross(w);
-            Vec3 origin = start.subtract(s.scale(size / 2)).subtract(w.scale(size / 2));
-            box(origin, u, s, w, len, size, size, false, false, true, LevelRenderer.getLightColor(level, seg.lightPos()));
+            Vec3 up = Math.abs(u.y) > 0.5 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
+            Vec3 s = u.cross(up);
+            Vec3 origin = start.subtract(s.scale(w / 2)).subtract(up.scale(h / 2));
+            box(origin, u, s, up, len, w, h, false, false, true, LevelRenderer.getLightColor(level, seg.lightPos()));
         }
 
         private void pad(WallCell cell) {
@@ -331,8 +341,8 @@ public final class WallWireRenderer {
             Vec3 u = Math.abs(n.y) > 0.5 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
             Vec3 s = n.cross(u);
             Vec3 c = cell.point(0);
-            Vec3 origin = c.subtract(u.scale(size / 2)).subtract(s.scale(size / 2));
-            box(origin, u, s, n, size, size, size, true, true, false, LevelRenderer.getLightColor(level, cell.front()));
+            Vec3 origin = c.subtract(u.scale(w / 2)).subtract(s.scale(w / 2));
+            box(origin, u, s, n, w, w, h, true, true, false, LevelRenderer.getLightColor(level, cell.front()));
         }
 
         /** Straight wire from the node into the middle of the end of the surface run. */
@@ -340,10 +350,10 @@ public final class WallWireRenderer {
             if(node == null)
                 return;
             Vec3 n = step(cell.face());
-            Vec3 end = cell.point(0).add(n.scale(size / 2));
+            Vec3 end = cell.point(0).add(n.scale(h / 2));
             Vec3 d = end.subtract(node);
             double len = d.length();
-            if(len < size / 2)
+            if(len < h / 2)
                 return;
             Vec3 u = d.scale(1 / len);
             Vec3 side = n.cross(u);
@@ -353,11 +363,11 @@ public final class WallWireRenderer {
             }
             side = side.normalize();
             Vec3 up = u.cross(side).normalize();
-            Vec3 origin = node.subtract(side.scale(size / 2)).subtract(up.scale(size / 2));
+            Vec3 origin = node.subtract(side.scale(w / 2)).subtract(up.scale(h / 2));
             int light = WireRenderer.maxLightLevel(LevelRenderer.getLightColor(level, BlockPos.containing(node)),
                     LevelRenderer.getLightColor(level, cell.front()));
             // stop at the near side of the surface run so the lead does not poke through it
-            box(origin, u, side, up, Math.max(size / 2, len - size / 2), size, size, true, true, true, light);
+            box(origin, u, side, up, Math.max(h / 2, len - h / 2), w, h, true, true, true, light);
         }
 
         /**

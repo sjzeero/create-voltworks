@@ -5,7 +5,6 @@ import com.george_vi.electroenergetics.config.CEEConfigs;
 import com.george_vi.electroenergetics.simulation.WireType;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import io.github.sjzeero.voltworks.Voltworks;
-import io.github.sjzeero.voltworks.cord.CordWires;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -17,7 +16,7 @@ public final class VoltworksWireTypes {
 
     public static final PartialModel CORD_SEGMENT = PartialModel.of(Voltworks.asResource("block/cord_segment"));
 
-    /** One strand of the two-strand copper cord (Power Grid port); electrically CEE's standard insulated wire. */
+    /** Copper cord (Power Grid port): a Voltworks wall wire drawn flat, 2 px wide and 1 px high. */
     public static final DeferredHolder<WireType, WireType> COPPER_CORD = WIRE_TYPES.register("copper_cord",
             () -> new WireType.Builder(CORD_SEGMENT)
                     .resistance(CEEConfigs.server().resistanceValues.wireResistance::get)
@@ -26,7 +25,7 @@ public final class VoltworksWireTypes {
                     .maxInsulationVoltage(CEEConfigs.server().voltageValues.wireMaxVoltage::get)
                     .maxTemperature(() -> 3540.0)
                     .insulationResistance(330000.0)
-                    .maxLength(() -> CordWires.MAX_LENGTH)
+                    .maxLength(() -> 16)
                     .build());
 
     public static void register(IEventBus bus) {

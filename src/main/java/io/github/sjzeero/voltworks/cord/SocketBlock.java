@@ -127,13 +127,6 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
         return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
     }
 
-    /** Empty hand pulls the cord out, like in Power Grid. */
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (!(level instanceof ServerLevel sl))
-            return InteractionResult.SUCCESS;
-        return CordWires.unplug(sl, pos, player) ? InteractionResult.SUCCESS : InteractionResult.PASS;
-    }
 
     @Override
     public Map<Integer, Vec3> getNodePositions(Level level, BlockPos pos, BlockState state) {

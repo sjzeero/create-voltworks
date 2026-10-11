@@ -9,11 +9,8 @@
     "ArmInteractionPointMixin",
     "BasinRecipeMixin",
     "BeltDeployerMixin",
-    "DeviceWrenchCordMixin",
     "DyeWireInteractionBehaviourMixin",
-    "InfrastructureSavedDataMixin",
     "RecipeApplierMixin",
-    "WireCuttersWireInteractionBehaviourMixin",
     "WireSimulationStateMixin",
     "WireSpoolItemAccessor"
   ],
