@@ -1,160 +1,52 @@
 {
   "variants": {
-    "facing=down,logged_state=dry,roll=false": {
-      "model": "voltworks:block/servo",
-      "x": 180
+    "facing=north,roll=false": {
+      "model": "voltworks:block/servo/block"
     },
-    "facing=down,logged_state=dry,roll=true": {
-      "model": "voltworks:block/servo_roll",
-      "x": 180
+    "facing=north,roll=true": {
+      "model": "voltworks:block/servo/block"
     },
-    "facing=down,logged_state=waterlogged,roll=false": {
-      "model": "voltworks:block/servo",
-      "x": 180
-    },
-    "facing=down,logged_state=waterlogged,roll=true": {
-      "model": "voltworks:block/servo_roll",
-      "x": 180
-    },
-    "facing=down,logged_state=oillogged,roll=false": {
-      "model": "voltworks:block/servo",
-      "x": 180
-    },
-    "facing=down,logged_state=oillogged,roll=true": {
-      "model": "voltworks:block/servo_roll",
-      "x": 180
-    },
-    "facing=up,logged_state=dry,roll=false": {
-      "model": "voltworks:block/servo"
-    },
-    "facing=up,logged_state=dry,roll=true": {
-      "model": "voltworks:block/servo_roll"
-    },
-    "facing=up,logged_state=waterlogged,roll=false": {
-      "model": "voltworks:block/servo"
-    },
-    "facing=up,logged_state=waterlogged,roll=true": {
-      "model": "voltworks:block/servo_roll"
-    },
-    "facing=up,logged_state=oillogged,roll=false": {
-      "model": "voltworks:block/servo"
-    },
-    "facing=up,logged_state=oillogged,roll=true": {
-      "model": "voltworks:block/servo_roll"
-    },
-    "facing=north,logged_state=dry,roll=false": {
-      "model": "voltworks:block/servo",
-      "x": 90
-    },
-    "facing=north,logged_state=dry,roll=true": {
-      "model": "voltworks:block/servo_roll",
-      "x": 90
-    },
-    "facing=north,logged_state=waterlogged,roll=false": {
-      "model": "voltworks:block/servo",
-      "x": 90
-    },
-    "facing=north,logged_state=waterlogged,roll=true": {
-      "model": "voltworks:block/servo_roll",
-      "x": 90
-    },
-    "facing=north,logged_state=oillogged,roll=false": {
-      "model": "voltworks:block/servo",
-      "x": 90
-    },
-    "facing=north,logged_state=oillogged,roll=true": {
-      "model": "voltworks:block/servo_roll",
-      "x": 90
-    },
-    "facing=south,logged_state=dry,roll=false": {
-      "model": "voltworks:block/servo",
-      "x": 90,
-      "y": 180
-    },
-    "facing=south,logged_state=dry,roll=true": {
-      "model": "voltworks:block/servo_roll",
-      "x": 90,
-      "y": 180
-    },
-    "facing=south,logged_state=waterlogged,roll=false": {
-      "model": "voltworks:block/servo",
-      "x": 90,
-      "y": 180
-    },
-    "facing=south,logged_state=waterlogged,roll=true": {
-      "model": "voltworks:block/servo_roll",
-      "x": 90,
-      "y": 180
-    },
-    "facing=south,logged_state=oillogged,roll=false": {
-      "model": "voltworks:block/servo",
-      "x": 90,
-      "y": 180
-    },
-    "facing=south,logged_state=oillogged,roll=true": {
-      "model": "voltworks:block/servo_roll",
-      "x": 90,
-      "y": 180
-    },
-    "facing=east,logged_state=dry,roll=false": {
-      "model": "voltworks:block/servo",
-      "x": 90,
+    "facing=east,roll=false": {
+      "model": "voltworks:block/servo/block",
       "y": 90
     },
-    "facing=east,logged_state=dry,roll=true": {
-      "model": "voltworks:block/servo_roll",
-      "x": 90,
+    "facing=east,roll=true": {
+      "model": "voltworks:block/servo/block",
       "y": 90
     },
-    "facing=east,logged_state=waterlogged,roll=false": {
-      "model": "voltworks:block/servo",
-      "x": 90,
+    "facing=south,roll=false": {
+      "model": "voltworks:block/servo/block",
+      "y": 180
+    },
+    "facing=south,roll=true": {
+      "model": "voltworks:block/servo/block",
+      "y": 180
+    },
+    "facing=west,roll=false": {
+      "model": "voltworks:block/servo/block",
+      "y": 270
+    },
+    "facing=west,roll=true": {
+      "model": "voltworks:block/servo/block",
+      "y": 270
+    },
+    "facing=up,roll=false": {
+      "model": "voltworks:block/servo/block_vertical",
+      "x": 270
+    },
+    "facing=up,roll=true": {
+      "model": "voltworks:block/servo/block_vertical",
+      "x": 270,
       "y": 90
     },
-    "facing=east,logged_state=waterlogged,roll=true": {
-      "model": "voltworks:block/servo_roll",
+    "facing=down,roll=false": {
+      "model": "voltworks:block/servo/block_vertical",
+      "x": 90
+    },
+    "facing=down,roll=true": {
+      "model": "voltworks:block/servo/block_vertical",
       "x": 90,
       "y": 90
-    },
-    "facing=east,logged_state=oillogged,roll=false": {
-      "model": "voltworks:block/servo",
-      "x": 90,
-      "y": 90
-    },
-    "facing=east,logged_state=oillogged,roll=true": {
-      "model": "voltworks:block/servo_roll",
-      "x": 90,
-      "y": 90
-    },
-    "facing=west,logged_state=dry,roll=false": {
-      "model": "voltworks:block/servo",
-      "x": 90,
-      "y": 270
-    },
-    "facing=west,logged_state=dry,roll=true": {
-      "model": "voltworks:block/servo_roll",
-      "x": 90,
-      "y": 270
-    },
-    "facing=west,logged_state=waterlogged,roll=false": {
-      "model": "voltworks:block/servo",
-      "x": 90,
-      "y": 270
-    },
-    "facing=west,logged_state=waterlogged,roll=true": {
-      "model": "voltworks:block/servo_roll",
-      "x": 90,
-      "y": 270
-    },
-    "facing=west,logged_state=oillogged,roll=false": {
-      "model": "voltworks:block/servo",
-      "x": 90,
-      "y": 270
-    },
-    "facing=west,logged_state=oillogged,roll=true": {
-      "model": "voltworks:block/servo_roll",
-      "x": 90,
-      "y": 270
     }
   }
 }

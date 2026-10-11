@@ -85,7 +85,7 @@ public class Voltworks {
     public static final DeferredItem<CircuitSchematicItem> CIRCUIT_SCHEMATIC = ITEMS.registerItem("circuit_schematic", CircuitSchematicItem::new);
 
     public static final DeferredBlock<ServoBlock> SERVO = BLOCKS.register("servo", () -> new ServoBlock(
-            BlockBehaviour.Properties.of().strength(0.5f).sound(SoundType.METAL).noOcclusion()));
+            BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));
     public static final DeferredItem<?> SERVO_ITEM = ITEMS.registerSimpleBlockItem(SERVO);
     @SuppressWarnings("DataFlowIssue")
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ServoBlockEntity>> SERVO_BE = BLOCK_ENTITIES.register("servo",
@@ -94,28 +94,37 @@ public class Voltworks {
             () -> new SimulatedDeviceType<>(asResource("servo"),
                     (type, level, pos, sd) -> new ServoDevice(level, pos, sd, type)));
 
+    public static final DeferredBlock<io.github.sjzeero.voltworks.motor.ConstantSpeedMotorBlock> CONSTANT_SPEED_MOTOR = BLOCKS.register("constant_speed_motor", () -> new io.github.sjzeero.voltworks.motor.ConstantSpeedMotorBlock(
+            BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));
+    public static final DeferredItem<?> CONSTANT_SPEED_MOTOR_ITEM = ITEMS.registerSimpleBlockItem(CONSTANT_SPEED_MOTOR);
+    @SuppressWarnings("DataFlowIssue")
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<io.github.sjzeero.voltworks.motor.ConstantSpeedMotorBlockEntity>> CONSTANT_SPEED_MOTOR_BE = BLOCK_ENTITIES.register("constant_speed_motor",
+            () -> BlockEntityType.Builder.of(io.github.sjzeero.voltworks.motor.ConstantSpeedMotorBlockEntity::new, CONSTANT_SPEED_MOTOR.get()).build(null));
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.motor.PGMotorDevice>> CONSTANT_SPEED_MOTOR_DEVICE = DEVICES.register("constant_speed_motor",
+            () -> new SimulatedDeviceType<>(asResource("constant_speed_motor"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.motor.PGMotorDevice(level, pos, sd, type)));
+
+    public static final DeferredBlock<io.github.sjzeero.voltworks.solar.SolarPanelBlock> SOLAR_PANEL = BLOCKS.register("solar_panel", () -> new io.github.sjzeero.voltworks.solar.SolarPanelBlock(
+            BlockBehaviour.Properties.of().strength(1.0f).sound(SoundType.METAL).noOcclusion()));
+    public static final DeferredItem<?> SOLAR_PANEL_ITEM = ITEMS.registerSimpleBlockItem(SOLAR_PANEL);
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.solar.SolarPanelDevice>> SOLAR_PANEL_DEVICE = DEVICES.register("solar_panel",
+            () -> new SimulatedDeviceType<>(asResource("solar_panel"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.solar.SolarPanelDevice(level, pos, sd, type)));
+    public static final DeferredRegister<com.simibubi.create.api.contraption.ContraptionType> CONTRAPTION_TYPES = DeferredRegister.create(com.simibubi.create.api.registry.CreateRegistries.CONTRAPTION_TYPE, MOD_ID);
+    public static final DeferredHolder<com.simibubi.create.api.contraption.ContraptionType, com.simibubi.create.api.contraption.ContraptionType> SOLAR_PANEL_BEARING_CONTRAPTION = CONTRAPTION_TYPES.register("solar_panel_bearing",
+            () -> new com.simibubi.create.api.contraption.ContraptionType(io.github.sjzeero.voltworks.solar.SolarPanelBearingContraption::new));
+    public static final DeferredBlock<io.github.sjzeero.voltworks.solar.SolarPanelBearingBlock> SOLAR_PANEL_BEARING = BLOCKS.register("solar_panel_bearing", () -> new io.github.sjzeero.voltworks.solar.SolarPanelBearingBlock(
+            BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));
+    public static final DeferredItem<?> SOLAR_PANEL_BEARING_ITEM = ITEMS.registerSimpleBlockItem(SOLAR_PANEL_BEARING);
+    @SuppressWarnings("DataFlowIssue")
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<io.github.sjzeero.voltworks.solar.SolarPanelBearingBlockEntity>> SOLAR_PANEL_BEARING_BE = BLOCK_ENTITIES.register("solar_panel_bearing",
+            () -> BlockEntityType.Builder.of(io.github.sjzeero.voltworks.solar.SolarPanelBearingBlockEntity::new, SOLAR_PANEL_BEARING.get()).build(null));
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.solar.SolarPanelBearingDevice>> SOLAR_PANEL_BEARING_DEVICE = DEVICES.register("solar_panel_bearing",
+            () -> new SimulatedDeviceType<>(asResource("solar_panel_bearing"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.solar.SolarPanelBearingDevice(level, pos, sd, type)));
+    public static final DeferredItem<com.simibubi.create.content.processing.sequenced.SequencedAssemblyItem> INCOMPLETE_SOLAR_PANEL = ITEMS.registerItem("incomplete_solar_panel", com.simibubi.create.content.processing.sequenced.SequencedAssemblyItem::new);
+
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = TABS.register("main", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.voltworks"))
             .icon(() -> COPPER_CIRCUIT.get().getDefaultInstance())
-            .displayItems((params, out) -> {
-                out.accept(BLANK_CIRCUIT);
-                out.accept(COPPER_CIRCUIT);
-                out.accept(GOLDEN_CIRCUIT);
-                out.accept(BOARD_ITEM.get());
-                out.accept(DESIGN_TABLE_ITEM.get());
-                out.accept(SERVO_ITEM.get());
-                out.accept(CIRCUIT_SCHEMATIC.get());
-                out.accept(CircuitItems.EMPTY_CIRCUIT.get());
-                out.accept(CircuitItems.UNETCHED_CIRCUIT.get());
-                out.accept(CircuitItems.INCOMPLETE_CIRCUIT.get());
-                out.accept(CircuitItems.ACID_BUCKET.get());
-                for(var component : ComponentRegistry.entries()) {
-                    var item = ComponentRegistry.getItem(component);
-                    if(item != null && ComponentRegistry.getId(component).getNamespace().equals(MOD_ID)
-                            && MOD_ID.equals(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item).getNamespace()))
-                        out.accept(item);
-                }
-            })
+            .displayItems((params, out) -> VoltworksTabSections.fill(out))
             .build());
 
     public Voltworks(IEventBus modBus, ModContainer container) {
@@ -125,6 +134,7 @@ public class Voltworks {
         ITEMS.register(modBus);
         BLOCK_ENTITIES.register(modBus);
         DEVICES.register(modBus);
+        CONTRAPTION_TYPES.register(modBus);
         RECIPE_SERIALIZERS.register(modBus);
         TABS.register(modBus);
         EEMenus.register(modBus);

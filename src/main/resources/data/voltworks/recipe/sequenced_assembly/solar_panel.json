@@ -1,0 +1,116 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "minecraft:glass_pane"
+  },
+  "loops": 1,
+  "results": [
+    {
+      "chance": 100.0,
+      "id": "voltworks:solar_panel"
+    },
+    {
+      "chance": 3.0,
+      "id": "create:polished_rose_quartz"
+    },
+    {
+      "chance": 3.0,
+      "id": "minecraft:slime_ball"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_solar_panel"
+        },
+        {
+          "item": "minecraft:slime_ball"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_solar_panel"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_solar_panel"
+        },
+        {
+          "item": "create:polished_rose_quartz"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_solar_panel"
+        }
+      ]
+    },
+    {
+      "type": "create:cutting",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_solar_panel"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_solar_panel"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_solar_panel"
+        },
+        {
+          "tag": "c:ingots/copper"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_solar_panel"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_solar_panel"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_solar_panel"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_solar_panel"
+        },
+        {
+          "tag": "c:plates/copper"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_solar_panel"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "voltworks:incomplete_solar_panel"
+  }
+}

@@ -14,8 +14,14 @@ the language strings and the recipes under data/voltworks/recipe that follow
 Power Grid's recipes are taken from Create: Power Grid under the same license,
 with resource locations changed to the voltworks namespace.
 
-All textures under assets/voltworks/textures are original work drawn for
-CEE: Voltworks.
+Most block and item textures under assets/voltworks/textures (including
+block/component, block/modular_display, the circuit board, circuit design
+table, acid, power plug and wire connector textures, and the item icons that
+have a Power Grid counterpart) and the circuit board, circuit design table and
+wire connector models are taken unmodified from Create: Power Grid under the
+same license, with resource locations changed to the voltworks namespace.
+The GUI textures, the dyed circuit board variants and the remaining item
+textures without a Power Grid counterpart are original work for CEE: Voltworks.
 
 Create: Power Grid NOTICE:
 

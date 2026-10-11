@@ -9,9 +9,18 @@ from core import ASSETS
 SHADE = {"up": 1.0, "down": 0.5, "north": 0.8, "south": 0.8, "west": 0.6, "east": 0.6}
 
 
+EXTRA_ROOTS = [Path("/tmp/create_assets/assets"), Path("/tmp/cpg/src/main/resources/assets")]
+
+
 def load_tex(ref):
-    ns, path = ref.split(":")
-    return np.asarray(Image.open(ASSETS / ns / "textures" / f"{path}.png").convert("RGBA"))
+    ns, path = ref.split(":") if ":" in ref else ("minecraft", ref)
+    for root in [ASSETS] + EXTRA_ROOTS:
+        f = root / ns / "textures" / f"{path}.png"
+        if f.exists():
+            return np.asarray(Image.open(f).convert("RGBA"))
+    m = np.zeros((16, 16, 4), np.uint8)
+    m[::2, ::2] = m[1::2, 1::2] = (255, 0, 255, 255)
+    return m
 
 
 def load_model(path):

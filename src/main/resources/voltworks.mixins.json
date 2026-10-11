@@ -18,7 +18,12 @@
   "client": [
     "client.WireInteractionHandlerMixin",
     "client.WireRendererMixin",
-    "client.WireVisualMixin"
+    "client.WireVisualMixin",
+    "client.CreativeScreenSelectedTabAccessor",
+    "client.ItemPickerMenuSectionsMixin",
+    "client.CreativeScreenSectionsMixin",
+    "client.ItemPickerMenuAccessor",
+    "client.CustomCreativeSlotMixin"
   ],
   "injectors": {
     "defaultRequire": 1

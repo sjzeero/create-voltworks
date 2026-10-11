@@ -28,6 +28,7 @@ import io.github.sjzeero.voltworks.circuits.CircuitItems;
 public class VoltworksClient {
     public VoltworksClient(IEventBus modBus) {
         EEPartialModels.register();
+        modBus.addListener(VoltworksClient::solarPanelCT);
         modBus.addListener(ModdedKeys::register);
         modBus.addListener(VoltworksClient::screens);
         modBus.addListener(VoltworksClient::loaders);
@@ -73,6 +74,8 @@ public class VoltworksClient {
         event.registerBlockEntityRenderer(Voltworks.BOARD_BE.get(), CircuitBoardRenderer::new);
         event.registerBlockEntityRenderer(Voltworks.DESIGN_TABLE_BE.get(), CircuitDesignTableRenderer::new);
         event.registerBlockEntityRenderer(Voltworks.SERVO_BE.get(), ServoRenderer::new);
+        event.registerBlockEntityRenderer(Voltworks.SOLAR_PANEL_BEARING_BE.get(), SolarPanelBearingRenderer::new);
+        event.registerBlockEntityRenderer(Voltworks.CONSTANT_SPEED_MOTOR_BE.get(), io.github.sjzeero.voltworks.motor.PGMotorRenderer::new);
     }
 
     private static void setup(FMLClientSetupEvent event) {
@@ -85,5 +88,12 @@ public class VoltworksClient {
             ItemProperties.register(Voltworks.BOARD_ITEM.get(), Voltworks.asResource("board_color"),
                     (stack, level, entity, seed) -> BoardColor.ofBoard(stack).ordinal() / 10f);
         });
+    }
+
+    private static void solarPanelCT(net.neoforged.neoforge.client.event.ModelEvent.ModifyBakingResult event) {
+        var behaviour = new io.github.sjzeero.voltworks.solar.SolarPanelCTBehaviour();
+        com.simibubi.create.foundation.model.ModelSwapper.swapModels(event.getModels(),
+                com.simibubi.create.foundation.model.ModelSwapper.getAllBlockStateModelLocations(io.github.sjzeero.voltworks.Voltworks.SOLAR_PANEL.get()),
+                m -> new com.simibubi.create.foundation.block.connected.CTModel(m, behaviour));
     }
 }

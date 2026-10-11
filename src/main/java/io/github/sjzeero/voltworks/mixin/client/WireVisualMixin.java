@@ -26,8 +26,10 @@ public abstract class WireVisualMixin {
     @Unique
     private boolean voltworks$hidden;
 
-    @Inject(method = "recreateInstances(F)V", at = @At("HEAD"), cancellable = true)
-    private void voltworks$hideWallWire(float partialTick, CallbackInfo ci) {
+    /** CEE 1.1.1 / 1.2.0: recreateInstances(float); CEE 1.1.2: recreateInstances(ClientLevel, float, boolean). */
+    @Inject(method = {"recreateInstances(F)V", "recreateInstances(Lnet/minecraft/client/multiplayer/ClientLevel;FZ)V"},
+            at = @At("HEAD"), cancellable = true, require = 1)
+    private void voltworks$hideWallWire(CallbackInfo ci) {
         if(!ClientWallRoutes.isWall(connection)) {
             if(voltworks$hidden) {
                 voltworks$hidden = false;

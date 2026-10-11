@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "facing=north,roll=false": {
+      "model": "voltworks:block/constant_electric_motor/block"
+    },
+    "facing=north,roll=true": {
+      "model": "voltworks:block/constant_electric_motor/block"
+    },
+    "facing=east,roll=false": {
+      "model": "voltworks:block/constant_electric_motor/block",
+      "y": 90
+    },
+    "facing=east,roll=true": {
+      "model": "voltworks:block/constant_electric_motor/block",
+      "y": 90
+    },
+    "facing=south,roll=false": {
+      "model": "voltworks:block/constant_electric_motor/block",
+      "y": 180
+    },
+    "facing=south,roll=true": {
+      "model": "voltworks:block/constant_electric_motor/block",
+      "y": 180
+    },
+    "facing=west,roll=false": {
+      "model": "voltworks:block/constant_electric_motor/block",
+      "y": 270
+    },
+    "facing=west,roll=true": {
+      "model": "voltworks:block/constant_electric_motor/block",
+      "y": 270
+    },
+    "facing=up,roll=false": {
+      "model": "voltworks:block/constant_electric_motor/block_vertical",
+      "x": 270
+    },
+    "facing=up,roll=true": {
+      "model": "voltworks:block/constant_electric_motor/block_vertical",
+      "x": 270,
+      "y": 90
+    },
+    "facing=down,roll=false": {
+      "model": "voltworks:block/constant_electric_motor/block_vertical",
+      "x": 90
+    },
+    "facing=down,roll=true": {
+      "model": "voltworks:block/constant_electric_motor/block_vertical",
+      "x": 90,
+      "y": 90
+    }
+  }
+}

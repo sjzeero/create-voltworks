@@ -5,7 +5,7 @@
 	"texture_size": [64, 64],
 	"textures": {
 		"1": "voltworks:block/circuit_design_table",
-		"particle": "voltworks:block/circuit_design_table"
+		"particle": "voltworks:block/wire_connector"
 	},
 	"elements": [
 		{

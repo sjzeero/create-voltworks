@@ -87,4 +87,4 @@ Test commands (near spawn, creative batteries wired to the board):
 
 ## License
 
-Apache License 2.0, see LICENSE. The board and circuit code ported from Create: Power Grid (Copyright patryk3211, Apache-2.0) keeps its original headers and is marked as modified, see NOTICE.
+Apache License 2.0, see LICENSE. The board and circuit code, as well as component models and textures, ported from [Create: Power Grid](https://github.com/patryk3211/PowerGrid) (Copyright patryk3211, Apache-2.0) keep their original attribution (modified files are marked as such), see NOTICE and LICENSE-PowerGrid.

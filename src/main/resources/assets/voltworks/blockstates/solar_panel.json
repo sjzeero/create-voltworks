@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "voltworks:block/solar_panel/inline_solar_panel"
+    },
+    "facing=east": {
+      "model": "voltworks:block/solar_panel/inline_solar_panel",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "voltworks:block/solar_panel/inline_solar_panel",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "voltworks:block/solar_panel/inline_solar_panel",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "voltworks:block/solar_panel/inline_solar_panel",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "voltworks:block/solar_panel/inline_solar_panel",
+      "x": 90
+    }
+  }
+}

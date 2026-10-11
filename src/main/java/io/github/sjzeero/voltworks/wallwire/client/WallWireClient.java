@@ -419,7 +419,7 @@ public final class WallWireClient {
         if(!behaviour.isActuallyActiveFor(point, level, player, stack))
             return;
         WireInteractionHandler.targetedPoint = point;
-        WireInteractionHandler.targetedPos = bestPos;
+        io.github.sjzeero.voltworks.compat.CeeCompat.setTargetedPos(bestPos);
         int color = behaviour.getWireDisplayColor(point, level, player, stack);
         List<WallRoute.Segment> segments = bestEntry.segments();
         for(int i = 0; i < segments.size() && i < 128; i++)

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": { "tag": "c:plates/copper" },
+    "S": { "tag": "minecraft:wooden_slabs" },
+    "Z": { "item": "create:copper_casing" }
+  },
+  "pattern": ["S", "P", "Z"],
+  "result": { "count": 1, "id": "voltworks:solar_panel_bearing" }
+}
