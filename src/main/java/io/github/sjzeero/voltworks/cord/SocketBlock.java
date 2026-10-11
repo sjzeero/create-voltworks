@@ -41,8 +41,8 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
     public static final IntegerProperty ROTATION = IntegerProperty.create("rotation", 0, 3);
     public static final int POSITIVE = 0, NEGATIVE = 1, CORD_POSITIVE = 2, CORD_NEGATIVE = 3;
 
-    /** In pixels, in the floor model (power_plug_v). */
-    private static final double[][] FLOOR_NODES = {{8, 1, 3.5}, {8, 1, 12.5}, {7.25, 3.5, 8}, {8.75, 3.5, 8}};
+    /** In pixels, in the floor model (power_plug_v). Both cord strands share the single plug hole on top. */
+    private static final double[][] FLOOR_NODES = {{8, 1, 3.5}, {8, 1, 12.5}, {8, 3.5, 8}, {8, 3.5, 8}};
     private static final double[] FLOOR_BOX = {4, 0, 4, 12, 3, 12};
     private static final int[] FLOOR_Y = {-90, 0, 90, 180};
     private static final int[] WALL_X = {-90, 180, 90, 0};
