@@ -18,6 +18,7 @@
 package io.github.sjzeero.voltworks.pgsim.node;
 
 import io.github.sjzeero.voltworks.pgsim.ElectricalNetwork;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public abstract class CouplingNode implements ICouplingNode {
     protected ElectricalNetwork network;

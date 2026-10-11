@@ -21,6 +21,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.Nullable;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class EnumProperty<T extends Enum<T>> extends ComponentProperty<T> {
     private final Class<T> clazz;

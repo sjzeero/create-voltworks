@@ -6,7 +6,7 @@ import io.github.sjzeero.voltworks.wallwire.WallRoutesPayload;
 import io.github.sjzeero.voltworks.wallwire.client.ClientWallRoutes;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
-public class EENetwork {
+public class VoltworksNetwork {
     public static void register(RegisterPayloadHandlersEvent event) {
         var registrar = event.registrar("1");
         registrar.playToServer(SaveSchematicPayload.TYPE, SaveSchematicPayload.CODEC, SaveSchematicPayload::handle);

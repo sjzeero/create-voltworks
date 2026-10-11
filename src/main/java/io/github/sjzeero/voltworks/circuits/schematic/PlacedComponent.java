@@ -41,6 +41,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static io.github.sjzeero.voltworks.circuits.schematic.CircuitLayer.GRID_TO_GRID_SCALE;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class PlacedComponent {
     public final Component component;

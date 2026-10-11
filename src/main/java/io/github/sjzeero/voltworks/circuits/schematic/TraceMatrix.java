@@ -20,6 +20,7 @@ package io.github.sjzeero.voltworks.circuits.schematic;
 import net.minecraft.nbt.LongArrayTag;
 
 import java.util.BitSet;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class TraceMatrix {
     private static final char[] CELL_TO_CHAR = new char[] {

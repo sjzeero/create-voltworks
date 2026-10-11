@@ -18,6 +18,7 @@
 package io.github.sjzeero.voltworks.pgsim.special;
 
 import io.github.sjzeero.voltworks.pgsim.node.IElectricNode;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class ThyratronWire extends ColdCathodeRegulatorTubeWire {
     private static final float EMISSION_FIRE_THRESHOLD = 0.05f;

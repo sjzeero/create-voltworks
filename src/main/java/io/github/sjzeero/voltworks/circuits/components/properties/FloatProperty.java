@@ -21,6 +21,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.Nullable;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class FloatProperty extends ComponentProperty<Float> {
     private final float defaultValue;

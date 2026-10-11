@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 
 /**
  * Ported from Create: Power Grid (patryk3211) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
@@ -29,7 +30,7 @@ public class ConstantSpeedMotorBlockEntity extends AbstractPGMotorBlockEntity {
     }
 
     public ConstantSpeedMotorBlockEntity(BlockPos pos, BlockState state) {
-        this(Voltworks.CONSTANT_SPEED_MOTOR_BE.get(), pos, state);
+        this(VoltworksBlockEntities.CONSTANT_SPEED_MOTOR_BE.get(), pos, state);
     }
 
     @Override

@@ -1,0 +1,42 @@
+package io.github.sjzeero.voltworks.registry;
+
+import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.circuits.schematic.CircuitSchematicItem;
+import net.minecraft.world.item.Item;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredItem;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+public final class VoltworksItems {
+    private VoltworksItems() {}
+
+    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Voltworks.MOD_ID);
+
+    public static final DeferredItem<Item> BLANK_CIRCUIT = ITEMS.registerSimpleItem("blank_circuit");
+
+    public static final DeferredItem<Item> COPPER_CIRCUIT = ITEMS.registerSimpleItem("copper_circuit");
+
+    public static final DeferredItem<Item> INCOMPLETE_GOLDEN_CIRCUIT = ITEMS.registerSimpleItem("incomplete_golden_circuit");
+
+    public static final DeferredItem<Item> GOLDEN_CIRCUIT = ITEMS.registerSimpleItem("golden_circuit");
+
+    public static final DeferredItem<?> BOARD_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.BOARD);
+
+    public static final DeferredItem<?> DESIGN_TABLE_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.DESIGN_TABLE);
+
+    public static final DeferredItem<CircuitSchematicItem> CIRCUIT_SCHEMATIC = ITEMS.registerItem("circuit_schematic", CircuitSchematicItem::new);
+
+    public static final DeferredItem<?> SERVO_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SERVO);
+
+    public static final DeferredItem<?> CONSTANT_SPEED_MOTOR_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.CONSTANT_SPEED_MOTOR);
+
+    public static final DeferredItem<?> SOLAR_PANEL_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SOLAR_PANEL);
+
+    public static final DeferredItem<?> SOLAR_PANEL_BEARING_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SOLAR_PANEL_BEARING);
+
+    public static final DeferredItem<com.simibubi.create.content.processing.sequenced.SequencedAssemblyItem> INCOMPLETE_SOLAR_PANEL = ITEMS.registerItem("incomplete_solar_panel", com.simibubi.create.content.processing.sequenced.SequencedAssemblyItem::new);
+
+    public static void register(IEventBus bus) {
+        ITEMS.register(bus);
+    }
+}

@@ -25,6 +25,7 @@ import io.github.sjzeero.voltworks.pgsim.solver.ISolverHook;
 
 import java.util.Collection;
 import java.util.List;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class ElectronTubeWire extends CompoundWire implements ISolverHook {
     private static final double GRID_LEAK_CONDUCTANCE = 1e-6;

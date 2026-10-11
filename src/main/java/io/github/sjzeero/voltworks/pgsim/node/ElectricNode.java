@@ -18,6 +18,7 @@
 package io.github.sjzeero.voltworks.pgsim.node;
 
 import io.github.sjzeero.voltworks.pgsim.ElectricalNetwork;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public abstract class ElectricNode implements IElectricNode {
     private int matrixIndex;

@@ -1,10 +1,8 @@
 package io.github.sjzeero.voltworks.servo;
 
-import com.george_vi.electroenergetics.CEENodeConfigurations;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.DirectionalKineticElectricBlock;
 import com.george_vi.electroenergetics.foundation.base.DirectionalRolledDeviceBlock;
-import com.george_vi.electroenergetics.foundation.nodes.NodeConfigurator;
 import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.foundation.block.IBE;
 import io.github.sjzeero.voltworks.Voltworks;
@@ -28,6 +26,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
+import io.github.sjzeero.voltworks.registry.VoltworksDevices;
 
 /**
  * Ported from Create: Power Grid (patryk3211, Apache-2.0) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
@@ -122,7 +122,7 @@ public class ServoBlock extends DirectionalKineticElectricBlock<ServoDevice> imp
 
     @Override
     public SimulatedDeviceType<ServoDevice> getDevice() {
-        return Voltworks.SERVO_DEVICE.get();
+        return VoltworksDevices.SERVO_DEVICE.get();
     }
 
     @Override
@@ -174,7 +174,7 @@ public class ServoBlock extends DirectionalKineticElectricBlock<ServoDevice> imp
 
     @Override
     public BlockEntityType<? extends ServoBlockEntity> getBlockEntityType() {
-        return Voltworks.SERVO_BE.get();
+        return VoltworksBlockEntities.SERVO_BE.get();
     }
 
     @Override

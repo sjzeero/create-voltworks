@@ -19,6 +19,7 @@ package io.github.sjzeero.voltworks.pgsim.node;
 
 import io.github.sjzeero.voltworks.pgsim.ElectricalNetwork;
 import io.github.sjzeero.voltworks.pgsim.calculation.IStamped;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public interface INetworkElement extends IStamped {
     void setNetwork(ElectricalNetwork network);

@@ -27,6 +27,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public interface IMultiScreenHandlerFactory extends MenuProvider {
     @Override

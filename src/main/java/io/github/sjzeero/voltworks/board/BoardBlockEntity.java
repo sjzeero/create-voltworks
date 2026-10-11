@@ -58,6 +58,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 
 public class BoardBlockEntity extends BlockEntity implements BoardContext, IHaveGoggleInformation, ISchematicHolder, IMenuContent {
     private CircuitSchematic schematic = new CircuitSchematic();
@@ -79,7 +80,7 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
     }
 
     public BoardBlockEntity(BlockPos pos, BlockState state) {
-        super(Voltworks.BOARD_BE.get(), pos, state);
+        super(VoltworksBlockEntities.BOARD_BE.get(), pos, state);
     }
 
     @Override

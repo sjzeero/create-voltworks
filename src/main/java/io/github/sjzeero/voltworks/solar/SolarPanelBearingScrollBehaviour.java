@@ -24,6 +24,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import io.github.sjzeero.voltworks.Voltworks;
 
 /**
  * Ported from Create: Power Grid (patryk3211, Apache-2.0) to Voltworks by sjzeero.

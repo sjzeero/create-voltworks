@@ -20,7 +20,8 @@ package io.github.sjzeero.voltworks.circuits.editor;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
-import io.github.sjzeero.voltworks.EEMenus;
+import io.github.sjzeero.voltworks.registry.VoltworksMenus;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class CircuitDesignTableEditMenu extends CircuitEditMenu<CircuitDesignTableBlockEntity> {
     public CircuitDesignTableEditMenu(MenuType<?> type, int id, Inventory inv, CircuitDesignTableBlockEntity contentHolder) {
@@ -37,6 +38,6 @@ public class CircuitDesignTableEditMenu extends CircuitEditMenu<CircuitDesignTab
     }
 
     public static CircuitDesignTableEditMenu create(int id, Inventory inv, CircuitDesignTableBlockEntity be) {
-        return new CircuitDesignTableEditMenu(EEMenus.CIRCUIT_DESIGN_TABLE_EDIT.get(), id, inv, be);
+        return new CircuitDesignTableEditMenu(VoltworksMenus.CIRCUIT_DESIGN_TABLE_EDIT.get(), id, inv, be);
     }
 }

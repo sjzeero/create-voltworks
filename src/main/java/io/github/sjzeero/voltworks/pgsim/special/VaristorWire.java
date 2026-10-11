@@ -21,6 +21,7 @@ import net.minecraft.util.Mth;
 import io.github.sjzeero.voltworks.pgsim.AbstractElectricWire;
 import io.github.sjzeero.voltworks.pgsim.node.IElectricNode;
 import io.github.sjzeero.voltworks.pgsim.solver.IOuterHook;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class VaristorWire extends AbstractElectricWire implements IOuterHook {
     private final double offConductance;

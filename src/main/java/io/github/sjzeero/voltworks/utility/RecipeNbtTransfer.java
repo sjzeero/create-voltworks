@@ -22,6 +22,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import io.github.sjzeero.voltworks.circuits.CircuitTags;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class RecipeNbtTransfer {
     public static void transfer(Iterable<ItemStack> inputs, Iterable<ItemStack> outputs) {

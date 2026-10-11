@@ -23,6 +23,7 @@ import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import java.util.List;
 
 import static io.github.sjzeero.voltworks.circuits.components.Component.LABEL;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public interface IGoggleLabel extends IComponentGoggleInformation {
     @Override

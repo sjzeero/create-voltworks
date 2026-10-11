@@ -35,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class BakedCircuit {
     public final List<FloatingNode> externalNodes = new ArrayList<>();

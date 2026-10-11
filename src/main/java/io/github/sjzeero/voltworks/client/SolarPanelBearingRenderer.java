@@ -30,7 +30,7 @@ public class SolarPanelBearingRenderer extends KineticBlockEntityRenderer<SolarP
         var shaft = CachedBuffers.partialFacing(AllPartialModels.SHAFT_HALF, state, facing.getOpposite());
         standardKineticRotationTransform(shaft, be, light).renderInto(ms, solid);
 
-        SuperByteBuffer rotor = CachedBuffers.partial(EEPartialModels.SOLAR_PANEL_BEARING_ROTOR, state);
+        SuperByteBuffer rotor = CachedBuffers.partial(VoltworksPartialModels.SOLAR_PANEL_BEARING_ROTOR, state);
         float angle = be.getInterpolatedAngle(partialTicks - 1);
         kineticRotationTransform(rotor, be, facing.getAxis(), (float) (angle / 180f * Math.PI), light);
         if (facing.getAxis().isHorizontal())

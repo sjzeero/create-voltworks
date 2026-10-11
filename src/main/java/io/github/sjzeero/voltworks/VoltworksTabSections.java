@@ -9,6 +9,7 @@ import net.minecraft.world.level.ItemLike;
 
 import java.util.*;
 import java.util.function.Supplier;
+import io.github.sjzeero.voltworks.registry.VoltworksItems;
 
 /** Creative tab sections: order of items in the Voltworks tab and banner styling. */
 public final class VoltworksTabSections {
@@ -22,8 +23,8 @@ public final class VoltworksTabSections {
         if (cached != null) return cached;
         List<Item> boards = new ArrayList<>(), motors = new ArrayList<>(), solar = new ArrayList<>();
         for (Supplier<? extends ItemLike> s : List.<Supplier<? extends ItemLike>>of(
-                Voltworks.BLANK_CIRCUIT, Voltworks.COPPER_CIRCUIT, Voltworks.GOLDEN_CIRCUIT, Voltworks.BOARD_ITEM, Voltworks.DESIGN_TABLE_ITEM,
-                Voltworks.CIRCUIT_SCHEMATIC, CircuitItems.EMPTY_CIRCUIT, CircuitItems.UNETCHED_CIRCUIT, CircuitItems.INCOMPLETE_CIRCUIT, CircuitItems.ACID_BUCKET))
+                VoltworksItems.BLANK_CIRCUIT, VoltworksItems.COPPER_CIRCUIT, VoltworksItems.GOLDEN_CIRCUIT, VoltworksItems.BOARD_ITEM, VoltworksItems.DESIGN_TABLE_ITEM,
+                VoltworksItems.CIRCUIT_SCHEMATIC, CircuitItems.EMPTY_CIRCUIT, CircuitItems.UNETCHED_CIRCUIT, CircuitItems.INCOMPLETE_CIRCUIT, CircuitItems.ACID_BUCKET))
             boards.add(s.get().asItem());
         for (var component : ComponentRegistry.entries()) {
             var id = ComponentRegistry.getId(component);
@@ -32,9 +33,9 @@ public final class VoltworksTabSections {
                     || !Voltworks.MOD_ID.equals(BuiltInRegistries.ITEM.getKey(item).getNamespace())) continue;
             boards.add(item);
         }
-        for (Supplier<? extends ItemLike> s : List.<Supplier<? extends ItemLike>>of(Voltworks.SERVO_ITEM, Voltworks.CONSTANT_SPEED_MOTOR_ITEM))
+        for (Supplier<? extends ItemLike> s : List.<Supplier<? extends ItemLike>>of(VoltworksItems.SERVO_ITEM, VoltworksItems.CONSTANT_SPEED_MOTOR_ITEM))
             motors.add(s.get().asItem());
-        for (Supplier<? extends ItemLike> s : List.<Supplier<? extends ItemLike>>of(Voltworks.SOLAR_PANEL_ITEM, Voltworks.SOLAR_PANEL_BEARING_ITEM, Voltworks.INCOMPLETE_SOLAR_PANEL))
+        for (Supplier<? extends ItemLike> s : List.<Supplier<? extends ItemLike>>of(VoltworksItems.SOLAR_PANEL_ITEM, VoltworksItems.SOLAR_PANEL_BEARING_ITEM, VoltworksItems.INCOMPLETE_SOLAR_PANEL))
             solar.add(s.get().asItem());
         List<Section> list = new ArrayList<>();
         add(list, new Section("boards", 0xE0402A1C, 0xFFB8743A, 0xFFFFD9A8, boards));

@@ -18,6 +18,7 @@
 package io.github.sjzeero.voltworks.circuits.components;
 
 import net.minecraft.util.StringRepresentable;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public enum FuseState implements StringRepresentable {
     OPEN, CLOSED, BLOWN;

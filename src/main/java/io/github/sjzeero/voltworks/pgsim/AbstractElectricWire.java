@@ -25,6 +25,7 @@ import io.github.sjzeero.voltworks.pgsim.solver.IMultiHooks;
 
 import java.util.Collection;
 import java.util.List;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public abstract class AbstractElectricWire implements INetworkElement, IMultiHooks {
     protected IElectricNode node1;

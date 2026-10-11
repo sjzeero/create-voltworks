@@ -24,17 +24,19 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.List;
+import io.github.sjzeero.voltworks.registry.VoltworksBlocks;
+import io.github.sjzeero.voltworks.registry.VoltworksItems;
 
 public class CircuitItems {
     public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(NeoForgeRegistries.Keys.FLUID_TYPES, Voltworks.MOD_ID);
     public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(Registries.FLUID, Voltworks.MOD_ID);
 
-    public static final DeferredItem<Item> EMPTY_CIRCUIT = Voltworks.ITEMS.registerSimpleItem("empty_circuit");
-    public static final DeferredItem<SequencedAssemblyItem> INCOMPLETE_UNETCHED_CIRCUIT = Voltworks.ITEMS.registerItem("incomplete_unetched_circuit", SequencedAssemblyItem::new);
-    public static final DeferredItem<Item> UNETCHED_CIRCUIT = Voltworks.ITEMS.registerSimpleItem("unetched_circuit");
-    public static final DeferredItem<IncompleteCircuitItem> INCOMPLETE_CIRCUIT = Voltworks.ITEMS.registerItem("incomplete_circuit", IncompleteCircuitItem::new);
-    public static final DeferredItem<SequencedAssemblyItem> INCOMPLETE_BJT_NPN = Voltworks.ITEMS.registerItem("incomplete_bjt_npn", SequencedAssemblyItem::new);
-    public static final DeferredItem<SequencedAssemblyItem> INCOMPLETE_BJT_PNP = Voltworks.ITEMS.registerItem("incomplete_bjt_pnp", SequencedAssemblyItem::new);
+    public static final DeferredItem<Item> EMPTY_CIRCUIT = VoltworksItems.ITEMS.registerSimpleItem("empty_circuit");
+    public static final DeferredItem<SequencedAssemblyItem> INCOMPLETE_UNETCHED_CIRCUIT = VoltworksItems.ITEMS.registerItem("incomplete_unetched_circuit", SequencedAssemblyItem::new);
+    public static final DeferredItem<Item> UNETCHED_CIRCUIT = VoltworksItems.ITEMS.registerSimpleItem("unetched_circuit");
+    public static final DeferredItem<IncompleteCircuitItem> INCOMPLETE_CIRCUIT = VoltworksItems.ITEMS.registerItem("incomplete_circuit", IncompleteCircuitItem::new);
+    public static final DeferredItem<SequencedAssemblyItem> INCOMPLETE_BJT_NPN = VoltworksItems.ITEMS.registerItem("incomplete_bjt_npn", SequencedAssemblyItem::new);
+    public static final DeferredItem<SequencedAssemblyItem> INCOMPLETE_BJT_PNP = VoltworksItems.ITEMS.registerItem("incomplete_bjt_pnp", SequencedAssemblyItem::new);
 
     public static final DeferredHolder<FluidType, AcidFluidType> ACID_TYPE = FLUID_TYPES.register("acid", () -> new AcidFluidType(FluidType.Properties.create()
             .descriptionId("fluid.voltworks.acid")
@@ -42,9 +44,9 @@ public class CircuitItems {
             .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)));
     public static final DeferredHolder<Fluid, BaseFlowingFluid.Source> ACID = FLUIDS.register("acid", () -> new BaseFlowingFluid.Source(acidProperties()));
     public static final DeferredHolder<Fluid, BaseFlowingFluid.Flowing> ACID_FLOWING = FLUIDS.register("flowing_acid", () -> new BaseFlowingFluid.Flowing(acidProperties()));
-    public static final DeferredBlock<LiquidBlock> ACID_BLOCK = Voltworks.BLOCKS.register("acid", () -> new LiquidBlock(ACID.get(),
+    public static final DeferredBlock<LiquidBlock> ACID_BLOCK = VoltworksBlocks.BLOCKS.register("acid", () -> new LiquidBlock(ACID.get(),
             BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
-    public static final DeferredItem<BucketItem> ACID_BUCKET = Voltworks.ITEMS.registerItem("acid_bucket", p -> new BucketItem(ACID.get(),
+    public static final DeferredItem<BucketItem> ACID_BUCKET = VoltworksItems.ITEMS.registerItem("acid_bucket", p -> new BucketItem(ACID.get(),
             p.craftRemainder(Items.BUCKET).stacksTo(1)));
 
     public static final List<DeferredItem<?>> HIDDEN = List.of(INCOMPLETE_UNETCHED_CIRCUIT, INCOMPLETE_BJT_NPN, INCOMPLETE_BJT_PNP);

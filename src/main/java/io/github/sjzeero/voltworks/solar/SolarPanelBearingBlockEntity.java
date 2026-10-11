@@ -23,6 +23,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 
 /**
  * Ported from Create: Power Grid (patryk3211, Apache-2.0) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
@@ -52,7 +53,7 @@ public class SolarPanelBearingBlockEntity extends KineticBlockEntity implements 
     }
 
     public SolarPanelBearingBlockEntity(BlockPos pos, BlockState state) {
-        this(Voltworks.SOLAR_PANEL_BEARING_BE.get(), pos, state);
+        this(VoltworksBlockEntities.SOLAR_PANEL_BEARING_BE.get(), pos, state);
     }
 
     @Override

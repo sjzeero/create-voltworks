@@ -32,6 +32,7 @@ import static io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableEdit
 import static io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableEditScreen.TRACE_PADDING;
 import static io.github.sjzeero.voltworks.circuits.schematic.CircuitLayer.GRID_SIZE;
 import static io.github.sjzeero.voltworks.circuits.schematic.CircuitLayer.GRID_TO_GRID_SCALE;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class CircuitEditWidget extends AbstractSimiWidget {
     private int scale = CIRCUIT_SCALE;

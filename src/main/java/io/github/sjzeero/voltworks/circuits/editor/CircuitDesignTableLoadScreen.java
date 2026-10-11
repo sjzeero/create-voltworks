@@ -23,8 +23,6 @@ import com.simibubi.create.foundation.gui.widget.IconButton;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;

@@ -24,6 +24,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import io.github.sjzeero.voltworks.circuits.schematic.ISchematicHolder;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public abstract class CircuitEditMenu<T extends BlockEntity & IMenuContent & ISchematicHolder> extends AbstractCircuitDesignTableMenu<T> {
     protected CircuitEditMenu(MenuType<?> type, int id, Inventory inv, RegistryFriendlyByteBuf extraData) {

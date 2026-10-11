@@ -21,6 +21,7 @@ import io.github.sjzeero.voltworks.pgsim.ElectricWire;
 import io.github.sjzeero.voltworks.pgsim.SwitchedWire;
 import io.github.sjzeero.voltworks.pgsim.node.IElectricNode;
 import io.github.sjzeero.voltworks.pgsim.solver.IOuterHook;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class RelaySwitchWire extends SwitchedWire implements IOuterHook {
     private final ElectricWire coilWire;

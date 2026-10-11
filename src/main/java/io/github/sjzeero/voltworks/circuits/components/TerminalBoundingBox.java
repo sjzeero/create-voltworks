@@ -19,6 +19,7 @@ package io.github.sjzeero.voltworks.circuits.components;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class TerminalBoundingBox {
     public static final Component CONNECTOR = Component.translatable("voltworks.terminal.connector");

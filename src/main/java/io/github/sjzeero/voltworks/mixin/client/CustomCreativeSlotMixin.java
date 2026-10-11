@@ -4,6 +4,7 @@ import io.github.sjzeero.voltworks.client.tab.CreativeTabSectionsClient;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.Mixin;
+import io.github.sjzeero.voltworks.Voltworks;
 
 /** Header rows of the Voltworks tab are covered by banners: their slots must not highlight or accept clicks. */
 @Mixin(targets = "net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen$CustomCreativeSlot")

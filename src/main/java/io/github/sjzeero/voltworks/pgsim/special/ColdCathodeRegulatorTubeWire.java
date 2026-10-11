@@ -19,6 +19,7 @@ package io.github.sjzeero.voltworks.pgsim.special;
 
 import io.github.sjzeero.voltworks.pgsim.node.IElectricNode;
 import io.github.sjzeero.voltworks.pgsim.solver.IResidualAdder;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class ColdCathodeRegulatorTubeWire extends NeonBulbWire {
     public ColdCathodeRegulatorTubeWire(float breakdownVoltage, float holdingVoltage, float holdingCurrent, float dischargeConductance, IElectricNode anode, IElectricNode cathode) {

@@ -7,7 +7,6 @@ import com.george_vi.electroenergetics.foundation.device.SimpleElectricalDevice;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.simulation.BridgeCollector;
 import com.george_vi.electroenergetics.simulation.SimulationResults;
-import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.circuits.CircuitSounds;
 import io.github.sjzeero.voltworks.circuits.Thermal;
 import io.github.sjzeero.voltworks.circuits.circuitboard.BakedCircuit;

@@ -28,7 +28,6 @@ import io.github.sjzeero.voltworks.circuits.components.properties.IntProperty;
 import io.github.sjzeero.voltworks.circuits.components.properties.StringProperty;
 import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
-import io.github.sjzeero.voltworks.circuits.components.Expression;
 import io.github.sjzeero.voltworks.circuits.components.properties.FloatProperty;
 
 import java.util.List;

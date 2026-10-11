@@ -1,6 +1,5 @@
 package io.github.sjzeero.voltworks.board;
 
-import io.github.sjzeero.voltworks.Voltworks;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
@@ -8,6 +7,8 @@ import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
+import io.github.sjzeero.voltworks.registry.VoltworksItems;
+import io.github.sjzeero.voltworks.registry.VoltworksRecipes;
 
 public class BoardDyeRecipe extends CustomRecipe {
     public BoardDyeRecipe(CraftingBookCategory category) {
@@ -24,7 +25,7 @@ public class BoardDyeRecipe extends CustomRecipe {
             var stack = input.getItem(i);
             if(stack.isEmpty())
                 continue;
-            if(stack.is(Voltworks.BOARD_ITEM.get()) && board.isEmpty()) {
+            if(stack.is(VoltworksItems.BOARD_ITEM.get()) && board.isEmpty()) {
                 board = stack;
                 continue;
             }
@@ -60,6 +61,6 @@ public class BoardDyeRecipe extends CustomRecipe {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return Voltworks.BOARD_DYEING.get();
+        return VoltworksRecipes.BOARD_DYEING.get();
     }
 }

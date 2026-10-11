@@ -38,6 +38,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 import static io.github.sjzeero.voltworks.pgsim.ElectricalNetwork.G_MIN;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class DynamicallyTypedMatrix {
     // This will need to be tuned, probably.

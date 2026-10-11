@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate.StructureBlockInfo;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
+import io.github.sjzeero.voltworks.registry.VoltworksContraptions;
 
 /**
  * Ported from Create: Power Grid (patryk3211, Apache-2.0) to Voltworks by sjzeero.
@@ -82,7 +83,7 @@ public class SolarPanelBearingContraption extends BearingContraption {
 
     @Override
     public ContraptionType getType() {
-        return Voltworks.SOLAR_PANEL_BEARING_CONTRAPTION.get();
+        return VoltworksContraptions.SOLAR_PANEL_BEARING_CONTRAPTION.get();
     }
 
     public int getPanelBlocks() {

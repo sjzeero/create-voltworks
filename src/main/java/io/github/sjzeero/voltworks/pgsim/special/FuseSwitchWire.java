@@ -20,6 +20,7 @@ package io.github.sjzeero.voltworks.pgsim.special;
 import io.github.sjzeero.voltworks.pgsim.SwitchedWire;
 import io.github.sjzeero.voltworks.pgsim.node.IElectricNode;
 import io.github.sjzeero.voltworks.pgsim.solver.IOuterHook;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class FuseSwitchWire extends SwitchedWire implements IOuterHook {
     private final float maxCurrent;

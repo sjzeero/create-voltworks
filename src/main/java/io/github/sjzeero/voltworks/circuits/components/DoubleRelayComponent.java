@@ -29,6 +29,7 @@ import io.github.sjzeero.voltworks.circuits.CircuitSounds;
 import io.github.sjzeero.voltworks.pgsim.special.RelaySwitchWire;
 
 import static io.github.sjzeero.voltworks.circuits.components.RelayComponent.*;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class DoubleRelayComponent extends MirrorableComponent {
     public DoubleRelayComponent(ComponentFootprint footprint) {

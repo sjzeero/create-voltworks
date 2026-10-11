@@ -20,6 +20,7 @@ package io.github.sjzeero.voltworks.pgsim.node;
 import io.github.sjzeero.voltworks.pgsim.solver.IAdmittanceAdder;
 
 import java.util.Collection;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public interface ICouplingNode extends INode {
     void couple(IAdmittanceAdder admittance);

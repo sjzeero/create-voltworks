@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+import io.github.sjzeero.voltworks.registry.VoltworksItems;
 
 public class Components {
     public static final DeferredRegister<Component> COMPONENTS = DeferredRegister.create(ComponentRegistry.REGISTRY, Voltworks.MOD_ID);
@@ -224,7 +225,7 @@ public class Components {
         var sharedKeyBase = "component." + Voltworks.MOD_ID;
         var keyBase = sharedKeyBase + "." + name;
         var holder = COMPONENTS.register(name, () -> factory.apply(transform.apply(new ComponentFootprint.Builder(width, height, keyBase, sharedKeyBase)).build()));
-        ComponentRegistry.bindItem(holder.getId(), item != null ? item : Voltworks.ITEMS.registerSimpleItem(name));
+        ComponentRegistry.bindItem(holder.getId(), item != null ? item : VoltworksItems.ITEMS.registerSimpleItem(name));
         return holder;
     }
 

@@ -24,6 +24,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public abstract class AbstractCircuitDesignTableMenu<T extends BlockEntity & IMenuContent> extends MenuBase<T> {
     protected AbstractCircuitDesignTableMenu(MenuType<?> type, int id, Inventory inv, RegistryFriendlyByteBuf extraData) {

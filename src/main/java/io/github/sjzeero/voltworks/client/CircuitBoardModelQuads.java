@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class CircuitBoardModelQuads {
     private final Map<CacheKey, List<BakedQuad>> quads = new Object2ObjectArrayMap<>(8);

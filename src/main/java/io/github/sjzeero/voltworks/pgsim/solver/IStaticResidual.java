@@ -20,6 +20,7 @@ package io.github.sjzeero.voltworks.pgsim.solver;
 import io.github.sjzeero.voltworks.pgsim.node.INode;
 
 import java.util.List;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public interface IStaticResidual {
     List<INode> affectedNodes();

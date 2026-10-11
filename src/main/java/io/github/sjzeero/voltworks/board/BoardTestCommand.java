@@ -29,6 +29,8 @@ import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import io.github.sjzeero.voltworks.registry.VoltworksBlocks;
+import io.github.sjzeero.voltworks.registry.VoltworksItems;
 
 public class BoardTestCommand {
     private static TestBoards.Preset current;
@@ -108,7 +110,7 @@ public class BoardTestCommand {
         for(int i = 0; i < 2; i++)
             level.setBlockAndUpdate(batteryPos(source, i), Blocks.AIR.defaultBlockState());
         level.setBlockAndUpdate(board, Blocks.AIR.defaultBlockState());
-        level.setBlockAndUpdate(board, Voltworks.BOARD.get().defaultBlockState());
+        level.setBlockAndUpdate(board, VoltworksBlocks.BOARD.get().defaultBlockState());
         for(int i = 0; i < preset.supplies().size(); i++) {
             var p = batteryPos(source, i);
             level.setBlockAndUpdate(p, batteryBlock.defaultBlockState());
@@ -127,7 +129,7 @@ public class BoardTestCommand {
             return reply(ctx.getSource(), "unknown preset " + name + ", one of " + TestBoards.NAMES);
         var tag = new net.minecraft.nbt.CompoundTag();
         tag.put("Schematic", preset.schematic().serializeNbt(ctx.getSource().registryAccess()));
-        var stack = new net.minecraft.world.item.ItemStack(Voltworks.CIRCUIT_SCHEMATIC.get());
+        var stack = new net.minecraft.world.item.ItemStack(VoltworksItems.CIRCUIT_SCHEMATIC.get());
         stack.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag));
         ctx.getSource().getPlayerOrException().getInventory().add(stack);
         return reply(ctx.getSource(), "schematic " + name);
@@ -315,8 +317,8 @@ public class BoardTestCommand {
             sb.h(7, 0, 5);
             sb.v(9, 1, 7).h(1, 1, 9);
         }
-        level.setBlockAndUpdate(a, Voltworks.BOARD.get().defaultBlockState());
-        level.setBlockAndUpdate(b, Voltworks.BOARD.get().defaultBlockState());
+        level.setBlockAndUpdate(a, VoltworksBlocks.BOARD.get().defaultBlockState());
+        level.setBlockAndUpdate(b, VoltworksBlocks.BOARD.get().defaultBlockState());
         if(level.getBlockEntity(a) instanceof BoardBlockEntity be)
             be.setSchematic(sa.schematic.serializeNbt(level.registryAccess()));
         if(level.getBlockEntity(b) instanceof BoardBlockEntity be)
@@ -364,7 +366,7 @@ public class BoardTestCommand {
             var board = origin.offset((i % columns) * 2, 0, (i / columns) * 3);
             var battery = board.south();
             level.setChunkForced(board.getX() >> 4, board.getZ() >> 4, true);
-            level.setBlockAndUpdate(board, Voltworks.BOARD.get().defaultBlockState());
+            level.setBlockAndUpdate(board, VoltworksBlocks.BOARD.get().defaultBlockState());
             if(level.getBlockEntity(board) instanceof BoardBlockEntity be)
                 be.setSchematic(preset.schematic().serializeNbt(level.registryAccess()));
             var supply = preset.supplies().get(0);

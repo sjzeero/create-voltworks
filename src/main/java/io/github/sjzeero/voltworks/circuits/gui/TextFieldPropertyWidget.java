@@ -29,6 +29,7 @@ import org.lwjgl.glfw.GLFW;
 import io.github.sjzeero.voltworks.circuits.components.properties.PropertyEntry;
 
 import static io.github.sjzeero.voltworks.circuits.gui.ComponentPropertiesWidget.PROPERTIES;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class TextFieldPropertyWidget<T, P extends PropertyEntry<T>> extends PropertyWidget<T, P> {
     private final EditBox widget;

@@ -19,6 +19,7 @@ package io.github.sjzeero.voltworks.circuits.components;
 import net.minecraft.util.ByIdMap;
 
 import java.util.function.IntFunction;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public enum DisplayModuleType {
     ZERO_TO_NINE(0, "0 - 9", "zerotonine", 80f, 9f),

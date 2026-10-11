@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static io.github.sjzeero.voltworks.circuits.gui.ComponentPropertiesWidget.PROPERTIES;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class EnumPropertyWidget<T extends Enum<?>, P extends PropertyEntry<T>> extends PropertyWidget<T, P> {
     private final Class<T> clazz;

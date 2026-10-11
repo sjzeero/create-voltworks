@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 
 import java.util.function.Function;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class CalculatedProperty<T> extends ComponentProperty<T> {
     private final Function<PlacedComponent, T> calculate;

@@ -50,23 +50,23 @@ public final class ComponentRenderers {
         RENDERERS.put(LightBulbComponent.class, ComponentRenderers::lightBulb);
         RENDERERS.put(BarretterTubeComponent.class, (be, placed, pt, ms, buf, light, overlay) -> {
             if(placed.customData instanceof Component.FloatPair data)
-                glow(be.getBlockState(), EEPartialModels.BARRETTER_GLOW, (int) (data.lerped(pt) * 64), ms, buf);
+                glow(be.getBlockState(), VoltworksPartialModels.BARRETTER_GLOW, (int) (data.lerped(pt) * 64), ms, buf);
         });
         RENDERERS.put(ElectronTubeComponent.class, (be, placed, pt, ms, buf, light, overlay) -> {
             if(placed.customData instanceof ElectronTubeComponent.RenderData data)
-                glow(be.getBlockState(), EEPartialModels.ELECTRON_TUBE_GLOW, (int) (Mth.lerp(pt, data.prev, data.current) * 160), ms, buf);
+                glow(be.getBlockState(), VoltworksPartialModels.ELECTRON_TUBE_GLOW, (int) (Mth.lerp(pt, data.prev, data.current) * 160), ms, buf);
         });
         RENDERERS.put(PentodeComponent.class, (be, placed, pt, ms, buf, light, overlay) -> {
             if(placed.customData instanceof ElectronTubeComponent.RenderData data)
-                glow(be.getBlockState(), EEPartialModels.PENTODE_GLOW, (int) (Mth.lerp(pt, data.prev, data.current) * 170), ms, buf);
+                glow(be.getBlockState(), VoltworksPartialModels.PENTODE_GLOW, (int) (Mth.lerp(pt, data.prev, data.current) * 170), ms, buf);
         });
         RENDERERS.put(ThyratronComponent.class, (be, placed, pt, ms, buf, light, overlay) -> {
             if(placed.customData instanceof ThyratronComponent.RenderData data)
-                glow(be.getBlockState(), EEPartialModels.THYRATRON_GLOW, (int) (Mth.lerp(pt, data.heaterPrev, data.heater) * 82), ms, buf);
+                glow(be.getBlockState(), VoltworksPartialModels.THYRATRON_GLOW, (int) (Mth.lerp(pt, data.heaterPrev, data.heater) * 82), ms, buf);
         });
         RENDERERS.put(PotentiometerComponent.class, (be, placed, pt, ms, buf, light, overlay) -> {
             var angle = 135 - 135 * 2 * (placed.get(PotentiometerComponent.VALUE) / 100.0f);
-            CachedBuffers.partial(EEPartialModels.POTENTIOMETER_KNOB, be.getBlockState())
+            CachedBuffers.partial(VoltworksPartialModels.POTENTIOMETER_KNOB, be.getBlockState())
                     .translate(2.5 / 16, 0, 2.5 / 16)
                     .rotateYDegrees(angle)
                     .translate(-2.5 / 16, 0, -2.5 / 16)
@@ -115,11 +115,11 @@ public final class ComponentRenderers {
     }
 
     private static void lightBulb(BoardBlockEntity be, PlacedComponent placed, float pt, PoseStack ms, MultiBufferSource buf, int light, int overlay) {
-        var glowModel = EEPartialModels.LIGHT_BULB_GLOW_DYED;
-        var bulbModel = EEPartialModels.LIGHT_BULB_BULB_DYED;
+        var glowModel = VoltworksPartialModels.LIGHT_BULB_GLOW_DYED;
+        var bulbModel = VoltworksPartialModels.LIGHT_BULB_BULB_DYED;
         if(placed.get(LightBulbComponent.COLOR) == DyeColor.WHITE) {
-            glowModel = EEPartialModels.LIGHT_BULB_GLOW;
-            bulbModel = EEPartialModels.LIGHT_BULB_BULB;
+            glowModel = VoltworksPartialModels.LIGHT_BULB_GLOW;
+            bulbModel = VoltworksPartialModels.LIGHT_BULB_BULB;
         }
         var color = placed.get(LightBulbComponent.COLOR).getTextureDiffuseColor();
         var red = (color >> 16) & 0xFF;
@@ -156,7 +156,7 @@ public final class ComponentRenderers {
         long time = be.getLevel() == null ? 0 : be.getLevel().getGameTime();
         approach(state, target, 0.1f, time);
         var value = Mth.lerp(pt, state[0], state[1]);
-        CachedBuffers.partial(EEPartialModels.COMPONENT_GAUGE_NEEDLE, be.getBlockState())
+        CachedBuffers.partial(VoltworksPartialModels.COMPONENT_GAUGE_NEEDLE, be.getBlockState())
                 .translate(2.5 / 16, 0, 2.5 / 16)
                 .rotateYDegrees(placed.get(OrientableComponent.ORIENTATION).ordinal() * 90)
                 .translate(-1 / 16f, 0, 1 / 16f)
@@ -167,7 +167,7 @@ public final class ComponentRenderers {
     }
 
     private static void neon(BoardBlockEntity be, PlacedComponent placed, float pt, PoseStack ms, MultiBufferSource buf, int light, int overlay) {
-        CachedBuffers.partial(EEPartialModels.NEON_TUBE_BULB, be.getBlockState())
+        CachedBuffers.partial(VoltworksPartialModels.NEON_TUBE_BULB, be.getBlockState())
                 .light(light)
                 .renderInto(ms, buf.getBuffer(RenderType.translucent()));
 
@@ -182,7 +182,7 @@ public final class ComponentRenderers {
         int r = (int) (((color >> 16) & 0xFF) * x * 128 / 256);
         int g = (int) (((color >> 8) & 0xFF) * x * 128 / 256);
         int b = (int) ((color & 0xFF) * x * 128 / 256);
-        var partial = vertical ? EEPartialModels.NEON_TUBE_VERTICAL_GLOW : EEPartialModels.NEON_TUBE_GLOW;
+        var partial = vertical ? VoltworksPartialModels.NEON_TUBE_VERTICAL_GLOW : VoltworksPartialModels.NEON_TUBE_GLOW;
         var yRotation = vertical ? 0 : 1;
         var center = 1 / 16f;
         var orientation = placed.get(OrientableComponent.ORIENTATION);
@@ -200,7 +200,7 @@ public final class ComponentRenderers {
         int size = placed.get(LabelComponent.SIZE);
         for(int i = 1; i < size; i++) {
             var tint = LabelComponent.SEGMENT_TINT[i];
-            CachedBuffers.partial(EEPartialModels.LABEL, be.getBlockState())
+            CachedBuffers.partial(VoltworksPartialModels.LABEL, be.getBlockState())
                     .translate((1 / 16f) * (float) i, 0, 0)
                     .light(light)
                     .color(tint, tint, tint, 255)

@@ -20,6 +20,7 @@ package io.github.sjzeero.voltworks.circuits.components;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.UnaryOperator;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class UnaryExpressions {
     public static final Map<String, UnaryOperator<Expression>> EXPRESSIONS = new HashMap<>();

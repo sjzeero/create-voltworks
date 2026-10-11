@@ -20,6 +20,7 @@ package io.github.sjzeero.voltworks.pgsim;
 import io.github.sjzeero.voltworks.pgsim.node.IElectricNode;
 
 import static io.github.sjzeero.voltworks.pgsim.ElectricalNetwork.G_MIN;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class SwitchedWire extends ElectricWire {
     public static final double OFF_CONDUCTANCE = G_MIN * 0.5;

@@ -20,7 +20,7 @@ package io.github.sjzeero.voltworks.client;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import io.github.sjzeero.voltworks.Voltworks;
 
-public class EEPartialModels {
+public class VoltworksPartialModels {
     public static final PartialModel ELECTRON_TUBE_GLOW = model("component/triode_glow");
     public static final PartialModel PENTODE_GLOW = model("component/pentode_glow");
     public static final PartialModel THYRATRON_GLOW = model("component/thyratron_glow");

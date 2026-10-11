@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.List;
+import io.github.sjzeero.voltworks.Voltworks;
 
 /** Wall wires are drawn by Voltworks, so Electro Energetics' immediate renderer skips them. */
 @Mixin(value = WireRenderer.class, remap = false)

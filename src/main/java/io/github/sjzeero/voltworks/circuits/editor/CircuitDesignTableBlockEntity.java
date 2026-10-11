@@ -43,6 +43,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
+import io.github.sjzeero.voltworks.registry.VoltworksItems;
 
 public class CircuitDesignTableBlockEntity extends BlockEntity implements IMultiScreenHandlerFactory, ISchematicHolder, IMenuContent, com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation {
     private final Container inventory = new SimpleContainer(3);
@@ -53,7 +55,7 @@ public class CircuitDesignTableBlockEntity extends BlockEntity implements IMulti
     float temperature = Float.NaN;
 
     public CircuitDesignTableBlockEntity(BlockPos pos, BlockState state) {
-        super(Voltworks.DESIGN_TABLE_BE.get(), pos, state);
+        super(VoltworksBlockEntities.DESIGN_TABLE_BE.get(), pos, state);
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, CircuitDesignTableBlockEntity be) {
@@ -177,7 +179,7 @@ public class CircuitDesignTableBlockEntity extends BlockEntity implements IMulti
         var stack = inventory.getItem(0);
         if(stack.isEmpty() || level == null || level.isClientSide || !stack.has(DataComponents.CUSTOM_DATA))
             return;
-        if(inventory.getItem(1).isEmpty() && stack.is(Voltworks.CIRCUIT_SCHEMATIC.get())) {
+        if(inventory.getItem(1).isEmpty() && stack.is(VoltworksItems.CIRCUIT_SCHEMATIC.get())) {
             inventory.setItem(0, ItemStack.EMPTY);
             inventory.setItem(1, stack);
         }

@@ -21,6 +21,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.Nullable;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class BooleanProperty extends ComponentProperty<Boolean> {
     Boolean defaultValue = false;

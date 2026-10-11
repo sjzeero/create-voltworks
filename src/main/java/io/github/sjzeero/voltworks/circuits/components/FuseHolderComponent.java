@@ -38,7 +38,6 @@ import io.github.sjzeero.voltworks.Voltworks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import io.github.sjzeero.voltworks.circuits.components.FuseState;
 import io.github.sjzeero.voltworks.pgsim.special.FuseSwitchWire;
 
 import java.util.Collection;

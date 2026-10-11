@@ -17,11 +17,11 @@
  */
 package io.github.sjzeero.voltworks.circuits.schematic;
 
-import net.minecraft.nbt.LongArrayTag;
 
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class PadLayer {
     public static final int GRID_SIZE = 16;

@@ -26,6 +26,7 @@ import io.github.sjzeero.voltworks.circuits.components.properties.PropertyEntry;
 import io.github.sjzeero.voltworks.client.ModIcons;
 
 import static io.github.sjzeero.voltworks.circuits.gui.ComponentPropertiesWidget.PROPERTIES;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class BooleanPropertyWidget extends PropertyWidget<Boolean, PropertyEntry<Boolean>> {
     private final Runnable changeMadeCallback;

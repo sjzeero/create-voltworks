@@ -21,6 +21,7 @@ import io.github.sjzeero.voltworks.pgsim.solver.IResidualAdder;
 import io.github.sjzeero.voltworks.pgsim.solver.IStaticResidual;
 
 import java.util.List;
+import io.github.sjzeero.voltworks.Voltworks;
 
 /**
  * Warning! Current source nodes cannot be directly connected to transformer couplings.

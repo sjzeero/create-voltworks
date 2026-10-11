@@ -34,6 +34,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
+import io.github.sjzeero.voltworks.registry.VoltworksItems;
 
 @JeiPlugin
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -87,7 +88,7 @@ public class VoltworksJEI implements IModPlugin {
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("create", "mechanical_arm")), CircuitAssemblyCategory.TYPE);
-        registration.addRecipeCatalyst(Voltworks.DESIGN_TABLE_ITEM.get(), CircuitDesignCategory.TYPE);
+        registration.addRecipeCatalyst(VoltworksItems.DESIGN_TABLE_ITEM.get(), CircuitDesignCategory.TYPE);
     }
 
     @Override

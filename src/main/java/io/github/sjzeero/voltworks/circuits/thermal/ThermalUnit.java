@@ -26,6 +26,7 @@ import io.github.sjzeero.voltworks.pgsim.AbstractElectricWire;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Consumer;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class ThermalUnit {
     private final UUID componentUUID;

@@ -33,6 +33,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.circuits.CircuitTags;
 import io.github.sjzeero.voltworks.utility.Lang;
+import io.github.sjzeero.voltworks.registry.VoltworksItems;
 
 public class CircuitDesignCategory implements IRecipeCategory<Object> {
     public static final ResourceLocation IDENTIFIER = Voltworks.asResource("circuit_design");
@@ -42,7 +43,7 @@ public class CircuitDesignCategory implements IRecipeCategory<Object> {
     private final IDrawable icon;
 
     public CircuitDesignCategory() {
-        icon = new ItemIcon(() -> new ItemStack(Voltworks.DESIGN_TABLE_ITEM.get()));
+        icon = new ItemIcon(() -> new ItemStack(VoltworksItems.DESIGN_TABLE_ITEM.get()));
     }
 
     @Override
@@ -76,7 +77,7 @@ public class CircuitDesignCategory implements IRecipeCategory<Object> {
 //                .setOutputSlotBackground()
                 .addItemLike(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("create", "empty_schematic")));
         var schematicOut = builder.addOutputSlot(113, 38)
-                .addItemLike(Voltworks.CIRCUIT_SCHEMATIC.get());
+                .addItemLike(VoltworksItems.CIRCUIT_SCHEMATIC.get());
         var components = builder.addInputSlot(67, 15)
                 .addIngredients(Ingredient.of(CircuitTags.CIRCUIT_COMPONENT));
     }

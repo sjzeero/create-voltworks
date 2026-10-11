@@ -26,6 +26,7 @@ import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
 
 import java.util.List;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class ConnectorComponent extends Component {
     private static final List<TerminalBoundingBox> TERMINALS = List.of(

@@ -33,6 +33,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
+import io.github.sjzeero.voltworks.Voltworks;
 
 @Mixin(value = BeltDeployerCallbacks.class, remap = false)
 public class BeltDeployerMixin {

@@ -35,6 +35,7 @@ import static io.github.sjzeero.voltworks.board.BoardBlock.HORIZONTAL_FACING;
 import static io.github.sjzeero.voltworks.board.BoardBlock.ROTATION;
 import static io.github.sjzeero.voltworks.circuits.components.ViaComponent.EDGE_CONNECTIONS;
 import static io.github.sjzeero.voltworks.circuits.components.ViaComponent.VERTICAL_PASSTHROUGH;
+import io.github.sjzeero.voltworks.Voltworks;
 
 /**
  * Edge vias and vertical headers between neighbouring boards, same matching rules as Power Grid's

@@ -21,6 +21,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.neoforged.neoforge.client.model.geometry.IGeometryLoader;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class CircuitBoardModelLoader implements IGeometryLoader<UnbakedCircuitBoardModel> {
     @Override

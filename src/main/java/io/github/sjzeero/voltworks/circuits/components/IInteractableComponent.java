@@ -24,6 +24,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import io.github.sjzeero.voltworks.circuits.schematic.BoardContext;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public interface IInteractableComponent {
     VoxelShape getShape(@NotNull PlacedComponent placed);

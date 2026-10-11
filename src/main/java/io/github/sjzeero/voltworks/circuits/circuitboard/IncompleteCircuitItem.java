@@ -44,6 +44,7 @@ import io.github.sjzeero.voltworks.utility.Lang;
 
 import java.util.HashMap;
 import java.util.List;
+import io.github.sjzeero.voltworks.registry.VoltworksItems;
 
 public class IncompleteCircuitItem extends Item {
     public IncompleteCircuitItem(Properties settings) {
@@ -103,7 +104,7 @@ public class IncompleteCircuitItem extends Item {
         ItemStack newStack;
         if(missing.isEmpty()) {
             tag.remove("Assembly");
-            newStack = new ItemStack(Voltworks.BOARD_ITEM.get());
+            newStack = new ItemStack(VoltworksItems.BOARD_ITEM.get());
         } else {
             newStack = new ItemStack(CircuitItems.INCOMPLETE_CIRCUIT.get());
         }

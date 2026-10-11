@@ -23,6 +23,7 @@ import io.github.sjzeero.voltworks.pgsim.node.ITimeAwareWire;
 import io.github.sjzeero.voltworks.pgsim.solver.IOuterHook;
 import io.github.sjzeero.voltworks.pgsim.solver.IResidualAdder;
 import io.github.sjzeero.voltworks.pgsim.solver.IStaticResidual;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class CRSeriesWire extends AbstractElectricWire implements IStaticResidual, IOuterHook, ITimeAwareWire {
     private double capacitance;

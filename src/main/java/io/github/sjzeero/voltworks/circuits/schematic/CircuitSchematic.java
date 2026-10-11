@@ -34,6 +34,7 @@ import java.util.*;
 
 import static io.github.sjzeero.voltworks.circuits.schematic.CircuitLayer.GRID_SIZE;
 import static io.github.sjzeero.voltworks.circuits.schematic.CircuitLayer.GRID_TO_GRID_SCALE;
+import io.github.sjzeero.voltworks.registry.VoltworksItems;
 
 public class CircuitSchematic {
     // This value should be updated when component properties change, to allow for old schematics to be migrated.
@@ -230,7 +231,7 @@ public class CircuitSchematic {
     }
 
     public ItemStack toItemStack(HolderLookup.Provider provider) {
-        var stack = new ItemStack(Voltworks.CIRCUIT_SCHEMATIC.get());
+        var stack = new ItemStack(VoltworksItems.CIRCUIT_SCHEMATIC.get());
         var tag = new CompoundTag();
         tag.put("Schematic", serializeSafeNbt(provider));
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));

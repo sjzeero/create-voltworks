@@ -6,7 +6,6 @@ import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.content.kinetics.transmission.sequencer.SequencedGearshiftBlockEntity;
 import com.simibubi.create.content.kinetics.transmission.sequencer.SequencerInstructions;
-import com.simibubi.create.infrastructure.config.AllConfigs;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.motor.AbstractPGMotorBlockEntity;
 import java.util.List;
@@ -18,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 
 /**
  * Ported from Create: Power Grid (patryk3211, Apache-2.0) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
@@ -48,7 +48,7 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity {
     }
 
     public ServoBlockEntity(BlockPos pos, BlockState state) {
-        this(Voltworks.SERVO_BE.get(), pos, state);
+        this(VoltworksBlockEntities.SERVO_BE.get(), pos, state);
     }
 
     public double coilResistance() {

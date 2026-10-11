@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static net.createmod.catnip.gui.widget.AbstractSimiWidget.HEADER_RGB;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class EditableScrollBox extends EditBox {
     protected final List<String> options = new ArrayList<>();

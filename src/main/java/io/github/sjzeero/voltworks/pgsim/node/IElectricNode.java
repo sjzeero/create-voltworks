@@ -17,6 +17,8 @@
  */
 package io.github.sjzeero.voltworks.pgsim.node;
 
+import io.github.sjzeero.voltworks.Voltworks;
+
 public interface IElectricNode extends INode {
     double getVoltage();
     double getCurrent();

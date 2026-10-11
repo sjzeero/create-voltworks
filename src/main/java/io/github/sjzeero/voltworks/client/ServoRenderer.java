@@ -2,7 +2,6 @@ package io.github.sjzeero.voltworks.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.AllPartialModels;
-import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import io.github.sjzeero.voltworks.servo.ServoBlock;
 import io.github.sjzeero.voltworks.servo.ServoBlockEntity;

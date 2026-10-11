@@ -20,6 +20,7 @@ package io.github.sjzeero.voltworks.pgsim.solver;
 import io.github.sjzeero.voltworks.pgsim.node.IElectricNode;
 
 import java.util.Collection;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public interface ISolverHook {
     /**

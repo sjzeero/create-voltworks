@@ -17,6 +17,8 @@
  */
 package io.github.sjzeero.voltworks.pgsim.solver;
 
+import io.github.sjzeero.voltworks.Voltworks;
+
 public interface IAdmittanceAdder {
     void add(int row, int column, double value);
 }

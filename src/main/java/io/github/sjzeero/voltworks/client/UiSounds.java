@@ -22,6 +22,7 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public enum UiSounds {
     CLICK(SoundEvents.UI_BUTTON_CLICK, 1f, 1f),

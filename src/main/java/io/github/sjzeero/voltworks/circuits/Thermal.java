@@ -20,6 +20,7 @@ package io.github.sjzeero.voltworks.circuits;
 import io.github.sjzeero.voltworks.VoltworksConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public final class Thermal {
     public static final float STANDARD_TEMPERATURE = 22.0f;

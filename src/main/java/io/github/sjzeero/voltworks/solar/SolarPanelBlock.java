@@ -21,6 +21,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.HashMap;
 import java.util.Map;
+import io.github.sjzeero.voltworks.registry.VoltworksDevices;
 
 /**
  * Ported from Create: Power Grid (patryk3211) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
@@ -58,7 +59,7 @@ public class SolarPanelBlock extends SimpleElectricalDeviceBlock<SolarPanelDevic
 
     @Override
     public SimulatedDeviceType<SolarPanelDevice> getDevice() {
-        return Voltworks.SOLAR_PANEL_DEVICE.get();
+        return VoltworksDevices.SOLAR_PANEL_DEVICE.get();
     }
 
     /** Two terminals on the back face, 4 px either side of the centre: 0 = +, 1 = -. */

@@ -17,6 +17,8 @@
  */
 package io.github.sjzeero.voltworks.pgsim.calculation;
 
+import io.github.sjzeero.voltworks.Voltworks;
+
 public interface IStamped {
     int getStamp();
 }

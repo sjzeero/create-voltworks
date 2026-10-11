@@ -27,6 +27,7 @@ import java.util.List;
 
 import static io.github.sjzeero.voltworks.pgsim.ElectricalNetwork.G_MIN;
 import static io.github.sjzeero.voltworks.pgsim.special.PNJunctionWire.WrightOmega4;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class BJTWire extends CompoundWire implements ISolverHook {
     private static final double V_T = 0.025;

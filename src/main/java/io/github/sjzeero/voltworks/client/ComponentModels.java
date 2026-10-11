@@ -26,6 +26,7 @@ import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 
 import java.util.HashSet;
 import java.util.Set;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class ComponentModels {
     public static ModelResourceLocation modelId(ResourceLocation componentId) {

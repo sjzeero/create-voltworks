@@ -25,6 +25,7 @@ import io.github.sjzeero.voltworks.circuits.components.properties.EnumProperty;
 import io.github.sjzeero.voltworks.circuits.components.properties.Orientation;
 import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public abstract class OrientableComponent extends Component {
     public static final EnumProperty<Orientation> ORIENTATION = Orientation.PROPERTY;

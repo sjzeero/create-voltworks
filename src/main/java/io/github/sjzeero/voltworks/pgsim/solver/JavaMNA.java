@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.github.sjzeero.voltworks.pgsim.ElectricalNetwork.LOGGER;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class JavaMNA implements IMNA {
     private static final int MAX_SCALE_REUSE_COUNT = 50;

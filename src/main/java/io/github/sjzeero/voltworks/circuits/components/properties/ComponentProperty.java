@@ -21,6 +21,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public abstract class ComponentProperty<T> {
     private final String namespace;

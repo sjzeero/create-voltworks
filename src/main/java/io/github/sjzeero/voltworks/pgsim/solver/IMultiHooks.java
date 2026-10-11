@@ -1,5 +1,7 @@
 package io.github.sjzeero.voltworks.pgsim.solver;
 
+import io.github.sjzeero.voltworks.Voltworks;
+
 /**
  * Multi-tick hooks, called only when multi ticks are > 1
  *

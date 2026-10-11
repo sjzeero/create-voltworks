@@ -21,10 +21,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.util.Mth;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
 import com.simibubi.create.foundation.render.RenderTypes;
-import io.github.sjzeero.voltworks.client.EEPartialModels;
+import io.github.sjzeero.voltworks.client.VoltworksPartialModels;
 import net.createmod.catnip.render.CachedBuffers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class CircuitDesignTableRenderer extends SafeBlockEntityRenderer<CircuitDesignTableBlockEntity> {
     public CircuitDesignTableRenderer(BlockEntityRendererProvider.Context context) {
@@ -34,7 +35,7 @@ public class CircuitDesignTableRenderer extends SafeBlockEntityRenderer<CircuitD
     protected void renderSafe(CircuitDesignTableBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource bufferSource, int light, int overlay) {
         float power = Mth.clamp((be.power() - 15) / 15, 0, 1);
         var state = be.getBlockState();
-        var glow = CachedBuffers.partial(EEPartialModels.CIRCUIT_TABLE_GLOW, state);
+        var glow = CachedBuffers.partial(VoltworksPartialModels.CIRCUIT_TABLE_GLOW, state);
         int a = (int) (power * 192);
         glow.rotateYCenteredDegrees(state.getValue(CircuitDesignTableBlock.HORIZONTAL_FACING).getAxis() == net.minecraft.core.Direction.Axis.X ? 90 : 0)
                 .disableDiffuse()

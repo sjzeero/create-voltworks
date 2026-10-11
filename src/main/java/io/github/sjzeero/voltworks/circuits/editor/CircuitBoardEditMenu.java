@@ -21,7 +21,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import io.github.sjzeero.voltworks.board.BoardBlockEntity;
-import io.github.sjzeero.voltworks.EEMenus;
+import io.github.sjzeero.voltworks.registry.VoltworksMenus;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class CircuitBoardEditMenu extends CircuitEditMenu<BoardBlockEntity> {
     public CircuitBoardEditMenu(MenuType<?> type, int id, Inventory inv, BoardBlockEntity contentHolder) {
@@ -38,6 +39,6 @@ public class CircuitBoardEditMenu extends CircuitEditMenu<BoardBlockEntity> {
     }
 
     public static CircuitBoardEditMenu create(int id, Inventory inv, BoardBlockEntity be) {
-        return new CircuitBoardEditMenu(EEMenus.CIRCUIT_BOARD_EDIT.get(), id, inv, be);
+        return new CircuitBoardEditMenu(VoltworksMenus.CIRCUIT_BOARD_EDIT.get(), id, inv, be);
     }
 }

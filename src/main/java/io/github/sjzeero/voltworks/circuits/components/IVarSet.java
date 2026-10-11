@@ -17,6 +17,8 @@
  */
 package io.github.sjzeero.voltworks.circuits.components;
 
+import io.github.sjzeero.voltworks.Voltworks;
+
 @FunctionalInterface
 public interface IVarSet {
     float get(String name);

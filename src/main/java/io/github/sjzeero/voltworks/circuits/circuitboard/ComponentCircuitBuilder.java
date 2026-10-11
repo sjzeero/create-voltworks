@@ -26,6 +26,7 @@ import io.github.sjzeero.voltworks.pgsim.node.INode;
 
 import java.util.Collection;
 import java.util.function.Function;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class ComponentCircuitBuilder {
     private final Function<Integer, FloatingNode> externalNodeProvider;

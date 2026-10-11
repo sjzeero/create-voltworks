@@ -20,6 +20,7 @@ package io.github.sjzeero.voltworks.circuits.components.properties;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class PropertyEntry<T> {
     public final ComponentProperty<T> property;

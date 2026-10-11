@@ -24,6 +24,7 @@ import io.github.sjzeero.voltworks.pgsim.solver.IStaticResidual;
 
 import java.util.Collection;
 import java.util.List;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class VoltageSourceCoupling extends CouplingNode implements IStaticResidual {
     protected final IElectricNode positive;

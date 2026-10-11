@@ -24,7 +24,8 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import io.github.sjzeero.voltworks.Voltworks;
-import io.github.sjzeero.voltworks.EEMenus;
+import io.github.sjzeero.voltworks.registry.VoltworksMenus;
+import io.github.sjzeero.voltworks.registry.VoltworksItems;
 
 public class CircuitDesignTableMenu extends AbstractCircuitDesignTableMenu<CircuitDesignTableBlockEntity> {
     public CircuitDesignTableMenu(MenuType<?> type, int id, Inventory inv, RegistryFriendlyByteBuf extraData) {
@@ -36,7 +37,7 @@ public class CircuitDesignTableMenu extends AbstractCircuitDesignTableMenu<Circu
     }
 
     public static CircuitDesignTableMenu create(int id, Inventory inv, CircuitDesignTableBlockEntity be) {
-        return new CircuitDesignTableMenu(EEMenus.CIRCUIT_DESIGN_TABLE.get(), id, inv, be);
+        return new CircuitDesignTableMenu(VoltworksMenus.CIRCUIT_DESIGN_TABLE.get(), id, inv, be);
     }
 
     @Override
@@ -53,13 +54,13 @@ public class CircuitDesignTableMenu extends AbstractCircuitDesignTableMenu<Circu
         addSlot(new Slot(beInv, 0, X_OFFSET + 16, Y_OFFSET + 44) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.is(Voltworks.CIRCUIT_SCHEMATIC.get()) || stack.is(Voltworks.BOARD_ITEM.get());
+                return stack.is(VoltworksItems.CIRCUIT_SCHEMATIC.get()) || stack.is(VoltworksItems.BOARD_ITEM.get());
             }
         });
         addSlot(new Slot(beInv, 1, X_OFFSET + 117, Y_OFFSET + 21) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.is(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("create", "empty_schematic"))) || stack.is(Voltworks.CIRCUIT_SCHEMATIC.get());
+                return stack.is(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("create", "empty_schematic"))) || stack.is(VoltworksItems.CIRCUIT_SCHEMATIC.get());
             }
         });
         addSlot(new Slot(beInv, 2, X_OFFSET + 145, Y_OFFSET + 44) {

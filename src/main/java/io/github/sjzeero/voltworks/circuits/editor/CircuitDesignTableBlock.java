@@ -19,7 +19,6 @@ package io.github.sjzeero.voltworks.circuits.editor;
 
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
-import com.simibubi.create.AllItems;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.utility.Lang;
 import net.createmod.catnip.math.VoxelShaper;
@@ -59,6 +58,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
+import io.github.sjzeero.voltworks.registry.VoltworksDevices;
 
 public class CircuitDesignTableBlock extends SimpleElectricalDeviceBlock<CircuitDesignTableDevice> implements EntityBlock {
     public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -90,7 +91,7 @@ public class CircuitDesignTableBlock extends SimpleElectricalDeviceBlock<Circuit
 
     @Override
     public SimulatedDeviceType<CircuitDesignTableDevice> getDevice() {
-        return Voltworks.DESIGN_TABLE_DEVICE.get();
+        return VoltworksDevices.DESIGN_TABLE_DEVICE.get();
     }
 
     @Override
@@ -162,7 +163,7 @@ public class CircuitDesignTableBlock extends SimpleElectricalDeviceBlock<Circuit
 
     @Override
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if(level.isClientSide || type != Voltworks.DESIGN_TABLE_BE.get())
+        if(level.isClientSide || type != VoltworksBlockEntities.DESIGN_TABLE_BE.get())
             return null;
         return (l, p, s, be) -> CircuitDesignTableBlockEntity.serverTick(l, p, s, (CircuitDesignTableBlockEntity) be);
     }

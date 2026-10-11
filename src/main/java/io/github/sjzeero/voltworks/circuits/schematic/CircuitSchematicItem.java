@@ -31,6 +31,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import io.github.sjzeero.voltworks.registry.VoltworksItems;
 
 public class CircuitSchematicItem extends Item {
     public CircuitSchematicItem(Properties settings) {
@@ -40,7 +41,7 @@ public class CircuitSchematicItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
         if(user.isCreative() && user.isShiftKeyDown()) {
-            var block = new ItemStack(Voltworks.BOARD_ITEM.get(), 1);
+            var block = new ItemStack(VoltworksItems.BOARD_ITEM.get(), 1);
             block.set(DataComponents.CUSTOM_DATA, user.getItemInHand(hand).getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY));
             return InteractionResultHolder.success(block);
         } else {

@@ -17,6 +17,8 @@
  */
 package io.github.sjzeero.voltworks.pgsim.solver;
 
+import io.github.sjzeero.voltworks.Voltworks;
+
 public interface IOuterHook {
     /**
      * Called before the Newton solve loop is started.

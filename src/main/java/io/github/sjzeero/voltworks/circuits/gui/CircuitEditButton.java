@@ -21,6 +21,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.createmod.catnip.gui.widget.AbstractSimiWidget;
 import net.minecraft.client.gui.GuiGraphics;
 import org.jetbrains.annotations.NotNull;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class CircuitEditButton extends AbstractSimiWidget {
     public CircuitEditButton(int x, int y, int w, int h) {

@@ -70,6 +70,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
+import io.github.sjzeero.voltworks.registry.VoltworksDevices;
 
 public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> implements EntityBlock {
     public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -91,7 +93,7 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
 
     @Override
     public SimulatedDeviceType<BoardDevice> getDevice() {
-        return Voltworks.BOARD_DEVICE.get();
+        return VoltworksDevices.BOARD_DEVICE.get();
     }
 
     @Override
@@ -438,7 +440,7 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
 
     @Override
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if(type != Voltworks.BOARD_BE.get())
+        if(type != VoltworksBlockEntities.BOARD_BE.get())
             return null;
         if(level.isClientSide)
             return (l, p, s, be) -> BoardBlockEntity.clientTick(l, p, s, (BoardBlockEntity) be);

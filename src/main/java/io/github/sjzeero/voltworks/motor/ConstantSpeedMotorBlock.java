@@ -4,6 +4,8 @@ import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.simibubi.create.foundation.block.IBE;
 import io.github.sjzeero.voltworks.Voltworks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
+import io.github.sjzeero.voltworks.registry.VoltworksDevices;
 
 /**
  * Ported from Create: Power Grid (patryk3211) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
@@ -15,7 +17,7 @@ public class ConstantSpeedMotorBlock extends AbstractPGMotorBlock implements IBE
 
     @Override
     public SimulatedDeviceType<PGMotorDevice> getDevice() {
-        return Voltworks.CONSTANT_SPEED_MOTOR_DEVICE.get();
+        return VoltworksDevices.CONSTANT_SPEED_MOTOR_DEVICE.get();
     }
 
     @Override
@@ -25,6 +27,6 @@ public class ConstantSpeedMotorBlock extends AbstractPGMotorBlock implements IBE
 
     @Override
     public BlockEntityType<? extends ConstantSpeedMotorBlockEntity> getBlockEntityType() {
-        return Voltworks.CONSTANT_SPEED_MOTOR_BE.get();
+        return VoltworksBlockEntities.CONSTANT_SPEED_MOTOR_BE.get();
     }
 }

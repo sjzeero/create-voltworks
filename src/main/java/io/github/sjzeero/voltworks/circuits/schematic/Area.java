@@ -17,5 +17,7 @@
  */
 package io.github.sjzeero.voltworks.circuits.schematic;
 
+import io.github.sjzeero.voltworks.Voltworks;
+
 public record Area(int x1, int y1, int x2, int y2) {
 }

@@ -11,6 +11,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
+import io.github.sjzeero.voltworks.registry.VoltworksCreativeTabs;
 
 /** Lays out the Voltworks creative tab into titled sections and draws their banners. */
 public final class CreativeTabSectionsClient {
@@ -27,7 +28,7 @@ public final class CreativeTabSectionsClient {
     }
 
     public static boolean isOurTab(CreativeModeTab tab) {
-        return tab != null && tab == Voltworks.TAB.get();
+        return tab != null && tab == VoltworksCreativeTabs.TAB.get();
     }
 
     /** Rebuilds the menu item list with an empty header row before each section and row padding after it. */

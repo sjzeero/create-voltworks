@@ -22,7 +22,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import io.github.sjzeero.voltworks.EEMenus;
+import io.github.sjzeero.voltworks.registry.VoltworksMenus;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class CircuitDesignTableLoadMenu extends AbstractCircuitDesignTableMenu<CircuitDesignTableBlockEntity> {
     public CircuitDesignTableLoadMenu(MenuType<?> type, int id, Inventory inv, CircuitDesignTableBlockEntity contentHolder) {
@@ -39,7 +40,7 @@ public class CircuitDesignTableLoadMenu extends AbstractCircuitDesignTableMenu<C
     }
 
     public static CircuitDesignTableLoadMenu create(int id, Inventory inv, CircuitDesignTableBlockEntity be) {
-        return new CircuitDesignTableLoadMenu(EEMenus.CIRCUIT_DESIGN_TABLE_LOAD.get(), id, inv, be);
+        return new CircuitDesignTableLoadMenu(VoltworksMenus.CIRCUIT_DESIGN_TABLE_LOAD.get(), id, inv, be);
     }
 
     @Override

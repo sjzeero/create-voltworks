@@ -1,6 +1,5 @@
 package io.github.sjzeero.voltworks.motor;
 
-import com.george_vi.electroenergetics.CEENodeConfigurations;
 import com.george_vi.electroenergetics.foundation.base.DirectionalKineticElectricBlock;
 import com.george_vi.electroenergetics.foundation.base.DirectionalRolledDeviceBlock;
 import com.simibubi.create.content.kinetics.base.IRotate;
@@ -24,6 +23,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.EnumMap;
 import java.util.Map;
+import io.github.sjzeero.voltworks.Voltworks;
 
 /**
  * Ported from Create: Power Grid (patryk3211) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.

@@ -1,7 +1,6 @@
 package io.github.sjzeero.voltworks.board;
 
 import io.github.sjzeero.voltworks.circuits.components.Component;
-import io.github.sjzeero.voltworks.circuits.components.ElectronTubeComponent;
 import io.github.sjzeero.voltworks.circuits.components.FuseHolderComponent;
 import io.github.sjzeero.voltworks.circuits.components.FuseState;
 import io.github.sjzeero.voltworks.circuits.components.RelayComponent;

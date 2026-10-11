@@ -17,5 +17,7 @@
  */
 package io.github.sjzeero.voltworks.circuits.schematic;
 
+import io.github.sjzeero.voltworks.Voltworks;
+
 public record Line(boolean vertical, int position, int start, int end) {
 }

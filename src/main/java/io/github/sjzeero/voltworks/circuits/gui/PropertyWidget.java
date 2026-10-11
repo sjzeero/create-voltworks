@@ -20,6 +20,7 @@ package io.github.sjzeero.voltworks.circuits.gui;
 import net.createmod.catnip.gui.widget.AbstractSimiWidget;
 import net.minecraft.client.gui.Font;
 import io.github.sjzeero.voltworks.circuits.components.properties.PropertyEntry;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public abstract class PropertyWidget<T, P extends PropertyEntry<T>> extends AbstractSimiWidget {
     protected final Font textRenderer;

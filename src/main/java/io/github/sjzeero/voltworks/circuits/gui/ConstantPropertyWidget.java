@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import io.github.sjzeero.voltworks.circuits.components.properties.PropertyEntry;
 
 import static io.github.sjzeero.voltworks.circuits.gui.ComponentPropertiesWidget.PROPERTIES;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class ConstantPropertyWidget<T> extends PropertyWidget<T, PropertyEntry<T>> {
     protected ConstantPropertyWidget(Font textRenderer, int x, int y, PropertyEntry<T> property) {

@@ -21,6 +21,7 @@ import net.minecraft.network.chat.Component;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 
 import java.util.List;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public interface IComponentGoggleInformation {
     default boolean addToGoggleTooltip(PlacedComponent component, List<Component> tooltip, boolean isPlayerSneaking) {

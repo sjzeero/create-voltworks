@@ -22,6 +22,7 @@ import io.github.sjzeero.voltworks.pgsim.node.IElectricNode;
 import io.github.sjzeero.voltworks.pgsim.solver.IOuterHook;
 import io.github.sjzeero.voltworks.pgsim.solver.IResidualAdder;
 import io.github.sjzeero.voltworks.pgsim.solver.IStaticResidual;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class NeonBulbWire extends AbstractElectricWire implements IOuterHook, IStaticResidual {
     public static final double OFF_CONDUCTANCE = 1e-6;

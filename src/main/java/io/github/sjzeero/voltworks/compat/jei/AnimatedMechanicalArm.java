@@ -35,6 +35,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Supplier;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class AnimatedMechanicalArm extends AnimatedKinetics {
     public Supplier<ItemStack> heldItemSupplier;

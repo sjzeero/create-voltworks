@@ -20,6 +20,7 @@ package io.github.sjzeero.voltworks.pgsim.special;
 import io.github.sjzeero.voltworks.pgsim.AbstractElectricWire;
 import io.github.sjzeero.voltworks.pgsim.node.IElectricNode;
 import io.github.sjzeero.voltworks.pgsim.solver.ISolverHook;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public abstract class DynamicConductanceWire extends AbstractElectricWire implements ISolverHook {
     protected double currentConductance;

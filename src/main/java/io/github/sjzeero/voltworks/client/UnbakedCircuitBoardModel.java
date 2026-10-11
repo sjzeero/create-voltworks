@@ -34,6 +34,7 @@ import io.github.sjzeero.voltworks.board.BoardColor;
 import java.util.EnumMap;
 import java.util.Objects;
 import java.util.function.Function;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class UnbakedCircuitBoardModel implements IUnbakedGeometry<UnbakedCircuitBoardModel> {
     @Override

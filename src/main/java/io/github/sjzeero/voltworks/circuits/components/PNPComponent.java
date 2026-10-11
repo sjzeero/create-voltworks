@@ -18,6 +18,7 @@
 package io.github.sjzeero.voltworks.circuits.components;
 
 import io.github.sjzeero.voltworks.circuits.schematic.ComponentFootprint;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class PNPComponent extends BJTComponent {
     public PNPComponent(ComponentFootprint footprint) {

@@ -24,6 +24,7 @@ import io.github.sjzeero.voltworks.pgsim.node.IElectricNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public abstract class CompoundWire extends AbstractElectricWire {
     private final List<AbstractElectricWire> wires = new ArrayList<>();

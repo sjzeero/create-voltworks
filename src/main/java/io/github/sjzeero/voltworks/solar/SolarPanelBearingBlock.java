@@ -20,7 +20,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -30,6 +29,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
+import io.github.sjzeero.voltworks.registry.VoltworksDevices;
 
 /**
  * Ported from Create: Power Grid (patryk3211, Apache-2.0) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
@@ -102,7 +103,7 @@ public class SolarPanelBearingBlock extends DirectionalKineticElectricBlock<Sola
 
     @Override
     public SimulatedDeviceType<SolarPanelBearingDevice> getDevice() {
-        return Voltworks.SOLAR_PANEL_BEARING_DEVICE.get();
+        return VoltworksDevices.SOLAR_PANEL_BEARING_DEVICE.get();
     }
 
     @Override
@@ -162,6 +163,6 @@ public class SolarPanelBearingBlock extends DirectionalKineticElectricBlock<Sola
 
     @Override
     public BlockEntityType<? extends SolarPanelBearingBlockEntity> getBlockEntityType() {
-        return Voltworks.SOLAR_PANEL_BEARING_BE.get();
+        return VoltworksBlockEntities.SOLAR_PANEL_BEARING_BE.get();
     }
 }

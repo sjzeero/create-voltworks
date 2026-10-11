@@ -22,6 +22,7 @@ import io.github.sjzeero.voltworks.pgsim.ElectricalNetwork;
 import io.github.sjzeero.voltworks.pgsim.node.IElectricNode;
 import io.github.sjzeero.voltworks.pgsim.solver.IResidualAdder;
 import io.github.sjzeero.voltworks.pgsim.solver.ISolverHook;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class PNJunctionWire extends AbstractElectricWire implements ISolverHook {
     private double temperatureCelsius;

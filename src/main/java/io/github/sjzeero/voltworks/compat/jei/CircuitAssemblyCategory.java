@@ -36,6 +36,7 @@ import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.circuits.CircuitItems;
 import io.github.sjzeero.voltworks.circuits.CircuitTags;
 import io.github.sjzeero.voltworks.utility.Lang;
+import io.github.sjzeero.voltworks.registry.VoltworksItems;
 
 public class CircuitAssemblyCategory implements IRecipeCategory<Object> {
     public static final ResourceLocation IDENTIFIER = Voltworks.asResource("circuit_assembly");
@@ -75,7 +76,7 @@ public class CircuitAssemblyCategory implements IRecipeCategory<Object> {
         var depotSlot = builder.addInputSlot(95, 4 + 30 - 8)
                 .addItemLike(CircuitItems.INCOMPLETE_CIRCUIT.get());
         var resultSlot = builder.addOutputSlot(95, 4 + 60)
-                .addItemLike(Voltworks.BOARD_ITEM.get());
+                .addItemLike(VoltworksItems.BOARD_ITEM.get());
     }
 
     @Override

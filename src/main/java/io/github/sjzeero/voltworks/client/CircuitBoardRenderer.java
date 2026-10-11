@@ -24,6 +24,7 @@ import io.github.sjzeero.voltworks.board.BoardBlock;
 import io.github.sjzeero.voltworks.board.BoardBlockEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class CircuitBoardRenderer extends SafeBlockEntityRenderer<BoardBlockEntity> {
     public CircuitBoardRenderer(BlockEntityRendererProvider.Context context) {

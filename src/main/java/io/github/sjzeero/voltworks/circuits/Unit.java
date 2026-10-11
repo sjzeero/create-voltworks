@@ -18,6 +18,7 @@
 package io.github.sjzeero.voltworks.circuits;
 
 import net.minecraft.network.chat.Component;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public enum Unit {
     VOLTAGE("V"),

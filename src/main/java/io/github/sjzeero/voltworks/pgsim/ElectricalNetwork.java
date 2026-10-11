@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.function.Function;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class ElectricalNetwork implements IStamped {
     public static final double G_MIN = 1e-8;

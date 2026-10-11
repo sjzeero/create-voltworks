@@ -18,6 +18,7 @@
 package io.github.sjzeero.voltworks.pgsim;
 
 import io.github.sjzeero.voltworks.pgsim.node.IElectricNode;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class ElectricWire extends AbstractElectricWire {
     protected double resistance;

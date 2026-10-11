@@ -18,6 +18,7 @@
 package io.github.sjzeero.voltworks.circuits.schematic;
 
 import org.jetbrains.annotations.NotNull;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public record Point(int x, int y) implements Comparable<Point> {
     @Override

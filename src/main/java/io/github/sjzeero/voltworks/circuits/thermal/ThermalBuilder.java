@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public class ThermalBuilder {
     private final Set<AbstractElectricWire> sources = new HashSet<>();

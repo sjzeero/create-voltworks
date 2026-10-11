@@ -19,6 +19,7 @@ package io.github.sjzeero.voltworks.circuits.components;
 
 import org.jetbrains.annotations.NotNull;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
+import io.github.sjzeero.voltworks.Voltworks;
 
 public interface IRedstoneComponent {
     default boolean isEmitter() {
