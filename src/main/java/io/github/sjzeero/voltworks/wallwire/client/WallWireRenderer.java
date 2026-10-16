@@ -98,7 +98,8 @@ public final class WallWireRenderer {
         if(level == null || mc.player == null)
             return;
         boolean preview = WallWireClient.start != null && !WallWireClient.committed.isEmpty();
-        if(ClientWallRoutes.all().isEmpty() && !preview)
+        boolean hover = WallWireClient.hoverSocket != null;
+        if(ClientWallRoutes.all().isEmpty() && !preview && !hover)
             return;
 
         Map<InWorldNodeConnection, WireData> wires = new HashMap<>();
@@ -130,6 +131,14 @@ public final class WallWireRenderer {
                 new Drawer(level, pose.last(), buffer, used, type, WallWireClient.offhandDye(mc.player), cam)
                         .route(cells, WallRoute.segments(cells), WallWireClient.start, null);
             }
+        }
+
+        // the plug shows up on the socket the cord is about to go into
+        if(hover) {
+            WireType type = WallWireClient.heldWireType(mc.player);
+            if(type != null && CordPair.isCord(type))
+                new Drawer(level, pose.last(), buffer, used, type, WallWireClient.offhandDye(mc.player), cam)
+                        .plugAt(WallWireClient.hoverSocket);
         }
 
         for(RenderType type : used)
@@ -260,7 +269,7 @@ public final class WallWireRenderer {
                 return;
             }
             // cord: leave the socket between its two contacts, run flat at contact height, then drop onto the surface
-            Vec3 plug = a.add(b).scale(0.5);
+            Vec3 plug = plugBody(node, a.add(b).scale(0.5));
             Vec3 n = step(cell.face());
             Vec3 end = cell.point(0).add(n.scale(h / 2));
             Vec3 corner = end.add(n.scale(plug.subtract(end).dot(n)));
@@ -270,6 +279,37 @@ public final class WallWireRenderer {
             }
             straight(plug, corner.add(corner.subtract(plug).normalize().scale(w / 2)), n, cell, false);
             straight(corner.add(n.scale(h / 2)), end, corner.subtract(plug).normalize(), cell, true);
+        }
+
+        /** Draws only the plug on a socket, between its two cord contacts; used while the cord is still being aimed. */
+        void plugAt(InWorldNode node) {
+            InWorldNode[] pair = CordPair.ends(level, node.sourcePos());
+            if(pair == null)
+                return;
+            Vec3 a = pair[0].getPosition(level), b = pair[1].getPosition(level);
+            if(a == null || b == null)
+                return;
+            plugBody(node, a.add(b).scale(0.5));
+        }
+
+        /** The block of the plug sitting in the socket: 3x3 px wide, 2 px tall, centered on the contact point the wire leaves from. */
+        private Vec3 plugBody(InWorldNode node, Vec3 plug) {
+            var state = level.getBlockState(node.sourcePos());
+            if(!state.hasProperty(io.github.sjzeero.voltworks.cord.SocketBlock.FACING))
+                return plug;
+            // FACING points at the block the socket is mounted on, so the plug sticks out the other way
+            Vec3 u = step(state.getValue(io.github.sjzeero.voltworks.cord.SocketBlock.FACING).getOpposite());
+            Vec3 up = Math.abs(u.y) > 0.5 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
+            Vec3 s = u.cross(up).normalize();
+            double width = 3 * PX, size = 3 * PX, height = 2 * PX;
+            // centered on the point the wire leaves from, so the wire comes out of the middle of the plug's side
+            // the plug stands on the socket body (contact is 0.5 px above it), the wire starts on top of it
+            Vec3 base = plug.subtract(u.scale(0.5 * PX));
+            Vec3 origin = base.subtract(s.scale(width / 2)).subtract(up.scale(size / 2));
+            int light = LevelRenderer.getLightColor(level, BlockPos.containing(plug));
+            // all six faces, the flag draws the side opposite to `up`; without it the cube is open and looks crooked
+            box(origin, u, s, up, height, width, size, true, true, true, light);
+            return base.add(u.scale(height + h / 2));
         }
 
         /** Box of the wire's cross section from a to b; {@code flat} is the direction its height goes along. */

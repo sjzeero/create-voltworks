@@ -75,6 +75,8 @@ public final class WallWireClient {
     static @Nullable InWorldNode start;
     static final List<WallCell> points = new ArrayList<>();
     static final List<WallCell> committed = new ArrayList<>();
+    /** Socket the player is pointing at with a cord in hand; the renderer draws the plug on it. */
+    static @Nullable InWorldNode hoverSocket;
     private static @Nullable WallCell hoverCell;
     private static @Nullable List<WallCell> hoverPath;
     private static long lastClick;
@@ -126,6 +128,7 @@ public final class WallWireClient {
         start = null;
         points.clear();
         committed.clear();
+        hoverSocket = null;
         hoverCell = null;
         hoverPath = null;
     }
@@ -188,11 +191,14 @@ public final class WallWireClient {
         }
         Outliner.getInstance().showAABB("voltworks_wall_wire_start", AABB.ofSize(s, 0.3, 0.3, 0.3))
                 .lineWidth(1 / 32f).colored(0xffffff).disableLineNormals();
+        hoverSocket = null;
         WireType type = heldWireType(player);
         if(type == null || !(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK)
             return;
         double maxLead = VoltworksConfig.wallWireMaxLead();
         InWorldNode node = hoveredNode(level, hit);
+        if(node != null && CordPair.isCord(type) && !node.equals(start))
+            hoverSocket = node;
         Vec3 from = committed.isEmpty() ? s : committed.getLast().point();
         if(node != null) {
             Vec3 to = node.getPosition(level);
