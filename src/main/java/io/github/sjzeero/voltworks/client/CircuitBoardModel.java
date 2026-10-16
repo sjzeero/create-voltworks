@@ -41,7 +41,6 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import io.github.sjzeero.voltworks.Voltworks;
-import io.github.sjzeero.voltworks.VoltworksClientConfig;
 import io.github.sjzeero.voltworks.board.BoardBlock;
 import io.github.sjzeero.voltworks.board.BoardBlockEntity;
 import io.github.sjzeero.voltworks.board.BoardColor;
@@ -242,17 +241,6 @@ public class CircuitBoardModel implements BakedModel {
         if(state == null || !state.hasProperty(BoardBlock.COLOR))
             return baseModel;
         return plates.getOrDefault(state.getValue(BoardBlock.COLOR), baseModel);
-    }
-
-    private BakedQuad emitPixel(int x, int y, int color, int height) {
-        var quad = bakery.bakeQuad(
-                new Vector3f(x - 8, height - 8, y - 8),
-                new Vector3f(x + 1 - 8, height - 8, y + 1 - 8),
-                new BlockElementFace(null, BlockElementFace.NO_TINT, "circuit_board_symbol",
-                        new BlockFaceUV(new float[] { 0, 0, 1, 1 }, 0)),
-                symbolSprite, Direction.UP, BlockModelRotation.X0_Y0, null, true
-        );
-        return QuadTransformers.applyingColor(color).process(List.of(quad)).getFirst();
     }
 
     public BakedQuad emitTrace(Area area) {

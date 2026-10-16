@@ -35,7 +35,7 @@ public abstract class WireSimulationStateMixin {
 
     @Shadow public abstract void reloadLazyConnections();
 
-    @Inject(method = "addConnection", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "addConnection", at = @At("HEAD"), cancellable = true, require = 0)
     private void voltworks$addWallConnection(InWorldNodeConnection connection, WireData wireData, boolean load, CallbackInfo ci) {
         if(!(level instanceof ServerLevel serverLevel))
             return;

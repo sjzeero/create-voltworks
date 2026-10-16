@@ -404,6 +404,19 @@ public final class WallWireClient {
 
     /** Lets the empty spool, wire cutters and dyes pick a wall wire by looking at it on its face. */
     public static void pickWallWire() {
+        try {
+            pick();
+        } catch(Throwable t) {
+            if(!pickFailureLogged) {
+                pickFailureLogged = true;
+                Voltworks.LOGGER.error("wall wire picking failed", t);
+            }
+        }
+    }
+
+    private static boolean pickFailureLogged;
+
+    private static void pick() {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         ClientLevel level = mc.level;

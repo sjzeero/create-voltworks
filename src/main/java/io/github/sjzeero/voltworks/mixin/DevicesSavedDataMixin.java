@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class DevicesSavedDataMixin {
     @Shadow @Final public ServerLevel level;
 
-    @Inject(method = "removeDevice", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "removeDevice", at = @At("HEAD"), cancellable = true, require = 0)
     private void voltworks$keepFrozen(BlockPos pos, CallbackInfoReturnable<SimulatedDevice> cir) {
         try {
             if(level != null && FrozenDevices.get(level).isFrozen(pos))

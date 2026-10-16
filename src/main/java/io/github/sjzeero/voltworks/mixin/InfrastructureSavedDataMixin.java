@@ -24,7 +24,7 @@ public abstract class InfrastructureSavedDataMixin {
 
     @Shadow public abstract WireData removeConnection(InWorldNodeConnection connection);
 
-    @Inject(method = {"removeConnection", "removeConnectionNoDrops"}, at = @At("RETURN"))
+    @Inject(method = {"removeConnection", "removeConnectionNoDrops"}, at = @At("RETURN"), require = 0)
     private void voltworks$forgetWallRoute(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
         if(level != null)
             WallWireData.get(level).queueCheck(connection);
@@ -37,7 +37,7 @@ public abstract class InfrastructureSavedDataMixin {
     }
 
     /** Same drops as a hanging wire, but spread along the faces the wire ran on. */
-    @Inject(method = "removeAndDropConnection", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "removeAndDropConnection", at = @At("HEAD"), cancellable = true, require = 0)
     private void voltworks$dropAlongRoute(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
         if(level == null)
             return;
