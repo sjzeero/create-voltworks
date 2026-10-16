@@ -18,6 +18,7 @@ import com.george_vi.electroenergetics.foundation.nodes.NodeConnectionPoint;
 import com.george_vi.electroenergetics.simulation.WireType;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.mojang.blaze3d.platform.InputConstants;
+import dev.ryanhcode.sable.companion.math.Pose3dc;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.VoltworksClientConfig;
 import io.github.sjzeero.voltworks.VoltworksConfig;
@@ -26,6 +27,7 @@ import io.github.sjzeero.voltworks.wallwire.PlaceWallWirePayload;
 import io.github.sjzeero.voltworks.wallwire.WallCell;
 import io.github.sjzeero.voltworks.wallwire.WallRoute;
 import io.github.sjzeero.voltworks.wallwire.WallRouter;
+import io.github.sjzeero.voltworks.wallwire.WallSpace;
 import net.createmod.catnip.outliner.Outliner;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
@@ -142,7 +144,7 @@ public final class WallWireClient {
     }
 
     private static @Nullable Vec3 startPos(ClientLevel level) {
-        return start == null ? null : start.getPosition(level);
+        return start == null ? null : WallSpace.nodePos(level, start);
     }
 
     /** Length placed so far: the lead from the start node plus the routed cells. */
@@ -189,11 +191,13 @@ public final class WallWireClient {
             reset();
             return;
         }
-        Outliner.getInstance().showAABB("voltworks_wall_wire_start", AABB.ofSize(s, 0.3, 0.3, 0.3))
+        Outliner.getInstance().showAABB("voltworks_wall_wire_start", AABB.ofSize(WallSpace.toWorld(level, s), 0.3, 0.3, 0.3))
                 .lineWidth(1 / 32f).colored(0xffffff).disableLineNormals();
         hoverSocket = null;
         WireType type = heldWireType(player);
         if(type == null || !(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK)
+            return;
+        if(!WallSpace.sameSpace(level, hit.getBlockPos(), start.sourcePos()))
             return;
         double maxLead = VoltworksConfig.wallWireMaxLead();
         InWorldNode node = hoveredNode(level, hit);
@@ -201,8 +205,8 @@ public final class WallWireClient {
             hoverSocket = node;
         Vec3 from = committed.isEmpty() ? s : committed.getLast().point();
         if(node != null) {
-            Vec3 to = node.getPosition(level);
-            if(to == null || committed.isEmpty())
+            Vec3 to = WallSpace.nodePos(level, node);
+            if(committed.isEmpty())
                 return;
             boolean ok = !node.equals(start) && from.distanceTo(to) <= maxLead
                     && placedLength(level) + from.distanceTo(to) <= maxLength(type);
@@ -236,7 +240,8 @@ public final class WallWireClient {
     }
 
     private static void line(String key, Vec3 a, Vec3 b, boolean ok) {
-        Outliner.getInstance().showLine(key, a, b).lineWidth(1 / 32f).colored(ok ? 0x68c586 : 0xff5d6c).disableLineNormals();
+        ClientLevel level = Minecraft.getInstance().level;
+        Outliner.getInstance().showLine(key, WallSpace.toWorld(level, a), WallSpace.toWorld(level, b)).lineWidth(1 / 32f).colored(ok ? 0x68c586 : 0xff5d6c).disableLineNormals();
     }
 
     private static @Nullable InWorldNode hoveredNode(ClientLevel level, BlockHitResult hit) {
@@ -279,6 +284,10 @@ public final class WallWireClient {
         if(!(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK)
             return;
 
+        if(start != null && !WallSpace.sameSpace(level, hit.getBlockPos(), start.sourcePos())) {
+            message(player, "invalid");
+            return;
+        }
         InWorldNode node = hoveredNode(level, hit);
         if(node != null) {
             clickNode(player, level, type, node);
@@ -340,9 +349,7 @@ public final class WallWireClient {
             message(player, "need_point");
             return;
         }
-        Vec3 end = node.getPosition(level);
-        if(end == null)
-            return;
+        Vec3 end = WallSpace.nodePos(level, node);
         double lead = end.distanceTo(committed.getLast().point());
         if(lead > VoltworksConfig.wallWireMaxLead()) {
             message(player, "lead_too_long");
@@ -411,24 +418,30 @@ public final class WallWireClient {
         double range = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 1;
         Vec3 from = player.getEyePosition();
         Vec3 to = from.add(player.getViewVector(1).scale(range));
-        double best = mc.hitResult != null && mc.hitResult.getType() != HitResult.Type.MISS ? mc.hitResult.getLocation().distanceTo(from) + 0.1 : range;
+        double best = mc.hitResult != null && mc.hitResult.getType() != HitResult.Type.MISS ? WallSpace.distance(level, mc.hitResult.getLocation(), from) + 0.1 : range;
+        float partial = mc.getTimer().getGameTimeDeltaPartialTick(true);
+        Pose3dc bestSpace = null;
         ClientWallRoutes.Entry bestEntry = null;
         Vec3 bestPos = null;
         for(ClientWallRoutes.Entry entry : ClientWallRoutes.all()) {
             if(dye && (entry.route().color == ((DyeItem) stack.getItem()).getDyeColor()
                     || !(WireRenderer.getConnectionData(entry.route().connection) instanceof WireData data && data.wireType() instanceof WireType.Dyeable)))
                 continue;
-            if(!entry.bounds().contains(from) && entry.bounds().clip(from, to).isEmpty())
+            Pose3dc space = WallSpace.renderPose(level, entry.route().cells.getFirst().pos(), partial);
+            Vec3 localFrom = WallSpace.toLocal(space, from), localTo = WallSpace.toLocal(space, to);
+            if(!entry.bounds().contains(localFrom) && entry.bounds().clip(localFrom, localTo).isEmpty())
                 continue;
             for(WallRoute.Segment seg : entry.segments()) {
-                Optional<Vec3> hit = new AABB(seg.a(), seg.b()).inflate(1.5 / 16).clip(from, to);
+                Optional<Vec3> hit = new AABB(seg.a(), seg.b()).inflate(1.5 / 16).clip(localFrom, localTo);
                 if(hit.isEmpty())
                     continue;
-                double d = hit.get().distanceTo(from);
+                Vec3 world = WallSpace.toWorld(space, hit.get());
+                double d = world.distanceTo(from);
                 if(d < best) {
                     best = d;
                     bestEntry = entry;
-                    bestPos = hit.get();
+                    bestPos = world;
+                    bestSpace = space;
                 }
             }
         }
@@ -443,7 +456,7 @@ public final class WallWireClient {
         int color = behaviour.getWireDisplayColor(point, level, player, stack);
         List<WallRoute.Segment> segments = bestEntry.segments();
         for(int i = 0; i < segments.size() && i < 128; i++)
-            Outliner.getInstance().showLine("voltworks_wall_wire_pick_" + i, segments.get(i).a(), segments.get(i).b())
+            Outliner.getInstance().showLine("voltworks_wall_wire_pick_" + i, WallSpace.toWorld(bestSpace, segments.get(i).a()), WallSpace.toWorld(bestSpace, segments.get(i).b()))
                     .lineWidth(1 / 16f).colored(color).disableLineNormals();
     }
 }

@@ -170,57 +170,46 @@ public class CircuitBoardModel implements BakedModel {
 
         if(data.has(COMPONENTS)) {
             var components = data.get(COMPONENTS);
-            if(VoltworksClientConfig.schematicMode()) {
-                if(side == null) {
-                    for(var placed : components) {
-                        if(placed.destroyed)
-                            continue;
-                        var fp = placed.footprint();
-                        for(var pixel : SchematicSymbols.symbol(placed.component, fp))
-                            quads.add(emitPixel(placed.x + pixel.x(), placed.y + pixel.y(), pixel.color(), 3));
-                    }
-                }
-            } else {
-                for(var placed : components) {
-                    var model = ComponentModels.getModel(placed);
+            for(var placed : components) {
+                var model = ComponentModels.getModel(placed);
 
-                    IQuadTransformer transformer;
-                    if(placed.has(Orientation.PROPERTY)) {
-                        var orientation = placed.get(Orientation.PROPERTY);
-                        var footprint = placed.component.footprint(placed);
+                IQuadTransformer transformer;
+                if(placed.has(Orientation.PROPERTY)) {
+                    var orientation = placed.get(Orientation.PROPERTY);
+                    var footprint = placed.component.footprint(placed);
                         transformer = QuadTransformers.applying(new Transformation(
                                 new Vector3f(placed.x / 16f - 0.5f, 2 / 16f - 0.5f, placed.y / 16f - 0.5f),
                                 new Quaternionf().rotationY(orientation.ordinal() * (float) Math.PI * 0.5f),
                                 null, null
                         ));
-                        if(orientation != Orientation.RIGHT) {
-                            transformer = transformer.andThen(QuadTransformers.applying(new Transformation(
-                                    switch(orientation) {
-                                        case DOWN -> new Vector3f(footprint.getOriginalHeight() / 16f, 0, 0);
-                                        case LEFT -> new Vector3f(footprint.getOriginalWidth() / 16f, 0, footprint.getOriginalHeight() / 16f);
-                                        case UP -> new Vector3f(0, 0, footprint.getOriginalWidth() / 16f);
-                                        case RIGHT -> throw new IllegalStateException();
-                                    }, null, null, null
-                            )));
-                        }
-                    } else {
-                        transformer = QuadTransformers.applying(
-                                new Transformation(new Vector3f(placed.x / 16f - 0.5f, 2 / 16f - 0.5f, placed.y / 16f - 0.5f),
-                                        null, null, null)
-                        );
+                    if(orientation != Orientation.RIGHT) {
+                        transformer = transformer.andThen(QuadTransformers.applying(new Transformation(
+                                switch(orientation) {
+                                    case DOWN -> new Vector3f(footprint.getOriginalHeight() / 16f, 0, 0);
+                                    case LEFT -> new Vector3f(footprint.getOriginalWidth() / 16f, 0, footprint.getOriginalHeight() / 16f);
+                                    case UP -> new Vector3f(0, 0, footprint.getOriginalWidth() / 16f);
+                                    case RIGHT -> throw new IllegalStateException();
+                                }, null, null, null
+                        )));
                     }
-                    if(placed.destroyed)
-                        transformer = transformer.andThen(QuadTransformers.applyingColor(64, 64, 64));
-                    quads.addAll(transformer.process(model.getQuads(state, side, rand, data, renderType)));
+                } else {
+                    transformer = QuadTransformers.applying(
+                            new Transformation(new Vector3f(placed.x / 16f - 0.5f, 2 / 16f - 0.5f, placed.y / 16f - 0.5f),
+                                    null, null, null)
+                    );
                 }
+                if(placed.destroyed) {
+                    transformer = transformer.andThen(QuadTransformers.applyingColor(64, 64, 64));
+                }
+                var componentQuads = model.getQuads(state, side, rand, data, renderType);
+                quads.addAll(transformer.process(componentQuads));
             }
             if(side == null && VoltworksClientConfig.polarityMarks()) {
                 for(var placed : components) {
                     if(placed.destroyed)
                         continue;
-                    for(var pixel : SchematicSymbols.polarity(placed.footprint()))
-                        quads.add(emitPixel(placed.x + pixel.x(), placed.y + pixel.y(), pixel.color(),
-                                VoltworksClientConfig.schematicMode() ? 4 : 8));
+                    for(var pixel : PolarityMarks.polarity(placed.footprint()))
+                        quads.add(emitPixel(placed.x + pixel.x(), placed.y + pixel.y(), pixel.color(), 9));
                 }
             }
         }
@@ -263,7 +252,6 @@ public class CircuitBoardModel implements BakedModel {
         return plates.getOrDefault(state.getValue(BoardBlock.COLOR), baseModel);
     }
 
-
     private BakedQuad emitPixel(int x, int y, int color, int height) {
         var quad = bakery.bakeQuad(
                 new Vector3f(x - 8, height - 8, y - 8),
@@ -272,11 +260,7 @@ public class CircuitBoardModel implements BakedModel {
                         new BlockFaceUV(new float[] { 0, 0, 1, 1 }, 0)),
                 symbolSprite, Direction.UP, BlockModelRotation.X0_Y0, null, true
         );
-        int a = color >>> 24;
-        int r = color >> 16 & 255;
-        int g = color >> 8 & 255;
-        int b = color & 255;
-        return QuadTransformers.applyingColor(r, g, b, a).process(List.of(quad)).getFirst();
+        return QuadTransformers.applyingColor(color).process(List.of(quad)).getFirst();
     }
 
     public BakedQuad emitTrace(Area area) {

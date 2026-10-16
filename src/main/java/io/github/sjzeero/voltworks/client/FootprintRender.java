@@ -32,6 +32,10 @@ import static io.github.sjzeero.voltworks.client.CircuitSchematicRender.COLOR_TE
 
 public final class FootprintRender {
     private static final ResourceLocation ARROWS = Voltworks.texture("gui/circuit_arrows");
+    private static final int MARK_PLUS = 0xFFD62828;
+    private static final int MARK_SIGN = 0xFFFFFFFF;
+    private static final int MARK_MINUS = 0xFF8FD0FF;
+    private static final int MARK_MINUS_SIGN = 0xFF1B4F9C;
 
     private FootprintRender() {
     }
@@ -48,7 +52,31 @@ public final class FootprintRender {
         ms.popPose();
     }
 
+    private static void renderMarks(ComponentFootprint fp, @NotNull GuiGraphics ctx, int x, int y) {
+        var ms = ctx.pose();
+        ms.pushPose();
+        ms.translate(0, 0, 200);
+        ms.scale(0.125f, 0.125f, 1);
+        for(var mark : PolarityMarks.marks(fp)) {
+            int x1 = (mark.getKey().x() + x) * 8;
+            int y1 = (mark.getKey().y() + y) * 8;
+            if(mark.getValue()) {
+                ctx.fill(x1, y1, x1 + 8, y1 + 8, MARK_PLUS);
+                ctx.fill(x1 + 1, y1 + 3, x1 + 7, y1 + 5, MARK_SIGN);
+                ctx.fill(x1 + 3, y1 + 1, x1 + 5, y1 + 7, MARK_SIGN);
+            } else {
+                ctx.fill(x1, y1 + 1, x1 + 8, y1 + 7, MARK_MINUS);
+                ctx.fill(x1 + 2, y1 + 3, x1 + 6, y1 + 5, MARK_MINUS_SIGN);
+            }
+        }
+        ms.popPose();
+    }
+
     public static void render(ComponentFootprint fp, @NotNull GuiGraphics ctx, @NotNull Component component, int x, int y, boolean hovering) {
+        render(fp, ctx, component, x, y, hovering, false);
+    }
+
+    public static void render(ComponentFootprint fp, @NotNull GuiGraphics ctx, @NotNull Component component, int x, int y, boolean hovering, boolean editor) {
         var ms = ctx.pose();
         int width = fp.getWidth();
         int height = fp.getHeight();
@@ -60,9 +88,7 @@ public final class FootprintRender {
         }
         renderPads(fp, ctx, x, y);
 
-        if(VoltworksClientConfig.schematicMode()) {
-            renderPixels(SchematicSymbols.symbol(component, fp), ctx, x, y);
-        } else if(fp.hasItem() && !hovering) {
+        if(fp.hasItem() && !hovering) {
             ms.pushPose();
             final int maxSize = 2;
             var scale = Math.min(Math.min(width, height), maxSize) / 16f * GRID_TO_GRID_SCALE;
@@ -79,8 +105,10 @@ public final class FootprintRender {
                 ctx.renderItem(stack, (int) (x / scale), (int) (y / scale));
             ms.popPose();
         }
-        if(VoltworksClientConfig.polarityMarks())
-            renderPixels(SchematicSymbols.polarity(fp), ctx, x, y);
+        if(editor)
+            renderMarks(fp, ctx, x, y);
+        else if(VoltworksClientConfig.polarityMarks())
+            renderPixels(PolarityMarks.polarity(fp), ctx, x, y);
 
         var arrow = fp.getArrow();
         if(arrow != null) {
@@ -102,7 +130,7 @@ public final class FootprintRender {
     }
 
 
-    private static void renderPixels(java.util.List<SchematicSymbols.Pixel> pixels, GuiGraphics ctx, int x, int y) {
+    private static void renderPixels(java.util.List<PolarityMarks.Pixel> pixels, GuiGraphics ctx, int x, int y) {
         for(var pixel : pixels)
             ctx.fill(x + pixel.x(), y + pixel.y(), x + pixel.x() + 1, y + pixel.y() + 1, pixel.color());
     }

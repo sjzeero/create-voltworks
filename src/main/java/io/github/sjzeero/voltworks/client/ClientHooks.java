@@ -23,7 +23,12 @@ public final class ClientHooks {
         }
     }
 
+    /** Hit point in contraption space while the goggle readout of a contraption board is built. */
+    public static @Nullable Vec3 contraptionHit;
+
     public static @Nullable Vec3 hitLocation() {
+        if(contraptionHit != null)
+            return contraptionHit;
         var hit = Minecraft.getInstance().hitResult;
         if(hit == null || hit.getType() != HitResult.Type.BLOCK)
             return null;

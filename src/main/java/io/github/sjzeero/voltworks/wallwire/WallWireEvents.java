@@ -14,6 +14,8 @@ public final class WallWireEvents {
 
     public static void register() {
         NeoForge.EVENT_BUS.addListener(WallWireEvents::levelTick);
+        NeoForge.EVENT_BUS.addListener(FrozenDevices::addToGraph);
+        NeoForge.EVENT_BUS.addListener(FrozenDevices::startTracking);
         NeoForge.EVENT_BUS.addListener(WallWireEvents::neighbourNotify);
         NeoForge.EVENT_BUS.addListener(WallWireEvents::login);
         NeoForge.EVENT_BUS.addListener(WallWireEvents::changedDimension);
@@ -22,8 +24,11 @@ public final class WallWireEvents {
     }
 
     private static void levelTick(LevelTickEvent.Post event) {
-        if(event.getLevel() instanceof ServerLevel level)
+        if(event.getLevel() instanceof ServerLevel level) {
             WallWireData.get(level).tick();
+            if(level.getGameTime() % 5 == 0)
+                FrozenDevices.forward(level);
+        }
     }
 
     private static void neighbourNotify(BlockEvent.NeighborNotifyEvent event) {

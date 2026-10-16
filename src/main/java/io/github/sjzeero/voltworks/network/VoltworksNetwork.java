@@ -15,6 +15,7 @@ public class VoltworksNetwork {
         registrar.playToClient(BoardSchematicPayload.TYPE, BoardSchematicPayload.CODEC, (p, c) -> ClientPayloads.schematic(p));
         registrar.playToServer(PlaceWallWirePayload.TYPE, PlaceWallWirePayload.CODEC, PlaceWallWirePayload::handle);
         registrar.playToClient(WallRoutesPayload.TYPE, WallRoutesPayload.CODEC, (p, c) -> ClientWallRoutes.apply(p));
+        registrar.playToClient(ContraptionBoardPayload.TYPE, ContraptionBoardPayload.CODEC, (p, c) -> ClientPayloads.contraptionBoard(p));
         registrar.playToClient(BoardStatePayload.TYPE, BoardStatePayload.CODEC, (p, c) -> ClientPayloads.state(p));
     }
 }

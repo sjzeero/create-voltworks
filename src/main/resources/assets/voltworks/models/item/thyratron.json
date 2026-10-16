@@ -1,6 +1,125 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "voltworks:item/thyratron"
+  "parent": "voltworks:component/thyratron",
+  "gui_light": "side",
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "translation": [
+        -10.652,
+        2.007,
+        0.0
+      ],
+      "scale": [
+        1.159,
+        1.159,
+        1.159
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        2.708,
+        3.833,
+        2.708
+      ],
+      "scale": [
+        0.417,
+        0.417,
+        0.417
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        4.875,
+        1.5,
+        4.875
+      ],
+      "scale": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        4.596,
+        3.259,
+        0.966
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        4.596,
+        3.259,
+        0.966
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "translation": [
+        5.362,
+        1.167,
+        0.0
+      ],
+      "scale": [
+        0.583,
+        0.583,
+        0.583
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "translation": [
+        -5.362,
+        1.167,
+        0.0
+      ],
+      "scale": [
+        0.583,
+        0.583,
+        0.583
+      ]
+    }
   }
 }

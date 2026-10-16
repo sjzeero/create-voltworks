@@ -12,6 +12,8 @@ import io.github.sjzeero.voltworks.cord.CordPair;
 import io.github.sjzeero.voltworks.registry.VoltworksWireTypes;
 import io.github.sjzeero.voltworks.wallwire.WallCell;
 import io.github.sjzeero.voltworks.wallwire.WallRoute;
+import io.github.sjzeero.voltworks.wallwire.WallSpace;
+import dev.ryanhcode.sable.companion.math.Pose3dc;
 import net.createmod.catnip.data.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -24,8 +26,10 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.model.data.ModelData;
@@ -107,20 +111,25 @@ public final class WallWireRenderer {
             wires.put(w.getFirst(), w.getSecond());
 
         PoseStack pose = event.getPoseStack();
+        float partial = event.getPartialTick().getGameTimeDeltaPartialTick(true);
         Vec3 cam = event.getCamera().getPosition();
         MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
         Set<RenderType> used = new HashSet<>();
 
         for(ClientWallRoutes.Entry entry : ClientWallRoutes.all()) {
             WireData data = wires.get(entry.route().connection);
-            if(data == null || !event.getFrustum().isVisible(entry.bounds()))
+            if(data == null)
                 continue;
-            if(entry.bounds().getCenter().distanceTo(cam) > RENDER_DISTANCE + entry.bounds().getSize())
+            Pose3dc space = WallSpace.renderPose(level, entry.route().cells.getFirst().pos(), partial);
+            AABB bounds = WallSpace.toWorld(space, entry.bounds());
+            if(!event.getFrustum().isVisible(bounds))
+                continue;
+            if(bounds.getCenter().distanceTo(cam) > RENDER_DISTANCE + bounds.getSize())
                 continue;
             InWorldNodeConnection c = entry.route().connection;
             if(CordPair.isCord(data.wireType()) && CordPair.isReturn(c))
                 continue;
-            new Drawer(level, pose.last(), buffer, used, data.wireType(), entry.route().color, cam)
+            new Drawer(level, pose.last(), buffer, used, data.wireType(), entry.route().color, cam, space)
                     .route(entry.route().cells, entry.segments(), c.node1(), c.node2());
         }
 
@@ -128,7 +137,8 @@ public final class WallWireRenderer {
             WireType type = WallWireClient.heldWireType(mc.player);
             if(type != null) {
                 List<WallCell> cells = List.copyOf(WallWireClient.committed);
-                new Drawer(level, pose.last(), buffer, used, type, WallWireClient.offhandDye(mc.player), cam)
+                Pose3dc space = WallSpace.renderPose(level, cells.getFirst().pos(), partial);
+                new Drawer(level, pose.last(), buffer, used, type, WallWireClient.offhandDye(mc.player), cam, space)
                         .route(cells, WallRoute.segments(cells), WallWireClient.start, null);
             }
         }
@@ -137,8 +147,42 @@ public final class WallWireRenderer {
         if(hover) {
             WireType type = WallWireClient.heldWireType(mc.player);
             if(type != null && CordPair.isCord(type))
-                new Drawer(level, pose.last(), buffer, used, type, WallWireClient.offhandDye(mc.player), cam)
+                new Drawer(level, pose.last(), buffer, used, type, WallWireClient.offhandDye(mc.player), cam, WallSpace.renderPose(level, WallWireClient.hoverSocket.sourcePos(), partial))
                         .plugAt(WallWireClient.hoverSocket);
+        }
+
+        for(net.minecraft.world.entity.Entity e : level.entitiesForRendering()) {
+            if(!(e instanceof com.simibubi.create.content.contraptions.AbstractContraptionEntity ace) || !(ace.getContraption() instanceof io.github.sjzeero.voltworks.wallwire.ContraptionWireView view))
+                continue;
+            java.util.List<io.github.sjzeero.voltworks.wallwire.ContraptionWires.Drawn> drawn = view.voltworks$drawn();
+            if(drawn == null || drawn.isEmpty())
+                continue;
+            // same interpolated position as Create's ContraptionMatrices.translateToEntity, taken fresh every frame
+            double ex = Mth.lerp(partial, e.xOld, e.getX()), ey = Mth.lerp(partial, e.yOld, e.getY()), ez = Mth.lerp(partial, e.zOld, e.getZ());
+            if(Math.sqrt((ex - cam.x) * (ex - cam.x) + (ey - cam.y) * (ey - cam.y) + (ez - cam.z) * (ez - cam.z)) > RENDER_DISTANCE)
+                continue;
+            try {
+                // same local transform Create uses for the blocks of this entity (yaw, pitch, initial yaw, carts, riding), so wires cannot drift from them
+                PoseStack local = new PoseStack();
+                ace.applyLocalTransforms(local, partial);
+                org.joml.Matrix4f m = new org.joml.Matrix4f(local.last().pose());
+                BlockPos eb = BlockPos.containing(ex, ey, ez);
+                Pose3dc space = WallSpace.renderPose(level, eb, partial);
+                int light = LevelRenderer.getLightColor(level, eb);
+                java.util.function.UnaryOperator<Vec3> point = p -> {
+                    org.joml.Vector3f v = m.transformPosition((float) p.x, (float) p.y, (float) p.z, new org.joml.Vector3f());
+                    return WallSpace.toWorld(space, new Vec3(ex + v.x, ey + v.y, ez + v.z));
+                };
+                java.util.function.UnaryOperator<Vec3> normal = n -> {
+                    org.joml.Vector3f v = m.transformDirection((float) n.x, (float) n.y, (float) n.z, new org.joml.Vector3f());
+                    return WallSpace.rotate(space, new Vec3(v.x, v.y, v.z));
+                };
+                for(io.github.sjzeero.voltworks.wallwire.ContraptionWires.Drawn w : drawn)
+                    new Drawer(level, pose.last(), buffer, used, w.type(), w.color(), cam, space, point, normal, light)
+                            .route(w.cells(), w.segments(), w.p1(), w.p2());
+            } catch(RuntimeException ex2) {
+                // a broken contraption wire must never break world rendering
+            }
         }
 
         for(RenderType type : used)
@@ -232,9 +276,21 @@ public final class WallWireRenderer {
         final Vec3 cam;
         /** Cross-section: {@code w} across the run on the surface, {@code h} off the surface. */
         final double w, h;
+        final @Nullable Pose3dc space;
+        final java.util.function.UnaryOperator<Vec3> mapPoint, mapNormal;
+        final int fixedLight;
 
-        Drawer(ClientLevel level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, @Nullable DyeColor color, Vec3 cam) {
+        Drawer(ClientLevel level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, @Nullable DyeColor color, Vec3 cam, @Nullable Pose3dc space) {
+            this(level, pose, buffer, used, type, color, cam, space, p -> WallSpace.toWorld(space, p), n -> space == null ? n : space.transformNormal(n), -1);
+        }
+
+        Drawer(ClientLevel level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, @Nullable DyeColor color, Vec3 cam, @Nullable Pose3dc space,
+               java.util.function.UnaryOperator<Vec3> mapPoint, java.util.function.UnaryOperator<Vec3> mapNormal, int fixedLight) {
             this.level = level;
+            this.space = space;
+            this.mapPoint = mapPoint;
+            this.mapNormal = mapNormal;
+            this.fixedLight = fixedLight;
             this.pose = pose;
             WireType look = look(type, color);
             RenderType rt = look.renderType();
@@ -250,22 +306,36 @@ public final class WallWireRenderer {
         void route(List<WallCell> cells, List<WallRoute.Segment> segments, InWorldNode node1, InWorldNode node2) {
             if(cells.isEmpty())
                 return;
-            if(segments.isEmpty())
-                pad(cells.getFirst());
-            else
-                for(int i = 0; i < segments.size(); i++)
-                    segment(segments, i);
+            route(cells, segments, (Vec3) null, (Vec3) null);
             if(node1 != null)
                 end(node1, cells.getFirst(), segments.isEmpty() ? null : segments.getFirst());
             if(node2 != null)
                 end(node2, cells.getLast(), segments.isEmpty() ? null : segments.getLast());
         }
 
+        int light(BlockPos pos) {
+            return fixedLight >= 0 ? fixedLight : LevelRenderer.getLightColor(level, pos);
+        }
+
+        void route(List<WallCell> cells, List<WallRoute.Segment> segments, Vec3 node1, Vec3 node2) {
+            if(cells.isEmpty())
+                return;
+            if(segments.isEmpty())
+                pad(cells.getFirst());
+            else
+                for(int i = 0; i < segments.size(); i++)
+                    segment(segments, i);
+            if(node1 != null)
+                lead(node1, cells.getFirst(), segments.isEmpty() ? null : segments.getFirst());
+            if(node2 != null)
+                lead(node2, cells.getLast(), segments.isEmpty() ? null : segments.getLast());
+        }
+
         private void end(InWorldNode node, WallCell cell, WallRoute.Segment seg) {
             InWorldNode[] pair = CordPair.isCord(type) ? CordPair.ends(level, node.sourcePos()) : null;
-            Vec3 a = pair == null ? null : pair[0].getPosition(level), b = pair == null ? null : pair[1].getPosition(level);
+            Vec3 a = pair == null ? null : WallSpace.nodePos(level, pair[0]), b = pair == null ? null : WallSpace.nodePos(level, pair[1]);
             if(a == null || b == null) {
-                lead(node.getPosition(level), cell, seg);
+                lead(WallSpace.nodePos(level, node), cell, seg);
                 return;
             }
             // cord: leave the socket between its two contacts, run flat at contact height, then drop onto the surface
@@ -286,7 +356,7 @@ public final class WallWireRenderer {
             InWorldNode[] pair = CordPair.ends(level, node.sourcePos());
             if(pair == null)
                 return;
-            Vec3 a = pair[0].getPosition(level), b = pair[1].getPosition(level);
+            Vec3 a = WallSpace.nodePos(level, pair[0]), b = WallSpace.nodePos(level, pair[1]);
             if(a == null || b == null)
                 return;
             plugBody(node, a.add(b).scale(0.5));
@@ -306,7 +376,7 @@ public final class WallWireRenderer {
             // the plug stands on the socket body (contact is 0.5 px above it), the wire starts on top of it
             Vec3 base = plug.subtract(u.scale(0.5 * PX));
             Vec3 origin = base.subtract(s.scale(width / 2)).subtract(up.scale(size / 2));
-            int light = LevelRenderer.getLightColor(level, BlockPos.containing(plug));
+            int light = light(BlockPos.containing(plug));
             // all six faces, the flag draws the side opposite to `up`; without it the cube is open and looks crooked
             box(origin, u, s, up, height, width, size, true, true, true, light);
             return base.add(u.scale(height + h / 2));
@@ -321,8 +391,8 @@ public final class WallWireRenderer {
             Vec3 u = d.scale(1 / len);
             Vec3 side = flat.cross(u).normalize();
             Vec3 up = u.cross(side).normalize();
-            int light = WireRenderer.maxLightLevel(LevelRenderer.getLightColor(level, BlockPos.containing(a)),
-                    LevelRenderer.getLightColor(level, cell.front()));
+            int light = WireRenderer.maxLightLevel(light(BlockPos.containing(a)),
+                    light(cell.front()));
             box(a.subtract(side.scale(w / 2)).subtract(up.scale(h / 2)), u, side, up, len, w, h, true, true, bottom, light);
         }
 
@@ -397,7 +467,7 @@ public final class WallWireRenderer {
                 return;
             Vec3 s = n.cross(u);
             Vec3 origin = a0.add(u.scale(from)).subtract(s.scale(w / 2));
-            int light = LevelRenderer.getLightColor(level, seg.lightPos());
+            int light = light(seg.lightPos());
             box(origin, u, s, n, to - from, w, h, capStart, capEnd, false, light);
         }
 
@@ -412,7 +482,7 @@ public final class WallWireRenderer {
             Vec3 up = Math.abs(u.y) > 0.5 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
             Vec3 s = u.cross(up);
             Vec3 origin = start.subtract(s.scale(w / 2)).subtract(up.scale(h / 2));
-            box(origin, u, s, up, len, w, h, false, false, true, LevelRenderer.getLightColor(level, seg.lightPos()));
+            box(origin, u, s, up, len, w, h, false, false, true, light(seg.lightPos()));
         }
 
         private void pad(WallCell cell) {
@@ -421,7 +491,7 @@ public final class WallWireRenderer {
             Vec3 s = n.cross(u);
             Vec3 c = cell.point(0);
             Vec3 origin = c.subtract(u.scale(w / 2)).subtract(s.scale(w / 2));
-            box(origin, u, s, n, w, w, h, true, true, false, LevelRenderer.getLightColor(level, cell.front()));
+            box(origin, u, s, n, w, w, h, true, true, false, light(cell.front()));
         }
 
         /** Straight wire from the node into the middle of the end of the surface run. */
@@ -443,8 +513,8 @@ public final class WallWireRenderer {
             side = side.normalize();
             Vec3 up = u.cross(side).normalize();
             Vec3 origin = node.subtract(side.scale(w / 2)).subtract(up.scale(h / 2));
-            int light = WireRenderer.maxLightLevel(LevelRenderer.getLightColor(level, BlockPos.containing(node)),
-                    LevelRenderer.getLightColor(level, cell.front()));
+            int light = WireRenderer.maxLightLevel(light(BlockPos.containing(node)),
+                    light(cell.front()));
             // stop at the near side of the surface run so the lead does not poke through it
             box(origin, u, side, up, Math.max(h / 2, len - h / 2), w, h, true, true, true, light);
         }
@@ -493,10 +563,11 @@ public final class WallWireRenderer {
             boolean flip = c1.subtract(c0).cross(c3.subtract(c0)).dot(normal) < 0;
             float shade = shade(normal);
             int col = (int) (255 * shade);
-            float nx = (float) normal.x, ny = (float) normal.y, nz = (float) normal.z;
+            Vec3 worldNormal = mapNormal.apply(normal);
+            float nx = (float) worldNormal.x, ny = (float) worldNormal.y, nz = (float) worldNormal.z;
             for(int k = 0; k < 4; k++) {
                 int i = flip ? (4 - k) % 4 : k;
-                Vec3 p = c[i].subtract(cam);
+                Vec3 p = mapPoint.apply(c[i]).subtract(cam);
                 vb.addVertex(pose, (float) p.x, (float) p.y, (float) p.z)
                         .setColor(col, col, col, 255)
                         .setUv(tex.u(ts[i][0], ts[i][1]), tex.v(ts[i][0], ts[i][1]))
