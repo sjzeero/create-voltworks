@@ -104,6 +104,20 @@ class BoardSimTest {
     }
 
     @Test
+    void floatingRelayDoesNotBreakCircuit() {
+        var rig = new Rig(twoPin(s -> {
+            s.place("resistor", 5, 6, ResistorComponent.RESISTANCE, 100f);
+            s.place("relay", 6, 10);
+            s.v(1, 7, 14).h(7, 1, 5);
+            s.v(9, 1, 7).h(1, 1, 9);
+        })).pin(1, 10).tick(20);
+        double i = rig.part("resistor").wires.get(0).current();
+        log("floating relay: resistor I=%.6f conv=%s bad=%d", i, rig.sim.converged, rig.sim.badSteps);
+        assertTrue(rig.sim.converged);
+        assertEquals(0.1, Math.abs(i), 1e-3);
+    }
+
+    @Test
     void diodeForward() {
         var rig = new Rig(twoPin(s -> {
             s.place("resistor", 2, 6, ResistorComponent.RESISTANCE, 100f);

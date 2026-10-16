@@ -24,6 +24,6 @@ public abstract class CreativeScreenSectionsMixin extends EffectRenderingInvento
         if (!CreativeTabSectionsClient.isOurTab(tab)) { CreativeTabSectionsClient.setView(false, 0); return; }
         int row = ((ItemPickerMenuAccessor) this.menu).voltworks$getRowIndexForScroll(scrollOffs);
         CreativeTabSectionsClient.setView(true, row);
-        CreativeTabSectionsClient.renderBanners(g, leftPos, topPos, row);
+        CreativeTabSectionsClient.renderBanners(g, leftPos, topPos, row, mouseX, mouseY);
     }
 }

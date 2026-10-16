@@ -30,6 +30,12 @@ public abstract class InfrastructureSavedDataMixin {
             WallWireData.get(level).queueCheck(connection);
     }
 
+    @Inject(method = "connect(Lcom/george_vi/electroenergetics/foundation/nodes/InWorldNode;Lcom/george_vi/electroenergetics/foundation/nodes/InWorldNode;Lcom/george_vi/electroenergetics/simulation/WireType;)J", at = @At("RETURN"))
+    private void voltworks$wallRouteOnConnect(com.george_vi.electroenergetics.foundation.nodes.InWorldNode a, com.george_vi.electroenergetics.foundation.nodes.InWorldNode b, com.george_vi.electroenergetics.simulation.WireType type, CallbackInfoReturnable<Long> cir) {
+        if(level != null)
+            io.github.sjzeero.voltworks.wallwire.SchematicWires.onConnect(level, a, b);
+    }
+
     /** Same drops as a hanging wire, but spread along the faces the wire ran on. */
     @Inject(method = "removeAndDropConnection", at = @At("HEAD"), cancellable = true)
     private void voltworks$dropAlongRoute(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {

@@ -41,6 +41,9 @@ public final class VoltworksBlocks {
     public static final DeferredBlock<SolarPanelBearingBlock> SOLAR_PANEL_BEARING = BLOCKS.register("solar_panel_bearing", () -> new SolarPanelBearingBlock(
             BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));
 
+    public static final DeferredBlock<io.github.sjzeero.voltworks.light.FactoryLightBlock> FACTORY_LIGHT = BLOCKS.register("factory_light", () -> new io.github.sjzeero.voltworks.light.FactoryLightBlock(
+            BlockBehaviour.Properties.of().strength(1.0f).sound(SoundType.METAL).noOcclusion().lightLevel(s -> s.getValue(io.github.sjzeero.voltworks.light.FactoryLightBlock.POWER) * 5)));
+
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
     }

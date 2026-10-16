@@ -189,6 +189,13 @@ public final class WallWireRenderer {
             buffer.endBatch(type);
     }
 
+    /** Draws a wall route inside a schematic preview. Points are in the schematic's own space, the pose stack does the rest. */
+    public static void drawSchematic(net.minecraft.world.level.Level level, PoseStack.Pose pose, MultiBufferSource buffer, WireType type, @Nullable DyeColor color, WallRoute route) {
+        InWorldNodeConnection c = route.connection;
+        new Drawer(level, pose, buffer, new java.util.HashSet<>(), type, color, Vec3.ZERO, null, p -> p, n -> n, 15728880)
+                .route(route.cells, route.surfaceSegments(), c.node1(), c.node2());
+    }
+
     private static Tex texture(WireType type) {
         BakedModel model = type.getModel().get();
         if(model == null)
@@ -269,7 +276,7 @@ public final class WallWireRenderer {
     /** Emits the boxes of one wire. */
     private static final class Drawer {
         private final WireType type;
-        final ClientLevel level;
+        final net.minecraft.world.level.Level level;
         final PoseStack.Pose pose;
         final VertexConsumer vb;
         final Tex tex;
@@ -280,11 +287,11 @@ public final class WallWireRenderer {
         final java.util.function.UnaryOperator<Vec3> mapPoint, mapNormal;
         final int fixedLight;
 
-        Drawer(ClientLevel level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, @Nullable DyeColor color, Vec3 cam, @Nullable Pose3dc space) {
+        Drawer(net.minecraft.world.level.Level level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, @Nullable DyeColor color, Vec3 cam, @Nullable Pose3dc space) {
             this(level, pose, buffer, used, type, color, cam, space, p -> WallSpace.toWorld(space, p), n -> space == null ? n : space.transformNormal(n), -1);
         }
 
-        Drawer(ClientLevel level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, @Nullable DyeColor color, Vec3 cam, @Nullable Pose3dc space,
+        Drawer(net.minecraft.world.level.Level level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, @Nullable DyeColor color, Vec3 cam, @Nullable Pose3dc space,
                java.util.function.UnaryOperator<Vec3> mapPoint, java.util.function.UnaryOperator<Vec3> mapNormal, int fixedLight) {
             this.level = level;
             this.space = space;
@@ -338,17 +345,9 @@ public final class WallWireRenderer {
                 lead(WallSpace.nodePos(level, node), cell, seg);
                 return;
             }
-            // cord: leave the socket between its two contacts, run flat at contact height, then drop onto the surface
+            // cord: straight from the top of the plug to the start of the wire on the surface
             Vec3 plug = plugBody(node, a.add(b).scale(0.5));
-            Vec3 n = step(cell.face());
-            Vec3 end = cell.point(0).add(n.scale(h / 2));
-            Vec3 corner = end.add(n.scale(plug.subtract(end).dot(n)));
-            if(corner.distanceTo(plug) < h / 2 || corner.distanceTo(end) < h / 2) {
-                lead(plug, cell, seg);
-                return;
-            }
-            straight(plug, corner.add(corner.subtract(plug).normalize().scale(w / 2)), n, cell, false);
-            straight(corner.add(n.scale(h / 2)), end, corner.subtract(plug).normalize(), cell, true);
+            lead(plug, cell, seg);
         }
 
         /** Draws only the plug on a socket, between its two cord contacts; used while the cord is still being aimed. */

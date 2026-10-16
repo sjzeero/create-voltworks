@@ -204,14 +204,6 @@ public class CircuitBoardModel implements BakedModel {
                 var componentQuads = model.getQuads(state, side, rand, data, renderType);
                 quads.addAll(transformer.process(componentQuads));
             }
-            if(side == null && VoltworksClientConfig.polarityMarks()) {
-                for(var placed : components) {
-                    if(placed.destroyed)
-                        continue;
-                    for(var pixel : PolarityMarks.polarity(placed.footprint()))
-                        quads.add(emitPixel(placed.x + pixel.x(), placed.y + pixel.y(), pixel.color(), 9));
-                }
-            }
         }
         if(side == null) {
             if (data.has(FRONT_LAYER)) {

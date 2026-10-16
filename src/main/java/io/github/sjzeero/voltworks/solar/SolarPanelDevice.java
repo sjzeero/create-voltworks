@@ -66,7 +66,7 @@ public class SolarPanelDevice extends SimpleElectricalDevice {
                 r = 1 / ng[1] + SolarPhysics.RS;
             }
         }
-        bridges.builder(pos).voltageSourceWithResistance(0, 1, u, r);
+        bridges.builder(pos).voltageSourceWithResistance(0, 1, r, -u);
     }
 
     @Override

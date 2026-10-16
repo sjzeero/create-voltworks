@@ -281,5 +281,10 @@
   "voltworks.node.socket_0": "+",
   "voltworks.node.socket_1": "-",
   "voltworks.node.socket_2": "Контакт розетки",
-  "voltworks.wall_wire.cord_ends": "Кабель подключается только от розетки к розетке"
+  "voltworks.wall_wire.cord_ends": "Кабель подключается только от розетки к розетке",
+  "block.voltworks.factory_light": "Заводской светильник",
+  "block.voltworks.factory_light.tooltip.summary": "Промышленная потолочная лампа. Работает как _резистивная нагрузка_: начинает светиться примерно от _22 В_, полностью горит при _45 В_, а выше примерно _52 В_ _взрывается_.",
+  "voltworks.node.factory_light_0": "+",
+  "voltworks.node.factory_light_1": "-",
+  "voltworks.tab_section.lights": "Свет"
 }

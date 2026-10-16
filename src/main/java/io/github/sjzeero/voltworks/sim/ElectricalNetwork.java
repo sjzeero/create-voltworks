@@ -468,6 +468,13 @@ public class ElectricalNetwork implements IStamped {
                     anyNode = floating;
                 }
             }
+            // Every floating node gets a tiny leak to ground (gmin). Without it an island that is not
+            // connected to any source (e.g. an unwired relay on a board) makes the matrix singular
+            // and breaks the whole network.
+            for (var node : nodes) {
+                if (node instanceof FloatingNode floating)
+                    mna.jacobianAdd(floating.getIndex(), floating.getIndex(), G_MIN);
+            }
             if(groundReferenceCount == 0) {
                 // Add a shunt to ground to the first floating node.
                 // This ensures that the simulation is anchored to a 0V reference somewhere

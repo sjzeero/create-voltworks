@@ -42,6 +42,8 @@ public final class VoltworksItems {
 
     public static final DeferredItem<SequencedAssemblyItem> INCOMPLETE_SOLAR_PANEL = ITEMS.registerItem("incomplete_solar_panel", SequencedAssemblyItem::new);
 
+    public static final DeferredItem<?> FACTORY_LIGHT_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.FACTORY_LIGHT);
+
     public static void register(IEventBus bus) {
         ITEMS.register(bus);
     }

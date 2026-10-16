@@ -43,6 +43,9 @@ public final class VoltworksDevices {
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<SolarPanelBearingDevice>> SOLAR_PANEL_BEARING_DEVICE = DEVICES.register("solar_panel_bearing",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("solar_panel_bearing"), (type, level, pos, sd) -> new SolarPanelBearingDevice(level, pos, sd, type)));
 
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.light.FactoryLightDevice>> FACTORY_LIGHT_DEVICE = DEVICES.register("factory_light",
+            () -> new SimulatedDeviceType<>(Voltworks.asResource("factory_light"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.light.FactoryLightDevice(level, pos, sd, type)));
+
     public static void register(IEventBus bus) {
         DEVICES.register(bus);
     }

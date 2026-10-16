@@ -20,4 +20,13 @@ public abstract class WireRendererMixin {
     private static List<Pair<InWorldNodeConnection, WireData>> voltworks$skipWallWires() {
         return ClientWallRoutes.withoutWallWires(WireRenderer.getAllConnections());
     }
+
+    @org.spongepowered.asm.mixin.injection.Inject(method = "forceRenderWire", at = @At("HEAD"), cancellable = true)
+    private static void voltworks$skipSchematicWallWire(List<net.minecraft.world.phys.Vec3> points, net.minecraft.world.phys.Vec3 p1, net.minecraft.world.phys.Vec3 p2,
+                                                       com.mojang.blaze3d.vertex.PoseStack pose, net.minecraft.client.renderer.MultiBufferSource buffer,
+                                                       com.george_vi.electroenergetics.simulation.WireType type, net.minecraft.world.level.BlockAndTintGetter level,
+                                                       org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+        if(io.github.sjzeero.voltworks.wallwire.client.SchematicWallRender.hidden(p1, p2))
+            ci.cancel();
+    }
 }

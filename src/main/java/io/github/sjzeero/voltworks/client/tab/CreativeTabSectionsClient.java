@@ -16,6 +16,7 @@ import io.github.sjzeero.voltworks.registry.VoltworksCreativeTabs;
 /** Lays out the Voltworks creative tab into titled sections and draws their banners. */
 public final class CreativeTabSectionsClient {
     private static final int PER_ROW = 9;
+    private static final int FRAMES = 8, FRAME_MS = 110;
     private static final int[][] OUTLINE = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
     private static final Map<Integer, VoltworksTabSections.Section> HEADER_ROWS = new HashMap<>();
     private static boolean ourTabOpen;
@@ -51,14 +52,16 @@ public final class CreativeTabSectionsClient {
         menuItems.addAll(out);
     }
 
-    public static void renderBanners(GuiGraphics g, int left, int top, int firstRow) {
+    public static void renderBanners(GuiGraphics g, int left, int top, int firstRow, int mouseX, int mouseY) {
         var font = Minecraft.getInstance().font;
         for (int i = 0; i < 5; i++) {
             var section = HEADER_ROWS.get(firstRow + i);
             if (section == null) continue;
             int x = left + 8, y = top + 17 + i * 18, w = 162, h = 18;
             var tex = ResourceLocation.fromNamespaceAndPath(Voltworks.MOD_ID, "textures/gui/sections/" + section.id() + ".png");
-            g.blit(tex, x, y, 0, 0, w, h, w, h);
+            boolean hover = mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h;
+            int frame = hover ? (int) ((net.minecraft.Util.getMillis() / FRAME_MS) % FRAMES) : 0;
+            g.blit(tex, x, y, 0, frame * h, w, h, w, h * FRAMES);
             var title = Component.translatable(section.titleKey());
             int tx = x + 9, ty = y + 5;
             for (int[] o : OUTLINE) g.drawString(font, title, tx + o[0], ty + o[1], 0xFF0A0E12, false);

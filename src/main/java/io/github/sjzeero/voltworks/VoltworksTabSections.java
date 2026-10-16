@@ -37,10 +37,13 @@ public final class VoltworksTabSections {
             motors.add(s.get().asItem());
         for (Supplier<? extends ItemLike> s : List.<Supplier<? extends ItemLike>>of(VoltworksItems.SOLAR_PANEL_ITEM, VoltworksItems.SOLAR_PANEL_BEARING_ITEM, VoltworksItems.INCOMPLETE_SOLAR_PANEL))
             solar.add(s.get().asItem());
+        List<Item> lights = new ArrayList<>();
+        lights.add(VoltworksItems.FACTORY_LIGHT_ITEM.get().asItem());
         List<Section> list = new ArrayList<>();
         add(list, new Section("boards", 0xE0402A1C, 0xFFB8743A, 0xFFFFD9A8, boards));
         add(list, new Section("motors", 0xE0102838, 0xFF40A8D0, 0xFFC8F0FF, motors));
         add(list, new Section("solar", 0xE0102030, 0xFFE0B040, 0xFFFFE8A0, solar));
+        add(list, new Section("lights", 0xE02C1E08, 0xFFFFC840, 0xFFFFE9A8, lights));
         cached = Collections.unmodifiableList(list);
         return cached;
     }

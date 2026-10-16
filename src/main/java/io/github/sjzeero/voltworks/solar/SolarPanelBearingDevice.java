@@ -38,7 +38,7 @@ public class SolarPanelBearingDevice extends SimpleElectricalDevice {
             u = ng[0] / ng[1];
             r = 1 / ng[1] + SolarPhysics.RS * s / p;
         }
-        bridges.builder(pos).voltageSourceWithResistance(0, 1, u, r);
+        bridges.builder(pos).voltageSourceWithResistance(0, 1, r, -u);
     }
 
     @Override
