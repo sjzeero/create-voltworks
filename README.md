@@ -5,9 +5,18 @@ Addon for Create: Electro Energetics (CEE in the name stands for it). It ports t
 Blank circuits come out of a superheated press, copper ones from a deployer, golden ones from sequenced assembly.
 Motors, relays, transformers and a few others now need a copper circuit, the voltage regulator, energy meters and the SF6 breaker need golden ones.
 
-Needs NeoForge 1.21.1, Create 6.0.x and Electro Energetics 1.1.x.
+Needs NeoForge 1.21.1, Create 6.0.x and Electro Energetics 1.1.x or 1.2.x.
 
 Build with `./gradlew build`, the jar (`create-voltworks-<mc version>-<version>.jar`) ends up in build/libs.
+
+## Other content
+
+- Copper cord and socket: a two-strand cord that plugs into wall sockets (cord goes from socket to socket).
+- Solar panels and the solar panel bearing (panels join into strings, sun tracking).
+- Constant speed motor with a built-in speed controller.
+- Factory light: an industrial ceiling lamp that glows at about 22 V, shines fully at about 45 V and explodes above about 52 V.
+- Creative tab sections with animated banners.
+
 
 ## Wall wires
 
@@ -19,7 +28,7 @@ The wire is drawn as a small box on the pixel grid: 1x1 pixel for normal wires, 
 
 It is a normal EE connection: same wire type, resistance from the routed length, same current limit and burning, same drops. Breaking a block it lies on or one of its ends drops it, and an empty spool picks it up like an air wire. Routes are checked again on the server and saved with the world (`voltworks_wall_wires`). Limits are in the server config under `wallWires` (`maxLength`, `maxLead`, `maxPoints`); a route can never be longer than the wire type allows.
 
-## Circuit board (work in progress, branch pg-boards-poc)
+## Circuit board
 
 A circuit board block built from a schematic, using the schematic model, parts and solver ported from Create: Power Grid (see NOTICE). Each connector on the schematic becomes a pin of one Electro Energetics device; the parts run in their own small network that is coupled to EE at the pins every microtick.
 
