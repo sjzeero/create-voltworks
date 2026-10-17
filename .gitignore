@@ -8,3 +8,5 @@ out/
 logs/
 tools/.venv/
 previews/
+__pycache__/
+*.pyc
