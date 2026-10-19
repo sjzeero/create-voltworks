@@ -53,7 +53,7 @@ public final class WallWirePlacement {
             return;
         }
         List<WallCell> points = p.points();
-        if(!WallSpace.sameSpace(level, p.start().sourcePos(), p.end().sourcePos())) {
+        if(points.isEmpty() || !WallSpace.sameSpace(level, p.start().sourcePos(), p.end().sourcePos())) {
             hang(player, level, held, type, p.start(), p.end());
             return;
         }
@@ -158,15 +158,23 @@ public final class WallWirePlacement {
         }
     }
 
-    /** Ends in different spaces (sub-level and main world): an ordinary hanging wire; a cord is never hung. */
+    /** Ends in different spaces (sub-level and main world): an ordinary hanging wire, never a cord. */
     private static void hang(ServerPlayer player, ServerLevel level, ItemStack held, WireType type, InWorldNode start, InWorldNode end) {
         if(start.equals(end) || !level.isLoaded(start.sourcePos()) || !level.isLoaded(end.sourcePos())) {
             deny(player, "invalid", end.sourcePos());
             return;
         }
+        InWorldNode startRet = null, endRet = null;
         if(CordPair.isCord(type)) {
-            deny(player, "invalid", null);
-            return;
+            InWorldNode[] a = CordPair.ends(level, start.sourcePos()), b = CordPair.ends(level, end.sourcePos());
+            if(a == null || b == null) {
+                deny(player, "cord_ends", end.sourcePos());
+                return;
+            }
+            start = a[0];
+            startRet = a[1];
+            end = b[0];
+            endRet = b[1];
         }
         double reach = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 3;
         if(WallSpace.distance(level, player.getEyePosition(), end.sourcePos().getCenter()) > reach + 1) {
@@ -187,11 +195,14 @@ public final class WallWirePlacement {
         }
         startBlock.ensureNodesExist(level, start.sourcePos(), startState);
         endBlock.ensureNodesExist(level, end.sourcePos(), endState);
-        if(!sd.getNodes().contains(start) || !sd.getNodes().contains(end) || sd.isConnected(start, end)) {
+        if(!sd.getNodes().contains(start) || !sd.getNodes().contains(end) || sd.isConnected(start, end)
+                || startRet != null && (!sd.getNodes().contains(startRet) || !sd.getNodes().contains(endRet) || sd.isConnected(startRet, endRet))) {
             deny(player, "invalid", end.sourcePos());
             return;
         }
         sd.connect(start, end, type);
+        if(startRet != null)
+            sd.connect(startRet, endRet, type);
         AllSoundEvents.WRENCH_REMOVE.playOnServer(level, BlockPos.containing(WallSpace.toWorld(level, end.sourcePos().getCenter())));
         if(!player.isCreative()) {
             held.shrink(1);

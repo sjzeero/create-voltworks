@@ -117,9 +117,9 @@ public final class WallWireClient {
         return player.getOffhandItem().getItem() instanceof DyeItem dye ? dye.getDyeColor() : null;
     }
 
-    /** The copper cord is only ever laid along surfaces, whatever the toggle says. */
+    /** Wall mode: wires are laid along surfaces. The copper cord follows the toggle like every other wire. */
     static boolean wall(LocalPlayer player) {
-        return mode == Mode.WALL || CordPair.isCord(heldWireType(player));
+        return mode == Mode.WALL;
     }
 
     private static boolean holdingSpool(LocalPlayer player) {
@@ -177,7 +177,8 @@ public final class WallWireClient {
             player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.3f, mode == Mode.WALL ? 1.3f : 0.9f);
         }
         if(!holdingSpool(player) || !wall(player)) {
-            if(start != null)
+            // a cord in air mode keeps its first socket until the second click
+            if(start != null && !(holdingSpool(player) && CordPair.isCord(heldWireType(player))))
                 reset();
             return;
         }
@@ -263,7 +264,7 @@ public final class WallWireClient {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         ClientLevel level = mc.level;
-        if(player == null || level == null || !holdingSpool(player) || !wall(player))
+        if(player == null || level == null || !holdingSpool(player) || !wall(player) && !CordPair.isCord(heldWireType(player)))
             return;
         event.setCanceled(true);
         event.setSwingHand(false);
@@ -284,10 +285,27 @@ public final class WallWireClient {
         if(!(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK)
             return;
 
+        if(!wall(player)) {
+            // air mode with a cord: two sockets, the server hangs both strands
+            InWorldNode airNode = hoveredNode(level, hit);
+            if(airNode == null)
+                return;
+            if(start == null) {
+                start = airNode;
+                points.clear();
+                committed.clear();
+                player.playSound(SoundEvents.ITEM_FRAME_ADD_ITEM, 0.5f, 1.0f);
+                message(player, "started_air");
+            } else if(!airNode.equals(start)) {
+                PacketDistributor.sendToServer(new PlaceWallWirePayload(start, airNode, List.of()));
+                reset();
+            }
+            return;
+        }
         InWorldNode node = hoveredNode(level, hit);
         if(start != null && !WallSpace.sameSpace(level, hit.getBlockPos(), start.sourcePos())) {
             // between a sub-level and the main world the wire hangs like a normal one (never a cord)
-            if(node != null && !CordPair.isCord(type) && !node.equals(start)) {
+            if(node != null && !node.equals(start)) {
                 PacketDistributor.sendToServer(new PlaceWallWirePayload(start, node, List.of()));
                 reset();
                 return;

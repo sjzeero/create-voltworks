@@ -246,6 +246,7 @@
   "voltworks.wall_wire.bad_face": "The wire can't be laid on this face",
   "voltworks.wall_wire.too_many_points": "Too many points",
   "voltworks.wall_wire.started": "Click block faces to lay the wire, finish on a connector",
+  "voltworks.wall_wire.started_air": "Click the second socket to hang the wire",
   "voltworks.wall_wire.need_point": "Click at least one point on a surface first",
   "voltworks.wall_wire.cancelled": "Wire placement cancelled",
   "voltworks.wall_wire.undo": "Last point removed",

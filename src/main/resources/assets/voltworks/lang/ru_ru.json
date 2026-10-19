@@ -246,6 +246,7 @@
   "voltworks.wall_wire.bad_face": "На эту грань нельзя положить провод",
   "voltworks.wall_wire.too_many_points": "Слишком много точек",
   "voltworks.wall_wire.started": "Кликайте по граням блоков, закончите на разъёме",
+  "voltworks.wall_wire.started_air": "Кликните по второй розетке, провод повиснет в воздухе",
   "voltworks.wall_wire.need_point": "Сначала отметьте хотя бы одну точку на поверхности",
   "voltworks.wall_wire.cancelled": "Прокладка провода отменена",
   "voltworks.wall_wire.undo": "Последняя точка убрана",
