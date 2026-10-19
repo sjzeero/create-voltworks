@@ -106,12 +106,15 @@ public final class WallWireRenderer {
         boolean preview = WallWireClient.start != null && !WallWireClient.committed.isEmpty();
         boolean hover = WallWireClient.hoverSocket != null;
         boolean redPreview = !RedstoneCableClient.committed.isEmpty();
-        if(ClientWallRoutes.all().isEmpty() && !preview && !hover && !redPreview && ClientRedstoneWires.all().isEmpty())
-            return;
-
         Map<InWorldNodeConnection, WireData> wires = new HashMap<>();
-        for(Pair<InWorldNodeConnection, WireData> w : WireRenderer.getAllConnections())
+        boolean hangingCord = false;
+        for(Pair<InWorldNodeConnection, WireData> w : WireRenderer.getAllConnections()) {
             wires.put(w.getFirst(), w.getSecond());
+            if(CordPair.isCord(w.getSecond().wireType()) && !CordPair.isReturn(w.getFirst()) && !ClientWallRoutes.isWall(w.getFirst()))
+                hangingCord = true;
+        }
+        if(ClientWallRoutes.all().isEmpty() && !preview && !hover && !redPreview && !hangingCord && ClientRedstoneWires.all().isEmpty())
+            return;
 
         PoseStack pose = event.getPoseStack();
         float partial = event.getPartialTick().getGameTimeDeltaPartialTick(true);
@@ -160,6 +163,22 @@ public final class WallWireRenderer {
                 Pose3dc space = WallSpace.renderPose(level, cells.getFirst().pos(), partial);
                 new Drawer(level, pose.last(), buffer, used, type, WallWireClient.offhandDye(mc.player), cam, space)
                         .route(cells, WallRoute.segments(cells), WallWireClient.start, null);
+            }
+        }
+
+        // a cord hanging in the air (air mode, or between a sub-level and the world): plugs on both sockets
+        if(hangingCord) {
+            for(Map.Entry<InWorldNodeConnection, WireData> e : wires.entrySet()) {
+                InWorldNodeConnection c = e.getKey();
+                WireData data = e.getValue();
+                if(!CordPair.isCord(data.wireType()) || CordPair.isReturn(c) || ClientWallRoutes.isWall(c))
+                    continue;
+                for(InWorldNode n : new InWorldNode[]{c.node1(), c.node2()}) {
+                    if(n.sourcePos().getCenter().distanceTo(cam) > RENDER_DISTANCE)
+                        continue;
+                    new Drawer(level, pose.last(), buffer, used, data.wireType(), null, cam, WallSpace.renderPose(level, n.sourcePos(), partial))
+                            .plugAt(n);
+                }
             }
         }
 
