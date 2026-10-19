@@ -176,6 +176,7 @@ public final class WallWireClient {
                     .withStyle(ChatFormatting.GOLD), true);
             player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.3f, mode == Mode.WALL ? 1.3f : 0.9f);
         }
+        cordHover(mc, player, mc.level);
         if(!holdingSpool(player) || !wall(player)) {
             // a cord in air mode keeps its first socket until the second click
             if(start != null && !(holdingSpool(player) && CordPair.isCord(heldWireType(player))))
@@ -184,6 +185,20 @@ public final class WallWireClient {
         }
         if(start != null)
             preview(mc, player, mc.level);
+    }
+
+    /** Outlines both cord contacts of the socket under the crosshair while a cord is held. */
+    private static void cordHover(Minecraft mc, LocalPlayer player, ClientLevel level) {
+        if(!holdingSpool(player) || !CordPair.isCord(heldWireType(player)))
+            return;
+        if(!(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK)
+            return;
+        InWorldNode[] ends = CordPair.ends(level, hit.getBlockPos());
+        if(ends == null)
+            return;
+        for(int i = 0; i < ends.length; i++)
+            Outliner.getInstance().showAABB("voltworks_cord_hover_" + i, AABB.ofSize(WallSpace.toWorld(level, WallSpace.nodePos(level, ends[i])), 0.2, 0.2, 0.2))
+                    .lineWidth(1 / 32f).colored(0xf5c542).disableLineNormals();
     }
 
     private static void preview(Minecraft mc, LocalPlayer player, ClientLevel level) {
@@ -249,9 +264,14 @@ public final class WallWireClient {
         BlockState state = level.getBlockState(hit.getBlockPos());
         if(!(state.getBlock() instanceof ElectricalDeviceBlock<?>))
             return null;
-        InWorldNode node = InWorldNode.getHitNode(hit, level);
         LocalPlayer player = Minecraft.getInstance().player;
-        if(node == null || player == null || !CordPair.isCord(heldWireType(player)))
+        if(player != null && CordPair.isCord(heldWireType(player))) {
+            // a cord plugs into the whole socket: aiming anywhere at it is enough
+            InWorldNode[] socket = CordPair.ends(level, hit.getBlockPos());
+            return socket == null ? null : socket[0];
+        }
+        InWorldNode node = InWorldNode.getHitNode(hit, level);
+        if(node == null || player == null)
             return node;
         // a cord always plugs into the supply contact of the block; the return strand follows on the server
         InWorldNode[] ends = CordPair.ends(level, node.sourcePos());
