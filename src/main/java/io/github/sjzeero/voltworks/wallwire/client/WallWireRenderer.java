@@ -174,9 +174,11 @@ public final class WallWireRenderer {
                 if(!CordPair.isCord(data.wireType()) || CordPair.isReturn(c) || ClientWallRoutes.isWall(c))
                     continue;
                 for(InWorldNode n : new InWorldNode[]{c.node1(), c.node2()}) {
-                    if(n.sourcePos().getCenter().distanceTo(cam) > RENDER_DISTANCE)
+                    // a socket on a sub-level lives far away in plot space: measure the distance in the world
+                    var sub = WallSpace.renderPose(level, n.sourcePos(), partial);
+                    if(WallSpace.toWorld(sub, n.sourcePos().getCenter()).distanceTo(cam) > RENDER_DISTANCE)
                         continue;
-                    new Drawer(level, pose.last(), buffer, used, data.wireType(), null, cam, WallSpace.renderPose(level, n.sourcePos(), partial))
+                    new Drawer(level, pose.last(), buffer, used, data.wireType(), null, cam, sub)
                             .plugAt(n);
                 }
             }
