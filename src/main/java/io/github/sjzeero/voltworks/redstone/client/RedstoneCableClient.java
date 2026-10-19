@@ -113,7 +113,7 @@ public final class RedstoneCableClient {
         }
         if(cell.equals(committed.getLast()) && points.size() >= 2) {
             Outliner.getInstance().showAABB("voltworks_redstone_wire_end", AABB.ofSize(WallSpace.toWorld(level, cell.point()), 0.3, 0.3, 0.3))
-                    .lineWidth(1 / 32f).colored(0x68c586).disableLineNormals();
+                    .lineWidth(1 / 32f).colored(0xff3030).disableLineNormals();
             return;
         }
         if(hoverPath == null) {
@@ -127,7 +127,7 @@ public final class RedstoneCableClient {
 
     private static void line(ClientLevel level, String key, Vec3 a, Vec3 b, boolean ok) {
         Outliner.getInstance().showLine(key, WallSpace.toWorld(level, a), WallSpace.toWorld(level, b))
-                .lineWidth(1 / 32f).colored(ok ? 0x68c586 : 0xff5d6c).disableLineNormals();
+                .lineWidth(1 / 32f).colored(ok ? 0xff3030 : 0x8c8c8c).disableLineNormals();
     }
 
     private static void click(InputEvent.InteractionKeyMappingTriggered event) {
