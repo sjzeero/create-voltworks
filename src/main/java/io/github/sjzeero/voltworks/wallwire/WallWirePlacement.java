@@ -240,11 +240,15 @@ public final class WallWirePlacement {
         return true;
     }
 
-    /** A cord socket takes one cord only: true when any of the given cord contacts already has a connection. */
+    /** A socket takes one wire only: true when any contact (terminals 0, 1 and cord contacts 2, 3) of a given socket already has a connection. */
     private static boolean busy(InfrastructureSavedData sd, InWorldNode... nodes) {
-        for(InWorldNode n : nodes)
-            if(n != null && !sd.getConnections(n).isEmpty())
-                return true;
+        for(InWorldNode n : nodes) {
+            if(n == null)
+                continue;
+            for(int id = 0; id <= 3; id++)
+                if(!sd.getConnections(new InWorldNode(id, n.sourcePos())).isEmpty())
+                    return true;
+        }
         return false;
     }
 
