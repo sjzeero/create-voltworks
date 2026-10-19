@@ -48,6 +48,7 @@ public class VoltworksClient {
         modBus.addListener(WallWireClient::registerLayers);
         modBus.addListener(ContraptionGoggles::registerLayers);
         WallWireClient.init();
+        io.github.sjzeero.voltworks.redstone.client.RedstoneCableClient.init();
     }
 
     private static void screens(RegisterMenuScreensEvent event) {

@@ -53,6 +53,10 @@ public final class WallWirePlacement {
             return;
         }
         List<WallCell> points = p.points();
+        if(!WallSpace.sameSpace(level, p.start().sourcePos(), p.end().sourcePos())) {
+            hang(player, level, held, type, p.start(), p.end());
+            return;
+        }
         if(points.isEmpty() || points.size() > VoltworksConfig.wallWireMaxPoints()) {
             deny(player, "invalid", null);
             return;
@@ -147,6 +151,48 @@ public final class WallWirePlacement {
         AllSoundEvents.WRENCH_REMOVE.playOnServer(level, BlockPos.containing(WallSpace.toWorld(level, end.sourcePos().getCenter())));
         player.displayClientMessage(Component.translatable("voltworks.wall_wire.placed", String.format(java.util.Locale.ROOT, "%.2f", length)), true);
 
+        if(!player.isCreative()) {
+            held.shrink(1);
+            if(!CEEConfigs.server().alternateWirePlacement.get())
+                player.getInventory().placeItemBackInInventory(CEEItems.EMPTY_SPOOL.asStack());
+        }
+    }
+
+    /** Ends in different spaces (sub-level and main world): an ordinary hanging wire; a cord is never hung. */
+    private static void hang(ServerPlayer player, ServerLevel level, ItemStack held, WireType type, InWorldNode start, InWorldNode end) {
+        if(start.equals(end) || !level.isLoaded(start.sourcePos()) || !level.isLoaded(end.sourcePos())) {
+            deny(player, "invalid", end.sourcePos());
+            return;
+        }
+        if(CordPair.isCord(type)) {
+            deny(player, "invalid", null);
+            return;
+        }
+        double reach = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 3;
+        if(WallSpace.distance(level, player.getEyePosition(), end.sourcePos().getCenter()) > reach + 1) {
+            deny(player, "invalid", null);
+            return;
+        }
+        double length = WallSpace.toWorld(level, WallSpace.nodePos(level, start)).distanceTo(WallSpace.toWorld(level, WallSpace.nodePos(level, end)));
+        if(length > type.getMaxLength()) {
+            deny(player, "too_long", end.sourcePos());
+            return;
+        }
+        InfrastructureSavedData sd = InfrastructureSavedData.load(level);
+        BlockState startState = level.getBlockState(start.sourcePos());
+        BlockState endState = level.getBlockState(end.sourcePos());
+        if(!(startState.getBlock() instanceof ElectricalDeviceBlock<?> startBlock) || !(endState.getBlock() instanceof ElectricalDeviceBlock<?> endBlock)) {
+            deny(player, "invalid", end.sourcePos());
+            return;
+        }
+        startBlock.ensureNodesExist(level, start.sourcePos(), startState);
+        endBlock.ensureNodesExist(level, end.sourcePos(), endState);
+        if(!sd.getNodes().contains(start) || !sd.getNodes().contains(end) || sd.isConnected(start, end)) {
+            deny(player, "invalid", end.sourcePos());
+            return;
+        }
+        sd.connect(start, end, type);
+        AllSoundEvents.WRENCH_REMOVE.playOnServer(level, BlockPos.containing(WallSpace.toWorld(level, end.sourcePos().getCenter())));
         if(!player.isCreative()) {
             held.shrink(1);
             if(!CEEConfigs.server().alternateWirePlacement.get())

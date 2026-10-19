@@ -52,6 +52,7 @@ public class Voltworks {
         NeoForge.EVENT_BUS.addListener(CircuitInsertion::onDeployerRecipeSearch);
         NeoForge.EVENT_BUS.addListener(BoardTestCommand::onServerTick);
         WallWireEvents.register();
+        io.github.sjzeero.voltworks.redstone.RedstoneCableEvents.register();
     }
 
     public static ResourceLocation asResource(String path) {

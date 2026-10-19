@@ -34,6 +34,10 @@ public final class VoltworksItems {
     public static final DeferredItem<CordSpoolItem> COPPER_CORD = ITEMS.registerItem("copper_cord",
             p -> new CordSpoolItem(p, VoltworksWireTypes.COPPER_CORD));
 
+    /** Redstone cable: links the redstone level of one block face to other block faces, with no wire in the world. */
+    public static final DeferredItem<io.github.sjzeero.voltworks.redstone.RedstoneCableItem> REDSTONE_CABLE = ITEMS.registerItem("redstone_cable",
+            p -> new io.github.sjzeero.voltworks.redstone.RedstoneCableItem(p.stacksTo(1)));
+
     public static final DeferredItem<?> CONSTANT_SPEED_MOTOR_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.CONSTANT_SPEED_MOTOR);
 
     public static final DeferredItem<?> SOLAR_PANEL_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SOLAR_PANEL);

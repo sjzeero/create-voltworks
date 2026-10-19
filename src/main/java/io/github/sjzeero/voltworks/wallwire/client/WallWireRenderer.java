@@ -9,6 +9,8 @@ import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.sjzeero.voltworks.cord.CordPair;
+import io.github.sjzeero.voltworks.redstone.client.ClientRedstoneWires;
+import io.github.sjzeero.voltworks.redstone.client.RedstoneCableClient;
 import io.github.sjzeero.voltworks.registry.VoltworksWireTypes;
 import io.github.sjzeero.voltworks.wallwire.WallCell;
 import io.github.sjzeero.voltworks.wallwire.WallRoute;
@@ -103,7 +105,8 @@ public final class WallWireRenderer {
             return;
         boolean preview = WallWireClient.start != null && !WallWireClient.committed.isEmpty();
         boolean hover = WallWireClient.hoverSocket != null;
-        if(ClientWallRoutes.all().isEmpty() && !preview && !hover)
+        boolean redPreview = !RedstoneCableClient.committed.isEmpty();
+        if(ClientWallRoutes.all().isEmpty() && !preview && !hover && !redPreview && ClientRedstoneWires.all().isEmpty())
             return;
 
         Map<InWorldNodeConnection, WireData> wires = new HashMap<>();
@@ -131,6 +134,23 @@ public final class WallWireRenderer {
                 continue;
             new Drawer(level, pose.last(), buffer, used, data.wireType(), entry.route().color, cam, space)
                     .route(entry.route().cells, entry.segments(), c.node1(), c.node2());
+        }
+
+        // redstone wires are laid the same way, drawn as red insulated wire
+        WireType redType = CEEWireTypes.STANDARD.get();
+        for(ClientRedstoneWires.Entry entry : ClientRedstoneWires.all()) {
+            Pose3dc space = WallSpace.renderPose(level, entry.cells().getFirst().pos(), partial);
+            AABB bounds = WallSpace.toWorld(space, entry.bounds());
+            if(!event.getFrustum().isVisible(bounds) || bounds.getCenter().distanceTo(cam) > RENDER_DISTANCE + bounds.getSize())
+                continue;
+            new Drawer(level, pose.last(), buffer, used, redType, DyeColor.RED, cam, space)
+                    .route(entry.cells(), entry.segments(), (Vec3) null, (Vec3) null);
+        }
+        if(redPreview) {
+            List<WallCell> redCells = List.copyOf(RedstoneCableClient.committed);
+            Pose3dc redSpace = WallSpace.renderPose(level, redCells.getFirst().pos(), partial);
+            new Drawer(level, pose.last(), buffer, used, redType, DyeColor.RED, cam, redSpace)
+                    .route(redCells, WallRoute.segments(redCells), (Vec3) null, (Vec3) null);
         }
 
         if(preview) {

@@ -12,6 +12,7 @@
     "ContraptionMixin",
     "DevicesSavedDataMixin",
     "DyeWireInteractionBehaviourMixin",
+    "BlockStateSignalMixin",
     "InfrastructureSavedDataMixin",
     "RecipeApplierMixin",
     "StructureTemplateMixin",

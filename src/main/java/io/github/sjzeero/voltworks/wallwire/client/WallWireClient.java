@@ -284,11 +284,17 @@ public final class WallWireClient {
         if(!(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK)
             return;
 
+        InWorldNode node = hoveredNode(level, hit);
         if(start != null && !WallSpace.sameSpace(level, hit.getBlockPos(), start.sourcePos())) {
+            // between a sub-level and the main world the wire hangs like a normal one (never a cord)
+            if(node != null && !CordPair.isCord(type) && !node.equals(start)) {
+                PacketDistributor.sendToServer(new PlaceWallWirePayload(start, node, List.of()));
+                reset();
+                return;
+            }
             message(player, "invalid");
             return;
         }
-        InWorldNode node = hoveredNode(level, hit);
         if(node != null) {
             clickNode(player, level, type, node);
             return;
