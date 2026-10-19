@@ -281,6 +281,7 @@
   "voltworks.node.socket_1": "-",
   "voltworks.node.socket_2": "Socket contact",
   "voltworks.wall_wire.cord_ends": "A cord only goes from socket to socket",
+  "voltworks.wall_wire.socket_busy": "This socket already has a cord",
   "block.voltworks.factory_light": "Factory Light",
   "block.voltworks.factory_light.tooltip.summary": "An industrial ceiling lamp. Acts as a _resistive load_; it starts to glow at about _22 V_, shines fully at about _45 V_ and _explodes_ above about _52 V_.",
   "voltworks.node.factory_light_0": "+",

@@ -121,6 +121,10 @@ public final class WallWirePlacement {
             return;
         }
 
+        if(cord && busy(sd, start, end, startRet, endRet)) {
+            deny(player, "socket_busy", end.sourcePos());
+            return;
+        }
         double maxLength = Math.min(VoltworksConfig.wallWireMaxLength(), type.getMaxLength());
         List<WallCell> cells = WallRouter.route(level, points, (int) Math.floor(maxLength * 16));
         if(cells == null) {
@@ -200,6 +204,10 @@ public final class WallWirePlacement {
             deny(player, "invalid", end.sourcePos());
             return;
         }
+        if(startRet != null && busy(sd, start, end, startRet, endRet)) {
+            deny(player, "socket_busy", end.sourcePos());
+            return;
+        }
         sd.connect(start, end, type);
         if(startRet != null)
             sd.connect(startRet, endRet, type);
@@ -230,6 +238,14 @@ public final class WallWirePlacement {
         level.playSound(null, BlockPos.containing(WallSpace.toWorld(level, near.point())), SoundEvents.DYE_USE, SoundSource.BLOCKS, 1, 1);
         stack.consume(1, player);
         return true;
+    }
+
+    /** A cord socket takes one cord only: true when any of the given cord contacts already has a connection. */
+    private static boolean busy(InfrastructureSavedData sd, InWorldNode... nodes) {
+        for(InWorldNode n : nodes)
+            if(n != null && !sd.getConnections(n).isEmpty())
+                return true;
+        return false;
     }
 
     private static void deny(ServerPlayer player, String key, BlockPos pos) {
