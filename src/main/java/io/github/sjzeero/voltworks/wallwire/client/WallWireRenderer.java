@@ -146,13 +146,13 @@ public final class WallWireRenderer {
             AABB bounds = WallSpace.toWorld(space, entry.bounds());
             if(!event.getFrustum().isVisible(bounds) || bounds.getCenter().distanceTo(cam) > RENDER_DISTANCE + bounds.getSize())
                 continue;
-            new Drawer(level, pose.last(), buffer, used, redType, DyeColor.RED, cam, space)
+            new Drawer(level, pose.last(), buffer, used, redType, DyeColor.RED, cam, space).coil()
                     .route(entry.cells(), entry.segments(), (Vec3) null, (Vec3) null);
         }
         if(redPreview) {
             List<WallCell> redCells = List.copyOf(RedstoneCableClient.committed);
             Pose3dc redSpace = WallSpace.renderPose(level, redCells.getFirst().pos(), partial);
-            new Drawer(level, pose.last(), buffer, used, redType, DyeColor.RED, cam, redSpace)
+            new Drawer(level, pose.last(), buffer, used, redType, DyeColor.RED, cam, redSpace).coil()
                     .route(redCells, WallRoute.segments(redCells), (Vec3) null, (Vec3) null);
         }
 
@@ -235,6 +235,14 @@ public final class WallWireRenderer {
         InWorldNodeConnection c = route.connection;
         new Drawer(level, pose, buffer, new java.util.HashSet<>(), type, color, Vec3.ZERO, null, p -> p, n -> n, 15728880)
                 .route(route.cells, route.surfaceSegments(), c.node1(), c.node2());
+    }
+
+    private static Tex coilTex() {
+        TextureAtlasSprite s = net.minecraft.client.Minecraft.getInstance()
+                .getTextureAtlas(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS)
+                .apply(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("voltworks", "block/redstone_coil"));
+        float u0 = s.getU0(), u1 = s.getU(2 / 16f), v0 = s.getV0(), v1 = s.getV(8 / 16f);
+        return new Tex(new float[]{u0, u1, u0, u1}, new float[]{v0, v0, v1, v1});
     }
 
     private static Tex texture(WireType type) {
@@ -320,7 +328,7 @@ public final class WallWireRenderer {
         final net.minecraft.world.level.Level level;
         final PoseStack.Pose pose;
         final VertexConsumer vb;
-        final Tex tex;
+        Tex tex;
         final Vec3 cam;
         /** Cross-section: {@code w} across the run on the surface, {@code h} off the surface. */
         final double w, h;
@@ -349,6 +357,12 @@ public final class WallWireRenderer {
             this.type = type;
             this.w = widthPixels(type) * PX;
             this.h = heightPixels(type) * PX;
+        }
+
+        /** Redstone wire look: copper coil windings instead of the plain insulated wire texture. */
+        Drawer coil() {
+            this.tex = coilTex();
+            return this;
         }
 
         void route(List<WallCell> cells, List<WallRoute.Segment> segments, InWorldNode node1, InWorldNode node2) {
