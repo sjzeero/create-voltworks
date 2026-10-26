@@ -54,6 +54,8 @@ public final class VoltworksItems {
 
     public static final DeferredItem<?> VOLTAGE_SENSOR_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.VOLTAGE_SENSOR);
 
+    public static final DeferredItem<?> REDSTONE_SWITCH_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.REDSTONE_SWITCH);
+
     public static void register(IEventBus bus) {
         ITEMS.register(bus);
     }

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "powered=false": {
+      "model": "voltworks:block/redstone_switch/redstone_switch_off"
+    },
+    "powered=true": {
+      "model": "voltworks:block/redstone_switch/redstone_switch_on"
+    }
+  }
+}

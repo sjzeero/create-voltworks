@@ -316,5 +316,9 @@
   "block.voltworks.voltage_sensor": "Voltage Sensor",
   "block.voltworks.voltage_sensor.tooltip.summary": "A _10 kOhm_ load that emits a _redstone signal_ proportional to the voltage: _0..15_ for _0..48 V_.",
   "voltworks.node.voltage_sensor_0": "+",
-  "voltworks.node.voltage_sensor_1": "-"
+  "voltworks.node.voltage_sensor_1": "-",
+  "block.voltworks.redstone_switch": "Redstone Switch",
+  "block.voltworks.redstone_switch.tooltip.summary": "Connects its two terminals while it receives a _redstone signal_, and opens the circuit when the signal is gone.",
+  "voltworks.node.redstone_switch_0": "+",
+  "voltworks.node.redstone_switch_1": "-"
 }

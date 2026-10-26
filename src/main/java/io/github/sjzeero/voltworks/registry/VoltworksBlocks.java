@@ -53,6 +53,9 @@ public final class VoltworksBlocks {
     public static final DeferredBlock<io.github.sjzeero.voltworks.light.VoltageSensorBlock> VOLTAGE_SENSOR = BLOCKS.register("voltage_sensor", () -> new io.github.sjzeero.voltworks.light.VoltageSensorBlock(
             BlockBehaviour.Properties.of().strength(1.0f).sound(SoundType.METAL).noOcclusion().isRedstoneConductor((s, l, p) -> false)));
 
+    public static final DeferredBlock<io.github.sjzeero.voltworks.light.RedstoneSwitchBlock> REDSTONE_SWITCH = BLOCKS.register("redstone_switch", () -> new io.github.sjzeero.voltworks.light.RedstoneSwitchBlock(
+            BlockBehaviour.Properties.of().strength(1.0f).sound(SoundType.METAL).noOcclusion()));
+
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
     }
