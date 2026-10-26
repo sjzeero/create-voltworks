@@ -48,6 +48,8 @@ public final class VoltworksItems {
 
     public static final DeferredItem<?> FACTORY_LIGHT_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.FACTORY_LIGHT);
 
+    public static final DeferredItem<?> SIGNAL_LAMP_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SIGNAL_LAMP);
+
     public static void register(IEventBus bus) {
         ITEMS.register(bus);
     }

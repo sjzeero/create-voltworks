@@ -304,5 +304,9 @@
   "voltworks.redstone_cable.invalid": "Invalid wire",
   "voltworks.redstone_cable.same_block": "Source and output must be different blocks",
   "voltworks.redstone_cable.face_busy": "This face is already used the other way round",
-  "voltworks.redstone_cable.exists": "Already wired"
+  "voltworks.redstone_cable.exists": "Already wired",
+  "block.voltworks.signal_lamp": "Signal Lamp",
+  "block.voltworks.signal_lamp.tooltip.summary": "A voltage indicator. A small _1 kOhm_ load that glows _green_ up to _24 V_, _yellow_ up to _48 V_ and _red_ above that.",
+  "voltworks.node.signal_lamp_0": "+",
+  "voltworks.node.signal_lamp_1": "-"
 }

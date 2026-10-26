@@ -46,6 +46,9 @@ public final class VoltworksDevices {
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.light.FactoryLightDevice>> FACTORY_LIGHT_DEVICE = DEVICES.register("factory_light",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("factory_light"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.light.FactoryLightDevice(level, pos, sd, type)));
 
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.light.SignalLampDevice>> SIGNAL_LAMP_DEVICE = DEVICES.register("signal_lamp",
+            () -> new SimulatedDeviceType<>(Voltworks.asResource("signal_lamp"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.light.SignalLampDevice(level, pos, sd, type)));
+
     public static void register(IEventBus bus) {
         DEVICES.register(bus);
     }

@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "level=0": {
+      "model": "voltworks:block/signal_lamp/signal_lamp_0"
+    },
+    "level=1": {
+      "model": "voltworks:block/signal_lamp/signal_lamp_1"
+    },
+    "level=2": {
+      "model": "voltworks:block/signal_lamp/signal_lamp_2"
+    },
+    "level=3": {
+      "model": "voltworks:block/signal_lamp/signal_lamp_3"
+    }
+  }
+}
