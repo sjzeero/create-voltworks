@@ -21,7 +21,7 @@ import java.util.Map;
 /** Buzzer: a 500 ohm load between node 0 (+) and node 1 (-) that beeps while the voltage is at least 12 V. */
 public class BuzzerBlock extends SimpleElectricalDeviceBlock<BuzzerDevice> {
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
-    private static final VoxelShape SHAPE = Block.box(1, 0, 3, 15, 8, 13);
+    private static final VoxelShape SHAPE = Block.box(0, 0, 2, 16, 8, 14);
 
     public BuzzerBlock(Properties properties) {
         super(properties);
@@ -45,7 +45,7 @@ public class BuzzerBlock extends SimpleElectricalDeviceBlock<BuzzerDevice> {
     }
 
     private static Vec3 node(int id) {
-        return new Vec3(id == 0 ? 5 / 16.0 : 11 / 16.0, 3 / 16.0, 0.5);
+        return new Vec3(id == 0 ? 3 / 16.0 : 13 / 16.0, 6.5 / 16.0, 0.5);
     }
 
     @Override

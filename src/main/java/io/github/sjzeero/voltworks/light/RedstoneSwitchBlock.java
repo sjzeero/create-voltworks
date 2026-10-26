@@ -22,7 +22,7 @@ import java.util.Map;
 /** Redstone-controlled switch: node 0 and node 1 are connected while the block receives a redstone signal. */
 public class RedstoneSwitchBlock extends SimpleElectricalDeviceBlock<RedstoneSwitchDevice> {
     public static final BooleanProperty POWERED = BooleanProperty.create("powered");
-    private static final VoxelShape SHAPE = Block.box(1, 0, 3, 15, 10, 13);
+    private static final VoxelShape SHAPE = Block.box(0, 0, 2, 16, 12, 14);
 
     public RedstoneSwitchBlock(Properties properties) {
         super(properties);
@@ -61,7 +61,7 @@ public class RedstoneSwitchBlock extends SimpleElectricalDeviceBlock<RedstoneSwi
     }
 
     private static Vec3 node(int id) {
-        return new Vec3(id == 0 ? 4 / 16.0 : 12 / 16.0, 3 / 16.0, 0.5);
+        return new Vec3(id == 0 ? 3 / 16.0 : 13 / 16.0, 6.5 / 16.0, 0.5);
     }
 
     @Override
