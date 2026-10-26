@@ -22,7 +22,7 @@ import java.util.Map;
 /** Voltage sensor: a 10 kOhm load between node 0 (+) and node 1 (-) that emits redstone 0..15 for 0..48 V. */
 public class VoltageSensorBlock extends SimpleElectricalDeviceBlock<VoltageSensorDevice> {
     public static final IntegerProperty POWER = IntegerProperty.create("power", 0, 15);
-    private static final VoxelShape SHAPE = Block.box(2, 0, 2, 14, 8, 14);
+    private static final VoxelShape SHAPE = Block.box(1, 0, 3, 15, 10, 13);
 
     public VoltageSensorBlock(Properties properties) {
         super(properties);
