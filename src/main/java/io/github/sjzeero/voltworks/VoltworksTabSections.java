@@ -41,6 +41,7 @@ public final class VoltworksTabSections {
         lights.add(VoltworksItems.FACTORY_LIGHT_ITEM.get().asItem());
         lights.add(VoltworksItems.SIGNAL_LAMP_ITEM.get().asItem());
         lights.add(VoltworksItems.BUZZER_ITEM.get().asItem());
+        lights.add(VoltworksItems.VOLTAGE_SENSOR_ITEM.get().asItem());
         List<Section> list = new ArrayList<>();
         add(list, new Section("boards", 0xE0402A1C, 0xFFB8743A, 0xFFFFD9A8, boards));
         add(list, new Section("motors", 0xE0102838, 0xFF40A8D0, 0xFFC8F0FF, motors));

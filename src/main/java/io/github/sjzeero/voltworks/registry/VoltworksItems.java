@@ -52,6 +52,8 @@ public final class VoltworksItems {
 
     public static final DeferredItem<?> BUZZER_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.BUZZER);
 
+    public static final DeferredItem<?> VOLTAGE_SENSOR_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.VOLTAGE_SENSOR);
+
     public static void register(IEventBus bus) {
         ITEMS.register(bus);
     }
