@@ -48,6 +48,7 @@ public class VoltworksClient {
         modBus.addListener(WallWireClient::registerLayers);
         modBus.addListener(ContraptionGoggles::registerLayers);
         WallWireClient.init();
+        PotentiometerScroll.init();
         io.github.sjzeero.voltworks.redstone.client.RedstoneCableClient.init();
     }
 

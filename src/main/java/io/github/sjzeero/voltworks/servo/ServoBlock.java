@@ -36,7 +36,6 @@ import net.minecraft.network.chat.MutableComponent;
  */
 public class ServoBlock extends DirectionalKineticElectricBlock<ServoDevice> implements IBE<ServoBlockEntity> {
     public static final BooleanProperty ROLL = DirectionalRolledDeviceBlock.ROLL;
-    /** Node positions (0:+ red, 1:- blue, 2:control green) taken from the PG servo model pins and the blockstate rotations. */
     private static final Map<String, Vec3[]> NODES = new java.util.HashMap<>();
     static {
         NODES.put("NORTHfalse", new Vec3[]{new Vec3(0.3125, 0.8125, 0.9375), new Vec3(0.6875, 0.8125, 0.9375), new Vec3(0.5, 0.8125, 0.9375)});

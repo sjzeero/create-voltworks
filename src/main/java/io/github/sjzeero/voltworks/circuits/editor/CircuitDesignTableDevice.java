@@ -1,5 +1,7 @@
 package io.github.sjzeero.voltworks.circuits.editor;
 
+import io.github.sjzeero.voltworks.VoltageGuard;
+
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.device.SimpleElectricalDevice;
@@ -46,7 +48,7 @@ public class CircuitDesignTableDevice extends SimpleElectricalDevice {
 
     @Override
     public void postTick(SimulationResults results) {
-        power = results.getVoltageAtSqr(pos, 0, 1) / RESISTANCE;
+        power = VoltageGuard.powerFromSq(results.getVoltageAtSqr(pos, 0, 1), RESISTANCE);
         thermalTick();
     }
 

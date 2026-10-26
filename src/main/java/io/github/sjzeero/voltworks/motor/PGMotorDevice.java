@@ -1,5 +1,7 @@
 package io.github.sjzeero.voltworks.motor;
 
+import io.github.sjzeero.voltworks.VoltageGuard;
+
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.device.SimpleElectricalDevice;
@@ -40,6 +42,9 @@ public class PGMotorDevice extends SimpleElectricalDevice {
         double[] v0 = results.getVoltages(new InWorldNode(0, pos));
         double[] v1 = results.getVoltages(new InWorldNode(1, pos));
         int n = Math.min(v0.length, v1.length);
-        for (int i = 0; i < n; i++) m.voltage.add(v0[i] - v1[i]);
+        for (int i = 0; i < n; i++) {
+            double dv = v0[i] - v1[i];
+            if (VoltageGuard.isSane(dv)) m.voltage.add(dv);
+        }
     }
 }

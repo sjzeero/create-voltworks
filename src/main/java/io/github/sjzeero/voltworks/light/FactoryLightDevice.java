@@ -1,5 +1,7 @@
 package io.github.sjzeero.voltworks.light;
 
+import io.github.sjzeero.voltworks.VoltageGuard;
+
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.device.SimpleElectricalDevice;
@@ -71,7 +73,7 @@ public class FactoryLightDevice extends SimpleElectricalDevice {
 
     @Override
     public void postTick(SimulationResults results) {
-        double power = results.getVoltageAtSqr(pos, 0, 1) / resistance();
+        double power = VoltageGuard.powerFromSq(results.getVoltageAtSqr(pos, 0, 1), resistance());
         if (!Double.isFinite(power)) power = 0;
         thermalTick(power);
         int lvl = 0;

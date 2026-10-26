@@ -36,8 +36,11 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity {
     private int currentTarget;
     private int prevTarget;
     private int movingTicks;
+    private int settleTicks;
     private float avgSpeed;
     private float maxSpeed;
+    public volatile double dbgV0, dbgV1, dbgV2;
+    private double syncV0, syncV1, syncV2, syncCtrl;
 
     public ServoBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -59,7 +62,6 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity {
         return STRESS_CAPACITY * AbstractPGMotorBlockEntity.TORQUE_FOR_STRESS;
     }
 
-    /** PG: 5V is 360 degrees clock-wise. Servo has a [-5V, 5V] range. */
     public int controlTarget() {
         return Math.round(Mth.clamp((float) controlVoltage.getSigned() / 5.0f * 360.0f, -360, 360));
     }
@@ -70,6 +72,11 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity {
         if (level == null || level.isClientSide) return;
         maxSpeed = Math.min(avgSpeed / AVERAGING_TICKS, MAX_SPEED);
         avgSpeed = 0;
+        if (Math.abs(dbgV0 - syncV0) > 0.05 || Math.abs(dbgV1 - syncV1) > 0.05 || Math.abs(dbgV2 - syncV2) > 0.05
+                || Math.abs(controlVoltage.getSigned() - syncCtrl) > 0.01) {
+            syncV0 = dbgV0; syncV1 = dbgV1; syncV2 = dbgV2; syncCtrl = controlVoltage.getSigned();
+            sendData();
+        }
         if (maxSpeed == 0 && generatedSpeed != 0) {
             generatedSpeed = 0;
             updateGeneratedRotation();
@@ -82,18 +89,22 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity {
         boolean server = level != null && (!level.isClientSide || isVirtual());
         if (server) {
             double u = coilVoltage.getSigned();
-            avgSpeed += (float) AbstractPGMotorBlockEntity.calculateSpeed(u * u / coilResistance(), torque());
+            avgSpeed += (float) AbstractPGMotorBlockEntity.calculateSpeed(u * u / ON_RESISTANCE, torque());
             int ctrl = controlTarget();
-            if (prevTarget == ctrl) currentTarget = ctrl;
+            if (settleTicks > 0) settleTicks--;
+            if (movingTicks == 0 && settleTicks == 0 && prevTarget == ctrl && Math.abs(ctrl - currentAngle) >= 2) currentTarget = ctrl;
             prevTarget = ctrl;
         }
         super.tick();
         if (!server) return;
-        // Precision of 1 degree (integer angles only)
         int rotation = currentTarget - currentAngle;
         if (Math.abs(rotation) < 1) rotation = 0;
+        if (level.getGameTime() % 20 == 0 && (generatedSpeed != 0 || movingTicks > 0)) {
+            System.out.println("[servo-dbg] pos=" + worldPosition + " genSpeed=" + generatedSpeed + " moving=" + movingTicks + " settle=" + settleTicks + " target=" + currentTarget + " angle=" + currentAngle + " ctrl=" + controlTarget() + " prev=" + prevTarget + " maxSpeed=" + maxSpeed + " kSpeed=" + getSpeed());
+        }
         if (movingTicks > 0) {
             if (--movingTicks == 0) {
+                settleTicks = 10;
                 generatedSpeed = 0;
                 sequenceContext = null;
                 updateGeneratedRotation();
@@ -103,7 +114,7 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity {
         }
         if (rotation != 0) {
             generatedSpeed = (int) Mth.clamp(rotation / 0.05f / 6, -maxSpeed, maxSpeed);
-            if (generatedSpeed == 0) return; // guard: PG divides by zero here and locks up
+            if (generatedSpeed == 0) return;
             sequenceContext = new SequencedGearshiftBlockEntity.SequenceContext(SequencerInstructions.TURN_ANGLE, rotation / generatedSpeed);
             updateGeneratedRotation();
             notifyUpdate();
@@ -137,6 +148,9 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity {
         tag.putInt("MovingTicks", movingTicks);
         coilVoltage.write(tag, "Voltage");
         controlVoltage.write(tag, "ControlVoltage");
+        tag.putDouble("DbgV0", dbgV0);
+        tag.putDouble("DbgV1", dbgV1);
+        tag.putDouble("DbgV2", dbgV2);
     }
 
     @Override
@@ -149,6 +163,9 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity {
         movingTicks = tag.getInt("MovingTicks");
         coilVoltage.read(tag, "Voltage");
         controlVoltage.read(tag, "ControlVoltage");
+        dbgV0 = tag.getDouble("DbgV0");
+        dbgV1 = tag.getDouble("DbgV1");
+        dbgV2 = tag.getDouble("DbgV2");
     }
 
     @Override
@@ -157,7 +174,12 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity {
         tooltip.add(Component.literal("    ").append(Component.translatable("gui.goggles.voltworks.motor.voltage").withStyle(ChatFormatting.GRAY)));
         tooltip.add(Component.literal("    ").append(Component.literal(String.format("%.1f V", coilVoltage.getSigned())).withStyle(ChatFormatting.AQUA)));
         tooltip.add(Component.literal("    ").append(Component.translatable("gui.goggles.voltworks.servo.control").withStyle(ChatFormatting.GRAY)));
-        tooltip.add(Component.literal("    ").append(Component.literal(String.format("%.2f V  (%d\u00b0)", controlVoltage.getSigned(), currentAngle)).withStyle(ChatFormatting.GREEN)));
+        double ctrlV = controlVoltage.getSigned();
+        tooltip.add(Component.literal(String.format("    %.2f V -> target %d deg", ctrlV, currentTarget)).withStyle(ChatFormatting.GREEN));
+        tooltip.add(Component.literal(String.format("    now %d deg", currentAngle)).withStyle(ChatFormatting.GREEN));
+        if (Math.abs(ctrlV) > 5.0) {
+            tooltip.add(Component.literal("    Control is above 5 V: wire the control supply to the servo minus pin").withStyle(ChatFormatting.RED));
+        }
         return true;
     }
 }

@@ -1,6 +1,7 @@
 package io.github.sjzeero.voltworks.board;
 
 import com.george_vi.electroenergetics.simulation.electrical_properties.MicroTickingElectricalProperties;
+import io.github.sjzeero.voltworks.VoltageGuard;
 
 public class PinBranch extends MicroTickingElectricalProperties {
     private final BoardSim sim;
@@ -31,7 +32,13 @@ public class PinBranch extends MicroTickingElectricalProperties {
 
     @Override
     public void afterTick(double[] allVoltages, int n1, int n2, int microTick, int totalMicroTicks) {
-        if (j == 0)
-            sim.pinU[k] = allVoltages[n1 * totalMicroTicks + microTick] - allVoltages[n2 * totalMicroTicks + microTick];
+        if (j == 0) {
+            double u = allVoltages[n1 * totalMicroTicks + microTick] - allVoltages[n2 * totalMicroTicks + microTick];
+            // Break the CEE <-> board feedback loop: never store a blown-up (Inf/NaN/1e25 V) pin voltage.
+            if (VoltageGuard.isSane(u))
+                sim.pinU[k] += BoardSim.PIN_RELAX * (u - sim.pinU[k]);
+            else
+                sim.rejectPin(k);
+        }
     }
 }

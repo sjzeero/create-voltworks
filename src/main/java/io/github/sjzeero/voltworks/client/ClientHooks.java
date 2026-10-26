@@ -1,7 +1,6 @@
 package io.github.sjzeero.voltworks.client;
 
 import io.github.sjzeero.voltworks.board.BoardBlockEntity;
-import io.github.sjzeero.voltworks.circuits.components.PotentiometerComponent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -17,8 +16,6 @@ public final class ClientHooks {
         for(var placed : be.getSchematic().components()) {
             if(!placed.uuid.equals(component))
                 continue;
-            if(placed.component instanceof PotentiometerComponent)
-                Minecraft.getInstance().setScreen(new PotentiometerScreen(be.getBlockPos(), placed));
             return;
         }
     }

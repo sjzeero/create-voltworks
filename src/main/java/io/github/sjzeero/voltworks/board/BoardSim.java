@@ -16,6 +16,11 @@ import java.util.List;
 
 public class BoardSim {
     public static final double G_MIN = 1e-9;
+    /** Upper bounds for the Norton equivalent given to CEE; beyond this the linearization has diverged. */
+    static final double MAX_G = 1e9;
+    static final double MAX_J = 1e9;
+    /** Under-relaxation of pin voltage updates; damps +-+- oscillation of the one-tick-delayed CEE loop. */
+    static final double PIN_RELAX = 0.5;
 
     public final int pins;
     public final int connectorPins;
@@ -31,6 +36,9 @@ public class BoardSim {
     final double[][] gp;
     final double[] j0;
     final double[] current;
+    private double[] lastU;
+    private double[] lastDu;
+    private int[] osc;
     private final double[][] y;
     private DMatrixRMaj rhs;
     private DMatrixRMaj sens;
@@ -57,6 +65,9 @@ public class BoardSim {
         this.gp = new double[pins][pins];
         this.j0 = new double[pins];
         this.current = new double[pins];
+        this.lastU = new double[pins];
+        this.lastDu = new double[pins];
+        this.osc = new int[pins];
         this.y = new double[pins][pins];
         for (int k = 0; k < pins; k++)
             g0[k] = G_MIN;
@@ -167,9 +178,42 @@ public class BoardSim {
                 pair += gp[k][j] * (pinU[k] - pinU[j]);
             }
             g = Math.max(G_MIN, g);
+            double j = current[k] - g * pinU[k] - pair;
+            if (!Double.isFinite(g) || !Double.isFinite(j) || g > MAX_G || Math.abs(j) > MAX_J) {
+                // Numerical blow-up: fall back to a harmless equivalent instead of feeding it back into CEE.
+                g0[k] = G_MIN;
+                j0[k] = 0;
+                badSteps++;
+                continue;
+            }
+            // Oscillation detector: pin voltage step changes sign tick after tick (+-+-).
+            double du = pinU[k] - lastU[k];
+            if (du * lastDu[k] < 0 && Math.abs(du) > 1e-3)
+                osc[k] = Math.min(osc[k] + 2, 10);
+            else
+                osc[k] = Math.max(osc[k] - 1, 0);
+            lastU[k] = pinU[k];
+            lastDu[k] = du;
+            if (osc[k] >= 4) {
+                // Stop feeding the board equivalent back into CEE while the pin is ringing.
+                g0[k] = G_MIN;
+                j0[k] = 0;
+                badSteps++;
+                continue;
+            }
             g0[k] = g;
-            j0[k] = current[k] - g * pinU[k] - pair;
+            j0[k] = j;
         }
+    }
+
+    /** Called when CEE hands back an absurd pin voltage: reset this pin so the blow-up cannot feed itself. */
+    void rejectPin(int k) {
+        pinU[k] = 0;
+        g0[k] = G_MIN;
+        j0[k] = 0;
+        for (int j = 0; j < pins; j++)
+            gp[k][j] = gp[j][k] = 0;
+        badSteps++;
     }
 
     public double pinCurrent(int k) {

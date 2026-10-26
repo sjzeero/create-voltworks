@@ -86,11 +86,6 @@ public class PotentiometerComponent extends OrientableComponent implements IInte
     }
 
     @Override
-    public boolean hasClientScreen(PlacedComponent component) {
-        return true;
-    }
-
-    @Override
     public void stateUpdated(@NotNull PlacedComponent placed) {
         if(placed.wires.isEmpty())
             return;

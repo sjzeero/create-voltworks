@@ -7,6 +7,7 @@ import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.util.WiringTools;
 import java.util.HashMap;
 import java.util.Map;
 import net.createmod.catnip.data.Iterate;
@@ -93,6 +94,7 @@ public class SolarPanelBearingBlock extends DirectionalKineticElectricBlock<Sola
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!player.mayBuild() || player.isShiftKeyDown()) return InteractionResult.PASS;
+        if (WiringTools.isWiringTool(player.getMainHandItem())) return InteractionResult.PASS;
         var behaviour = BlockEntityBehaviour.get(level, pos, SolarPanelBearingScrollBehaviour.TYPE);
         if (behaviour != null) {
             if (behaviour.getSlotPositioning() instanceof ValueBoxTransform.Sided sided) sided.fromSide(hit.getDirection());

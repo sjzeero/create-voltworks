@@ -1,5 +1,7 @@
 package io.github.sjzeero.voltworks.solar;
 
+import io.github.sjzeero.voltworks.VoltageGuard;
+
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.device.SimpleElectricalDevice;
@@ -74,6 +76,6 @@ public class SolarPanelDevice extends SimpleElectricalDevice {
         double[] v0 = results.getVoltages(new InWorldNode(0, pos));
         double[] v1 = results.getVoltages(new InWorldNode(1, pos));
         int n = Math.min(v0.length, v1.length);
-        if (n > 0) { double dv = v0[n - 1] - v1[n - 1]; lastVoltage = Double.isFinite(dv) ? dv : 0; }
+        if (n > 0) { double dv = v0[n - 1] - v1[n - 1]; lastVoltage = VoltageGuard.isSane(dv) ? dv : 0; }
     }
 }
