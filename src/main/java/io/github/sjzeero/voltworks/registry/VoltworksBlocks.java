@@ -47,6 +47,9 @@ public final class VoltworksBlocks {
     public static final DeferredBlock<io.github.sjzeero.voltworks.light.SignalLampBlock> SIGNAL_LAMP = BLOCKS.register("signal_lamp", () -> new io.github.sjzeero.voltworks.light.SignalLampBlock(
             BlockBehaviour.Properties.of().strength(1.0f).sound(SoundType.METAL).noOcclusion().lightLevel(s -> s.getValue(io.github.sjzeero.voltworks.light.SignalLampBlock.LEVEL) > 0 ? 8 : 0)));
 
+    public static final DeferredBlock<io.github.sjzeero.voltworks.light.BuzzerBlock> BUZZER = BLOCKS.register("buzzer", () -> new io.github.sjzeero.voltworks.light.BuzzerBlock(
+            BlockBehaviour.Properties.of().strength(1.0f).sound(SoundType.METAL).noOcclusion()));
+
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
     }

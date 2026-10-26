@@ -310,5 +310,9 @@
   "block.voltworks.signal_lamp": "Сигнальная лампа",
   "block.voltworks.signal_lamp.tooltip.summary": "Индикатор напряжения. Небольшая нагрузка _1 кОм_: светится _зелёным_ до _24 В_, _жёлтым_ до _48 В_ и _красным_ выше.",
   "voltworks.node.signal_lamp_0": "+",
-  "voltworks.node.signal_lamp_1": "-"
+  "voltworks.node.signal_lamp_1": "-",
+  "block.voltworks.buzzer": "Зуммер",
+  "block.voltworks.buzzer.tooltip.summary": "Небольшая нагрузка _500 Ом_, которая пищит от _12 В_. Чем выше напряжение, тем выше тон.",
+  "voltworks.node.buzzer_0": "+",
+  "voltworks.node.buzzer_1": "-"
 }

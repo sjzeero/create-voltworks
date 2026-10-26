@@ -50,6 +50,8 @@ public final class VoltworksItems {
 
     public static final DeferredItem<?> SIGNAL_LAMP_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SIGNAL_LAMP);
 
+    public static final DeferredItem<?> BUZZER_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.BUZZER);
+
     public static void register(IEventBus bus) {
         ITEMS.register(bus);
     }

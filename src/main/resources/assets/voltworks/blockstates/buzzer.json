@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "voltworks:block/buzzer/buzzer_off"
+    },
+    "active=true": {
+      "model": "voltworks:block/buzzer/buzzer_on"
+    }
+  }
+}
