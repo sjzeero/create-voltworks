@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -49,6 +50,8 @@ import java.util.Map;
  */
 public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice> implements IBE<CableReelBlockEntity> {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    /** How much wire is wound on the drum, 0 (bare drum) to {@link ReelMath#FILL_LEVELS}; picks the coil model. */
+    public static final IntegerProperty FILL = IntegerProperty.create("fill", 0, ReelMath.FILL_LEVELS);
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
 
     /** Pixel positions for FACING = NORTH. */
@@ -60,12 +63,12 @@ public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice>
     public CableReelBlock(Properties properties, boolean cord) {
         super(properties);
         this.cord = cord;
-        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH));
+        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(FILL, 0));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, FILL);
     }
 
     @Override

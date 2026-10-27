@@ -1,18 +1,78 @@
 {
   "variants": {
-    "facing=north": {
-      "model": "voltworks:block/cable_reel"
+    "facing=north,fill=0": {
+      "model": "voltworks:block/cable_reel_fill0"
     },
-    "facing=east": {
-      "model": "voltworks:block/cable_reel",
+    "facing=east,fill=0": {
+      "model": "voltworks:block/cable_reel_fill0",
       "y": 90
     },
-    "facing=south": {
-      "model": "voltworks:block/cable_reel",
+    "facing=south,fill=0": {
+      "model": "voltworks:block/cable_reel_fill0",
       "y": 180
     },
-    "facing=west": {
-      "model": "voltworks:block/cable_reel",
+    "facing=west,fill=0": {
+      "model": "voltworks:block/cable_reel_fill0",
+      "y": 270
+    },
+    "facing=north,fill=1": {
+      "model": "voltworks:block/cable_reel_fill1"
+    },
+    "facing=east,fill=1": {
+      "model": "voltworks:block/cable_reel_fill1",
+      "y": 90
+    },
+    "facing=south,fill=1": {
+      "model": "voltworks:block/cable_reel_fill1",
+      "y": 180
+    },
+    "facing=west,fill=1": {
+      "model": "voltworks:block/cable_reel_fill1",
+      "y": 270
+    },
+    "facing=north,fill=2": {
+      "model": "voltworks:block/cable_reel_fill2"
+    },
+    "facing=east,fill=2": {
+      "model": "voltworks:block/cable_reel_fill2",
+      "y": 90
+    },
+    "facing=south,fill=2": {
+      "model": "voltworks:block/cable_reel_fill2",
+      "y": 180
+    },
+    "facing=west,fill=2": {
+      "model": "voltworks:block/cable_reel_fill2",
+      "y": 270
+    },
+    "facing=north,fill=3": {
+      "model": "voltworks:block/cable_reel_fill3"
+    },
+    "facing=east,fill=3": {
+      "model": "voltworks:block/cable_reel_fill3",
+      "y": 90
+    },
+    "facing=south,fill=3": {
+      "model": "voltworks:block/cable_reel_fill3",
+      "y": 180
+    },
+    "facing=west,fill=3": {
+      "model": "voltworks:block/cable_reel_fill3",
+      "y": 270
+    },
+    "facing=north,fill=4": {
+      "model": "voltworks:block/cable_reel_fill4"
+    },
+    "facing=east,fill=4": {
+      "model": "voltworks:block/cable_reel_fill4",
+      "y": 90
+    },
+    "facing=south,fill=4": {
+      "model": "voltworks:block/cable_reel_fill4",
+      "y": 180
+    },
+    "facing=west,fill=4": {
+      "model": "voltworks:block/cable_reel_fill4",
       "y": 270
     }
   }

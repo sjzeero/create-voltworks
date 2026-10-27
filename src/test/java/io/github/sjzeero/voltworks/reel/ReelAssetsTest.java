@@ -27,22 +27,34 @@ class ReelAssetsTest {
         return ReelAssetsTest.class.getClassLoader().getResource(path) != null;
     }
 
+    static final int LEVELS = ReelMath.FILL_LEVELS;
+
+    static String model(String reel, int fill) {
+        return "assets/voltworks/models/block/" + reel + "_fill" + fill + ".json";
+    }
+
     @Test
-    void blockstatesCoverAllFacings() throws IOException {
+    void blockstatesCoverAllFacingsAndFillLevels() throws IOException {
         for (String r : REELS) {
             JsonObject v = json("assets/voltworks/blockstates/" + r + ".json").getAsJsonObject("variants");
-            for (String f : List.of("north", "east", "south", "west"))
-                assertEquals("voltworks:block/" + r, v.getAsJsonObject("facing=" + f).get("model").getAsString());
+            assertEquals(4 * (LEVELS + 1), v.size());
+            for (int fill = 0; fill <= LEVELS; fill++)
+                for (String f : List.of("north", "east", "south", "west"))
+                    assertEquals("voltworks:block/" + r + "_fill" + fill, v.getAsJsonObject("facing=" + f + ",fill=" + fill).get("model").getAsString());
         }
     }
 
     @Test
     void modelsAndTexturesExist() throws IOException {
         for (String r : REELS) {
-            JsonObject m = json("assets/voltworks/models/block/" + r + ".json");
-            String coil = m.getAsJsonObject("textures").get("coil").getAsString();
-            assertTrue(exists("assets/voltworks/textures/block/" + coil.substring(coil.indexOf('/') + 1) + ".png"), coil);
-            assertEquals("voltworks:block/" + r, json("assets/voltworks/models/item/" + r + ".json").get("parent").getAsString());
+            for (int fill = 0; fill <= LEVELS; fill++)
+                for (var t : json(model(r, fill)).getAsJsonObject("textures").entrySet()) {
+                    String tex = t.getValue().getAsString();
+                    if (tex.startsWith("voltworks:"))
+                        assertTrue(exists("assets/voltworks/textures/" + tex.substring(tex.indexOf(':') + 1) + ".png"), tex);
+                }
+            assertEquals("voltworks:block/" + r + "_fill0", json("assets/voltworks/models/item/" + r + ".json").get("parent").getAsString(),
+                    "the item shows the empty drum");
         }
         assertTrue(exists("assets/voltworks/textures/block/cable_reel_parts.png"));
         assertTrue(exists("assets/voltworks/textures/item/reel_plug.png"));
@@ -50,14 +62,44 @@ class ReelAssetsTest {
     }
 
     @Test
-    void modelStaysInsideTheBlock() throws IOException {
+    void modelStaysInsideTheBlockOnThePixelGrid() throws IOException {
         for (String r : REELS)
-            for (var e : json("assets/voltworks/models/block/" + r + ".json").getAsJsonArray("elements")) {
-                var o = e.getAsJsonObject();
-                for (String k : List.of("from", "to"))
-                    for (var c : o.getAsJsonArray(k))
-                        assertTrue(c.getAsDouble() >= 0 && c.getAsDouble() <= 16, r + " " + o);
+            for (int fill = 0; fill <= LEVELS; fill++)
+                for (var e : json(model(r, fill)).getAsJsonArray("elements")) {
+                    var o = e.getAsJsonObject();
+                    for (String k : List.of("from", "to"))
+                        for (var c : o.getAsJsonArray(k)) {
+                            double d = c.getAsDouble();
+                            assertTrue(d >= 0 && d <= 16 && d == Math.rint(d), r + " " + o);
+                        }
+                }
+    }
+
+    /** Coil element of a fill model, or null when the drum is bare. */
+    static JsonObject coil(String reel, int fill) throws IOException {
+        for (var e : json(model(reel, fill)).getAsJsonArray("elements"))
+            if (e.getAsJsonObject().toString().contains("\"#coil\""))
+                return e.getAsJsonObject();
+        return null;
+    }
+
+    @Test
+    void emptyDrumIsBareAndTheCoilGrowsOnePixelPerLevel() throws IOException {
+        for (String r : REELS) {
+            assertNull(coil(r, 0), r + ": no wire on an empty drum");
+            for (int fill = 1; fill <= LEVELS; fill++) {
+                JsonObject c = coil(r, fill);
+                assertNotNull(c, r + " fill " + fill);
+                double radius = (c.getAsJsonArray("to").get(1).getAsDouble() - c.getAsJsonArray("from").get(1).getAsDouble()) / 2;
+                assertEquals(2 + fill, radius, 1e-9, r + " fill " + fill);
+                // texture pixels as big as model pixels
+                for (var f : c.getAsJsonObject("faces").entrySet()) {
+                    var uv = f.getValue().getAsJsonObject().getAsJsonArray("uv");
+                    assertEquals(2 * radius, uv.get(2).getAsDouble() - uv.get(0).getAsDouble(), 1e-9);
+                    assertEquals(2 * radius, uv.get(3).getAsDouble() - uv.get(1).getAsDouble(), 1e-9);
+                }
             }
+        }
     }
 
     @Test

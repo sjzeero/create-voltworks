@@ -5,7 +5,8 @@
     "casing": "create:block/andesite_casing",
     "axle": "create:block/axis_top",
     "coil": "voltworks:block/cable_reel_coil",
-    "parts": "voltworks:block/cable_reel_parts"
+    "parts": "voltworks:block/cable_reel_parts",
+    "shaft": "create:block/axis"
   },
   "elements": [
     {
@@ -313,55 +314,59 @@
       "name": "hub"
     },
     {
+      "name": "axle",
       "from": [
         3,
-        3,
-        3
+        6,
+        6
       ],
       "to": [
         13,
-        13,
-        13
+        10,
+        10
       ],
       "faces": {
         "north": {
-          "texture": "#coil",
+          "texture": "#shaft",
           "uv": [
+            6,
             3,
-            3,
-            13,
+            10,
             13
-          ]
+          ],
+          "rotation": 90
         },
         "south": {
-          "texture": "#coil",
+          "texture": "#shaft",
           "uv": [
+            6,
             3,
-            3,
-            13,
+            10,
             13
-          ]
+          ],
+          "rotation": 90
         },
         "up": {
-          "texture": "#coil",
+          "texture": "#shaft",
           "uv": [
+            6,
             3,
-            3,
-            13,
+            10,
             13
-          ]
+          ],
+          "rotation": 90
         },
         "down": {
-          "texture": "#coil",
+          "texture": "#shaft",
           "uv": [
+            6,
             3,
-            3,
-            13,
+            10,
             13
-          ]
+          ],
+          "rotation": 90
         }
-      },
-      "name": "drum"
+      }
     },
     {
       "from": [

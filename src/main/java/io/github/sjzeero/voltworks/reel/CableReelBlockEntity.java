@@ -85,6 +85,28 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         return grab;
     }
 
+    /**
+     * Every change to the wire bookkeeping goes through setChanged, so the coil model follows the wire on the drum
+     * here. The blockstate is only touched when the level actually changes, so a cable paying out continuously behind
+     * a moving Sable structure does not resend the block every tick.
+     */
+    @Override
+    public void setChanged() {
+        super.setChanged();
+        updateFill();
+    }
+
+    private void updateFill() {
+        if (level == null || level.isClientSide || isRemoved())
+            return;
+        BlockState state = level.getBlockState(worldPosition);
+        if (!(state.getBlock() instanceof CableReelBlock) || !state.hasProperty(CableReelBlock.FILL))
+            return;
+        int fill = ReelMath.fillLevel(stored, VoltworksConfig.reelCapacity());
+        if (state.getValue(CableReelBlock.FILL) != fill)
+            level.setBlock(worldPosition, state.setValue(CableReelBlock.FILL, fill), Block.UPDATE_CLIENTS);
+    }
+
     public void dropGrab() {
         if (grab != 0) {
             grab = 0;

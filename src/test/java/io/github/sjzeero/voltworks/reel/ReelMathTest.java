@@ -84,4 +84,22 @@ class ReelMathTest {
         assertFalse(ReelMath.overstretched(64.9, 64), "Electro Energetics' one block of give");
         assertTrue(ReelMath.overstretched(65.1, 64));
     }
+
+    @Test
+    void fillLevelFollowsTheWireOnTheDrum() {
+        double spool = 16, cap = 64;
+        assertEquals(0, ReelMath.fillLevel(0, cap), "empty drum");
+        for (int spools = 1; spools <= 4; spools++)
+            assertEquals(spools, ReelMath.fillLevel(spools * spool, cap), "one level per spool wound in");
+        assertEquals(1, ReelMath.fillLevel(0.5, cap), "a little wire still shows");
+        assertEquals(2, ReelMath.fillLevel(16.5, cap));
+        assertEquals(4, ReelMath.fillLevel(100, cap));
+        assertEquals(0, ReelMath.fillLevel(0.01, cap));
+        int last = 0;
+        for (double s = 0; s <= cap; s += 0.37) {
+            int l = ReelMath.fillLevel(s, cap);
+            assertTrue(l >= last && l <= ReelMath.FILL_LEVELS);
+            last = l;
+        }
+    }
 }

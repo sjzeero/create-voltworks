@@ -13,6 +13,23 @@ public final class ReelMath {
 
     public static final double EPS = 1.0E-6;
 
+    /** Coil models above the bare drum. */
+    public static final int FILL_LEVELS = 4;
+
+    /**
+     * Coil model for the wire still wound on the drum (pulled-out wire is not on the drum): 0 when the drum is empty,
+     * otherwise 1..{@link #FILL_LEVELS} in proportion to the capacity, rounded up so a little wire still shows. With the
+     * default capacity of four spools every spool wound in is one level thicker.
+     */
+    public static int fillLevel(double stored, double capacity) {
+        if (stored <= 0.05)
+            return 0;
+        if (capacity <= EPS)
+            return FILL_LEVELS;
+        int level = (int) Math.ceil(stored / capacity * FILL_LEVELS - EPS);
+        return Math.max(1, Math.min(FILL_LEVELS, level));
+    }
+
     /** Can one more spool be wound in, given what is inside plus what is pulled out? */
     public static boolean canLoad(double stored, double pulled, double spoolLength, double capacity) {
         return stored + pulled + spoolLength <= capacity + EPS;
