@@ -15,6 +15,7 @@ import io.github.sjzeero.voltworks.reel.ReelMath;
 import io.github.sjzeero.voltworks.reel.ReelPlugItem;
 import io.github.sjzeero.voltworks.wallwire.WallSpace;
 import net.createmod.catnip.data.Pair;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -28,6 +29,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -182,7 +184,7 @@ public final class ReelClient {
         CableReelBlock block = be.block();
         Vec3 local = block.localNode(be.getBlockState(), block.outletId());
         Vec3 from = WallSpace.toWorld(WallSpace.renderPose(level, be.getBlockPos(), pt), Vec3.atLowerCornerOf(be.getBlockPos()).add(local));
-        Vec3 hand = handPos(mc, player, pt);
+        Vec3 hand = handPos(mc, player, event.getCamera(), pt);
         double distance = from.distanceTo(hand);
         if (distance < 0.05)
             return;
@@ -209,15 +211,26 @@ public final class ReelClient {
                     level.addParticle(new DustParticleOptions(new Vector3f(0.9f, 0.3f, 0.3f), 0.8f), p.x, p.y, p.z, 0, 0, 0);
     }
 
-    /** Roughly where the held cable end is: in front of the eyes, low, on the main-hand side. */
-    private static Vec3 handPos(Minecraft mc, LocalPlayer player, float pt) {
-        Vec3 eye = player.getEyePosition(pt);
-        Vec3 look = player.getViewVector(pt);
-        float yaw = (float) Math.toRadians(player.getViewYRot(pt));
-        Vec3 right = new Vec3(-Math.cos(yaw), 0, -Math.sin(yaw));
-        double side = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
-        if (!mc.options.getCameraType().isFirstPerson())
-            return player.getPosition(pt).add(0, player.getBbHeight() * 0.55, 0).add(right.scale(0.35 * side)).add(look.multiply(0.25, 0, 0.25));
-        return eye.add(look.scale(0.6)).add(right.scale(0.3 * side)).add(0, -0.35, 0);
+    /**
+     * Where the held cable end is, the way vanilla finds the hand holding a fishing rod line: in first person a point
+     * on the camera's near plane at the main-hand corner (scaled by the field of view, so the wire runs into the held
+     * item at the bottom of the screen instead of stopping in front of the crosshair), in third person the hand of
+     * the body model.
+     */
+    private static Vec3 handPos(Minecraft mc, LocalPlayer player, Camera camera, float pt) {
+        int side = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
+        float swing = Mth.sin(Mth.sqrt(player.getAttackAnim(pt)) * Mth.PI);
+        if (mc.options.getCameraType().isFirstPerson() && player == mc.player) {
+            double fov = 960.0 / mc.options.fov().get();
+            Vec3 near = camera.getNearPlane().getPointOnPlane(side * 0.525f, -0.1f).scale(fov)
+                    .yRot(swing * 0.5f).xRot(-swing * 0.7f);
+            return player.getEyePosition(pt).add(near);
+        }
+        float body = Mth.lerp(pt, player.yBodyRotO, player.yBodyRot) * Mth.DEG_TO_RAD;
+        double sin = Mth.sin(body), cos = Mth.cos(body);
+        double scale = player.getScale();
+        double across = side * 0.35 * scale, forward = 0.8 * scale;
+        double crouch = player.isCrouching() ? -0.1875 : 0;
+        return player.getEyePosition(pt).add(-cos * across - sin * forward, crouch - 0.45 * scale, -sin * across + cos * forward);
     }
 }

@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * The free end of a reel cable lying on the ground: dropped, thrown, slipped out of the hand, or left behind when the
  * block it was plugged into went away. It falls like an item, can't be pushed further from its reel than the wire on
- * the drum (it gets dragged back towards the reel instead), and a right-click picks it up as the Cable End item
+ * the drum (past it the wire holds it like a rope: it swings and hangs below the reel, never floats), and a right-click picks it up as the Cable End item
  * again. It carries no current: there is no Electro Energetics connection while the end lies around.
  * <p>
  * The reel remembers the entity's UUID; the entity only remembers its reel. Either side going away clears the link
@@ -59,18 +59,57 @@ public class CableEndEntity extends Entity {
         builder.define(REEL, BlockPos.ZERO);
     }
 
+    /** Gravity per tick, like a dropped item. */
+    static final double GRAVITY = 0.04;
+
     @Override
     public void tick() {
         super.tick();
-        Vec3 dm = getDeltaMovement().add(0, -0.04, 0);
+        // spawned inside a block (dropped against a wall, a socket that went away): push out like an item does
+        noPhysics = !level().noCollision(this, getBoundingBox().deflate(1.0E-7));
+        if (noPhysics)
+            moveTowardsClosestSpace(getX(), (getBoundingBox().minY + getBoundingBox().maxY) / 2.0, getZ());
+        // gravity every tick, no matter what: the end never rests anywhere but on something solid or on a taut wire
+        Vec3 dm = getDeltaMovement().add(0, -GRAVITY, 0);
+        dm = constrain(dm); // on the client too (the reel's stored length is synced), so a hanging end doesn't jitter
         move(MoverType.SELF, dm);
         double friction = onGround() ? 0.5 : 0.98;
-        dm = getDeltaMovement().multiply(friction, 0.98, friction);
-        if (onGround() && dm.y < 0)
-            dm = new Vec3(dm.x, 0, dm.z);
-        setDeltaMovement(dm);
+        setDeltaMovement(getDeltaMovement().multiply(friction, 0.98, friction));
         if (!level().isClientSide)
             serverTick();
+    }
+
+    /**
+     * The wire on the drum is a rope, not a rod: while the end is within reach nothing happens; when this tick's
+     * motion would carry it past the reach, the outward part of the motion is taken away (it swings and slides down
+     * along the sphere around the outlet instead of floating), and an end already beyond the reach is pulled back.
+     */
+    private Vec3 constrain(Vec3 dm) {
+        CableReelBlockEntity be = level().isLoaded(reelPos()) ? reel() : null;
+        if (be == null)
+            return dm;
+        Vec3 outlet = be.outletWorld();
+        double reach = be.stored();
+        Vec3 next = position().add(dm);
+        Vec3 off = next.subtract(outlet);
+        double dist = off.length();
+        if (dist <= reach + ReelMath.EPS || dist < 1.0E-6)
+            return dm;
+        Vec3 n = off.scale(1 / dist);
+        Vec3 onSphere = outlet.add(n.scale(reach));
+        Vec3 step = onSphere.subtract(position());
+        // keep the tangential velocity (the swing), drop the outward one
+        Vec3 v = getDeltaMovement();
+        double out = v.dot(n);
+        if (out > 0)
+            setDeltaMovement(v.subtract(n.scale(out)));
+        hasImpulse = true;
+        if (position().distanceTo(outlet) > reach + 2) {
+            // stuck behind a block far past the reach: the cable pulls it through
+            setPos(onSphere.x, onSphere.y, onSphere.z);
+            return Vec3.ZERO;
+        }
+        return step;
     }
 
     private void serverTick() {
@@ -81,17 +120,6 @@ public class CableEndEntity extends Entity {
         if (be == null) {
             discard();
             return;
-        }
-        // the wire on the drum is all there is: past it the end is dragged back towards the reel
-        Vec3 outlet = be.outletWorld();
-        Vec3 here = position();
-        double scale = ReelMath.reachScale(here.distanceTo(outlet), be.stored());
-        if (scale < 1) {
-            Vec3 target = outlet.add(here.subtract(outlet).scale(scale));
-            move(MoverType.SELF, target.subtract(here));
-            if (position().distanceTo(outlet) > be.stored() + 0.5)
-                setPos(target.x, target.y, target.z); // stuck behind a block: the cable pulls it through
-            setDeltaMovement(getDeltaMovement().scale(0.5));
         }
         if (tickCount % 20 == 0)
             be.looseSeen(blockPosition());

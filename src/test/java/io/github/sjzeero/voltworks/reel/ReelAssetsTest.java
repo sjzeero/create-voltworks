@@ -147,6 +147,17 @@ class ReelAssetsTest {
      * cable reel. Both on the 16 px grid with one texel per pixel (no mixels), lying on y = 6 with the cable leaving at
      * the back point CableEndRenderer draws the wire to.
      */
+    /** Held like a lead, not a brick: hand transforms shrink the few-pixel model, the GUI one enlarges it. */
+    @Test
+    void cableEndsAreSmallInTheHand() throws IOException {
+        for (String name : List.of("cord_plug", "cable_lug")) {
+            JsonObject display = json("assets/voltworks/models/item/" + name + ".json").getAsJsonObject("display");
+            for (String ctx : List.of("firstperson_righthand", "firstperson_lefthand", "thirdperson_righthand", "thirdperson_lefthand", "ground"))
+                for (var v : display.getAsJsonObject(ctx).getAsJsonArray("scale"))
+                    assertTrue(v.getAsDouble() <= 0.5, name + " " + ctx + " scale " + v);
+        }
+    }
+
     @Test
     void cableEndModelsAre3dOnThePixelGrid() throws IOException {
         JsonObject item = json("assets/voltworks/models/item/reel_plug.json");
