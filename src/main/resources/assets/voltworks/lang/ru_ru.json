@@ -330,6 +330,7 @@
   "voltworks.cable_reel.grabbed": "Конец кабеля в руке (на лебёдке %s блоков): кликните по клемме, чтобы подключить",
   "voltworks.cable_reel.connected": "Вытянуто %s блоков, на лебёдке осталось %s",
   "voltworks.cable_reel.retracted": "Смотано, на лебёдке %s блоков",
+  "voltworks.cable_reel.unplugged": "Вилка вынута: конец кабеля лежит на полу",
   "voltworks.cable_reel.status": "На лебёдке %s / %s блоков",
   "voltworks.cable_reel.too_far": "Не хватает кабеля: до лебёдки %s блоков, намотано %s",
   "voltworks.cable_reel.too_short": "Не хватает кабеля: нужно %s блоков, намотано %s",

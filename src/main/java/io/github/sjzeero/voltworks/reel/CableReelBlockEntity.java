@@ -365,6 +365,46 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         return true;
     }
 
+    // ---- unplugging -------------------------------------------------------------------------------------------------
+
+    /** The cord reel whose plug is in the socket at {@code socket}, or null. */
+    public static @Nullable CableReelBlockEntity pluggedInto(ServerLevel sl, BlockPos socket) {
+        InfrastructureSavedData sd = InfrastructureSavedData.load(sl);
+        for (int id : new int[]{SocketBlock.CORD_POSITIVE, SocketBlock.CORD_NEGATIVE})
+            for (InWorldNodeConnection c : sd.getConnections(new InWorldNode(id, socket))) {
+                InWorldNode other = c.node1().sourcePos().equals(socket) && c.node1().id() == id ? c.node2() : c.node1();
+                if (sl.isLoaded(other.sourcePos()) && sl.getBlockEntity(other.sourcePos()) instanceof CableReelBlockEntity be
+                        && be.block().cord && be.block().isOutlet(other.id()))
+                    return be;
+            }
+        return null;
+    }
+
+    /**
+     * Right-click on the socket the cord is plugged into: the plug comes out. The cable is not wound back (only
+     * sneak-clicking the reel does that): its end goes into the empty main hand, to be plugged in elsewhere, or with
+     * something in the hand falls on the floor in front of the socket.
+     */
+    public void unplugByPlayer(ServerPlayer player) {
+        if (!(level instanceof ServerLevel sl))
+            return;
+        List<InWorldNodeConnection> out = outgoing(InfrastructureSavedData.load(sl));
+        if (out.isEmpty())
+            return;
+        Vec3 end = farEnd(out.getFirst());
+        BlockPos socket = far(out.getFirst()).sourcePos();
+        windIn(); // takes the connection out (no drops) and the plug out of the socket
+        removeLoose();
+        AllSoundEvents.WRENCH_REMOVE.playOnServer(sl, socket);
+        if (player.getMainHandItem().isEmpty() && wireType() != null && stored > ReelMath.EPS) {
+            giveEnd(player);
+        } else if (end != null) {
+            dropLoose(end, Vec3.ZERO);
+            player.displayClientMessage(Component.translatable("voltworks.cable_reel.unplugged"), true);
+        }
+        setChanged();
+    }
+
     // ---- winding back ----------------------------------------------------------------------------------------------
 
     public void retractByPlayer(ServerPlayer player) {

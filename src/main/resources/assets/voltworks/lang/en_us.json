@@ -328,6 +328,7 @@
   "voltworks.cable_reel.grabbed": "Cable end in hand (%s blocks on the reel): click a terminal to plug it in",
   "voltworks.cable_reel.connected": "Pulled out %s blocks, %s left on the reel",
   "voltworks.cable_reel.retracted": "Wound back, %s blocks on the reel",
+  "voltworks.cable_reel.unplugged": "Unplugged: the cable end lies on the floor",
   "voltworks.cable_reel.status": "%s / %s blocks on the reel",
   "voltworks.cable_reel.too_far": "Not enough cable: %s blocks away, %s on the reel",
   "voltworks.cable_reel.too_short": "Not enough cable: %s blocks needed, %s on the reel",

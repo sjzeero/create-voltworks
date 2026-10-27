@@ -254,8 +254,9 @@ class ReelAssetsTest {
 
 
     /**
-     * No see-through gaps: the end models have all six faces on every cuboid, painted with opaque texels only, and in
-     * the reel models every face left out is covered by a neighbouring cuboid.
+     * No see-through gaps: the end models have all six faces on every cuboid (so the lug's screw hole, the one
+     * intended opening, has copper walls), painted with opaque texels only, and in the reel models every face left
+     * out is covered by a neighbouring cuboid.
      */
     @Test
     void modelsAreClosed() throws IOException {
@@ -294,6 +295,15 @@ class ReelAssetsTest {
                 }
                 boxes.add(new double[][]{f, t});
                 els.add(o);
+            }
+            if (m.equals("item/cable_lug")) {
+                // the ring lug's screw hole is a real opening through the tongue, walled on all four sides
+                double[][] hole = {{7.5, 6.5, 3.5}, {8.5, 6.5, 3.5}, {7.5, 6.5, 4.5}, {8.5, 6.5, 4.5}};
+                for (double[] p : hole)
+                    for (double[][] box : boxes)
+                        assertFalse(inside(p, box), "cable_lug: hole at " + java.util.Arrays.toString(p));
+                for (double[] p : new double[][]{{6.5, 6.5, 4}, {9.5, 6.5, 4}, {8, 6.5, 2.5}, {8, 6.5, 5.5}})
+                    assertTrue(boxes.stream().anyMatch(box -> inside(p, box)), "cable_lug: ring around the hole");
             }
             for (int i = 0; i < els.size(); i++) {
                 double[] f = boxes.get(i)[0], t = boxes.get(i)[1];

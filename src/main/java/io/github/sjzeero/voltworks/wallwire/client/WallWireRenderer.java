@@ -421,6 +421,9 @@ public final class WallWireRenderer {
             var state = level.getBlockState(node.sourcePos());
             if(!state.hasProperty(io.github.sjzeero.voltworks.cord.SocketBlock.FACING))
                 return plug;
+            // a cable reel's plug is in the socket (ReelClient draws it): its contacts are at the plug's back already
+            if(state.getValue(io.github.sjzeero.voltworks.cord.SocketBlock.PLUG) != io.github.sjzeero.voltworks.cord.SocketBlock.Plug.NONE)
+                return plug;
             // FACING points at the block the socket is mounted on, so the plug sticks out the other way
             Vec3 u = step(state.getValue(io.github.sjzeero.voltworks.cord.SocketBlock.FACING).getOpposite());
             Vec3 up = Math.abs(u.y) > 0.5 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);

@@ -2,15 +2,20 @@ package io.github.sjzeero.voltworks.cord;
 
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
+import io.github.sjzeero.voltworks.reel.CableReelBlockEntity;
 import io.github.sjzeero.voltworks.registry.VoltworksDevices;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -173,6 +178,37 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
         return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
     }
 
+
+    /**
+     * Right-click on a socket with a cable reel's plug in it pulls the plug out (see
+     * {@link CableReelBlockEntity#unplugByPlayer}). With something in the hand only when that is not a block to place
+     * or a tool of Electro Energetics / Create / Voltworks (wires, wrench, cable ends...), and not while sneaking.
+     */
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        if (state.getValue(PLUG) == Plug.NONE || !canUnplugWith(player))
+            return InteractionResult.PASS;
+        if (!(level instanceof ServerLevel sl) || !(player instanceof ServerPlayer sp))
+            return InteractionResult.SUCCESS;
+        CableReelBlockEntity reel = CableReelBlockEntity.pluggedInto(sl, pos);
+        if (reel == null) {
+            // the reel's cord went away without taking the plug along: just clear it
+            sl.setBlock(pos, state.setValue(PLUG, Plug.NONE), Block.UPDATE_ALL);
+            return InteractionResult.SUCCESS;
+        }
+        reel.unplugByPlayer(sp);
+        return InteractionResult.SUCCESS;
+    }
+
+    private static boolean canUnplugWith(Player player) {
+        ItemStack held = player.getMainHandItem();
+        if (held.isEmpty())
+            return true;
+        if (player.isShiftKeyDown() || held.getItem() instanceof BlockItem)
+            return false;
+        String ns = BuiltInRegistries.ITEM.getKey(held.getItem()).getNamespace();
+        return !ns.equals("electroenergetics") && !ns.equals("create") && !ns.equals("voltworks");
+    }
 
     @Override
     public Map<Integer, Vec3> getNodePositions(Level level, BlockPos pos, BlockState state) {
