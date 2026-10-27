@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 import net.minecraft.world.phys.Vec3;
 
-/** Hides the flywheel hanging wire of a wall wire. */
+/** Hides the flywheel hanging wire of a wall wire; keeps a cable reel's cable at its paid-out length. */
 @Mixin(value = WireVisual.class, remap = false)
 public abstract class WireVisualMixin {
     @Shadow @Final private InWorldNodeConnection connection;
@@ -23,6 +23,7 @@ public abstract class WireVisualMixin {
     @Shadow private TransformedInstance startInstance;
     @Shadow private TransformedInstance endInstance;
     @Shadow private Vec3 prevPos1;
+    @Shadow @Final private com.george_vi.electroenergetics.simulation.infrastructure.WireData wireData;
 
     @Unique
     private boolean voltworks$hidden;
@@ -31,6 +32,9 @@ public abstract class WireVisualMixin {
     @Inject(method = "recreateInstances", at = @At("HEAD"), cancellable = true, require = 0)
     private void voltworks$hideWallWire(CallbackInfo ci) {
         if(!ClientWallRoutes.isWall(connection)) {
+            // a cable from a cable reel hangs by the distance seen this frame (see ReelClient)
+            io.github.sjzeero.voltworks.reel.client.ReelClient.followLength(connection, wireData,
+                    net.createmod.catnip.animation.AnimationTickHolder.getPartialTicks());
             if(voltworks$hidden) {
                 voltworks$hidden = false;
                 prevPos1 = null;

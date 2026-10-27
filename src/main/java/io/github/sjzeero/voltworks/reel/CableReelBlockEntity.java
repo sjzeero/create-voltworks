@@ -6,9 +6,7 @@ import com.george_vi.electroenergetics.content.wire_spool.WireSpoolItem;
 import com.george_vi.electroenergetics.foundation.device.ElectricalDeviceBlock;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
-import com.george_vi.electroenergetics.simulation.infrastructure.InWorldNodeData;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
-import com.george_vi.electroenergetics.simulation.util.DataPacker;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.george_vi.electroenergetics.simulation.WireType;
 import com.simibubi.create.AllSoundEvents;
@@ -57,8 +55,6 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
     private @Nullable ResourceLocation wireTypeId;
     private double stored;
     private double pulled;
-    /** Length last sent to clients for the follow-out cable, so the sag is resent only when it changed noticeably. */
-    private final double[] lastSentLength = {Double.NaN, Double.NaN};
     private long lastSyncTick;
     private double soundAccumulator;
     private long lastSoundTick;
@@ -190,8 +186,9 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
             return false;
         }
         BlockState state = sl.getBlockState(pos);
-        if (pos.equals(worldPosition) || !(state.getBlock() instanceof ElectricalDeviceBlock<?> device)
-                || !WallSpace.sameSpace(sl, worldPosition, pos)) {
+        // the target may sit on a Sable sub-level (or the reel may): the cable hangs between both like any Electro
+        // Energetics wire, measured in world space below
+        if (pos.equals(worldPosition) || !(state.getBlock() instanceof ElectricalDeviceBlock<?> device)) {
             deny(player, "invalid_target");
             return false;
         }
@@ -223,7 +220,10 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
             to = ends[0];
             toReturn = ends[1];
         } else {
-            to = InWorldNode.closestNode(sl, pos, state, 1.5F, click);
+            // same lookup as Electro Energetics' spool: nearest node to the click, else the clicked block's nearest
+            to = InWorldNode.closestNode(sl, click, 1.5F);
+            if (to == null || !to.sourcePos().equals(pos))
+                to = InWorldNode.closestNode(sl, pos, state, 1.5F, click);
             if (to == null || !device.isNodeAccessible(sl, pos, state, to.id())) {
                 deny(player, "invalid_target");
                 return false;
@@ -289,7 +289,6 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
     public void windIn() {
         stored += pulled;
         pulled = 0;
-        java.util.Arrays.fill(lastSentLength, Double.NaN);
         if (level instanceof ServerLevel sl) {
             InfrastructureSavedData sd = InfrastructureSavedData.load(sl);
             for (InWorldNodeConnection c : outgoing(sd))
@@ -333,15 +332,10 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
             changedByFollow(delta);
         }
         data.length = want;
-        int strand = outletId == block().outletId() ? 0 : 1;
-        if (Double.isNaN(lastSentLength[strand]) || Math.abs(want - lastSentLength[strand]) > 0.4) {
-            // Electro Energetics only resends a moved wire to clients when it changes chunks; queue a full resend so
-            // the client draws the new length (sag), the same way Electro Energetics refreshes wires moved by Sable.
-            InWorldNodeData n1 = sd.getNodeData(connection.node1()), n2 = sd.getNodeData(connection.node2());
-            if (n1 != null && n2 != null)
-                sd.sableToUpdate.add(DataPacker.packAndCanonicalize(n1.id, n2.id));
-            lastSentLength[strand] = want;
-        }
+        // No resend to clients: a full resend re-adds the wire on the client (its visual is removed and rebuilt) and
+        // snaps the sag between updates, which made the cable jerk. Clients work the length out from the distance they
+        // see each frame with the same rule (ReelClient.followLength), so it only has to be right here for the
+        // simulation and the break check.
         return false;
     }
 

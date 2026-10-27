@@ -21,6 +21,12 @@ public abstract class WireRendererMixin {
         return ClientWallRoutes.withoutWallWires(WireRenderer.getAllConnections());
     }
 
+    /** Cable reel cables pay out and wind in with the distance; the immediate renderer reads the length from the list. */
+    @org.spongepowered.asm.mixin.injection.Inject(method = "render", at = @At("HEAD"), require = 0)
+    private static void voltworks$reelLengths(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+        io.github.sjzeero.voltworks.reel.client.ReelClient.followLengths(net.createmod.catnip.animation.AnimationTickHolder.getPartialTicks());
+    }
+
     @org.spongepowered.asm.mixin.injection.Inject(method = "forceRenderWire", at = @At("HEAD"), cancellable = true)
     private static void voltworks$skipSchematicWallWire(List<net.minecraft.world.phys.Vec3> points, net.minecraft.world.phys.Vec3 p1, net.minecraft.world.phys.Vec3 p2,
                                                        com.mojang.blaze3d.vertex.PoseStack pose, net.minecraft.client.renderer.MultiBufferSource buffer,
