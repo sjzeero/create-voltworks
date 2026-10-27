@@ -32,6 +32,14 @@ public final class VoltworksBlocks {
     public static final DeferredBlock<SocketBlock> SOCKET = BLOCKS.register("socket", () -> new SocketBlock(
             BlockBehaviour.Properties.of().strength(1.0f).sound(SoundType.METAL).noOcclusion()));
 
+    /** Cord reel: two-core copper cord pulled out to a socket like a vacuum cleaner cord. */
+    public static final DeferredBlock<io.github.sjzeero.voltworks.reel.CableReelBlock> CORD_REEL = BLOCKS.register("cord_reel", () -> new io.github.sjzeero.voltworks.reel.CableReelBlock(
+            BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.WOOD).noOcclusion(), true));
+
+    /** Cable reel: one Electro Energetics wire pulled out to any terminal. */
+    public static final DeferredBlock<io.github.sjzeero.voltworks.reel.CableReelBlock> CABLE_REEL = BLOCKS.register("cable_reel", () -> new io.github.sjzeero.voltworks.reel.CableReelBlock(
+            BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.WOOD).noOcclusion(), false));
+
     public static final DeferredBlock<ConstantSpeedMotorBlock> CONSTANT_SPEED_MOTOR = BLOCKS.register("constant_speed_motor", () -> new ConstantSpeedMotorBlock(
             BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));
 

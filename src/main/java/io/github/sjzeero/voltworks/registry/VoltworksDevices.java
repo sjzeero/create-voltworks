@@ -40,6 +40,12 @@ public final class VoltworksDevices {
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<SolarPanelDevice>> SOLAR_PANEL_DEVICE = DEVICES.register("solar_panel",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("solar_panel"), (type, level, pos, sd) -> new SolarPanelDevice(level, pos, sd, type)));
 
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.reel.CableReelDevice>> CORD_REEL_DEVICE = DEVICES.register("cord_reel",
+            () -> new SimulatedDeviceType<>(Voltworks.asResource("cord_reel"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.reel.CableReelDevice(level, pos, sd, type, true)));
+
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.reel.CableReelDevice>> CABLE_REEL_DEVICE = DEVICES.register("cable_reel",
+            () -> new SimulatedDeviceType<>(Voltworks.asResource("cable_reel"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.reel.CableReelDevice(level, pos, sd, type, false)));
+
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<SolarPanelBearingDevice>> SOLAR_PANEL_BEARING_DEVICE = DEVICES.register("solar_panel_bearing",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("solar_panel_bearing"), (type, level, pos, sd) -> new SolarPanelBearingDevice(level, pos, sd, type)));
 

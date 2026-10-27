@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "E",
+    "A",
+    "C"
+  ],
+  "key": {
+    "E": {
+      "item": "electroenergetics:empty_spool"
+    },
+    "C": {
+      "item": "create:copper_sheet"
+    },
+    "A": {
+      "item": "create:andesite_casing"
+    }
+  },
+  "result": {
+    "id": "voltworks:cable_reel",
+    "count": 1
+  }
+}

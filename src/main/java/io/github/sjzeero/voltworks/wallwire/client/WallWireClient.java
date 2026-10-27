@@ -286,6 +286,11 @@ public final class WallWireClient {
         ClientLevel level = mc.level;
         if(player == null || level == null || !holdingSpool(player) || !wall(player) && !CordPair.isCord(heldWireType(player)))
             return;
+        // a spool clicked on a cable reel's drum (not on its terminals) winds the wire into the reel
+        if(start == null && !player.isShiftKeyDown() && mc.hitResult instanceof BlockHitResult reelHit && reelHit.getType() == HitResult.Type.BLOCK
+                && level.getBlockState(reelHit.getBlockPos()).getBlock() instanceof io.github.sjzeero.voltworks.reel.CableReelBlock reel
+                && !reel.nearTerminal(level.getBlockState(reelHit.getBlockPos()), reelHit.getBlockPos(), reelHit.getLocation()))
+            return;
         event.setCanceled(true);
         event.setSwingHand(false);
         long now = level.getGameTime();

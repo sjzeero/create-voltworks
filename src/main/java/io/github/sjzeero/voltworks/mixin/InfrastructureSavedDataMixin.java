@@ -46,6 +46,20 @@ public abstract class InfrastructureSavedDataMixin {
      * from one spool, so its other conductor goes along without drops: the cord gives back one spool's worth of cord
      * wire, not two (e.g. when a socket with a cord is broken, both conductors would otherwise drop).
      */
+    /** A cable pulled out of a cable reel winds back into it instead of dropping (target broken, cutters, ...). */
+    @Inject(method = "removeAndDropConnection", at = @At("HEAD"), cancellable = true, require = 0)
+    private void voltworks$reelWindsBackOnDrop(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
+        if(level != null && io.github.sjzeero.voltworks.reel.CableReels.windBack(level, connection))
+            cir.setReturnValue(null);
+    }
+
+    /** Same for plain removal (empty spool, creative break), so taking the cable off never gives a free spool. */
+    @Inject(method = "removeConnection", at = @At("HEAD"), cancellable = true, require = 0)
+    private void voltworks$reelWindsBack(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
+        if(level != null && io.github.sjzeero.voltworks.reel.CableReels.windBack(level, connection))
+            cir.setReturnValue(null);
+    }
+
     @Inject(method = "removeAndDropConnection", at = @At("HEAD"), cancellable = true, require = 0)
     private void voltworks$dropAlongRoute(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
         if(level == null)

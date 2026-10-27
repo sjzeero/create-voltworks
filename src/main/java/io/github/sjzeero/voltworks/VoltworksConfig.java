@@ -10,6 +10,8 @@ public final class VoltworksConfig {
     private static final ModConfigSpec.DoubleValue WALL_WIRE_MAX_LENGTH;
     private static final ModConfigSpec.DoubleValue WALL_WIRE_MAX_LEAD;
     private static final ModConfigSpec.IntValue WALL_WIRE_MAX_POINTS;
+    private static final ModConfigSpec.DoubleValue REEL_SPOOL_LENGTH;
+    private static final ModConfigSpec.IntValue REEL_CAPACITY_SPOOLS;
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
@@ -25,6 +27,12 @@ public final class VoltworksConfig {
                 .defineInRange("maxLead", 2.0, 0.5, 8.0);
         WALL_WIRE_MAX_POINTS = b.comment("Most points a player can click for one wall wire.")
                 .defineInRange("maxPoints", 64, 1, 512);
+        b.pop();
+        b.push("cableReel");
+        REEL_SPOOL_LENGTH = b.comment("Blocks of wire one spool winds into a cable reel. A loose wire item is this divided by Electro Energetics' wireItemsPerSpool.")
+                .defineInRange("spoolLength", 16.0, 1.0, 256.0);
+        REEL_CAPACITY_SPOOLS = b.comment("How many spools of wire a cable reel holds.")
+                .defineInRange("capacitySpools", 4, 1, 64);
         b.pop();
         SPEC = b.build();
     }
@@ -50,6 +58,14 @@ public final class VoltworksConfig {
 
     public static int wallWireMaxPoints() {
         return SPEC.isLoaded() ? WALL_WIRE_MAX_POINTS.get() : 64;
+    }
+
+    public static double reelSpoolLength() {
+        return SPEC.isLoaded() ? REEL_SPOOL_LENGTH.get() : 16.0;
+    }
+
+    public static double reelCapacity() {
+        return reelSpoolLength() * (SPEC.isLoaded() ? REEL_CAPACITY_SPOOLS.get() : 4);
     }
 
     public static float holdingCurrentPercent() {

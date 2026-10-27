@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "voltworks:block/cable_reel"
+    },
+    "facing=east": {
+      "model": "voltworks:block/cable_reel",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "voltworks:block/cable_reel",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "voltworks:block/cable_reel",
+      "y": 270
+    }
+  }
+}
