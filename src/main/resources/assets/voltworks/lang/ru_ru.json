@@ -310,17 +310,5 @@
   "voltworks.redstone_cable.invalid": "Неверный провод",
   "voltworks.redstone_cable.same_block": "Источник и выход должны быть разными блоками",
   "voltworks.redstone_cable.face_busy": "Эта грань уже используется в другой роли",
-  "voltworks.redstone_cable.exists": "Уже подключено",
-  "block.voltworks.signal_lamp": "Сигнальная лампа",
-  "block.voltworks.signal_lamp.tooltip.summary": "Индикатор напряжения. Небольшая нагрузка _1 кОм_: светится _зелёным_ до _24 В_, _жёлтым_ до _48 В_ и _красным_ выше.",
-  "voltworks.node.signal_lamp_0": "+",
-  "voltworks.node.signal_lamp_1": "-",
-  "block.voltworks.voltage_sensor": "Датчик напряжения",
-  "block.voltworks.voltage_sensor.tooltip.summary": "Нагрузка _10 кОм_, которая выдаёт _сигнал редстоуна_ пропорционально напряжению: _0..15_ для _0..48 В_.",
-  "voltworks.node.voltage_sensor_0": "+",
-  "voltworks.node.voltage_sensor_1": "-",
-  "block.voltworks.redstone_switch": "Редстоун-выключатель",
-  "block.voltworks.redstone_switch.tooltip.summary": "Замыкает свои две клеммы, пока на него подаётся _сигнал редстоуна_, и размыкает цепь, когда сигнала нет.",
-  "voltworks.node.redstone_switch_0": "+",
-  "voltworks.node.redstone_switch_1": "-"
+  "voltworks.redstone_cable.exists": "Уже подключено"
 }
