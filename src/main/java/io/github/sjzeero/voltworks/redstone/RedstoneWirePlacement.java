@@ -2,6 +2,7 @@ package io.github.sjzeero.voltworks.redstone;
 
 import com.simibubi.create.AllSoundEvents;
 import io.github.sjzeero.voltworks.VoltworksConfig;
+import io.github.sjzeero.voltworks.util.Spools;
 import io.github.sjzeero.voltworks.wallwire.WallCell;
 import io.github.sjzeero.voltworks.wallwire.WallRouter;
 import io.github.sjzeero.voltworks.wallwire.WallSpace;
@@ -65,6 +66,7 @@ public final class RedstoneWirePlacement {
             deny(player, err, last.pos());
             return;
         }
+        Spools.consume(player, player.getMainHandItem());
         AllSoundEvents.WRENCH_REMOVE.playOnServer(level, BlockPos.containing(WallSpace.toWorld(level, last.pos().getCenter())));
         player.displayClientMessage(Component.translatable("voltworks.redstone_cable.linked", String.format(java.util.Locale.ROOT, "%.2f", length)), true);
     }

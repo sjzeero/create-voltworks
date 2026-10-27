@@ -30,13 +30,19 @@ public final class VoltworksItems {
 
     public static final DeferredItem<?> SERVO_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SERVO);
     public static final DeferredItem<?> SOCKET_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SOCKET);
-    /** Two-conductor copper cord (Power Grid port); laid like any other Voltworks wall wire. */
+    /** Copper cord wire: crafting material, four of them and an empty spool make a {@link #COPPER_CORD} spool (as in Electro Energetics). */
+    public static final DeferredItem<Item> COPPER_CORD_WIRE = ITEMS.registerSimpleItem("copper_cord_wire");
+
+    /** Redstone cable wire: crafting material, four of them and an empty spool make a {@link #REDSTONE_CABLE} spool. */
+    public static final DeferredItem<Item> REDSTONE_CABLE_WIRE = ITEMS.registerSimpleItem("redstone_cable_wire");
+
+    /** Spool of two-conductor copper cord (Power Grid port); laid like any other Voltworks wall wire, one spool per cord. */
     public static final DeferredItem<CordSpoolItem> COPPER_CORD = ITEMS.registerItem("copper_cord",
             p -> new CordSpoolItem(p, VoltworksWireTypes.COPPER_CORD));
 
-    /** Redstone cable: links the redstone level of one block face to other block faces, with no wire in the world. */
+    /** Spool of redstone cable: links the redstone level of one block face to another face, one spool per cable. */
     public static final DeferredItem<io.github.sjzeero.voltworks.redstone.RedstoneCableItem> REDSTONE_CABLE = ITEMS.registerItem("redstone_cable",
-            p -> new io.github.sjzeero.voltworks.redstone.RedstoneCableItem(p.stacksTo(1)));
+            p -> new io.github.sjzeero.voltworks.redstone.RedstoneCableItem(p));
 
     public static final DeferredItem<?> CONSTANT_SPEED_MOTOR_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.CONSTANT_SPEED_MOTOR);
 

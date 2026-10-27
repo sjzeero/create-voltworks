@@ -1,13 +1,18 @@
 {
-  "type": "minecraft:crafting_shapeless",
+  "type": "minecraft:crafting_shaped",
   "category": "redstone",
-  "ingredients": [
-    {
-      "item": "electroenergetics:insulated_wire"
+  "key": {
+    "s": {
+      "item": "electroenergetics:empty_spool"
     },
-    {
-      "item": "minecraft:redstone"
+    "w": {
+      "item": "voltworks:redstone_cable_wire"
     }
+  },
+  "pattern": [
+    " w ",
+    "wsw",
+    " w "
   ],
   "result": {
     "count": 1,

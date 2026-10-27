@@ -4,6 +4,7 @@ import com.george_vi.electroenergetics.config.CEEConfigs;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
+import io.github.sjzeero.voltworks.cord.CordPair;
 import io.github.sjzeero.voltworks.wallwire.WallCell;
 import io.github.sjzeero.voltworks.wallwire.WallRoute;
 import io.github.sjzeero.voltworks.wallwire.WallSpace;
@@ -24,6 +25,10 @@ public abstract class InfrastructureSavedDataMixin {
 
     @Shadow public abstract WireData removeConnection(InWorldNodeConnection connection);
 
+    @Shadow public abstract WireData removeConnectionNoDrops(InWorldNodeConnection connection);
+
+    @Shadow public abstract WireData getConnectionData(InWorldNodeConnection connection);
+
     @Inject(method = {"removeConnection", "removeConnectionNoDrops"}, at = @At("RETURN"), require = 0)
     private void voltworks$forgetWallRoute(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
         if(level != null)
@@ -36,11 +41,22 @@ public abstract class InfrastructureSavedDataMixin {
             io.github.sjzeero.voltworks.wallwire.SchematicWires.onConnect(level, a, b);
     }
 
-    /** Same drops as a hanging wire, but spread along the faces the wire ran on. */
+    /**
+     * Same drops as a hanging wire, but spread along the faces the wire ran on. A copper cord is two connections made
+     * from one spool, so its other conductor goes along without drops: the cord gives back one spool's worth of cord
+     * wire, not two (e.g. when a socket with a cord is broken, both conductors would otherwise drop).
+     */
     @Inject(method = "removeAndDropConnection", at = @At("HEAD"), cancellable = true, require = 0)
     private void voltworks$dropAlongRoute(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
         if(level == null)
             return;
+        WireData own = getConnectionData(connection);
+        if(own != null && CordPair.isCord(own.wireType())) {
+            InWorldNodeConnection sibling = CordPair.sibling(connection);
+            WireData other = getConnectionData(sibling);
+            if(other != null && CordPair.isCord(other.wireType()))
+                removeConnectionNoDrops(sibling);
+        }
         WallRoute route = WallWireData.get(level).get(connection);
         if(route == null || route.cells.isEmpty())
             return;

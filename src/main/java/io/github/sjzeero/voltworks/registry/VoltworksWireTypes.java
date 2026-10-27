@@ -20,7 +20,7 @@ public final class VoltworksWireTypes {
     public static final DeferredHolder<WireType, WireType> COPPER_CORD = WIRE_TYPES.register("copper_cord",
             () -> new WireType.Builder(CORD_SEGMENT)
                     .resistance(CEEConfigs.server().resistanceValues.wireResistance::get)
-                    .droppedItem(() -> VoltworksItems.COPPER_CORD.get())
+                    .droppedItem(() -> VoltworksItems.COPPER_CORD_WIRE.get())
                     .spoolItem(() -> VoltworksItems.COPPER_CORD.get())
                     .maxInsulationVoltage(CEEConfigs.server().voltageValues.wireMaxVoltage::get)
                     .maxTemperature(() -> 3540.0)

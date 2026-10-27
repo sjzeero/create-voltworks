@@ -1,16 +1,18 @@
 {
-  "type": "minecraft:crafting_shapeless",
+  "type": "minecraft:crafting_shaped",
   "category": "misc",
-  "ingredients": [
-    {
-      "item": "electroenergetics:insulated_wire"
+  "key": {
+    "s": {
+      "item": "electroenergetics:empty_spool"
     },
-    {
-      "item": "electroenergetics:insulated_wire"
-    },
-    {
-      "item": "minecraft:dried_kelp"
+    "w": {
+      "item": "voltworks:copper_cord_wire"
     }
+  },
+  "pattern": [
+    " w ",
+    "wsw",
+    " w "
   ],
   "result": {
     "count": 1,

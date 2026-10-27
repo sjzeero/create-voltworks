@@ -1,6 +1,12 @@
 package io.github.sjzeero.voltworks.redstone;
 
+import io.github.sjzeero.voltworks.registry.VoltworksItems;
+import io.github.sjzeero.voltworks.util.Spools;
 import io.github.sjzeero.voltworks.wallwire.WallCell;
+import io.github.sjzeero.voltworks.wallwire.WallSpace;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -168,19 +174,25 @@ public class RedstoneLinks extends SavedData {
         return null;
     }
 
-    /** Removes every wire that has this face as source or output; returns how many went. */
-    public int removeAt(BlockPos pos, Direction face) {
+    /**
+     * Removes every wire that has this face as source or output; returns how many went. With {@code drop} each wire
+     * leaves its cable items along its route, like a cut Electro Energetics wire.
+     */
+    public int removeAt(BlockPos pos, Direction face, boolean drop) {
         List<Link> gone = new ArrayList<>();
         for(Link l : links)
             if(l.src.equals(pos) && l.srcFace == face || l.dst.equals(pos) && l.dstFace == face)
                 gone.add(l);
-        removeAll(gone);
+        removeAll(gone, drop);
         return gone.size();
     }
 
-    private void removeAll(List<Link> gone) {
+    private void removeAll(List<Link> gone, boolean drop) {
         if(gone.isEmpty())
             return;
+        if(drop)
+            for(Link l : gone)
+                dropCable(l);
         links.removeAll(gone);
         rebuild();
         setDirty();
@@ -188,6 +200,20 @@ public class RedstoneLinks extends SavedData {
             RedstoneSync.removed(level, l);
             if(l.power > 0)
                 notifyOutput(l);
+        }
+    }
+
+    /** Spreads the refund of one wire (cable items, or the spool with alternate placement) along its cells. */
+    private void dropCable(Link l) {
+        if(l.cells.isEmpty())
+            return;
+        List<ItemStack> items = Spools.refund(VoltworksItems.REDSTONE_CABLE_WIRE.get(), VoltworksItems.REDSTONE_CABLE.get());
+        for(int i = 0; i < items.size(); i++) {
+            WallCell cell = l.cells.get(Math.min(l.cells.size() - 1, (int) ((i + 0.5) / items.size() * l.cells.size())));
+            if(!level.isLoaded(cell.pos()))
+                cell = l.cells.getFirst();
+            Vec3 p = WallSpace.toWorld(level, cell.point(0.2));
+            Containers.dropItemStack(level, p.x, p.y, p.z, items.get(i));
         }
     }
 
@@ -220,7 +246,7 @@ public class RedstoneLinks extends SavedData {
                 changed.add(l);
             }
         }
-        removeAll(gone);
+        removeAll(gone, true);
         if(changed.isEmpty())
             return;
         changed.removeAll(gone);

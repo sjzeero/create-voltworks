@@ -33,7 +33,7 @@ public final class VoltworksTabSections {
                     || !Voltworks.MOD_ID.equals(BuiltInRegistries.ITEM.getKey(item).getNamespace())) continue;
             boards.add(item);
         }
-        for (Supplier<? extends ItemLike> s : List.<Supplier<? extends ItemLike>>of(VoltworksItems.SERVO_ITEM, VoltworksItems.CONSTANT_SPEED_MOTOR_ITEM, VoltworksItems.SOCKET_ITEM, VoltworksItems.COPPER_CORD, VoltworksItems.REDSTONE_CABLE))
+        for (Supplier<? extends ItemLike> s : List.<Supplier<? extends ItemLike>>of(VoltworksItems.SERVO_ITEM, VoltworksItems.CONSTANT_SPEED_MOTOR_ITEM, VoltworksItems.SOCKET_ITEM, VoltworksItems.COPPER_CORD_WIRE, VoltworksItems.COPPER_CORD, VoltworksItems.REDSTONE_CABLE_WIRE, VoltworksItems.REDSTONE_CABLE))
             motors.add(s.get().asItem());
         for (Supplier<? extends ItemLike> s : List.<Supplier<? extends ItemLike>>of(VoltworksItems.SOLAR_PANEL_ITEM, VoltworksItems.SOLAR_PANEL_BEARING_ITEM, VoltworksItems.INCOMPLETE_SOLAR_PANEL))
             solar.add(s.get().asItem());
