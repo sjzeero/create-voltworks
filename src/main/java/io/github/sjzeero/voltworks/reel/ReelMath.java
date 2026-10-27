@@ -78,4 +78,14 @@ public final class ReelMath {
             return 0;
         return (int) Math.floor(blocks / blocksPerItem(spoolLength, wiresPerSpool) + EPS);
     }
+
+    /**
+     * How far along the line from the reel a lying cable end may stay: 1 when it is within {@code reach} of the
+     * outlet, else the factor that pulls it back onto that sphere. A reel with no wire left keeps the end at the outlet.
+     */
+    public static double reachScale(double distance, double reach) {
+        if (distance <= Math.max(reach, 0) + EPS)
+            return 1;
+        return Math.max(reach, 0) / distance;
+    }
 }

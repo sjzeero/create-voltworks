@@ -129,7 +129,9 @@ class ReelAssetsTest {
                 assertTrue(l.has("block.voltworks." + r + ".tooltip.summary"), lang + " " + r);
             }
             assertTrue(l.has("item.voltworks.reel_plug"));
-            for (String k : List.of("loaded", "full", "grabbed", "connected", "retracted", "too_far", "too_short", "snapped", "goggles.wound"))
+            assertTrue(l.has("entity.voltworks.cable_end"), lang);
+            for (String k : List.of("loaded", "full", "grabbed", "connected", "retracted", "too_far", "too_short", "snapped", "goggles.wound",
+                    "goggles.on_floor", "end_on_floor", "hands_full"))
                 assertTrue(l.has("voltworks.cable_reel." + k), lang + " " + k);
         }
         assertEquals("Кабельная лебёдка", json("assets/voltworks/lang/ru_ru.json").get("block.voltworks.cable_reel").getAsString());

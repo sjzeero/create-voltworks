@@ -314,8 +314,8 @@
   "block.voltworks.cord_reel": "Cord Reel",
   "block.voltworks.cable_reel": "Cable Reel",
   "item.voltworks.reel_plug": "Cable End",
-  "block.voltworks.cord_reel.tooltip.summary": "A drum of _copper cord_ that pulls out like a _vacuum cleaner cord_. Click with a _copper cord spool_ to wind in _16 blocks_ (holds _64_). With an _empty hand_ take the end and click a _socket_; the reel's _+_ and _-_ terminals then feed it. _Sneak_ with an empty hand to wind the cord back.",
-  "block.voltworks.cable_reel.tooltip.summary": "A drum of _single-core wire_ that pulls out as far as the wire on it. Click with a _wire spool_ to wind in _16 blocks_ (holds _64_, one wire type at a time). With an _empty hand_ take the end and click any _terminal_; the reel's terminal is then connected to it. _Sneak_ with an empty hand to wind the wire back.",
+  "block.voltworks.cord_reel.tooltip.summary": "A drum of _copper cord_ that pulls out like a _vacuum cleaner cord_. Click with a _copper cord spool_ to wind in _16 blocks_ (holds _64_). With an _empty hand_ take the end and click a _socket_; the reel's _+_ and _-_ terminals then feed it. _Sneak_ with an empty hand to wind the cord back. Drop the end (or unplug it, or break the socket) and it _lies on the floor_: right-click it to pick it up again.",
+  "block.voltworks.cable_reel.tooltip.summary": "A drum of _single-core wire_ that pulls out as far as the wire on it. Click with a _wire spool_ to wind in _16 blocks_ (holds _64_, one wire type at a time). With an _empty hand_ take the end and click any _terminal_; the reel's terminal is then connected to it. _Sneak_ with an empty hand to wind the wire back. Drop the end (or unplug it, or break the block) and it _lies on the floor_: right-click it to pick it up again.",
   "voltworks.node.cable_reel_terminal": "Reel terminal",
   "voltworks.node.cable_reel_outlet": "Reel cable",
   "voltworks.cable_reel.loaded": "Wound in: %s / %s blocks",
@@ -331,10 +331,14 @@
   "voltworks.cable_reel.status": "%s / %s blocks on the reel",
   "voltworks.cable_reel.too_far": "Not enough cable: %s blocks away, %s on the reel",
   "voltworks.cable_reel.too_short": "Not enough cable: %s blocks needed, %s on the reel",
-  "voltworks.cable_reel.snapped": "The cable slipped out of your hand and wound back",
+  "voltworks.cable_reel.snapped": "The cable slipped out of your hand and fell",
   "voltworks.cable_reel.invalid_target": "Nothing to plug the cable into here",
   "voltworks.cable_reel.cord_needs_socket": "The cord plugs into a socket",
   "voltworks.cable_reel.socket_busy": "This socket already has a cord",
   "voltworks.cable_reel.goggles.wound": "On the reel: %s / %s blocks",
-  "voltworks.cable_reel.goggles.pulled": "Pulled out: %s blocks"
+  "voltworks.cable_reel.goggles.pulled": "Pulled out: %s blocks",
+  "voltworks.cable_reel.goggles.on_floor": "Cable end lies on the floor",
+  "voltworks.cable_reel.end_on_floor": "The cable end lies on the floor: pick it up, or sneak-click the reel to wind it back",
+  "voltworks.cable_reel.hands_full": "Empty your hand to pick up the cable end",
+  "entity.voltworks.cable_end": "Cable End"
 }

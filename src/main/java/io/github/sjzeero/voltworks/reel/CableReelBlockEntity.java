@@ -39,12 +39,14 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 /**
  * Wire bookkeeping of a cable reel. {@link #stored} is the length still wound on the drum, {@link #pulled} the length
@@ -60,6 +62,13 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
     private long lastSoundTick;
     /** Id of the cable end currently in a player's hand; 0 when nobody holds it. */
     private long grab;
+    /**
+     * The {@link CableEndEntity} lying on the ground, null when the end is not on the floor. Like a held end it uses no
+     * wire: everything stays counted in {@link #stored} until the end is plugged in.
+     */
+    private @Nullable UUID loose;
+    /** Block the loose end was last seen in, to tell "entity gone" from "entity not loaded". */
+    private @Nullable BlockPos looseAt;
 
     public CableReelBlockEntity(BlockPos pos, BlockState state) {
         super(VoltworksBlockEntities.CABLE_REEL_BE.get(), pos, state);
@@ -79,6 +88,14 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
 
     public long grabId() {
         return grab;
+    }
+
+    public boolean isLooseEnd(UUID id) {
+        return id.equals(loose);
+    }
+
+    public boolean hasLooseEnd() {
+        return loose != null;
     }
 
     /**
@@ -160,21 +177,111 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
 
     public void grab(ServerPlayer player) {
         checkOut();
+        checkLoose();
         if (pulled > 0) {
             deny(player, "already_out");
+            return;
+        }
+        if (loose != null) {
+            deny(player, "end_on_floor");
             return;
         }
         if (stored < 0.5 || wireType() == null) {
             deny(player, "empty");
             return;
         }
+        giveEnd(player);
+        level.playSound(null, worldPosition, SoundEvents.FISHING_BOBBER_THROW, SoundSource.BLOCKS, 0.7f, 0.9f);
+    }
+
+    private void giveEnd(ServerPlayer player) {
         long id;
         do id = level.random.nextLong(); while (id == 0);
         grab = id;
-        setChanged();
+        sync();
         player.setItemInHand(InteractionHand.MAIN_HAND, ReelPlugItem.create(worldPosition, id));
-        level.playSound(null, worldPosition, SoundEvents.FISHING_BOBBER_THROW, SoundSource.BLOCKS, 0.7f, 0.9f);
         player.displayClientMessage(Component.translatable("voltworks.cable_reel.grabbed", fmt(stored)), true);
+    }
+
+    // ---- the end lying on the ground -------------------------------------------------------------------------------
+
+    /**
+     * Lets the cable end fall at {@code at} (world space) with the given motion: dropped, thrown, slipped out of the
+     * hand, or unplugged at the far end. Any held end is invalidated. Further from the reel than the wire on the drum,
+     * it starts on the line to the reel at full reach.
+     */
+    public void dropLoose(Vec3 at, Vec3 motion) {
+        if (!(level instanceof ServerLevel sl))
+            return;
+        removeLoose();
+        grab = 0;
+        if (wireType() == null || stored <= ReelMath.EPS) {
+            sync();
+            return;
+        }
+        Vec3 outlet = outletWorld();
+        Vec3 pos = outlet.add(at.subtract(outlet).scale(ReelMath.reachScale(at.distanceTo(outlet), stored)));
+        CableEndEntity end = new CableEndEntity(sl, worldPosition, pos, motion);
+        if (sl.addFreshEntity(end)) {
+            loose = end.getUUID();
+            looseAt = end.blockPosition();
+        }
+        sync();
+    }
+
+    /** Right-click on the lying end: back into the (empty) main hand as the Cable End item. */
+    void pickUpLoose(ServerPlayer player, CableEndEntity end) {
+        if (!player.getMainHandItem().isEmpty()) {
+            deny(player, "hands_full");
+            return;
+        }
+        loose = null;
+        looseAt = null;
+        end.discard();
+        if (wireType() == null || stored <= ReelMath.EPS) {
+            sync();
+            return;
+        }
+        level.playSound(null, end.blockPosition(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.6f, 0.8f);
+        giveEnd(player);
+    }
+
+    void looseSeen(BlockPos pos) {
+        if (!pos.equals(looseAt)) {
+            looseAt = pos;
+            super.setChanged();
+        }
+    }
+
+    /** The lying end is gone for good (killed, fell out of the world): the cable is back on the drum. */
+    void looseGone(UUID id) {
+        if (id.equals(loose)) {
+            loose = null;
+            looseAt = null;
+            sync();
+        }
+    }
+
+    private void removeLoose() {
+        if (loose == null)
+            return;
+        UUID id = loose;
+        loose = null;
+        looseAt = null;
+        if (level instanceof ServerLevel sl && sl.getEntity(id) instanceof CableEndEntity end)
+            end.discard();
+        setChanged();
+    }
+
+    /** If the lying end vanished while nobody watched (its chunk is loaded but it is not there), it counts as wound back. */
+    private void checkLoose() {
+        if (loose == null || !(level instanceof ServerLevel sl) || sl.getEntity(loose) != null)
+            return;
+        if (looseAt == null || sl.areEntitiesLoaded(ChunkPos.asLong(looseAt))) {
+            loose = null;
+            looseAt = null;
+            sync();
+        }
     }
 
     /** Plugs the held cable end into the block at {@code pos}. True when the connection was made. */
@@ -254,8 +361,9 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
     // ---- winding back ----------------------------------------------------------------------------------------------
 
     public void retractByPlayer(ServerPlayer player) {
-        boolean out = pulled > 0 || grab != 0 || (level instanceof ServerLevel sl && !outgoing(InfrastructureSavedData.load(sl)).isEmpty());
+        boolean out = pulled > 0 || grab != 0 || loose != null || (level instanceof ServerLevel sl && !outgoing(InfrastructureSavedData.load(sl)).isEmpty());
         grab = 0;
+        removeLoose();
         windIn();
         setChanged();
         if (out) {
@@ -276,13 +384,31 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
 
     /**
      * Called before Electro Energetics removes a connection that starts on this reel's outlet (target broken, wire
-     * cutters, empty spool, overstretched by a moving Sable structure, ...). Winds the cable back instead, so the caller
-     * drops nothing.
+     * cutters, empty spool, overstretched by a moving Sable structure, ...). The caller drops nothing: the cable stays
+     * pulled out and its end falls to the ground where it was plugged in (a {@link CableEndEntity}). Only the reel's
+     * own winding (sneak-click, breaking the reel) puts the cable back on the drum.
      */
     boolean windBackFor(InWorldNodeConnection connection) {
+        Vec3 end = farEnd(connection);
         windIn();
-        level.playSound(null, worldPosition, SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.BLOCKS, 0.9f, 0.7f);
+        if (end != null) {
+            dropLoose(end, Vec3.ZERO);
+            level.playSound(null, BlockPos.containing(end), SoundEvents.LEASH_KNOT_BREAK, SoundSource.BLOCKS, 0.7f, 1.2f);
+        }
         return true;
+    }
+
+    /** World position of the end of {@code connection} that is not this reel. */
+    private @Nullable Vec3 farEnd(InWorldNodeConnection connection) {
+        if (!(level instanceof ServerLevel sl))
+            return null;
+        InWorldNode far = connection.node1().sourcePos().equals(worldPosition) && block().isOutlet(connection.node1().id())
+                ? connection.node2() : connection.node1();
+        try {
+            return WallSpace.toWorld(sl, WallSpace.nodePos(sl, far));
+        } catch (RuntimeException e) {
+            return WallSpace.toWorld(sl, Vec3.atCenterOf(far.sourcePos()));
+        }
     }
 
     /** Removes the pulled-out connection without drops and puts its length back on the drum. */
@@ -358,6 +484,7 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
     /** Block broken: the cable is wound in, then everything on the drum drops as wire, like a removed wire would. */
     public void windInAndDrop(ServerLevel sl) {
         grab = 0;
+        removeLoose();
         windIn();
         WireType type = wireType();
         if (type == null || stored <= ReelMath.EPS)
@@ -407,6 +534,8 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
                 fmt(stored), fmt(VoltworksConfig.reelCapacity())).withStyle(ChatFormatting.GRAY)));
         if (pulled > 0)
             tooltip.add(Component.literal(" ").append(Component.translatable("voltworks.cable_reel.goggles.pulled", fmt(pulled)).withStyle(ChatFormatting.GOLD)));
+        else if (loose != null)
+            tooltip.add(Component.literal(" ").append(Component.translatable("voltworks.cable_reel.goggles.on_floor").withStyle(ChatFormatting.GOLD)));
         return true;
     }
 
@@ -419,6 +548,10 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
             tag.putString("WireType", wireTypeId.toString());
         if (grab != 0)
             tag.putLong("Grab", grab);
+        if (loose != null)
+            tag.putUUID("LooseEnd", loose);
+        if (looseAt != null)
+            tag.putLong("LooseAt", looseAt.asLong());
     }
 
     @Override
@@ -428,6 +561,8 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         pulled = tag.getDouble("Pulled");
         wireTypeId = tag.contains("WireType") ? ResourceLocation.tryParse(tag.getString("WireType")) : null;
         grab = tag.getLong("Grab");
+        loose = tag.hasUUID("LooseEnd") ? tag.getUUID("LooseEnd") : null;
+        looseAt = tag.contains("LooseAt") ? BlockPos.of(tag.getLong("LooseAt")) : null;
     }
 
     @Override

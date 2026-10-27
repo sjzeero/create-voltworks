@@ -77,6 +77,7 @@ public class VoltworksClient {
         event.registerBlockEntityRenderer(VoltworksBlockEntities.SERVO_BE.get(), ServoRenderer::new);
         event.registerBlockEntityRenderer(VoltworksBlockEntities.SOLAR_PANEL_BEARING_BE.get(), SolarPanelBearingRenderer::new);
         event.registerBlockEntityRenderer(VoltworksBlockEntities.CONSTANT_SPEED_MOTOR_BE.get(), PGMotorRenderer::new);
+        event.registerEntityRenderer(io.github.sjzeero.voltworks.registry.VoltworksEntities.CABLE_END.get(), io.github.sjzeero.voltworks.reel.client.CableEndRenderer::new);
     }
 
     private static void setup(FMLClientSetupEvent event) {

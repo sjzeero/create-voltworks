@@ -46,6 +46,7 @@ public class Voltworks {
         VoltworksCreativeTabs.register(modBus);
         VoltworksMenus.register(modBus);
         VoltworksSounds.register(modBus);
+        io.github.sjzeero.voltworks.registry.VoltworksEntities.register(modBus);
         modBus.addListener(VoltworksNetwork::register);
         modBus.addListener((NewRegistryEvent e) -> e.register(ComponentRegistry.REGISTRY));
         container.registerConfig(ModConfig.Type.SERVER, VoltworksConfig.SPEC);

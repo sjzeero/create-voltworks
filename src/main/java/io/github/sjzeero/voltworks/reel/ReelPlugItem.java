@@ -21,12 +21,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * The cable end taken from a reel. It only lives in the hand of the player carrying it: click a socket (cord reel) or
- * a terminal (cable reel) to plug it in, click the reel or sneak-click the air to let it wind back. Walking further
- * than the wound length warns on the action bar and, a few blocks later, pulls the end out of the hand.
+ * a terminal (cable reel) to plug it in, click the reel or sneak-click the air to let it wind back. Dropping or
+ * throwing it, switching to another slot, or walking a few blocks further than the wound length (which first warns
+ * on the action bar) lets it fall to the ground as a {@link CableEndEntity}, still pulled out of the reel.
  */
 public class ReelPlugItem extends Item {
     /** How far past the wound length the player may stretch before the end slips out of the hand. */
@@ -110,18 +112,26 @@ public class ReelPlugItem extends Item {
 
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
-        if (level.isClientSide || !(entity instanceof ServerPlayer player) || level.getGameTime() % 10 != 0)
+        if (level.isClientSide || !(entity instanceof ServerPlayer player) || level.getGameTime() % 5 != 0)
             return;
         CableReelBlockEntity be = reel(level, stack);
         if (be == null) {
             stack.setCount(0);
             return;
         }
+        if (!selected || player.getMainHandItem() != stack) {
+            // moved to another slot (or the hotbar moved away from it): the end is no longer held, it falls
+            stack.setCount(0);
+            be.dropLoose(player.position().add(0, 0.5, 0), Vec3.ZERO);
+            return;
+        }
+        if (level.getGameTime() % 10 != 0)
+            return;
         double d = be.outletWorld().distanceTo(player.position().add(0, 1, 0));
         if (d > be.stored() + SNAP_SLACK) {
-            be.dropGrab();
             stack.setCount(0);
-            level.playSound(null, be.getBlockPos(), SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.BLOCKS, 1.0f, 1.2f);
+            be.dropLoose(player.position().add(0, 1, 0), Vec3.ZERO);
+            level.playSound(null, player.blockPosition(), SoundEvents.LEASH_KNOT_BREAK, SoundSource.PLAYERS, 0.8f, 1.2f);
             AllSoundEvents.DENY.playOnServer(level, player.blockPosition());
             player.displayClientMessage(Component.translatable("voltworks.cable_reel.snapped").withStyle(ChatFormatting.RED), true);
         } else if (d > be.stored()) {
@@ -130,13 +140,13 @@ public class ReelPlugItem extends Item {
         }
     }
 
-    /** A thrown cable end winds back into its reel at once. */
+    /** A dropped or thrown cable end (Q, death, ...) keeps flying as a lying cable end, still pulled out of the reel. */
     @Override
     public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
         if (!entity.level().isClientSide) {
             CableReelBlockEntity be = reel(entity.level(), stack);
             if (be != null)
-                be.dropGrab();
+                be.dropLoose(entity.position(), entity.getDeltaMovement());
             entity.discard();
         }
         return true;
