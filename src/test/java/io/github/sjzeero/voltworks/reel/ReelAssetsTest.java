@@ -4,11 +4,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.junit.jupiter.api.Test;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import javax.imageio.ImageIO;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -150,26 +154,25 @@ class ReelAssetsTest {
         JsonObject over = item.getAsJsonArray("overrides").get(0).getAsJsonObject();
         assertEquals(1, over.getAsJsonObject("predicate").get("voltworks:cord").getAsInt());
         assertEquals("voltworks:item/cord_plug", over.get("model").getAsString());
-        for (String[] m : new String[][]{{"cord_plug", "8", "7.5", "13"}, {"cable_lug", "8", "7", "12"}}) {
+        // name, back point (px), axis the cable leaves along (0 = x, 2 = z), lowest y
+        for (String[] m : new String[][]{{"cord_plug", "13", "4.5", "8", "0", "1"}, {"cable_lug", "8", "7", "11", "2", "6"}}) {
             JsonObject model = json("assets/voltworks/models/item/" + m[0] + ".json");
             assertEquals("voltworks:item/" + m[0], model.getAsJsonObject("textures").get("0").getAsString());
             assertTrue(model.has("display"));
-            double minY = 99, maxZ = -99;
+            double[] back = {Double.parseDouble(m[1]), Double.parseDouble(m[2]), Double.parseDouble(m[3])};
+            int axis = Integer.parseInt(m[4]);
+            double minY = 99, maxBack = -99;
             boolean backHit = false;
             for (var e : model.getAsJsonArray("elements")) {
-                var from = e.getAsJsonObject().getAsJsonArray("from");
-                var to = e.getAsJsonObject().getAsJsonArray("to");
                 double[] f = new double[3], t = new double[3];
-                for (int k = 0; k < 3; k++) {
-                    f[k] = from.get(k).getAsDouble();
-                    t[k] = to.get(k).getAsDouble();
-                    assertEquals(Math.rint(f[k]), f[k], m[0] + ": whole pixels");
-                    assertEquals(Math.rint(t[k]), t[k], m[0] + ": whole pixels");
-                }
+                box(e.getAsJsonObject(), f, t, m[0]);
                 minY = Math.min(minY, f[1]);
-                maxZ = Math.max(maxZ, t[2]);
-                double bx = Double.parseDouble(m[1]), by = Double.parseDouble(m[2]), bz = Double.parseDouble(m[3]);
-                if (t[2] == bz && f[0] <= bx && bx <= t[0] && f[1] <= by && by <= t[1])
+                maxBack = Math.max(maxBack, t[axis]);
+                boolean inside = true;
+                for (int k = 0; k < 3; k++)
+                    if (k != axis && (back[k] < f[k] || back[k] > t[k]))
+                        inside = false;
+                if (t[axis] == back[axis] && inside)
                     backHit = true;
                 for (var fe : e.getAsJsonObject().getAsJsonObject("faces").entrySet()) {
                     var uv = fe.getValue().getAsJsonObject().getAsJsonArray("uv");
@@ -182,9 +185,72 @@ class ReelAssetsTest {
                     assertEquals(fh, h, m[0] + " " + dir + ": one texel per pixel");
                 }
             }
-            assertEquals(6.0, minY, m[0] + " lies on y = 6");
-            assertEquals(Double.parseDouble(m[3]), maxZ, m[0] + " back face");
-            assertTrue(backHit, m[0] + ": the cable leaves the back face");
+            assertEquals(Double.parseDouble(m[5]), minY, m[0] + " lowest point");
+            assertEquals(back[axis], maxBack, m[0] + " back face");
+            assertTrue(backHit, m[0] + ": the cable leaves the middle of the back face");
         }
     }
+
+    private static void box(JsonObject e, double[] f, double[] t, String name) {
+        var from = e.getAsJsonArray("from");
+        var to = e.getAsJsonArray("to");
+        for (int k = 0; k < 3; k++) {
+            f[k] = from.get(k).getAsDouble();
+            t[k] = to.get(k).getAsDouble();
+            assertEquals(Math.rint(f[k]), f[k], name + ": whole pixels");
+            assertEquals(Math.rint(t[k]), t[k], name + ": whole pixels");
+        }
+    }
+
+    /**
+     * The plug is modelled standing in a floor socket: its blades are exactly the two dark slots painted on the
+     * socket's top face (socket.png through socket_v's up face), and go down into the socket, not through it; the
+     * body rests on the top face.
+     */
+    @Test
+    void plugBladesFitTheSocketSlots() throws IOException {
+        JsonObject base = json("assets/voltworks/models/block/socket_v.json").getAsJsonArray("elements").get(0).getAsJsonObject();
+        double[] bf = new double[3], bt = new double[3];
+        box(base, bf, bt, "socket_v");
+        JsonObject up = base.getAsJsonObject("faces").getAsJsonObject("up");
+        var uv = up.getAsJsonArray("uv");
+        double u0 = uv.get(0).getAsDouble(), v0 = uv.get(1).getAsDouble(), u1 = uv.get(2).getAsDouble(), v1 = uv.get(3).getAsDouble();
+        assertEquals(90, up.get("rotation").getAsInt(), "slot mapping below assumes the 90 degree up face");
+        BufferedImage tex;
+        try (InputStream in = ReelAssetsTest.class.getClassLoader().getResourceAsStream("assets/voltworks/textures/block/socket.png")) {
+            assertNotNull(in);
+            tex = ImageIO.read(in);
+        }
+        int w = (int) (bt[0] - bf[0]), d = (int) (bt[2] - bf[2]);
+        Set<String> slots = new TreeSet<>();
+        for (int i = 0; i < w; i++)
+            for (int j = 0; j < d; j++) {
+                double a = (i + 0.5) / w, b = (j + 0.5) / d;
+                double ra = b, rb = 1 - a; // face rotation 90
+                int tx = (int) Math.floor(u0 + (u1 - u0) * ra), ty = (int) Math.floor(v0 + (v1 - v0) * rb);
+                if ((tex.getRGB(tx, ty) & 0xFFFFFF) == SLOT)
+                    slots.add((int) (bf[0] + i) + "," + (int) (bf[2] + j));
+            }
+        assertEquals(4, slots.size(), "two 2x1 slots on the socket");
+
+        Set<String> blades = new TreeSet<>();
+        double bodyBottom = 99;
+        for (var e : json("assets/voltworks/models/item/cord_plug.json").getAsJsonArray("elements")) {
+            double[] f = new double[3], t = new double[3];
+            box(e.getAsJsonObject(), f, t, "cord_plug");
+            if (f[1] < bt[1]) {
+                assertEquals(bt[1], t[1], "blades end on the socket's top face");
+                assertTrue(f[1] >= bf[1], "blades stay inside the socket");
+                for (int x = (int) f[0]; x < t[0]; x++)
+                    for (int z = (int) f[2]; z < t[2]; z++)
+                        assertTrue(blades.add(x + "," + z));
+            } else {
+                bodyBottom = Math.min(bodyBottom, f[1]);
+            }
+        }
+        assertEquals(slots, blades, "plug blades = socket slots");
+        assertEquals(bt[1], bodyBottom, "plug body rests on the socket");
+    }
+
+    private static final int SLOT = 0x2e383a;
 }

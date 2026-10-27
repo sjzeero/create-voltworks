@@ -24,6 +24,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,10 +50,17 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
         return true; // the cable reaches far outside the end's own little box
     }
 
-    // Model space of the reel_plug item models (cord_plug / cable_lug): lying on y = 6 px, contacts towards -Z, and
-    // the cable leaving the middle of the back face at these points (px). The wire is drawn up to exactly there.
-    private static final double FLOOR_PX = 6;
-    private static final Vec3 PLUG_BACK = new Vec3(8, 7.5, 13), LUG_BACK = new Vec3(8, 7, 12);
+    /**
+     * How an end model lies on the floor. {@code base} turns the model about its centre first, after which its lowest
+     * point is at {@code floorPx}, the cable leaves along {@code axis} (radians from +Z towards +X) out of the middle
+     * of the back face at {@code backPx}. The wire is drawn up to exactly there.
+     */
+    private record Lying(Quaternionf base, double axis, double floorPx, Vec3 backPx) {}
+
+    // cord_plug is modelled standing in a floor socket (blades down, cord to +X): on the floor it lies on its back,
+    // blades up. cable_lug lies flat on y = 6, ring towards -Z, barrel back at z = 11.
+    private static final Lying PLUG = new Lying(Axis.XP.rotationDegrees(180), Math.PI / 2, 10, new Vec3(13, 11.5, 8));
+    private static final Lying LUG = new Lying(new Quaternionf(), 0, 6, new Vec3(8, 7, 11));
 
     @Override
     public void render(CableEndEntity entity, float entityYaw, float pt, PoseStack pose, MultiBufferSource buffer, int light) {
@@ -67,21 +75,24 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
             Vec3 local = block.localNode(be.getBlockState(), block.outletId());
             from = WallSpace.toWorld(WallSpace.renderPose(level, be.getBlockPos(), pt), Vec3.atLowerCornerOf(be.getBlockPos()).add(local));
         }
-        // lie along the cable: the back (+Z of the model) towards the reel
+        // lie along the cable: the back of the end towards the reel
+        Lying lie = cord ? PLUG : LUG;
         double yaw = Math.toRadians(-entity.getYRot());
         if (from != null && Math.hypot(from.x - at.x, from.z - at.z) > 0.05)
             yaw = Math.atan2(from.x - at.x, from.z - at.z);
+        yaw -= lie.axis();
 
         pose.pushPose();
         pose.mulPose(Axis.YP.rotation((float) yaw));
-        pose.translate(0, (8 - FLOOR_PX) / 16, 0);
+        pose.translate(0, (8 - lie.floorPx()) / 16, 0);
+        pose.mulPose(lie.base());
         items.renderStatic(cord ? plug : lug, ItemDisplayContext.NONE, light, OverlayTexture.NO_OVERLAY, pose, buffer, level, entity.getId());
         pose.popPose();
 
         WireType type = be == null ? null : be.wireType();
         if (type != null) {
-            Vec3 back = cord ? PLUG_BACK : LUG_BACK;
-            double bx = (back.x - 8) / 16, by = (back.y - FLOOR_PX) / 16, bz = (back.z - 8) / 16;
+            Vec3 back = lie.backPx();
+            double bx = (back.x - 8) / 16, by = (back.y - lie.floorPx()) / 16, bz = (back.z - 8) / 16;
             double cos = Math.cos(yaw), sin = Math.sin(yaw);
             Vec3 to = at.add(bx * cos + bz * sin, by, -bx * sin + bz * cos);
             double distance = from.distanceTo(to);

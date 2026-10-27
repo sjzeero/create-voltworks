@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -20,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -39,7 +41,21 @@ import java.util.Map;
 public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final IntegerProperty ROTATION = IntegerProperty.create("rotation", 0, 3);
+    /** A cable reel's plug sitting in the slots; A = cord leaves towards the model's +X, B = towards -X. */
+    public static final EnumProperty<Plug> PLUG = EnumProperty.create("plug", Plug.class);
     public static final int POSITIVE = 0, NEGATIVE = 1, CORD_POSITIVE = 2, CORD_NEGATIVE = 3;
+
+    public enum Plug implements StringRepresentable {
+        NONE, A, B;
+
+        @Override
+        public String getSerializedName() {
+            return name().toLowerCase(java.util.Locale.ROOT);
+        }
+    }
+
+    /** Back of the plugged-in reel plug (cord_plug.json strain relief), in floor model pixels. */
+    private static final double[] PLUG_BACK = {13, 4.5, 8};
 
     /** In pixels, in the floor model (power_plug_v). Both cord strands share the single plug hole on top. */
     private static final double[][] FLOOR_NODES = {{8, 1, 3.5}, {8, 1, 12.5}, {8, 3.5, 8}, {8, 3.5, 8}};
@@ -52,12 +68,12 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
 
     public SocketBlock(Properties properties) {
         super(properties);
-        registerDefaultState(defaultBlockState().setValue(FACING, Direction.DOWN).setValue(ROTATION, 0));
+        registerDefaultState(defaultBlockState().setValue(FACING, Direction.DOWN).setValue(ROTATION, 0).setValue(PLUG, Plug.NONE));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, ROTATION);
+        builder.add(FACING, ROTATION, PLUG);
     }
 
     /** Same rotation the blockstate applies to the model: x/y as in PG's socket.json, around the block center. */
@@ -70,6 +86,15 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
             x = 16 - py;
             y = px;
         }
+        Vector3f v = new Vector3f((float) (x / 16 - 0.5), (float) (y / 16 - 0.5), (float) (z / 16 - 0.5));
+        blockstateRotation(state).transform(v);
+        return new Vec3(round(v.x + 0.5), round(v.y + 0.5), round(v.z + 0.5));
+    }
+
+    private static Quaternionf blockstateRotation(BlockState state) {
+        Direction facing = state.getValue(FACING);
+        int rot = state.getValue(ROTATION);
+        boolean wall = facing.getAxis().isHorizontal();
         int rx = wall ? WALL_X[rot] : facing == Direction.UP ? 180 : 0;
         int ry = !wall ? FLOOR_Y[rot] : switch (facing) {
             case NORTH -> -90;
@@ -77,9 +102,25 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
             case WEST -> 180;
             default -> 0;
         };
-        Vector3f v = new Vector3f((float) (x / 16 - 0.5), (float) (y / 16 - 0.5), (float) (z / 16 - 0.5));
-        new Quaternionf().rotateYXZ((float) Math.toRadians(-ry), (float) Math.toRadians(-rx), 0).transform(v);
-        return new Vec3(round(v.x + 0.5), round(v.y + 0.5), round(v.z + 0.5));
+        return new Quaternionf().rotateYXZ((float) Math.toRadians(-ry), (float) Math.toRadians(-rx), 0);
+    }
+
+    /**
+     * Rotation (about the block centre) that takes a model built in floor-socket pixels - like cord_plug.json - onto
+     * this socket, including the side the plugged-in cord leaves towards.
+     */
+    public static Quaternionf modelRotation(BlockState state) {
+        Quaternionf q = blockstateRotation(state);
+        if (state.getValue(FACING).getAxis().isHorizontal())
+            q.rotateZ((float) (Math.PI / 2));
+        if (state.getValue(PLUG) == Plug.B)
+            q.rotateY((float) Math.PI);
+        return q;
+    }
+
+    /** World-space direction (unit, block space) the cord leaves a plug in {@link Plug#A} orientation. */
+    public static Vector3f plugAxis(BlockState state) {
+        return modelRotation(state.setValue(PLUG, Plug.A)).transform(new Vector3f(1, 0, 0));
     }
 
     private static double round(double v) {
@@ -91,6 +132,11 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
             Vec3[] out = new Vec3[FLOOR_NODES.length];
             for (int i = 0; i < out.length; i++)
                 out[i] = place(s, FLOOR_NODES[i][0], FLOOR_NODES[i][1], FLOOR_NODES[i][2]);
+            Plug plug = s.getValue(PLUG);
+            if (plug != Plug.NONE) {
+                double bx = plug == Plug.A ? PLUG_BACK[0] : 16 - PLUG_BACK[0];
+                out[CORD_POSITIVE] = out[CORD_NEGATIVE] = place(s, bx, PLUG_BACK[1], PLUG_BACK[2]);
+            }
             return out;
         });
     }

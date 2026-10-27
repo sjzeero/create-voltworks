@@ -7,6 +7,8 @@ import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
 import com.george_vi.electroenergetics.simulation.WireType;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.ryanhcode.sable.companion.math.Pose3dc;
+import io.github.sjzeero.voltworks.cord.SocketBlock;
 import io.github.sjzeero.voltworks.reel.CableReelBlock;
 import io.github.sjzeero.voltworks.reel.CableReelBlockEntity;
 import io.github.sjzeero.voltworks.reel.ReelMath;
@@ -16,9 +18,13 @@ import net.createmod.catnip.data.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,9 +32,12 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Client side of the cable reels.
@@ -85,8 +94,6 @@ public final class ReelClient {
             followLength(w.getFirst(), w.getSecond(), partialTick);
     }
 
-    // ---- cable end in the hand -----------------------------------------------------------------------------------
-
     private static void render(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES)
             return;
@@ -95,6 +102,72 @@ public final class ReelClient {
         ClientLevel level = mc.level;
         if (player == null || level == null)
             return;
+        renderPlugs(event, mc, level);
+        renderHeld(event, mc, player, level);
+    }
+
+    // ---- plugs in sockets --------------------------------------------------------------------------------------
+
+    private static final double PLUG_RANGE = 96;
+    private static @Nullable ItemStack plugLook;
+
+    /**
+     * A cord reel plugged into a socket: the plug model sits in the socket's slots (blades hidden in the socket), turned
+     * by the socket's {@link SocketBlock#PLUG} state so the cord leaves towards the reel, and the cord - whose node the
+     * socket moved to the plug's back - ends in it. Ordinary cords into the same socket stay as they are.
+     */
+    private static void renderPlugs(RenderLevelStageEvent event, Minecraft mc, ClientLevel level) {
+        float pt = event.getPartialTick().getGameTimeDeltaPartialTick(true);
+        Vec3 cam = event.getCamera().getPosition();
+        PoseStack pose = event.getPoseStack();
+        MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
+        if (plugLook == null)
+            plugLook = ReelPlugItem.look(true);
+        Set<BlockPos> done = new HashSet<>();
+        boolean any = false;
+        for (Pair<InWorldNodeConnection, WireData> w : WireRenderer.getAllConnections()) {
+            InWorldNodeConnection c = w.getFirst();
+            InWorldNode socket = c.node2();
+            CableReelBlockEntity be = reelAt(level, c.node1());
+            if (be == null) {
+                be = reelAt(level, c.node2());
+                socket = c.node1();
+            }
+            if (be == null || !be.block().cord)
+                continue;
+            BlockPos sp = socket.sourcePos();
+            if (!done.add(sp) || !level.isLoaded(sp))
+                continue;
+            BlockState st = level.getBlockState(sp);
+            if (!(st.getBlock() instanceof SocketBlock) || st.getValue(SocketBlock.PLUG) == SocketBlock.Plug.NONE)
+                continue;
+            Pose3dc sub = WallSpace.renderPose(level, sp, pt);
+            Vec3 o = WallSpace.toWorld(sub, Vec3.ZERO);
+            if (WallSpace.toWorld(sub, sp.getCenter()).distanceToSqr(cam) > PLUG_RANGE * PLUG_RANGE)
+                continue;
+            pose.pushPose();
+            pose.translate(-cam.x, -cam.y, -cam.z);
+            if (sub != null) {
+                Vec3 ex = WallSpace.rotate(sub, new Vec3(1, 0, 0)), ey = WallSpace.rotate(sub, new Vec3(0, 1, 0)),
+                        ez = WallSpace.rotate(sub, new Vec3(0, 0, 1));
+                Matrix4f m = new Matrix4f((float) ex.x, (float) ex.y, (float) ex.z, 0, (float) ey.x, (float) ey.y, (float) ey.z, 0,
+                        (float) ez.x, (float) ez.y, (float) ez.z, 0, (float) o.x, (float) o.y, (float) o.z, 1);
+                pose.mulPose(m);
+            }
+            pose.translate(sp.getX() + 0.5, sp.getY() + 0.5, sp.getZ() + 0.5);
+            pose.mulPose(SocketBlock.modelRotation(st));
+            mc.getItemRenderer().renderStatic(plugLook, ItemDisplayContext.NONE, LevelRenderer.getLightColor(level, sp),
+                    OverlayTexture.NO_OVERLAY, pose, buffer, level, 0);
+            pose.popPose();
+            any = true;
+        }
+        if (any)
+            buffer.endBatch();
+    }
+
+    // ---- cable end in the hand -----------------------------------------------------------------------------------
+
+    private static void renderHeld(RenderLevelStageEvent event, Minecraft mc, LocalPlayer player, ClientLevel level) {
         ItemStack held = player.getMainHandItem();
         if (!(held.getItem() instanceof ReelPlugItem))
             return;

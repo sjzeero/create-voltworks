@@ -6,13 +6,14 @@ import com.george_vi.electroenergetics.content.wire_spool.WireSpoolItem;
 import com.george_vi.electroenergetics.foundation.device.ElectricalDeviceBlock;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
+import com.george_vi.electroenergetics.simulation.WireType;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
-import com.george_vi.electroenergetics.simulation.WireType;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import io.github.sjzeero.voltworks.VoltworksConfig;
 import io.github.sjzeero.voltworks.cord.CordPair;
+import io.github.sjzeero.voltworks.cord.SocketBlock;
 import io.github.sjzeero.voltworks.mixin.WireSpoolItemAccessor;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksWireTypes;
@@ -36,16 +37,19 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -326,6 +330,7 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
                 }
             to = ends[0];
             toReturn = ends[1];
+            plugIn(sl, pos);
         } else {
             // same lookup as Electro Energetics' spool: nearest node to the click, else the clicked block's nearest
             to = InWorldNode.closestNode(sl, click, 1.5F);
@@ -344,6 +349,8 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         double len = ReelMath.pullLength(dist, stored);
         if (len < 0) {
             deny(player, "too_short", fmt(dist), fmt(stored));
+            if (b.cord)
+                unplug(sl, pos);
             return false;
         }
         pulled = len;
@@ -402,8 +409,7 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
     private @Nullable Vec3 farEnd(InWorldNodeConnection connection) {
         if (!(level instanceof ServerLevel sl))
             return null;
-        InWorldNode far = connection.node1().sourcePos().equals(worldPosition) && block().isOutlet(connection.node1().id())
-                ? connection.node2() : connection.node1();
+        InWorldNode far = far(connection);
         try {
             return WallSpace.toWorld(sl, WallSpace.nodePos(sl, far));
         } catch (RuntimeException e) {
@@ -417,11 +423,46 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         pulled = 0;
         if (level instanceof ServerLevel sl) {
             InfrastructureSavedData sd = InfrastructureSavedData.load(sl);
-            for (InWorldNodeConnection c : outgoing(sd))
+            Set<BlockPos> sockets = new HashSet<>();
+            for (InWorldNodeConnection c : outgoing(sd)) {
+                sockets.add(far(c).sourcePos());
                 if (sd.getConnectionData(c) != null)
                     sd.removeConnectionNoDrops(c);
+            }
+            if (block().cord)
+                for (BlockPos p : sockets)
+                    unplug(sl, p);
         }
         sync();
+    }
+
+    /** The end of {@code c} that is not this reel's outlet. */
+    private InWorldNode far(InWorldNodeConnection c) {
+        return c.node1().sourcePos().equals(worldPosition) && block().isOutlet(c.node1().id()) ? c.node2() : c.node1();
+    }
+
+    /**
+     * Puts the cord's plug into the socket at {@code pos}: the plug model is drawn in the socket's slots and the
+     * cord strands move from the slot to the plug's back. The plug turns so its cord leaves towards this reel.
+     */
+    private void plugIn(ServerLevel sl, BlockPos pos) {
+        BlockState st = sl.getBlockState(pos);
+        if (!(st.getBlock() instanceof SocketBlock))
+            return;
+        Vector3f axis = SocketBlock.plugAxis(st);
+        Vec3 centre = WallSpace.toWorld(sl, Vec3.atCenterOf(pos));
+        Vec3 dir = WallSpace.toWorld(sl, Vec3.atCenterOf(pos).add(axis.x, axis.y, axis.z)).subtract(centre);
+        SocketBlock.Plug side = dir.dot(outletWorld().subtract(centre)) >= 0 ? SocketBlock.Plug.A : SocketBlock.Plug.B;
+        if (st.getValue(SocketBlock.PLUG) != side)
+            sl.setBlock(pos, st.setValue(SocketBlock.PLUG, side), Block.UPDATE_ALL);
+    }
+
+    private static void unplug(ServerLevel sl, BlockPos pos) {
+        if (!sl.isLoaded(pos))
+            return;
+        BlockState st = sl.getBlockState(pos);
+        if (st.getBlock() instanceof SocketBlock && st.getValue(SocketBlock.PLUG) != SocketBlock.Plug.NONE)
+            sl.setBlock(pos, st.setValue(SocketBlock.PLUG, SocketBlock.Plug.NONE), Block.UPDATE_ALL);
     }
 
     /** If the connection vanished some other way, the cable counts as wound back in. */
