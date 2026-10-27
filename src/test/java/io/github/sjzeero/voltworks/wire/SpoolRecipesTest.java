@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SpoolRecipesTest {
     /** spool item -> its wire item */
     static final Map<String, String> SPOOLS = Map.of(
-            "voltworks:copper_cord", "voltworks:copper_cord_wire",
+            "voltworks:copper_cord", "voltworks:two_core_wire",
             "voltworks:redstone_cable", "voltworks:redstone_cable_wire");
 
     static JsonObject json(String path) throws IOException {
@@ -51,6 +51,21 @@ class SpoolRecipesTest {
             assertEquals(e.getKey(), r.getAsJsonObject("result").get("id").getAsString());
             assertEquals(1, r.getAsJsonObject("result").get("count").getAsInt());
         }
+    }
+
+    @Test
+    void twoCoreWireIsTwoInsulatedWiresInAKelpSheath() throws IOException {
+        JsonObject r = json("data/voltworks/recipe/crafting/two_core_wire.json");
+        assertEquals("minecraft:crafting_shapeless", r.get("type").getAsString());
+        List<String> in = r.getAsJsonArray("ingredients").asList().stream()
+                .map(j -> j.getAsJsonObject().get("item").getAsString()).sorted().toList();
+        assertEquals(List.of("electroenergetics:insulated_wire", "electroenergetics:insulated_wire", "minecraft:dried_kelp"), in);
+        assertEquals("voltworks:two_core_wire", r.getAsJsonObject("result").get("id").getAsString());
+        assertEquals(1, r.getAsJsonObject("result").get("count").getAsInt());
+        assertFalse(SpoolRecipesTest.class.getClassLoader().getResource("assets/voltworks/models/item/copper_cord_wire.json") != null,
+                "old copper_cord_wire item must be gone");
+        assertEquals("Two-Core Wire", json("assets/voltworks/lang/en_us.json").get("item.voltworks.two_core_wire").getAsString());
+        assertEquals("Двухжильный провод", json("assets/voltworks/lang/ru_ru.json").get("item.voltworks.two_core_wire").getAsString());
     }
 
     @Test

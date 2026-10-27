@@ -281,7 +281,7 @@
   "gui.goggles.voltworks.solar.irradiance": "Irradiance:",
   "block.voltworks.socket": "Socket",
   "item.voltworks.copper_cord": "Copper Cord Spool",
-  "item.voltworks.copper_cord_wire": "Copper Cord",
+  "item.voltworks.two_core_wire": "Two-Core Wire",
   "voltworks.node.socket_0": "+",
   "voltworks.node.socket_1": "-",
   "voltworks.node.socket_2": "Socket contact",

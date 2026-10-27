@@ -283,7 +283,7 @@
   "voltworks.contraption.assembly.not_enough_panels": "В прилагаемой конструкции не хватает Солнечных панелей; требуется как минимум 1",
   "block.voltworks.socket": "Розетка",
   "item.voltworks.copper_cord": "Катушка медного кабеля",
-  "item.voltworks.copper_cord_wire": "Медный кабель",
+  "item.voltworks.two_core_wire": "Двухжильный провод",
   "voltworks.node.socket_0": "+",
   "voltworks.node.socket_1": "-",
   "voltworks.node.socket_2": "Контакт розетки",

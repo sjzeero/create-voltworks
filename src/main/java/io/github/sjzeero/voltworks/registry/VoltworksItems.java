@@ -30,8 +30,8 @@ public final class VoltworksItems {
 
     public static final DeferredItem<?> SERVO_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SERVO);
     public static final DeferredItem<?> SOCKET_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SOCKET);
-    /** Copper cord wire: crafting material, four of them and an empty spool make a {@link #COPPER_CORD} spool (as in Electro Energetics). */
-    public static final DeferredItem<Item> COPPER_CORD_WIRE = ITEMS.registerSimpleItem("copper_cord_wire");
+    /** Two-core wire (two insulated cores in a kelp sheath): crafting material, four of them and an empty spool make a {@link #COPPER_CORD} spool (as in Electro Energetics). */
+    public static final DeferredItem<Item> TWO_CORE_WIRE = ITEMS.registerSimpleItem("two_core_wire");
 
     /** Redstone cable wire: crafting material, four of them and an empty spool make a {@link #REDSTONE_CABLE} spool. */
     public static final DeferredItem<Item> REDSTONE_CABLE_WIRE = ITEMS.registerSimpleItem("redstone_cable_wire");

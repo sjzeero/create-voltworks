@@ -6,7 +6,7 @@
       "item": "electroenergetics:empty_spool"
     },
     "w": {
-      "item": "voltworks:copper_cord_wire"
+      "item": "voltworks:two_core_wire"
     }
   },
   "pattern": [
