@@ -6,7 +6,9 @@ import com.george_vi.electroenergetics.content.wire_spool.WireSpoolItem;
 import com.george_vi.electroenergetics.foundation.device.ElectricalDeviceBlock;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
+import com.george_vi.electroenergetics.simulation.infrastructure.InWorldNodeData;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
+import com.george_vi.electroenergetics.simulation.util.DataPacker;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.george_vi.electroenergetics.simulation.WireType;
 import com.simibubi.create.AllSoundEvents;
@@ -42,6 +44,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -54,7 +57,11 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
     private @Nullable ResourceLocation wireTypeId;
     private double stored;
     private double pulled;
-    private @Nullable InWorldNode target;
+    /** Length last sent to clients for the follow-out cable, so the sag is resent only when it changed noticeably. */
+    private final double[] lastSentLength = {Double.NaN, Double.NaN};
+    private long lastSyncTick;
+    private double soundAccumulator;
+    private long lastSoundTick;
     /** Id of the cable end currently in a player's hand; 0 when nobody holds it. */
     private long grab;
 
@@ -175,6 +182,10 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         InfrastructureSavedData sd = InfrastructureSavedData.load(sl);
         device.ensureNodesExist(sl, pos, state);
         b.ensureNodesExist(sl, worldPosition, getBlockState());
+        if (!outgoing(sd).isEmpty()) {
+            deny(player, "already_out");
+            return false;
+        }
         InWorldNode to, toReturn = null;
         if (b.cord) {
             InWorldNode[] ends = CordPair.ends(sl, pos);
@@ -206,7 +217,6 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
             deny(player, "too_short", fmt(dist), fmt(stored));
             return false;
         }
-        target = to;
         pulled = len;
         stored -= len;
         grab = 0;
@@ -222,7 +232,7 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
     // ---- winding back ----------------------------------------------------------------------------------------------
 
     public void retractByPlayer(ServerPlayer player) {
-        boolean out = target != null || grab != 0;
+        boolean out = pulled > 0 || grab != 0 || (level instanceof ServerLevel sl && !outgoing(InfrastructureSavedData.load(sl)).isEmpty());
         grab = 0;
         windIn();
         setChanged();
@@ -234,17 +244,20 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         }
     }
 
+    /** Connections leaving this reel's outlet (the supply strand first). Only the reel itself connects there. */
+    private List<InWorldNodeConnection> outgoing(InfrastructureSavedData sd) {
+        List<InWorldNodeConnection> out = new ArrayList<>(sd.getConnections(outlet(0)));
+        if (block().cord)
+            out.addAll(sd.getConnections(outlet(1)));
+        return out;
+    }
+
     /**
      * Called before Electro Energetics removes a connection that starts on this reel's outlet (target broken, wire
-     * cutters, empty spool, ...). Winds the cable back instead, so the caller drops nothing.
+     * cutters, empty spool, overstretched by a moving Sable structure, ...). Winds the cable back instead, so the caller
+     * drops nothing.
      */
     boolean windBackFor(InWorldNodeConnection connection) {
-        if (target == null)
-            return false;
-        InWorldNode other = connection.node1().sourcePos().equals(worldPosition) && block().isOutlet(connection.node1().id())
-                ? connection.node2() : connection.node1();
-        if (!other.sourcePos().equals(target.sourcePos()))
-            return false;
         windIn();
         level.playSound(null, worldPosition, SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.BLOCKS, 0.9f, 0.7f);
         return true;
@@ -252,32 +265,78 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
 
     /** Removes the pulled-out connection without drops and puts its length back on the drum. */
     public void windIn() {
-        if (target == null && pulled <= 0)
-            return;
-        InWorldNode to = target;
-        target = null;
         stored += pulled;
         pulled = 0;
-        if (to != null && level instanceof ServerLevel sl) {
+        java.util.Arrays.fill(lastSentLength, Double.NaN);
+        if (level instanceof ServerLevel sl) {
             InfrastructureSavedData sd = InfrastructureSavedData.load(sl);
-            removeQuietly(sd, new InWorldNodeConnection(outlet(0), to));
-            if (block().cord)
-                removeQuietly(sd, new InWorldNodeConnection(outlet(1), new InWorldNode(to.id() + 1, to.sourcePos())));
+            for (InWorldNodeConnection c : outgoing(sd))
+                if (sd.getConnectionData(c) != null)
+                    sd.removeConnectionNoDrops(c);
         }
         sync();
     }
 
-    private static void removeQuietly(InfrastructureSavedData sd, InWorldNodeConnection c) {
-        if (sd.getConnectionData(c) != null)
-            sd.removeConnectionNoDrops(c);
-    }
-
     /** If the connection vanished some other way, the cable counts as wound back in. */
     private void checkOut() {
-        if (target == null || !(level instanceof ServerLevel sl))
+        if (pulled <= 0 || !(level instanceof ServerLevel sl))
             return;
-        if (InfrastructureSavedData.load(sl).getConnectionData(new InWorldNodeConnection(outlet(0), target)) == null)
+        if (InfrastructureSavedData.load(sl).getConnections(outlet(0)).isEmpty())
             windIn();
+    }
+
+    /**
+     * Self-retracting cord. Called from {@code WireSimulationState.relocateConnection} whenever an end of the cable
+     * moved (Electro Energetics only does that for nodes on Sable sub-levels or detached nodes), before Electro
+     * Energetics compares the new distance with the wire length. Pays wire out or winds it in so the length follows
+     * the distance plus a little slack, and writes that length into the connection so Electro Energetics does not
+     * snap it.
+     *
+     * @return true when the distance is more than all the wire on the reel, so the cable has to come off (the caller
+     * then lets Electro Energetics remove it, and the removal hook winds it back onto the drum).
+     */
+    boolean follow(InfrastructureSavedData sd, InWorldNodeConnection connection, int outletId, WireData data) {
+        Vec3 a = sd.getNodePosition(connection.node1()), b = sd.getNodePosition(connection.node2());
+        if (a == null || b == null)
+            return false;
+        double distance = a.distanceTo(b);
+        double total = stored + pulled;
+        if (ReelMath.overstretched(distance, total))
+            return true;
+        double want = ReelMath.followLength(distance, total);
+        if (outletId == block().outletId() && Math.abs(want - pulled) > 1.0E-4) {
+            double delta = want - pulled;
+            pulled = want;
+            stored = Math.max(0, total - want);
+            changedByFollow(delta);
+        }
+        data.length = want;
+        int strand = outletId == block().outletId() ? 0 : 1;
+        if (Double.isNaN(lastSentLength[strand]) || Math.abs(want - lastSentLength[strand]) > 0.4) {
+            // Electro Energetics only resends a moved wire to clients when it changes chunks; queue a full resend so
+            // the client draws the new length (sag), the same way Electro Energetics refreshes wires moved by Sable.
+            InWorldNodeData n1 = sd.getNodeData(connection.node1()), n2 = sd.getNodeData(connection.node2());
+            if (n1 != null && n2 != null)
+                sd.sableToUpdate.add(DataPacker.packAndCanonicalize(n1.id, n2.id));
+            lastSentLength[strand] = want;
+        }
+        return false;
+    }
+
+    private void changedByFollow(double delta) {
+        setChanged();
+        long now = level.getGameTime();
+        if (now - lastSyncTick >= 10) {
+            lastSyncTick = now;
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        }
+        soundAccumulator += delta;
+        if (Math.abs(soundAccumulator) >= 1.0 && now - lastSoundTick >= 4) {
+            lastSoundTick = now;
+            boolean out = soundAccumulator > 0;
+            soundAccumulator = 0;
+            level.playSound(null, worldPosition, SoundEvents.FISHING_BOBBER_THROW, SoundSource.BLOCKS, 0.25f, out ? 1.4f : 0.9f);
+        }
     }
 
     /** Block broken: the cable is wound in, then everything on the drum drops as wire, like a removed wire would. */
@@ -342,10 +401,6 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         tag.putDouble("Pulled", pulled);
         if (wireTypeId != null)
             tag.putString("WireType", wireTypeId.toString());
-        if (target != null) {
-            tag.putInt("TargetId", target.id());
-            tag.putLong("TargetPos", target.sourcePos().asLong());
-        }
         if (grab != 0)
             tag.putLong("Grab", grab);
     }
@@ -356,7 +411,6 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         stored = tag.getDouble("Stored");
         pulled = tag.getDouble("Pulled");
         wireTypeId = tag.contains("WireType") ? ResourceLocation.tryParse(tag.getString("WireType")) : null;
-        target = tag.contains("TargetPos") ? new InWorldNode(tag.getInt("TargetId"), BlockPos.of(tag.getLong("TargetPos"))) : null;
         grab = tag.getLong("Grab");
     }
 

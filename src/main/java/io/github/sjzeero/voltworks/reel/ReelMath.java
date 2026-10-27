@@ -25,8 +25,29 @@ public final class ReelMath {
     public static double pullLength(double distance, double stored) {
         if(distance <= 0 || distance > stored + EPS)
             return -1;
-        double slack = Math.min(0.5, distance * 0.05);
-        return Math.min(stored, distance + slack);
+        return Math.min(stored, distance + slack(distance));
+    }
+
+    /**
+     * Electro Energetics snaps a moving wire once the distance is more than a block over its length
+     * ({@code WireSimulationState.relocateConnection}); a reel lets everything out first and only then gives up, with
+     * the same one block of give.
+     */
+    public static final double BREAK_GIVE = 1.0;
+
+    /** Slack a reel keeps on a cable it pays out or winds in by itself. */
+    public static double slack(double distance) {
+        return Math.min(0.5, Math.max(0, distance) * 0.05);
+    }
+
+    /** Length a self-retracting cable should have at this distance: distance plus slack, at most all the wire. */
+    public static double followLength(double distance, double total) {
+        return Math.max(0, Math.min(total, Math.max(0, distance) + slack(distance)));
+    }
+
+    /** Distance is past all the wire on the reel (plus Electro Energetics' give): the cable comes off. */
+    public static boolean overstretched(double distance, double total) {
+        return distance > total + BREAK_GIVE;
     }
 
     /** Blocks per loose wire item. */

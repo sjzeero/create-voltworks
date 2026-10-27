@@ -53,4 +53,35 @@ class ReelMathTest {
         stored += pulled;
         assertEquals(48, stored, 1e-9);
     }
+
+    /** Simulates a Sable structure carrying the far end away and back: wire follows, nothing is created or lost. */
+    @Test
+    void cableFollowsAMovingEnd() {
+        double total = 64, pulled = ReelMath.pullLength(5, total), stored = total - pulled;
+        for (double d = 5; d <= 60; d += 0.7) {
+            assertFalse(ReelMath.overstretched(d, stored + pulled));
+            double want = ReelMath.followLength(d, stored + pulled);
+            stored = stored + pulled - want;
+            pulled = want;
+            assertTrue(pulled >= d - 1e-9 || pulled == total, "never shorter than the distance while wire is left");
+            assertTrue(pulled - d <= 0.5 + 1e-9, "only a little slack");
+            assertEquals(total, stored + pulled, 1e-9);
+        }
+        double last = 60;
+        for (double d = 60; d >= 2; d -= 1.3) {
+            last = d;
+            double want = ReelMath.followLength(d, stored + pulled);
+            stored = stored + pulled - want;
+            pulled = want;
+        }
+        assertEquals(last + ReelMath.slack(last), pulled, 1e-9, "wound back in when the end comes closer: " + pulled);
+        assertEquals(total, stored + pulled, 1e-9);
+    }
+
+    @Test
+    void cableComesOffOnlyPastAllTheWire() {
+        assertEquals(64, ReelMath.followLength(64.6, 64), 1e-9, "everything out");
+        assertFalse(ReelMath.overstretched(64.9, 64), "Electro Energetics' one block of give");
+        assertTrue(ReelMath.overstretched(65.1, 64));
+    }
 }
