@@ -201,6 +201,12 @@ public class Components {
                     .addPad(3, 2, 2)
                     .withItem().withOutline());
 
+    public static final DeferredHolder<Component, BuzzerComponent> BUZZER = component("buzzer", BuzzerComponent::new, 3, 3, null,
+            b -> b
+                    .addPad(0, 1, 0)
+                    .addPad(2, 1, 1)
+                    .withItem().withOutline());
+
     public static final DeferredHolder<Component, VaristorComponent> VARISTOR = component("varistor", VaristorComponent::new, 4, 4, null,
             b -> b
                     .addPad(0, 1, 0)

@@ -39,6 +39,7 @@ final class TestComponents {
             case "voltage_gauge" -> new VoltageGaugeComponent(fp(5, 5, 2, 0, 0, 2, 4, 1));
             case "current_gauge" -> new CurrentGaugeComponent(fp(5, 5, 2, 0, 0, 2, 4, 1));
             case "button" -> new ButtonComponent(fp(3, 3, 0, 1, 0, 2, 1, 1));
+            case "buzzer" -> new BuzzerComponent(fp(3, 3, 0, 1, 0, 2, 1, 1));
             case "potentiometer" -> new PotentiometerComponent(fp(5, 5, 1, 2, 0, 2, 3, 1, 3, 2, 2));
             default -> throw new IllegalArgumentException(id);
         };

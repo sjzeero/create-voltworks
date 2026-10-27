@@ -27,6 +27,7 @@
     "voltworks:redstone_relay",
     "voltworks:thyratron",
     "voltworks:regulator_tube",
-    "voltworks:diode"
+    "voltworks:diode",
+    "voltworks:buzzer"
   ]
 }

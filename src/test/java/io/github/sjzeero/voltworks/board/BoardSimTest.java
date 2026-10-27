@@ -145,6 +145,52 @@ class BoardSimTest {
         assertEquals(6.04, v, 0.05);
     }
 
+    private Rig buzzerRig(double supply) {
+        return new Rig(twoPin(s -> {
+            s.place("resistor", 2, 6, ResistorComponent.RESISTANCE, 100f);
+            s.place("buzzer", 9, 6);
+            s.v(1, 7, 14).h(7, 1, 2);
+            s.h(7, 6, 9).v(11, 1, 7).h(1, 1, 11);
+        })).pin(1, supply).tick(5);
+    }
+
+    @Test
+    void buzzerIs500OhmLoad() {
+        var rig = buzzerRig(24);
+        var buzzer = rig.part("buzzer");
+        double v = Math.abs(buzzer.wires.get(0).potentialDifference());
+        double i = Math.abs(buzzer.wires.get(0).current());
+        log("buzzer 24V supply: V=%.4f I=%.6f", v, i);
+        assertEquals(20.0, v, 0.05);
+        assertEquals(0.04, i, 1e-4);
+        assertTrue(BuzzerComponent.sounds(v));
+        assertEquals(0.5 + 20 / 48.0, BuzzerComponent.pitchFor(v), 1e-3);
+    }
+
+    @Test
+    void buzzerSilentBelowThreshold() {
+        var rig = buzzerRig(12);
+        double v = Math.abs(rig.part("buzzer").wires.get(0).potentialDifference());
+        log("buzzer 12V supply: V=%.4f", v);
+        assertEquals(10.0, v, 0.05);
+        assertFalse(BuzzerComponent.sounds(v));
+        assertTrue(BuzzerComponent.sounds(12.0));
+        assertTrue(BuzzerComponent.sounds(-30.0));
+    }
+
+    @Test
+    void buzzerPitchFollowsVoltage() {
+        assertEquals(0.75f, BuzzerComponent.pitchFor(12), 1e-4);
+        assertEquals(1.0f, BuzzerComponent.pitchFor(24), 1e-4);
+        assertEquals(1.5f, BuzzerComponent.pitchFor(48), 1e-4);
+        assertEquals(2.0f, BuzzerComponent.pitchFor(500), 1e-4);
+        assertTrue(BuzzerComponent.pitchFor(30) > BuzzerComponent.pitchFor(20));
+        // re-trigger interval keeps the shortened chunk continuous (chunk length / pitch, floored)
+        assertEquals(13, BuzzerComponent.intervalFor(0.75f));
+        assertEquals(10, BuzzerComponent.intervalFor(1.0f));
+        assertEquals(6, BuzzerComponent.intervalFor(1.5f));
+    }
+
     @Test
     void relaySwitchesLoad() {
         var rig = new Rig(preset("relay")).tick(20);

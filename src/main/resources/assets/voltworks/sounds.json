@@ -1,0 +1,12 @@
+{
+  "buzzer": {
+    "category": "block",
+    "subtitle": "subtitles.voltworks.buzzer",
+    "sounds": [
+      {
+        "name": "voltworks:buzzer",
+        "stream": false
+      }
+    ]
+  }
+}

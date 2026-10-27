@@ -25,6 +25,7 @@ import io.github.sjzeero.voltworks.registry.VoltworksDevices;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
 import io.github.sjzeero.voltworks.registry.VoltworksRecipes;
 import io.github.sjzeero.voltworks.registry.VoltworksMenus;
+import io.github.sjzeero.voltworks.registry.VoltworksSounds;
 import io.github.sjzeero.voltworks.wallwire.WallWireEvents;
 
 @Mod(Voltworks.MOD_ID)
@@ -44,6 +45,7 @@ public class Voltworks {
         VoltworksRecipes.register(modBus);
         VoltworksCreativeTabs.register(modBus);
         VoltworksMenus.register(modBus);
+        VoltworksSounds.register(modBus);
         modBus.addListener(VoltworksNetwork::register);
         modBus.addListener((NewRegistryEvent e) -> e.register(ComponentRegistry.REGISTRY));
         container.registerConfig(ModConfig.Type.SERVER, VoltworksConfig.SPEC);
