@@ -1,49 +1,72 @@
 #!/usr/bin/env python3
-"""Draws textures/block/component/buzzer.png (16x16, 1 texel per model pixel,
-the same density as every other board component, e.g. capacitor/resistor).
+"""Draws textures/block/component/buzzer.png and models/component/buzzer.json.
 
-Layout (uv units = texels):
-  top    0..3 x 0..3   3x3 "plus" disc seen from above: lit rim, dark centre sound hole
-  side   4..7 x 0..2   black housing wall, light top edge (3 wide for the centre bar)
-  bottom 8..11 x 0..3  flat dark plastic
-  lead   12..13 x 0..1 tinned lead wire (same grey as the capacitor leads)
+16x16 texture, 1 texel per model pixel (same density as the board and the other components).
+The buzzer is a 3x3x2 round piezo disc raised one pixel on two copper leads, like the capacitor.
+Palette follows the black diode body (#08..#50 greys) and the copper legs of resistor/diode.
+
+Texture layout (uv = texels):
+  top    0..3 x 0..3   lit ring around a dark sound hole, corners = dark bevel of the round edge,
+                       highlight on the north rim, faint '+' mark on the west rim (next to the + pad)
+  side   3..6 x 0..2   darker outer columns (curved wall), lighter top lip
+  lead   6..7 x 0..2   copper
+  bottom 7..10 x 0..3
 Run from the repo root: python3 tools/buzzer_texture.py
 """
+import json
 from PIL import Image
 
-OUT = "src/main/resources/assets/voltworks/textures/block/component/buzzer.png"
+TEX = "src/main/resources/assets/voltworks/textures/block/component/buzzer.png"
+MODEL = "src/main/resources/assets/voltworks/models/component/buzzer.json"
+
+
+def hx(s):
+    return tuple(int(s[i:i + 2], 16) for i in (0, 2, 4)) + (255,)
+
+
 img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
 px = img.load()
 
-HOLE = (12, 12, 13, 255)
-LIT = (64, 64, 68, 255)      # rim lit from north-west
-MID = (48, 48, 51, 255)
-SHADE = (36, 36, 39, 255)
-EDGE = (58, 58, 62, 255)     # top edge of the wall
-WALL = (30, 30, 32, 255)
-WALL2 = (26, 26, 28, 255)
-BOTTOM = (20, 20, 21, 255)
-LEAD = (176, 176, 176, 255)
+top = [
+    ["1c1c1c", "6a6a6a", "161616"],
+    ["8a8a88", "080808", "383838"],
+    ["161616", "383838", "101010"],
+]
+for y, row in enumerate(top):
+    for x, c in enumerate(row):
+        px[x, y] = hx(c)
 
-# top (plus shape; corners are never sampled)
-px[1, 0] = LIT
-px[0, 1] = LIT
-px[1, 1] = HOLE
-px[2, 1] = SHADE
-px[1, 2] = MID
-for x in (0, 2):
-    for y in (0, 2):
-        px[x, y] = MID
+side = [["1c1c1c", "4c4c4c", "1c1c1c"],
+        ["121212", "2e2e2e", "121212"]]
+for y, row in enumerate(side):
+    for x, c in enumerate(row):
+        px[3 + x, y] = hx(c)
 
-# side: 3x2
-for x in range(4, 7):
-    px[x, 0] = EDGE
-    px[x, 1] = WALL if x != 5 else WALL2
+px[6, 0] = hx("d67b5b")
+px[6, 1] = hx("c26b4c")
 
-# bottom
-for x in range(8, 11):
-    for y in range(0, 3):
-        px[x, y] = BOTTOM
+for x in range(7, 10):
+    for y in range(3):
+        px[x, y] = hx("161616")
 
-px[12, 0] = LEAD
-img.save(OUT)
+img.save(TEX)
+
+T = "#0"
+wall = {"uv": [3, 0, 6, 2], "texture": T}
+lead = {"uv": [6, 1, 7, 2], "texture": T}
+elements = [
+    {"name": "Disc", "from": [0, 1, 0], "to": [3, 3, 3], "faces": {
+        "north": wall, "east": wall, "south": wall, "west": wall,
+        "up": {"uv": [0, 0, 3, 3], "texture": T},
+        "down": {"uv": [7, 0, 10, 3], "texture": T}}},
+    {"name": "Lead +", "from": [0, 0, 1.5], "to": [1, 1, 1.5], "faces": {"north": lead, "south": lead}},
+    {"name": "Lead -", "from": [2, 0, 1.5], "to": [3, 1, 1.5], "faces": {"north": lead, "south": lead}},
+]
+model = {
+    "credit": "Voltworks buzzer: round piezo disc on two leads, 3x3, 1 texel per pixel",
+    "textures": {"0": "voltworks:block/component/buzzer", "particle": "voltworks:block/component/buzzer"},
+    "elements": elements,
+}
+with open(MODEL, "w") as f:
+    json.dump(model, f, indent="\t")
+    f.write("\n")
