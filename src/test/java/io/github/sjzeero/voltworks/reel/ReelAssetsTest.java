@@ -155,7 +155,7 @@ class ReelAssetsTest {
         assertEquals(1, over.getAsJsonObject("predicate").get("voltworks:cord").getAsInt());
         assertEquals("voltworks:item/cord_plug", over.get("model").getAsString());
         // name, back point (px), axis the cable leaves along (0 = x, 2 = z), lowest y
-        for (String[] m : new String[][]{{"cord_plug", "13", "4.5", "8", "0", "1"}, {"cable_lug", "8", "7", "11", "2", "6"}}) {
+        for (String[] m : new String[][]{{"cord_plug", "12", "4", "8", "0", "1"}, {"cable_lug", "8", "7", "11", "2", "6"}}) {
             JsonObject model = json("assets/voltworks/models/item/" + m[0] + ".json");
             assertEquals("voltworks:item/" + m[0], model.getAsJsonObject("textures").get("0").getAsString());
             assertTrue(model.has("display"));
@@ -250,6 +250,80 @@ class ReelAssetsTest {
         }
         assertEquals(slots, blades, "plug blades = socket slots");
         assertEquals(bt[1], bodyBottom, "plug body rests on the socket");
+    }
+
+
+    /**
+     * No see-through gaps: the end models have all six faces on every cuboid, painted with opaque texels only, and in
+     * the reel models every face left out is covered by a neighbouring cuboid.
+     */
+    @Test
+    void modelsAreClosed() throws IOException {
+        for (String n : List.of("cord_plug", "cable_lug")) {
+            BufferedImage tex;
+            try (InputStream in = ReelAssetsTest.class.getClassLoader().getResourceAsStream("assets/voltworks/textures/item/" + n + ".png")) {
+                assertNotNull(in);
+                tex = ImageIO.read(in);
+            }
+            for (var e : json("assets/voltworks/models/item/" + n + ".json").getAsJsonArray("elements")) {
+                var faces = e.getAsJsonObject().getAsJsonObject("faces");
+                assertEquals(6, faces.size(), n + ": all six faces");
+                for (var fe : faces.entrySet()) {
+                    var uv = fe.getValue().getAsJsonObject().getAsJsonArray("uv");
+                    int u0 = uv.get(0).getAsInt(), v0 = uv.get(1).getAsInt(), u1 = uv.get(2).getAsInt(), v1 = uv.get(3).getAsInt();
+                    for (int x = Math.min(u0, u1); x < Math.max(u0, u1); x++)
+                        for (int y = Math.min(v0, v1); y < Math.max(v0, v1); y++)
+                            assertEquals(0xFF, tex.getRGB(x, y) >>> 24, n + " " + fe.getKey() + ": opaque texel " + x + "," + y);
+                }
+            }
+        }
+        List<String> models = new java.util.ArrayList<>(List.of("item/cord_plug", "item/cable_lug"));
+        for (String r : REELS)
+            for (int f = 0; f <= LEVELS; f++)
+                models.add("block/" + r + "_fill" + f);
+        String[] dirs = {"west", "east", "down", "up", "north", "south"};
+        for (String m : models) {
+            List<double[][]> boxes = new java.util.ArrayList<>();
+            List<JsonObject> els = new java.util.ArrayList<>();
+            for (var e : json("assets/voltworks/models/" + m + ".json").getAsJsonArray("elements")) {
+                double[] f = new double[3], t = new double[3];
+                var o = e.getAsJsonObject();
+                for (int k = 0; k < 3; k++) {
+                    f[k] = o.getAsJsonArray("from").get(k).getAsDouble();
+                    t[k] = o.getAsJsonArray("to").get(k).getAsDouble();
+                }
+                boxes.add(new double[][]{f, t});
+                els.add(o);
+            }
+            for (int i = 0; i < els.size(); i++) {
+                double[] f = boxes.get(i)[0], t = boxes.get(i)[1];
+                for (int d = 0; d < 6; d++) {
+                    if (els.get(i).getAsJsonObject("faces").has(dirs[d]))
+                        continue;
+                    int ax = d / 2, a = (ax + 1) % 3, b = (ax + 2) % 3;
+                    double pos = d % 2 == 0 ? f[ax] - 0.01 : t[ax] + 0.01;
+                    for (int s = 0; s < 8; s++)
+                        for (int q = 0; q < 8; q++) {
+                            double[] p = new double[3];
+                            p[ax] = pos;
+                            p[a] = f[a] + (t[a] - f[a]) * (s + 0.5) / 8;
+                            p[b] = f[b] + (t[b] - f[b]) * (q + 0.5) / 8;
+                            boolean covered = false;
+                            for (int j = 0; j < boxes.size() && !covered; j++)
+                                if (j != i && inside(p, boxes.get(j)))
+                                    covered = true;
+                            assertTrue(covered, m + ": element " + i + " has no " + dirs[d] + " face and nothing covers it");
+                        }
+                }
+            }
+        }
+    }
+
+    private static boolean inside(double[] p, double[][] box) {
+        for (int k = 0; k < 3; k++)
+            if (p[k] < box[0][k] || p[k] > box[1][k])
+                return false;
+        return true;
     }
 
     private static final int SLOT = 0x2e383a;

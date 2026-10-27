@@ -55,7 +55,7 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
     }
 
     /** Back of the plugged-in reel plug (cord_plug.json strain relief), in floor model pixels. */
-    private static final double[] PLUG_BACK = {13, 4.5, 8};
+    private static final double[] PLUG_BACK = {12, 4, 8};
 
     /** In pixels, in the floor model (power_plug_v). Both cord strands share the single plug hole on top. */
     private static final double[][] FLOOR_NODES = {{8, 1, 3.5}, {8, 1, 12.5}, {8, 3.5, 8}, {8, 3.5, 8}};

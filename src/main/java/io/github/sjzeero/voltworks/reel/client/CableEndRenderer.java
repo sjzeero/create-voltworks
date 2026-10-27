@@ -59,7 +59,7 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
 
     // cord_plug is modelled standing in a floor socket (blades down, cord to +X): on the floor it lies on its back,
     // blades up. cable_lug lies flat on y = 6, ring towards -Z, barrel back at z = 11.
-    private static final Lying PLUG = new Lying(Axis.XP.rotationDegrees(180), Math.PI / 2, 10, new Vec3(13, 11.5, 8));
+    private static final Lying PLUG = new Lying(Axis.XP.rotationDegrees(180), Math.PI / 2, 11, new Vec3(12, 12, 8));
     private static final Lying LUG = new Lying(new Quaternionf(), 0, 6, new Vec3(8, 7, 11));
 
     @Override
