@@ -62,21 +62,36 @@ public class ButtonComponent extends OrientableComponent implements IInteractabl
                 .addHeatSource(wire);
     }
 
+    /** How long a press keeps the contacts switched, in ticks. */
+    public static final int PRESS_TICKS = 10;
+
     @Override
     public boolean tick(@NotNull PlacedComponent placed) {
+        // The press timer belongs to the server. The client only mirrors STATE from board state packets:
+        // counting down here as well made the client reach 0 before the server's "released" packet arrived,
+        // so that packet changed nothing on the client, the model was never rebuilt and the button looked
+        // pressed forever.
+        if(placed.isClient())
+            return true;
         var state = placed.get(STATE);
         if(state > 0) {
             --state;
             placed.set(STATE, state);
             if(state == 0) {
+                placed.notifyClients(STATE);
                 placed.onServerWorld(() -> world -> CircuitSounds.MICROBUTTON_OFF.playOnServer(world, placed.getPos()));
             }
         }
         if(!placed.wires.isEmpty()) {
             var wire = (SwitchedWire) placed.wires.get(0);
-            wire.setState((state == 0) == placed.get(NC));
+            wire.setState(isClosed(placed));
         }
         return true;
+    }
+
+    /** Contacts closed: a normally-open button while pressed, a normally-closed one while released. */
+    public static boolean isClosed(@NotNull PlacedComponent placed) {
+        return (placed.get(STATE) == 0) == placed.get(NC);
     }
 
     @Override
@@ -105,7 +120,7 @@ public class ButtonComponent extends OrientableComponent implements IInteractabl
         if(component.get(STATE) == 0) {
             component.onServerWorld(() -> world -> CircuitSounds.MICROBUTTON_ON.playOnServer(world, component.getPos()));
         }
-        component.set(STATE, 10);
+        component.set(STATE, PRESS_TICKS);
         component.notifyClients(STATE);
         return InteractionResult.SUCCESS;
     }

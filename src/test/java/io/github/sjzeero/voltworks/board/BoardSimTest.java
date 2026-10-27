@@ -191,6 +191,101 @@ class BoardSimTest {
         assertEquals(6, BuzzerComponent.intervalFor(1.5f));
     }
 
+    private static CircuitSchematic buttonBoard() {
+        return twoPin(s -> {
+            s.place("resistor", 2, 6, ResistorComponent.RESISTANCE, 100f);
+            s.place("button", 9, 6);
+            s.v(1, 7, 14).h(7, 1, 2);
+            s.h(7, 6, 9).v(11, 1, 7).h(1, 1, 11);
+        });
+    }
+
+    @Test
+    void buttonReleasesAfterPress() {
+        int[] notified = {0};
+        var context = new BoardContext() {
+            @Override
+            public Level level() {
+                return null;
+            }
+
+            @Override
+            public BlockPos pos() {
+                return BlockPos.ZERO;
+            }
+
+            @Override
+            public void propertyChanged(PlacedComponent component, net.minecraft.resources.ResourceLocation property) {
+                if(property.equals(ButtonComponent.STATE.id()))
+                    notified[0]++;
+            }
+        };
+        var baked = BakedCircuit.from(buttonBoard(), context);
+        baked.setAmbientTemperature(22f);
+        var sim = new BoardSim(baked, null);
+        sim.pinU[1] = 10;
+        PlacedComponent button = null;
+        for(var placed : baked.components)
+            if(placed.component == TestComponents.get("button"))
+                button = placed;
+        assertNotNull(button);
+        var resistor = baked.components.stream().filter(p -> p.component == TestComponents.get("resistor")).findFirst().orElseThrow();
+        Runnable tick = () -> { sim.standaloneTick(1); baked.tick(1f); };
+
+        for(int i = 0; i < 3; i++) tick.run();
+        assertEquals(0, resistor.wires.get(0).current(), 1e-6, "released button must be open");
+
+        ((ButtonComponent) button.component).use(context, button, null);
+        assertEquals(ButtonComponent.PRESS_TICKS, button.get(ButtonComponent.STATE));
+        assertEquals(1, notified[0]);
+        assertEquals(io.github.sjzeero.voltworks.Voltworks.asResource("button_on"), button.component.getModelId(button));
+        tick.run();
+        tick.run();
+        double on = Math.abs(resistor.wires.get(0).current());
+        log("button pressed: I=%.6f state=%d", on, button.get(ButtonComponent.STATE));
+        assertEquals(0.1, on, 1e-3);
+
+        for(int i = 0; i < ButtonComponent.PRESS_TICKS + 2; i++) tick.run();
+        double off = Math.abs(resistor.wires.get(0).current());
+        log("button released: I=%.6f state=%d notified=%d", off, button.get(ButtonComponent.STATE), notified[0]);
+        assertEquals(0, button.get(ButtonComponent.STATE));
+        assertEquals(0, off, 1e-6);
+        assertEquals(2, notified[0], "release must be pushed to clients right away");
+        assertEquals(io.github.sjzeero.voltworks.Voltworks.asResource("button"), button.component.getModelId(button));
+    }
+
+    @Test
+    void buttonClientMirrorsServerState() {
+        var client = new BoardContext() {
+            @Override
+            public Level level() {
+                return null;
+            }
+
+            @Override
+            public BlockPos pos() {
+                return BlockPos.ZERO;
+            }
+
+            @Override
+            public boolean isClient() {
+                return true;
+            }
+        };
+        var baked = BakedCircuit.from(buttonBoard(), client);
+        var button = baked.components.stream().filter(p -> p.component == TestComponents.get("button")).findFirst().orElseThrow();
+        // state packet "pressed" arrives
+        button.set(ButtonComponent.STATE, ButtonComponent.PRESS_TICKS);
+        var modelBefore = button.component.getModelId(button);
+        for(int i = 0; i < 40; i++)
+            baked.clientTick();
+        // the client must not count down on its own, otherwise the later "released" packet is a no-op
+        // and the board model is never rebuilt (button stuck pressed)
+        assertEquals(ButtonComponent.PRESS_TICKS, button.get(ButtonComponent.STATE));
+        button.set(ButtonComponent.STATE, 0);
+        assertNotEquals(modelBefore, button.component.getModelId(button));
+    }
+
     @Test
     void relaySwitchesLoad() {
         var rig = new Rig(preset("relay")).tick(20);
