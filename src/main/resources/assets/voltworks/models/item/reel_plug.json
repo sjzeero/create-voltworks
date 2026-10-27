@@ -1,6 +1,12 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "voltworks:item/reel_plug"
-  }
+  "parent": "voltworks:item/cable_lug",
+  "render_type": "minecraft:cutout",
+  "overrides": [
+    {
+      "predicate": {
+        "voltworks:cord": 1
+      },
+      "model": "voltworks:item/cord_plug"
+    }
+  ]
 }

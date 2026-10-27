@@ -89,6 +89,9 @@ public class VoltworksClient {
             ItemBlockRenderTypes.setRenderLayer(CircuitItems.ACID_FLOWING.get(), RenderType.translucent());
             ItemProperties.register(VoltworksItems.BOARD_ITEM.get(), Voltworks.asResource("board_color"),
                     (stack, level, entity, seed) -> BoardColor.ofBoard(stack).ordinal() / 10f);
+            // cord reel ends show the socket plug, cable reel ends a copper lug
+            ItemProperties.register(VoltworksItems.REEL_PLUG.get(), Voltworks.asResource("cord"),
+                    (stack, level, entity, seed) -> io.github.sjzeero.voltworks.reel.ReelPlugItem.isCord(stack) ? 1f : 0f);
         });
     }
 

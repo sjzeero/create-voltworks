@@ -38,13 +38,32 @@ public class ReelPlugItem extends Item {
         super(properties);
     }
 
-    public static ItemStack create(BlockPos reel, long grab) {
-        ItemStack stack = new ItemStack(VoltworksItems.REEL_PLUG.get());
+    public static ItemStack create(BlockPos reel, long grab, boolean cord) {
+        ItemStack stack = look(cord);
         CompoundTag tag = new CompoundTag();
         tag.putLong("Reel", reel.asLong());
         tag.putLong("Grab", grab);
+        if (cord)
+            tag.putBoolean("Cord", true);
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
         return stack;
+    }
+
+    /** A bare stack that only picks the model: the socket plug ({@code cord}) or the copper lug. */
+    public static ItemStack look(boolean cord) {
+        ItemStack stack = new ItemStack(VoltworksItems.REEL_PLUG.get());
+        if (cord) {
+            CompoundTag tag = new CompoundTag();
+            tag.putBoolean("Cord", true);
+            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+        }
+        return stack;
+    }
+
+    /** End of a cord reel (drawn as the plug that goes into a socket) rather than of a cable reel (a copper lug). */
+    public static boolean isCord(ItemStack stack) {
+        CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+        return data != null && data.copyTag().getBoolean("Cord");
     }
 
     public static @Nullable BlockPos reelPos(ItemStack stack) {

@@ -199,7 +199,7 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         do id = level.random.nextLong(); while (id == 0);
         grab = id;
         sync();
-        player.setItemInHand(InteractionHand.MAIN_HAND, ReelPlugItem.create(worldPosition, id));
+        player.setItemInHand(InteractionHand.MAIN_HAND, ReelPlugItem.create(worldPosition, id, block().cord));
         player.displayClientMessage(Component.translatable("voltworks.cable_reel.grabbed", fmt(stored)), true);
     }
 

@@ -57,7 +57,8 @@ class ReelAssetsTest {
                     "the item shows the empty drum");
         }
         assertTrue(exists("assets/voltworks/textures/block/cable_reel_parts.png"));
-        assertTrue(exists("assets/voltworks/textures/item/reel_plug.png"));
+        assertTrue(exists("assets/voltworks/textures/item/cord_plug.png"));
+        assertTrue(exists("assets/voltworks/textures/item/cable_lug.png"));
         json("assets/voltworks/models/item/reel_plug.json");
     }
 
@@ -135,5 +136,55 @@ class ReelAssetsTest {
                 assertTrue(l.has("voltworks.cable_reel." + k), lang + " " + k);
         }
         assertEquals("Кабельная лебёдка", json("assets/voltworks/lang/ru_ru.json").get("block.voltworks.cable_reel").getAsString());
+    }
+
+    /**
+     * The cable end item is 3D: the socket plug for the cord reel (item property voltworks:cord), a copper lug for the
+     * cable reel. Both on the 16 px grid with one texel per pixel (no mixels), lying on y = 6 with the cable leaving at
+     * the back point CableEndRenderer draws the wire to.
+     */
+    @Test
+    void cableEndModelsAre3dOnThePixelGrid() throws IOException {
+        JsonObject item = json("assets/voltworks/models/item/reel_plug.json");
+        assertEquals("voltworks:item/cable_lug", item.get("parent").getAsString());
+        JsonObject over = item.getAsJsonArray("overrides").get(0).getAsJsonObject();
+        assertEquals(1, over.getAsJsonObject("predicate").get("voltworks:cord").getAsInt());
+        assertEquals("voltworks:item/cord_plug", over.get("model").getAsString());
+        for (String[] m : new String[][]{{"cord_plug", "8", "7.5", "13"}, {"cable_lug", "8", "7", "12"}}) {
+            JsonObject model = json("assets/voltworks/models/item/" + m[0] + ".json");
+            assertEquals("voltworks:item/" + m[0], model.getAsJsonObject("textures").get("0").getAsString());
+            assertTrue(model.has("display"));
+            double minY = 99, maxZ = -99;
+            boolean backHit = false;
+            for (var e : model.getAsJsonArray("elements")) {
+                var from = e.getAsJsonObject().getAsJsonArray("from");
+                var to = e.getAsJsonObject().getAsJsonArray("to");
+                double[] f = new double[3], t = new double[3];
+                for (int k = 0; k < 3; k++) {
+                    f[k] = from.get(k).getAsDouble();
+                    t[k] = to.get(k).getAsDouble();
+                    assertEquals(Math.rint(f[k]), f[k], m[0] + ": whole pixels");
+                    assertEquals(Math.rint(t[k]), t[k], m[0] + ": whole pixels");
+                }
+                minY = Math.min(minY, f[1]);
+                maxZ = Math.max(maxZ, t[2]);
+                double bx = Double.parseDouble(m[1]), by = Double.parseDouble(m[2]), bz = Double.parseDouble(m[3]);
+                if (t[2] == bz && f[0] <= bx && bx <= t[0] && f[1] <= by && by <= t[1])
+                    backHit = true;
+                for (var fe : e.getAsJsonObject().getAsJsonObject("faces").entrySet()) {
+                    var uv = fe.getValue().getAsJsonObject().getAsJsonArray("uv");
+                    double w = Math.abs(uv.get(2).getAsDouble() - uv.get(0).getAsDouble());
+                    double h = Math.abs(uv.get(3).getAsDouble() - uv.get(1).getAsDouble());
+                    String dir = fe.getKey();
+                    double fw = dir.equals("east") || dir.equals("west") ? t[2] - f[2] : t[0] - f[0];
+                    double fh = dir.equals("up") || dir.equals("down") ? t[2] - f[2] : t[1] - f[1];
+                    assertEquals(fw, w, m[0] + " " + dir + ": one texel per pixel");
+                    assertEquals(fh, h, m[0] + " " + dir + ": one texel per pixel");
+                }
+            }
+            assertEquals(6.0, minY, m[0] + " lies on y = 6");
+            assertEquals(Double.parseDouble(m[3]), maxZ, m[0] + " back face");
+            assertTrue(backHit, m[0] + ": the cable leaves the back face");
+        }
     }
 }
