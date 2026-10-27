@@ -1,66 +1,49 @@
 #!/usr/bin/env python3
-"""Draws textures/block/component/buzzer.png (64x64, 4 texels per model pixel).
+"""Draws textures/block/component/buzzer.png (16x16, 1 texel per model pixel,
+the same density as every other board component, e.g. capacitor/resistor).
 
-Layout (uv units of 1/16):
-  top    0..3 x 0..3   black piezo disc, satin rim highlight, centre sound hole, small "+" mark
-  side   0..3 x 4..6   black housing wall with a light top edge
-  bottom 4..7 x 0..3   flat dark plastic
-  lead   8..9 x 0..1   tinned lead wire
+Layout (uv units = texels):
+  top    0..3 x 0..3   3x3 "plus" disc seen from above: lit rim, dark centre sound hole
+  side   4..7 x 0..2   black housing wall, light top edge (3 wide for the centre bar)
+  bottom 8..11 x 0..3  flat dark plastic
+  lead   12..13 x 0..1 tinned lead wire (same grey as the capacitor leads)
 Run from the repo root: python3 tools/buzzer_texture.py
 """
-import math
 from PIL import Image
 
-S = 4
-img = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+OUT = "src/main/resources/assets/voltworks/textures/block/component/buzzer.png"
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
 px = img.load()
 
-# top: 12x12 texels
-c = 6.0
-for y in range(12):
-    for x in range(12):
-        dx, dy = x + 0.5 - c, y + 0.5 - c
-        r = math.hypot(dx, dy)
-        if r > 6.0:
-            col = (20, 20, 22)            # outside the round edge (hidden corners of the octagon)
-        elif r > 5.0:
-            # rim: lit from the top-left
-            light = 0.5 - 0.5 * (dx + dy) / (r or 1) / 1.4
-            v = int(46 + 30 * light)
-            col = (v, v, v + 2)
-        elif r > 1.9:
-            v = 28 if (x + y) % 5 else 32  # satin black face with faint grain
-            col = (v, v, v + 2)
-        elif r > 1.2:
-            col = (70, 70, 74)            # hole rim
-        else:
-            col = (6, 6, 7)               # sound hole
-        px[x, y] = col + (255,)
-# "+" mark next to pad 0 (x low side)
-for (x, y) in [(2, 6), (3, 5), (3, 6), (3, 7), (4, 6)]:
-    px[x, y] = (205, 205, 205, 255)
+HOLE = (12, 12, 13, 255)
+LIT = (64, 64, 68, 255)      # rim lit from north-west
+MID = (48, 48, 51, 255)
+SHADE = (36, 36, 39, 255)
+EDGE = (58, 58, 62, 255)     # top edge of the wall
+WALL = (30, 30, 32, 255)
+WALL2 = (26, 26, 28, 255)
+BOTTOM = (20, 20, 21, 255)
+LEAD = (176, 176, 176, 255)
 
-# side: 12 wide, 8 tall (rows 16..23)
-for y in range(16, 24):
-    for x in range(12):
-        if y == 16:
-            v = 70
-        elif y == 23:
-            v = 14
-        else:
-            v = 30 - (y - 17)
-        px[x, y] = (v, v, v + 2, 255)
+# top (plus shape; corners are never sampled)
+px[1, 0] = LIT
+px[0, 1] = LIT
+px[1, 1] = HOLE
+px[2, 1] = SHADE
+px[1, 2] = MID
+for x in (0, 2):
+    for y in (0, 2):
+        px[x, y] = MID
+
+# side: 3x2
+for x in range(4, 7):
+    px[x, 0] = EDGE
+    px[x, 1] = WALL if x != 5 else WALL2
 
 # bottom
-for y in range(12):
-    for x in range(16, 28):
-        px[x, y] = (18, 18, 20, 255)
+for x in range(8, 11):
+    for y in range(0, 3):
+        px[x, y] = BOTTOM
 
-# lead (tinned wire)
-for y in range(4):
-    for x in range(32, 36):
-        v = (200, 200, 205) if x in (33, 34) else (150, 150, 158)
-        px[x, y] = v + (255,)
-
-img.save("src/main/resources/assets/voltworks/textures/block/component/buzzer.png")
-print("ok")
+px[12, 0] = LEAD
+img.save(OUT)
