@@ -49,9 +49,6 @@ public final class VoltworksDevices {
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.light.SignalLampDevice>> SIGNAL_LAMP_DEVICE = DEVICES.register("signal_lamp",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("signal_lamp"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.light.SignalLampDevice(level, pos, sd, type)));
 
-    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.light.BuzzerDevice>> BUZZER_DEVICE = DEVICES.register("buzzer",
-            () -> new SimulatedDeviceType<>(Voltworks.asResource("buzzer"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.light.BuzzerDevice(level, pos, sd, type)));
-
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.light.VoltageSensorDevice>> VOLTAGE_SENSOR_DEVICE = DEVICES.register("voltage_sensor",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("voltage_sensor"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.light.VoltageSensorDevice(level, pos, sd, type)));
 

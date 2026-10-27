@@ -40,7 +40,6 @@ public final class VoltworksTabSections {
         List<Item> lights = new ArrayList<>();
         lights.add(VoltworksItems.FACTORY_LIGHT_ITEM.get().asItem());
         lights.add(VoltworksItems.SIGNAL_LAMP_ITEM.get().asItem());
-        lights.add(VoltworksItems.BUZZER_ITEM.get().asItem());
         lights.add(VoltworksItems.VOLTAGE_SENSOR_ITEM.get().asItem());
         lights.add(VoltworksItems.REDSTONE_SWITCH_ITEM.get().asItem());
         List<Section> list = new ArrayList<>();
