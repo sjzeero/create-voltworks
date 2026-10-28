@@ -190,17 +190,14 @@ public final class ReelClient {
             return;
         double stored = be.stored();
         WireData look = WireData.ofLength(type, ReelMath.followLength(distance, Math.max(stored, distance)));
-        float sag = look.getSag(distance);
-        List<Vec3> points = type.shouldScaleLast()
-                ? QuadraticWireHelper.cablePoints(from, hand, sag)
-                : QuadraticWireHelper.cablePointsRaw(from, hand, sag);
+        List<Vec3> points = ReelWire.points(type, from, hand, look.getSag(distance), Double.NEGATIVE_INFINITY);
 
         PoseStack pose = event.getPoseStack();
         Vec3 cam = event.getCamera().getPosition();
         MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
         pose.pushPose();
         pose.translate(-cam.x, -cam.y, -cam.z);
-        WireRenderer.forceRenderWire(points, from, hand, pose, buffer, type, level);
+        ReelWire.render(points, pose, buffer, type, level);
         pose.popPose();
         buffer.endBatch(type.renderType());
 
