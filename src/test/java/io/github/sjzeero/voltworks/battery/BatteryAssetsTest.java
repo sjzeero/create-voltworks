@@ -66,7 +66,7 @@ class BatteryAssetsTest {
                     double f = from.get(a).getAsDouble(), tt = to.get(a).getAsDouble();
                     assertEquals(Math.rint(f), f, m + ": off-grid");
                     assertEquals(Math.rint(tt), tt, m + ": off-grid");
-                    assertTrue(f >= 0 && tt <= 16 && tt > f, m);
+                    assertTrue(f >= 0 && tt <= 18 && tt > f, m); // posts stand 2 px above the block
                 }
                 for (Map.Entry<String, JsonElement> fe : e.getAsJsonObject("faces").entrySet()) {
                     JsonObject face = fe.getValue().getAsJsonObject();
@@ -91,7 +91,7 @@ class BatteryAssetsTest {
 
     @Test
     void connectedSheetsMatchTheirSprites() throws IOException {
-        List<String> ct = new ArrayList<>(List.of("battery_top", "battery_bottom"));
+        List<String> ct = new ArrayList<>(List.of("battery_top"));
         for (int i = 0; i <= LEVELS; i++)
             ct.add("battery_side_" + i);
         for (String t : ct) {
@@ -105,14 +105,32 @@ class BatteryAssetsTest {
             for (int y = 0; y < 16; y++)
                 for (int x = 0; x < 16; x++)
                     assertEquals(base.getRGB(x, y), sheet.getRGB(x, 48 + y), t + " at " + x + "," + y);
-            // the outer border colour is on the lone tile's edge but nowhere in the fully surrounded tile (2, 1)
-            int border = base.getRGB(0, 0);
-            for (int y = 0; y < 16; y++)
-                for (int x = 0; x < 16; x++)
-                    assertNotEquals(border, sheet.getRGB(32 + x, 16 + y), t + ": border left inside a bank at " + x + "," + y);
+            // every tile is drawn (banks may be any rectangle, not only squares)
+            for (int y = 0; y < 64; y++)
+                for (int x = 0; x < 64; x++)
+                    assertEquals(255, sheet.getRGB(x, y) >>> 24, t + ": hole at " + x + "," + y);
+            // the lone tile's corner frame is gone from the fully surrounded tile (2, 1)
+            assertNotEquals(base.getRGB(0, 0), sheet.getRGB(32, 16), t);
         }
-        assertEquals(16, png("assets/voltworks/textures/block/battery/battery_well.png").getWidth());
         assertEquals(16, png("assets/voltworks/textures/block/battery/battery_terminals.png").getWidth());
+    }
+
+    @Test
+    void gaugeStripsLightUpWithCharge() throws IOException {
+        // more charge = more distinct bright pixels than the empty sheet
+        int[] lit = new int[LEVELS + 1];
+        for (int i = 0; i <= LEVELS; i++) {
+            BufferedImage b = png("assets/voltworks/textures/block/battery/battery_side_" + i + ".png");
+            for (int y = 0; y < 16; y++)
+                for (int x = 0; x < 16; x++) {
+                    int c = b.getRGB(x, y), g = (c >> 8) & 255, r = (c >> 16) & 255;
+                    if (g > 150 && g > r + 20)
+                        lit[i]++;
+                }
+        }
+        assertEquals(0, lit[0]);
+        for (int i = 1; i <= LEVELS; i++)
+            assertTrue(lit[i] > lit[i - 1], "level " + i);
     }
 
     @Test

@@ -33,18 +33,18 @@ import java.util.Map;
 
 /**
  * A full-block rechargeable battery, ported from Create: Power Grid's {@code powergrid:battery} (patryk3211,
- * Apache-2.0) with a new look by sjzeero. Touching batteries join into banks ({@link BatteryBanks}); the top of a bank
- * carries the + and - terminals, every block of the bank is wired to the same storage.
+ * Apache-2.0) its look adapted from Power Grid's battery textures by sjzeero. Touching batteries join into banks ({@link BatteryBanks}); the bank's top corner block
+ * carries the + and - terminal posts, every block of the bank is wired to the same storage.
  */
 public class BatteryBlock extends SimpleElectricalDeviceBlock<BatteryDevice> implements IBE<BatteryBlockEntity> {
     /** Gauge marks shown in this block's window. */
     public static final IntegerProperty CHARGE = IntegerProperty.create("charge", 0, BatterySpec.GAUGE_LEVELS);
-    /** True on the top layer of a bank, which shows the terminal posts. */
+    /** True on the bank's top north-west block, which carries the terminal posts. */
     public static final BooleanProperty TERMINALS = BooleanProperty.create("terminals");
 
-    /** Terminal posts, in sixteenths: + (copper) on the west, - (zinc) on the east. */
-    public static final Vec3 PLUS = new Vec3(5 / 16.0, 15 / 16.0, 8 / 16.0);
-    public static final Vec3 MINUS = new Vec3(11 / 16.0, 15 / 16.0, 8 / 16.0);
+    /** Tops of the terminal posts standing on the block, in sixteenths: + (copper) on the west, - (iron) on the east. */
+    public static final Vec3 PLUS = new Vec3(5 / 16.0, 18 / 16.0, 8 / 16.0);
+    public static final Vec3 MINUS = new Vec3(11 / 16.0, 18 / 16.0, 8 / 16.0);
     public static final String ENERGY_TAG = "Energy";
 
     public BatteryBlock(Properties properties) {
@@ -67,7 +67,7 @@ public class BatteryBlock extends SimpleElectricalDeviceBlock<BatteryDevice> imp
         return id == 1 ? MINUS : PLUS;
     }
 
-    /** Terminals stay registered under a battery stacked on top (their wires keep working), they just cannot be reached. */
+    /** Terminals stay registered on every block of a bank (wires already on them keep working); only the post block's can be reached. */
     @Override
     public boolean isNodeAccessible(Level level, BlockPos pos, BlockState state, int id) {
         return state.getValue(TERMINALS);

@@ -348,7 +348,7 @@
   "entity.voltworks.cable_end": "Cable End",
   "block.voltworks.battery": "Battery",
   "item.voltworks.incomplete_battery": "Incomplete Battery",
-  "block.voltworks.battery.tooltip.summary": "Stores _120 Wh_ of electricity at about _12 V_. Batteries placed next to each other _join into one bank_ (up to _3×3_ wide and _5_ high) that shares its charge; breaking a block splits the bank and the block keeps _its share_. Wire the _+_ and _-_ posts on top of the bank. The glass gauge shows the charge; a _comparator_ reads it too.",
+  "block.voltworks.battery.tooltip.summary": "Stores _120 Wh_ of electricity at about _12 V_. Batteries placed next to each other _join into one bank_ (up to _3×3_ wide and _5_ high) that shares its charge; breaking a block splits the bank and the block keeps _its share_. Wire the _+_ and _-_ posts on the bank's top corner block. The _green strips_ on the sides show the charge; a _comparator_ reads it too.",
   "voltworks.node.battery_0": "+",
   "voltworks.node.battery_1": "-",
   "voltworks.battery.goggles.charge": "Charge: %s%% (%s / %s Wh)",

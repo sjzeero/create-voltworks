@@ -13,15 +13,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Blocks of one bank lose the casing border between them (Create's rectangle CT, as Power Grid's battery and Create's
- * fluid tank). Each gauge level has its own side sheet.
+ * Blocks of one bank show one big casing (Create's rectangle CT, as Power Grid's battery): the end sheet on top and
+ * bottom, a side sheet per gauge level; the terminal posts keep their own texture.
  */
 public class BatteryCTBehaviour extends ConnectedTextureBehaviour.Base {
     private static final CTSpriteShiftEntry[] SIDE = new CTSpriteShiftEntry[BatterySpec.GAUGE_LEVELS + 1];
-    private static final CTSpriteShiftEntry TOP = CTSpriteShifter.getCT(AllCTTypes.RECTANGLE,
+    private static final CTSpriteShiftEntry TOP_BOTTOM = CTSpriteShifter.getCT(AllCTTypes.RECTANGLE,
             Voltworks.asResource("block/battery/battery_top"), Voltworks.asResource("block/battery/battery_top_connected"));
-    private static final CTSpriteShiftEntry BOTTOM = CTSpriteShifter.getCT(AllCTTypes.RECTANGLE,
-            Voltworks.asResource("block/battery/battery_bottom"), Voltworks.asResource("block/battery/battery_bottom_connected"));
 
     static {
         for (int i = 0; i <= BatterySpec.GAUGE_LEVELS; i++)
@@ -31,16 +29,9 @@ public class BatteryCTBehaviour extends ConnectedTextureBehaviour.Base {
 
     @Override
     public @Nullable CTSpriteShiftEntry getShift(BlockState state, Direction direction, @Nullable TextureAtlasSprite sprite) {
-        if (direction.getAxis().isVertical()) {
-            // wells and posts keep their own textures
-            if (sprite == null)
-                return direction == Direction.UP ? TOP : BOTTOM;
-            String name = sprite.contents().name().getPath();
-            return name.endsWith("battery_top") ? TOP : name.endsWith("battery_bottom") ? BOTTOM : null;
-        }
-        if (sprite != null && !sprite.contents().name().getPath().contains("battery_side_"))
+        if (sprite != null && sprite.contents().name().getPath().endsWith("battery_terminals"))
             return null;
-        return SIDE[state.getValue(BatteryBlock.CHARGE)];
+        return direction.getAxis().isVertical() ? TOP_BOTTOM : SIDE[state.getValue(BatteryBlock.CHARGE)];
     }
 
     @Override

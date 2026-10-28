@@ -3,8 +3,7 @@
   "textures": {
     "particle": "voltworks:block/battery/battery_side_1",
     "side": "voltworks:block/battery/battery_side_1",
-    "top": "voltworks:block/battery/battery_top",
-    "bottom": "voltworks:block/battery/battery_bottom"
+    "end": "voltworks:block/battery/battery_top"
   },
   "elements": [
     {
@@ -20,11 +19,11 @@
       ],
       "faces": {
         "down": {
-          "texture": "#bottom",
+          "texture": "#end",
           "cullface": "down"
         },
         "up": {
-          "texture": "#top",
+          "texture": "#end",
           "cullface": "up"
         },
         "north": {

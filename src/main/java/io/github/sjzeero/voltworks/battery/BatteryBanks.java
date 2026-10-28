@@ -117,7 +117,7 @@ public final class BatteryBanks {
     }
 
     /**
-     * Brings the gauges and terminals of a bank's blocks up to date. Only the top layer shows terminals; the gauges of
+     * Brings the gauges and terminals of a bank's blocks up to date. Only the top block above the controller (the bank's north-west corner) shows the terminal posts; the gauges of
      * the stacked layers read as one tall gauge.
      * @return true when any block changed
      */
@@ -127,9 +127,9 @@ public final class BatteryBanks {
         double cap = controller.capacity();
         for (int y = 0; y < controller.sizeY(); y++) {
             int gauge = BatterySpec.gaugeLevel(controller.energy(), cap, controller.sizeY(), y);
-            boolean top = y == controller.sizeY() - 1;
             for (int x = 0; x < controller.sizeX(); x++)
                 for (int z = 0; z < controller.sizeZ(); z++) {
+                    boolean top = y == controller.sizeY() - 1 && x == 0 && z == 0;
                     BlockPos p = o.offset(x, y, z);
                     if (!level.isLoaded(p))
                         continue;
