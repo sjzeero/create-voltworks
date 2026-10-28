@@ -13,24 +13,122 @@
     14
    ],
    "to": [
-    2,
+    1,
     14,
-    16
+    15
    ],
    "faces": {
     "north": {
      "texture": "#core",
      "uv": [
-      14,
+      15,
       2,
       16,
       16
      ]
     },
+    "west": {
+     "texture": "#core",
+     "uv": [
+      14,
+      2,
+      15,
+      16
+     ],
+     "cullface": "west"
+    },
+    "up": {
+     "texture": "#core",
+     "uv": [
+      0,
+      14,
+      1,
+      15
+     ]
+    },
+    "down": {
+     "texture": "#core",
+     "uv": [
+      0,
+      1,
+      1,
+      2
+     ],
+     "cullface": "down"
+    }
+   }
+  },
+  {
+   "name": "core",
+   "from": [
+    0,
+    0,
+    15
+   ],
+   "to": [
+    1,
+    14,
+    16
+   ],
+   "faces": {
     "south": {
      "texture": "#core",
      "uv": [
       0,
+      2,
+      1,
+      16
+     ],
+     "cullface": "south"
+    },
+    "west": {
+     "texture": "#core",
+     "uv": [
+      15,
+      2,
+      16,
+      16
+     ],
+     "cullface": "west"
+    },
+    "up": {
+     "texture": "#core",
+     "uv": [
+      0,
+      15,
+      1,
+      16
+     ]
+    },
+    "down": {
+     "texture": "#core",
+     "uv": [
+      0,
+      0,
+      1,
+      1
+     ],
+     "cullface": "down"
+    }
+   }
+  },
+  {
+   "name": "core",
+   "from": [
+    1,
+    0,
+    15
+   ],
+   "to": [
+    2,
+    14,
+    16
+   ],
+   "faces": {
+    "south": {
+     "texture": "#core",
+     "uv": [
+      1,
       2,
       2,
       16
@@ -42,25 +140,15 @@
      "uv": [
       0,
       2,
-      2,
+      1,
       16
      ]
-    },
-    "west": {
-     "texture": "#core",
-     "uv": [
-      14,
-      2,
-      16,
-      16
-     ],
-     "cullface": "west"
     },
     "up": {
      "texture": "#core",
      "uv": [
-      0,
-      14,
+      1,
+      15,
       2,
       16
      ]
@@ -68,10 +156,10 @@
     "down": {
      "texture": "#core",
      "uv": [
-      0,
+      1,
       0,
       2,
-      2
+      1
      ],
      "cullface": "down"
     }

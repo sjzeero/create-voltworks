@@ -194,26 +194,88 @@ class BatteryAssetsTest {
         }
     }
 
+    static List<List<JsonObject>> parts(Map<String, String> state) throws IOException {
+        List<List<JsonObject>> out = new ArrayList<>();
+        for (JsonElement p : multipart()) {
+            JsonObject part = p.getAsJsonObject();
+            if (!matches(part.has("when") ? part.getAsJsonObject("when") : null, state))
+                continue;
+            List<JsonObject> els = new ArrayList<>();
+            for (JsonElement e : ReelAssetsTest.json(path(part.getAsJsonObject("apply").get("model").getAsString())).getAsJsonArray("elements"))
+                els.add(e.getAsJsonObject());
+            out.add(els);
+        }
+        return out;
+    }
+
     @Test
     void frameOnlyOnTheBanksOuterEdges() throws IOException {
         for (int bits = 0; bits < 64; bits++) {
-            List<JsonObject> els = elements(state(bits, false));
-            for (JsonObject e : els) {
-                if (!"frame".equals(e.get("name").getAsString()))
+            for (List<JsonObject> part : parts(state(bits, false))) {
+                if (!"frame".equals(part.get(0).get("name").getAsString()))
                     continue;
-                double[] f = vec(e, "from"), t = vec(e, "to");
+                double[] f = {16, 16, 16}, t = {0, 0, 0};
+                for (JsonObject e : part) {
+                    double[] a = vec(e, "from"), b = vec(e, "to");
+                    for (int i = 0; i < 3; i++) {
+                        f[i] = Math.min(f[i], a[i]);
+                        t[i] = Math.max(t[i], b[i]);
+                    }
+                }
                 int outer = 0;
                 double[][] lim = {{f[2], 0}, {t[2], 16}, {t[0], 16}, {f[0], 0}, {t[1], 16}, {f[1], 0}};
                 for (int s = 0; s < 6; s++)
                     if (lim[s][0] == lim[s][1] && (bits >> s & 1) == 0)
                         outer++;
-                assertTrue(outer >= 2, "joined " + Integer.toBinaryString(bits) + ": frame inside the bank " + e);
+                assertTrue(outer >= 2, "joined " + Integer.toBinaryString(bits) + ": frame inside the bank " + part);
             }
         }
-        long frame = elements(state(0, false)).stream().filter(e -> "frame".equals(e.get("name").getAsString())).count();
+        long frame = parts(state(0, false)).stream().filter(p -> "frame".equals(p.get(0).get("name").getAsString())).count();
         assertEquals(12, frame, "a lone battery: 4 posts and 8 rim beams");
         for (JsonObject e : elements(state(63, false)))
             assertTrue(List.of("cell", "core").contains(e.get("name").getAsString()), e.toString());
+    }
+
+    static final Map<String, Integer> AXIS = Map.of("west", 0, "east", 0, "down", 1, "up", 1, "north", 2, "south", 2);
+
+    static List<String> coplanarOverlaps(List<JsonObject> els, boolean covered) {
+        List<double[]> faces = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        for (JsonObject e : els) {
+            double[] f = vec(e, "from"), t = vec(e, "to");
+            for (String side : e.getAsJsonObject("faces").keySet()) {
+                int ax = AXIS.get(side), a = (ax + 1) % 3, b = (ax + 2) % 3;
+                boolean high = side.equals("east") || side.equals("up") || side.equals("south");
+                double plane = high ? t[ax] : f[ax];
+                if (covered && side.equals("up") && plane == 16)
+                    continue;
+                faces.add(new double[]{List.of(SIDES).indexOf(side), plane, f[a], t[a], f[b], t[b]});
+                names.add(side + " " + e);
+            }
+        }
+        List<String> out = new ArrayList<>();
+        for (int i = 0; i < faces.size(); i++)
+            for (int j = i + 1; j < faces.size(); j++) {
+                double[] p = faces.get(i), q = faces.get(j);
+                if (p[0] == q[0] && p[1] == q[1]
+                        && Math.min(p[3], q[3]) > Math.max(p[2], q[2]) && Math.min(p[5], q[5]) > Math.max(p[4], q[4]))
+                    out.add(names.get(i) + " / " + names.get(j));
+            }
+        return out;
+    }
+
+    @Test
+    void noCoplanarFacesToZFight() throws IOException {
+        for (int bits = 0; bits < 64; bits++) {
+            boolean up = (bits >> 4 & 1) == 1;
+            for (boolean terminals : up ? new boolean[]{false} : new boolean[]{false, true})
+                assertEquals(List.of(), coplanarOverlaps(elements(state(bits, terminals)), up),
+                        "joined " + Integer.toBinaryString(bits) + " terminals " + terminals);
+        }
+        List<JsonObject> item = new ArrayList<>();
+        for (JsonElement e : ReelAssetsTest.json("assets/voltworks/models/block/battery/battery_item.json").getAsJsonArray("elements"))
+            item.add(e.getAsJsonObject());
+        assertEquals(List.of(), coplanarOverlaps(item, false));
     }
 
     @Test

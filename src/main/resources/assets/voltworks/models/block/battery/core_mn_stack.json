@@ -13,45 +13,27 @@
     0
    ],
    "to": [
-    14,
+    7,
     16,
-    2
+    1
    ],
    "faces": {
     "north": {
      "texture": "#core",
      "uv": [
-      2,
+      9,
       0,
       14,
       16
      ],
      "cullface": "north"
     },
-    "south": {
-     "texture": "#core",
-     "uv": [
-      2,
-      0,
-      14,
-      16
-     ]
-    },
-    "east": {
-     "texture": "#core",
-     "uv": [
-      14,
-      0,
-      16,
-      16
-     ]
-    },
     "west": {
      "texture": "#core",
      "uv": [
       0,
       0,
-      2,
+      1,
       16
      ]
     },
@@ -60,8 +42,8 @@
      "uv": [
       2,
       0,
-      14,
-      2
+      7,
+      1
      ],
      "cullface": "up"
     },
@@ -69,7 +51,150 @@
      "texture": "#core",
      "uv": [
       2,
+      15,
+      7,
+      16
+     ],
+     "cullface": "down"
+    }
+   }
+  },
+  {
+   "name": "core",
+   "from": [
+    7,
+    0,
+    0
+   ],
+   "to": [
+    9,
+    16,
+    1
+   ],
+   "faces": {
+    "north": {
+     "texture": "#core",
+     "uv": [
+      7,
+      0,
+      9,
+      16
+     ],
+     "cullface": "north"
+    },
+    "up": {
+     "texture": "#core",
+     "uv": [
+      7,
+      0,
+      9,
+      1
+     ],
+     "cullface": "up"
+    },
+    "down": {
+     "texture": "#core",
+     "uv": [
+      7,
+      15,
+      9,
+      16
+     ],
+     "cullface": "down"
+    }
+   }
+  },
+  {
+   "name": "core",
+   "from": [
+    7,
+    0,
+    1
+   ],
+   "to": [
+    9,
+    16,
+    2
+   ],
+   "faces": {
+    "south": {
+     "texture": "#core",
+     "uv": [
+      7,
+      0,
+      9,
+      16
+     ]
+    },
+    "up": {
+     "texture": "#core",
+     "uv": [
+      7,
+      1,
+      9,
+      2
+     ],
+     "cullface": "up"
+    },
+    "down": {
+     "texture": "#core",
+     "uv": [
+      7,
       14,
+      9,
+      15
+     ],
+     "cullface": "down"
+    }
+   }
+  },
+  {
+   "name": "core",
+   "from": [
+    9,
+    0,
+    0
+   ],
+   "to": [
+    14,
+    16,
+    1
+   ],
+   "faces": {
+    "north": {
+     "texture": "#core",
+     "uv": [
+      2,
+      0,
+      7,
+      16
+     ],
+     "cullface": "north"
+    },
+    "east": {
+     "texture": "#core",
+     "uv": [
+      15,
+      0,
+      16,
+      16
+     ]
+    },
+    "up": {
+     "texture": "#core",
+     "uv": [
+      9,
+      0,
+      14,
+      1
+     ],
+     "cullface": "up"
+    },
+    "down": {
+     "texture": "#core",
+     "uv": [
+      9,
+      15,
       14,
       16
      ],

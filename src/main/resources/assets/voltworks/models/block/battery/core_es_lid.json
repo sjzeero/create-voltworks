@@ -10,12 +10,65 @@
    "from": [
     14,
     0,
+    15
+   ],
+   "to": [
+    15,
+    14,
+    16
+   ],
+   "faces": {
+    "south": {
+     "texture": "#core",
+     "uv": [
+      14,
+      2,
+      15,
+      16
+     ],
+     "cullface": "south"
+    },
+    "west": {
+     "texture": "#core",
+     "uv": [
+      15,
+      2,
+      16,
+      16
+     ]
+    },
+    "up": {
+     "texture": "#core",
+     "uv": [
+      14,
+      15,
+      15,
+      16
+     ]
+    },
+    "down": {
+     "texture": "#core",
+     "uv": [
+      14,
+      0,
+      15,
+      1
+     ],
+     "cullface": "down"
+    }
+   }
+  },
+  {
+   "name": "core",
+   "from": [
+    15,
+    0,
     14
    ],
    "to": [
     16,
     14,
-    16
+    15
    ],
    "faces": {
     "north": {
@@ -23,14 +76,58 @@
      "uv": [
       0,
       2,
-      2,
+      1,
       16
      ]
     },
+    "east": {
+     "texture": "#core",
+     "uv": [
+      1,
+      2,
+      2,
+      16
+     ],
+     "cullface": "east"
+    },
+    "up": {
+     "texture": "#core",
+     "uv": [
+      15,
+      14,
+      16,
+      15
+     ]
+    },
+    "down": {
+     "texture": "#core",
+     "uv": [
+      15,
+      1,
+      16,
+      2
+     ],
+     "cullface": "down"
+    }
+   }
+  },
+  {
+   "name": "core",
+   "from": [
+    15,
+    0,
+    15
+   ],
+   "to": [
+    16,
+    14,
+    16
+   ],
+   "faces": {
     "south": {
      "texture": "#core",
      "uv": [
-      14,
+      15,
       2,
       16,
       16
@@ -42,25 +139,16 @@
      "uv": [
       0,
       2,
-      2,
+      1,
       16
      ],
      "cullface": "east"
     },
-    "west": {
-     "texture": "#core",
-     "uv": [
-      14,
-      2,
-      16,
-      16
-     ]
-    },
     "up": {
      "texture": "#core",
      "uv": [
-      14,
-      14,
+      15,
+      15,
       16,
       16
      ]
@@ -68,10 +156,10 @@
     "down": {
      "texture": "#core",
      "uv": [
-      14,
+      15,
       0,
       16,
-      2
+      1
      ],
      "cullface": "down"
     }

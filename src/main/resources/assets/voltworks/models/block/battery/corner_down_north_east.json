@@ -14,9 +14,104 @@
     0
    ],
    "to": [
-    16,
+    15,
+    2,
+    1
+   ],
+   "faces": {
+    "north": {
+     "texture": "#casing",
+     "uv": [
+      1,
+      14,
+      2,
+      16
+     ],
+     "cullface": "north"
+    },
+    "west": {
+     "texture": "#core",
+     "uv": [
+      0,
+      14,
+      1,
+      16
+     ]
+    },
+    "up": {
+     "texture": "#core",
+     "uv": [
+      14,
+      0,
+      15,
+      1
+     ]
+    },
+    "down": {
+     "texture": "#casing",
+     "uv": [
+      14,
+      15,
+      15,
+      16
+     ],
+     "cullface": "down"
+    }
+   }
+  },
+  {
+   "name": "frame",
+   "from": [
+    14,
+    0,
+    1
+   ],
+   "to": [
+    15,
     2,
     2
+   ],
+   "faces": {
+    "south": {
+     "texture": "#core",
+     "uv": [
+      14,
+      14,
+      15,
+      16
+     ]
+    },
+    "west": {
+     "texture": "#core",
+     "uv": [
+      1,
+      14,
+      2,
+      16
+     ]
+    },
+    "up": {
+     "texture": "#core",
+     "uv": [
+      14,
+      1,
+      15,
+      2
+     ]
+    }
+   }
+  },
+  {
+   "name": "frame",
+   "from": [
+    15,
+    0,
+    0
+   ],
+   "to": [
+    16,
+    2,
+    1
    ],
    "faces": {
     "north": {
@@ -24,15 +119,59 @@
      "uv": [
       0,
       14,
-      2,
+      1,
       16
      ],
      "cullface": "north"
     },
+    "east": {
+     "texture": "#casing",
+     "uv": [
+      15,
+      14,
+      16,
+      16
+     ],
+     "cullface": "east"
+    },
+    "up": {
+     "texture": "#core",
+     "uv": [
+      15,
+      0,
+      16,
+      1
+     ]
+    },
+    "down": {
+     "texture": "#casing",
+     "uv": [
+      15,
+      15,
+      16,
+      16
+     ],
+     "cullface": "down"
+    }
+   }
+  },
+  {
+   "name": "frame",
+   "from": [
+    15,
+    0,
+    1
+   ],
+   "to": [
+    16,
+    2,
+    2
+   ],
+   "faces": {
     "south": {
      "texture": "#core",
      "uv": [
-      14,
+      15,
       14,
       16,
       16
@@ -43,25 +182,16 @@
      "uv": [
       14,
       14,
-      16,
+      15,
       16
      ],
      "cullface": "east"
     },
-    "west": {
-     "texture": "#core",
-     "uv": [
-      0,
-      14,
-      2,
-      16
-     ]
-    },
     "up": {
      "texture": "#core",
      "uv": [
-      14,
-      0,
+      15,
+      1,
       16,
       2
      ]
@@ -69,10 +199,10 @@
     "down": {
      "texture": "#casing",
      "uv": [
-      14,
+      15,
       14,
       16,
-      16
+      15
      ],
      "cullface": "down"
     }

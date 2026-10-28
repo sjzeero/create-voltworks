@@ -14,43 +14,78 @@
     0
    ],
    "to": [
+    1,
     2,
-    2,
-    2
+    1
    ],
    "faces": {
     "north": {
      "texture": "#casing",
      "uv": [
-      14,
+      15,
       14,
       16,
       16
      ],
      "cullface": "north"
     },
+    "west": {
+     "texture": "#casing",
+     "uv": [
+      0,
+      14,
+      1,
+      16
+     ],
+     "cullface": "west"
+    },
+    "up": {
+     "texture": "#core",
+     "uv": [
+      0,
+      0,
+      1,
+      1
+     ]
+    },
+    "down": {
+     "texture": "#casing",
+     "uv": [
+      0,
+      15,
+      1,
+      16
+     ],
+     "cullface": "down"
+    }
+   }
+  },
+  {
+   "name": "frame",
+   "from": [
+    0,
+    0,
+    1
+   ],
+   "to": [
+    1,
+    2,
+    2
+   ],
+   "faces": {
     "south": {
      "texture": "#core",
      "uv": [
       0,
       14,
-      2,
-      16
-     ]
-    },
-    "east": {
-     "texture": "#core",
-     "uv": [
-      14,
-      14,
-      16,
+      1,
       16
      ]
     },
     "west": {
      "texture": "#casing",
      "uv": [
-      0,
+      1,
       14,
       2,
       16
@@ -61,8 +96,8 @@
      "texture": "#core",
      "uv": [
       0,
-      0,
-      2,
+      1,
+      1,
       2
      ]
     },
@@ -71,10 +106,105 @@
      "uv": [
       0,
       14,
+      1,
+      15
+     ],
+     "cullface": "down"
+    }
+   }
+  },
+  {
+   "name": "frame",
+   "from": [
+    1,
+    0,
+    0
+   ],
+   "to": [
+    2,
+    2,
+    1
+   ],
+   "faces": {
+    "north": {
+     "texture": "#casing",
+     "uv": [
+      14,
+      14,
+      15,
+      16
+     ],
+     "cullface": "north"
+    },
+    "east": {
+     "texture": "#core",
+     "uv": [
+      15,
+      14,
+      16,
+      16
+     ]
+    },
+    "up": {
+     "texture": "#core",
+     "uv": [
+      1,
+      0,
+      2,
+      1
+     ]
+    },
+    "down": {
+     "texture": "#casing",
+     "uv": [
+      1,
+      15,
       2,
       16
      ],
      "cullface": "down"
+    }
+   }
+  },
+  {
+   "name": "frame",
+   "from": [
+    1,
+    0,
+    1
+   ],
+   "to": [
+    2,
+    2,
+    2
+   ],
+   "faces": {
+    "south": {
+     "texture": "#core",
+     "uv": [
+      1,
+      14,
+      2,
+      16
+     ]
+    },
+    "east": {
+     "texture": "#core",
+     "uv": [
+      14,
+      14,
+      15,
+      16
+     ]
+    },
+    "up": {
+     "texture": "#core",
+     "uv": [
+      1,
+      1,
+      2,
+      2
+     ]
     }
    }
   }
