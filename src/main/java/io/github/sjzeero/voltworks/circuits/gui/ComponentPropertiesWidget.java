@@ -54,23 +54,13 @@ public class ComponentPropertiesWidget extends AbstractSimiWidget {
         this.textRenderer = textRenderer;
     }
 
-    /**
-     * Populate this widget with settings for the provided component.
-     * @param component the component to create settings widgets for
-     */
     public void setComponent(@Nullable PlacedComponent component) {
         setComponent(component, () -> {});
     }
 
-    /**
-     * Populate this widget with settings for the provided component and set a callback to trigger when changes are made.
-     * @param component the component to create settings widgets for
-     * @param changeMadeCallback callback that will be called when the component's properties are modified
-     */
     public void setComponent(@Nullable PlacedComponent component, Runnable changeMadeCallback) {
         this.component = component;
 
-        // Accept inputs on all property widgets
         for(var widget : propertyWidgets) {
             widget.setFocused(false);
         }
@@ -119,7 +109,6 @@ public class ComponentPropertiesWidget extends AbstractSimiWidget {
         }
     }
 
-    // Port of ctx.blitRepeating method
     private static void blitRepeating(
             GuiGraphics ctx,
             ResourceLocation texture,
@@ -159,7 +148,6 @@ public class ComponentPropertiesWidget extends AbstractSimiWidget {
         PoseStack ms = ctx.pose();
         ms.translate(getX(), getY(), 0);
 
-        // Three sliced texture
         int centerSliceSize = Math.max(width - 120, 0);
         ctx.blit(PROPERTIES, 0, 0, 0, 0, 60, 16);
         if(width > 120) {
@@ -170,7 +158,6 @@ public class ComponentPropertiesWidget extends AbstractSimiWidget {
         var key = ComponentRegistry.getItem(component.component).getDescriptionId();
         ctx.drawCenteredString(textRenderer, Component.translatable(key), getWidth() / 2, 5, 0xFFFFFFFF);
 
-        // Draw common background for each property
         blitRepeating(ctx, PROPERTIES, 0, 16, 60, propertyCount * 20, 0, 29, 60, 20);
         if(width > 120) {
             blitRepeating(ctx, PROPERTIES, 60, 16, centerSliceSize, propertyCount * 20, 61, 29, 30, 20);
@@ -188,7 +175,6 @@ public class ComponentPropertiesWidget extends AbstractSimiWidget {
 
             var summary = Component.translatableWithFallback(propertyKey + ".summary", "");
             if(!summary.getString().isEmpty()) {
-                // Hover description.
                 int x1 = getX() + 6;
                 int y1 = widget.getY() + 6;
                 var lines = textRenderer.split(summary, getWidth());

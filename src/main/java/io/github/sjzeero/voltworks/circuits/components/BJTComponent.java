@@ -47,9 +47,9 @@ public abstract class BJTComponent extends MirrorableComponent {
     @Override
     public void bake(@NotNull PlacedComponent placed, @NotNull ComponentCircuitBuilder builder, ThermalBuilder.@NotNull IEmitter thermals) {
         var wire = new BJTWire(
-                builder.terminalNode(0), // Collector
-                builder.terminalNode(1), // Base
-                builder.terminalNode(2), // Emitter
+                builder.terminalNode(0),
+                builder.terminalNode(1),
+                builder.terminalNode(2),
                 5.47e-12, placed.get(GAIN), 0.1, pnp
         );
         builder.add(wire);
@@ -60,18 +60,4 @@ public abstract class BJTComponent extends MirrorableComponent {
                 .setThermalMass(0.01f)
                 .setMaxPower(20, 125);
     }
-
-//    public static class VLimBJT extends BJTWire {
-//        public VLimBJT(IElectricNode collector, IElectricNode base, IElectricNode emitter, double Is, double fBeta, double Rs, boolean pnp) {
-//            super(collector, base, emitter, Is, fBeta, Rs, pnp);
-//        }
-//
-//        @Override
-//        public float power() {
-//            var power = super.power();
-//            if(Math.abs(potentialDifference()) > 60 || Math.abs(collectorBase.potentialDifference()) > 60)
-//                power += 40;
-//            return power;
-//        }
-//    }
 }

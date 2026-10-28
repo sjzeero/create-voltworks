@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** A device of an assembled contraption keeps simulating after its block left the world. */
 @Mixin(value = DevicesSavedData.class, remap = false)
 public abstract class DevicesSavedDataMixin {
     @Shadow @Final public ServerLevel level;

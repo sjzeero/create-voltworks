@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Power strip layout, cord lengths of pulled-out cords, and the strip's assets. */
 class PowerStripTest {
     @Test
     void plugBacksSitOnTheStripAndPointOutwards() {
@@ -34,10 +33,9 @@ class PowerStripTest {
         assertFalse(StripGeometry.isOutlet(8));
     }
 
-    /** The cord plug's body footprint (x 6..10, z 5..11 around the socket slot) moved onto each outlet. */
     private static int[] footprint(int supply) {
         double[] o = StripGeometry.offset(supply);
-        int x0 = 6, x1 = 10, z0 = 5, z1 = 11; // symmetric around 8, so the B-side turn keeps it
+        int x0 = 6, x1 = 10, z0 = 5, z1 = 11;
         return new int[]{x0 + (int) o[0], x1 + (int) o[0], z0 + (int) o[2], z1 + (int) o[2]};
     }
 
@@ -60,7 +58,6 @@ class PowerStripTest {
                     boolean overlap = p[0] < q[1] && q[0] < p[1] && p[2] < q[3] && q[2] < p[3];
                     assertFalse(overlap, a + " and " + b);
                 }
-        // the strip's own cord leaves its +X side away from the +X outlet's plug (z 1..7)
         assertEquals(16, StripGeometry.INPUT_NODE[0]);
         assertTrue(StripGeometry.INPUT_NODE[2] > footprint(6)[3]);
     }
@@ -117,7 +114,6 @@ class PowerStripTest {
                 .getAsJsonObject("result").get("id").getAsString());
     }
 
-    /** Every cord and strip message the code sends is translated, in English and Russian. */
     @Test
     void messagesAreTranslated() throws IOException {
         Set<String> keys = new HashSet<>();

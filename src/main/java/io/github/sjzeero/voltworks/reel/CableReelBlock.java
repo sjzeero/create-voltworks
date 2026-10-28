@@ -37,35 +37,18 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Cable reel ("лебёдка"): a drum that holds wire wound off spools and lets it out like a vacuum cleaner cord.
- * <ul>
- *   <li>{@link #cord} = true: Cord Reel, two-core. Nodes 0 (+) and 1 (-) are screw terminals for ordinary wires, nodes 2
- *   and 3 are the hidden ends of the pulled-out copper cord (same layout as the socket, so the cord pairs up the same).</li>
- *   <li>{@link #cord} = false: Cable Reel, single core. Node 0 is the terminal, node 1 the hidden end of the pulled-out
- *   Electro Energetics wire.</li>
- * </ul>
- * FACING is the side the cable comes out of. Click with a matching spool to wind it in; with an empty hand to take the
- * cable end; sneak with an empty hand to wind the cable back.
- */
 public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice> implements IBE<CableReelBlockEntity> {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    /** How much wire is wound on the drum, 0 (bare drum) to {@link ReelMath#FILL_LEVELS}; picks the coil model. */
     public static final IntegerProperty FILL = IntegerProperty.create("fill", 0, ReelMath.FILL_LEVELS);
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
-    /** The small reel (frame, hubs, outlet guide); the same for every facing. */
     private static final VoxelShape SMALL_SHAPE = Block.box(1, 0, 1, 15, 11, 15);
 
-    /** Pixel positions for FACING = NORTH. */
-    /** Big reel: terminals on top at the back; the outlet nodes are {@link ReelOutlet#PX}, the outlet guide's outer face. */
     private static final double[][] CORD_NODES = {{5, 16, 15}, {11, 16, 15}, ReelOutlet.PX, ReelOutlet.PX};
     private static final double[][] CABLE_NODES = {{8, 16, 15}, ReelOutlet.PX};
-    /** Small reel: terminal knob tops on the cheeks at the back, outlet {@link ReelOutlet#PX_SMALL}. */
     private static final double[][] SMALL_CORD_NODES = {{3, 13, 12}, {13, 13, 12}, ReelOutlet.PX_SMALL, ReelOutlet.PX_SMALL};
     private static final double[][] SMALL_CABLE_NODES = {{13, 13, 12}, ReelOutlet.PX_SMALL};
 
     public final boolean cord;
-    /** The small reel (voltworks:small_cord_reel / small_cable_reel): same behaviour, a smaller model. */
     public final boolean small;
 
     public CableReelBlock(Properties properties, boolean cord) {
@@ -104,7 +87,6 @@ public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice>
         return small ? SMALL_SHAPE : SHAPE;
     }
 
-    /** First node id of the pulled-out cable (the supply strand for a cord). */
     public int outletId() {
         return cord ? 2 : 1;
     }
@@ -117,13 +99,11 @@ public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice>
         return cord ? 4 : 2;
     }
 
-    /** Pixel position for FACING = NORTH turned like the blockstate turns the model (y rotation, clockwise from above). */
     static Vec3 rotated(Direction facing, double px, double py, double pz) {
         org.joml.Vector3d v = ReelOutlet.rotated(quarter(facing), px, py, pz);
         return new Vec3(v.x, v.y, v.z);
     }
 
-    /** Clockwise quarter turns from NORTH, as the blockstate's y rotation. */
     static int quarter(Direction facing) {
         return switch (facing) {
             case EAST -> 1;
@@ -133,7 +113,6 @@ public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice>
         };
     }
 
-    /** The direction the pulled-out cable leaves the outlet in, in the block (level, out of the front face). */
     public Vec3 outletDir(BlockState state) {
         org.joml.Vector3d d = ReelOutlet.dir(quarter(state.getValue(FACING)));
         return new Vec3(d.x, d.y, d.z);
@@ -170,7 +149,6 @@ public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice>
         return Component.translatable(cord ? "voltworks.node.socket_" + id : "voltworks.node.cable_reel_terminal");
     }
 
-    /** True when the click is close to one of the terminals, so a spool there starts an ordinary wire instead of loading. */
     public boolean nearTerminal(BlockState state, BlockPos pos, Vec3 hit) {
         Vec3 local = hit.subtract(pos.getX(), pos.getY(), pos.getZ());
         for (int i = 0; i < nodeCount(); i++)

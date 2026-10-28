@@ -75,7 +75,6 @@ public abstract class Component {
     }
 
     protected void addProperties(ImmutableCollection.Builder<ComponentProperty<?>> properties) {
-
     }
 
     public float getPadResistance(int padIndex) {
@@ -96,21 +95,11 @@ public abstract class Component {
 
     public abstract void bake(@NotNull PlacedComponent placed, @NotNull ComponentCircuitBuilder builder, @NotNull ThermalBuilder.IEmitter thermals);
 
-    /**
-     * Called every tick as long as the returned value is true
-     * @param placed Placed component state
-     * @return Continue ticking
-     */
     public boolean tick(@NotNull PlacedComponent placed) {
         return false;
     }
 
-    /**
-     * Called when state is updated externally
-     * @param placed Placed component state
-     */
     public void stateUpdated(@NotNull PlacedComponent placed) {
-
     }
 
     public boolean rotate(@NotNull PlacedComponent placed, boolean counterClockwise) {
@@ -156,12 +145,7 @@ public abstract class Component {
         placed.data(FloatPair.class).ifPresent(data -> data.prev = data.current);
     }
 
-    /**
-     * Data fixer, handles changes between updates.
-     * @param tag Tag to modify
-     */
     public void dataFixup(@NotNull CompoundTag tag, int version) {
-
     }
 
     public static class FloatPair {

@@ -49,19 +49,12 @@ public abstract class InfrastructureSavedDataMixin {
             io.github.sjzeero.voltworks.wallwire.SchematicWires.onConnect(level, a, b);
     }
 
-    /**
-     * Same drops as a hanging wire, but spread along the faces the wire ran on. A copper cord is two connections made
-     * from one spool, so its other conductor goes along without drops: the cord gives back one spool's worth of cord
-     * wire, not two (e.g. when a socket with a cord is broken, both conductors would otherwise drop).
-     */
-    /** A cable pulled out of a cable reel winds back into it instead of dropping (target broken, cutters, ...). */
     @Inject(method = "removeAndDropConnection", at = @At("HEAD"), cancellable = true, require = 0)
     private void voltworks$reelWindsBackOnDrop(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
         if(level != null && io.github.sjzeero.voltworks.reel.CableReels.windBack(level, connection))
             cir.setReturnValue(null);
     }
 
-    /** Same for plain removal (empty spool, creative break), so taking the cable off never gives a free spool. */
     @Inject(method = "removeConnection", at = @At("HEAD"), cancellable = true, require = 0)
     private void voltworks$reelWindsBack(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
         if(level != null && io.github.sjzeero.voltworks.reel.CableReels.windBack(level, connection))
@@ -73,7 +66,6 @@ public abstract class InfrastructureSavedDataMixin {
         if(level == null)
             return;
         WireData own = getConnectionData(connection);
-        // a power strip's own cord never comes off as items: it goes back into the strip
         if(own != null && CordPair.isCord(own.wireType()) && io.github.sjzeero.voltworks.cord.LooseCords.isStripStrand(level, connection)) {
             InWorldNodeConnection sibling = CordPair.sibling(connection);
             if(getConnectionData(sibling) != null)

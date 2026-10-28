@@ -29,11 +29,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Wires on blocks that a Create contraption picks up. Electro Energetics drops every wire of a block that leaves the
- * world, so the wires are taken off the nodes before the blocks go, kept in the contraption (positions relative to its
- * anchor) and put back on the moved blocks when it turns into blocks again.
- */
 public final class ContraptionWires {
     private ContraptionWires() {
     }
@@ -134,7 +129,6 @@ public final class ContraptionWires {
         return l;
     }
 
-    /** What a client needs to draw the wires that sit fully inside the contraption. */
     public static ListTag renderData(ListTag wires) {
         ListTag out = new ListTag();
         for(Tag t : wires) {

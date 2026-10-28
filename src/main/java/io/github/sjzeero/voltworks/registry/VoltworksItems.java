@@ -31,17 +31,13 @@ public final class VoltworksItems {
     public static final DeferredItem<?> SERVO_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SERVO);
     public static final DeferredItem<?> SOCKET_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SOCKET);
     public static final DeferredItem<?> POWER_STRIP_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.POWER_STRIP);
-    /** Two-core wire (two insulated cores in a kelp sheath): crafting material, four of them and an empty spool make a {@link #COPPER_CORD} spool (as in Electro Energetics). */
     public static final DeferredItem<Item> TWO_CORE_WIRE = ITEMS.registerSimpleItem("two_core_wire");
 
-    /** Redstone cable wire: crafting material, four of them and an empty spool make a {@link #REDSTONE_CABLE} spool. */
     public static final DeferredItem<Item> REDSTONE_CABLE_WIRE = ITEMS.registerSimpleItem("redstone_cable_wire");
 
-    /** Spool of two-conductor copper cord (Power Grid port); laid like any other Voltworks wall wire, one spool per cord. */
     public static final DeferredItem<CordSpoolItem> COPPER_CORD = ITEMS.registerItem("copper_cord",
             p -> new CordSpoolItem(p, VoltworksWireTypes.COPPER_CORD));
 
-    /** Spool of redstone cable: links the redstone level of one block face to another face, one spool per cable. */
     public static final DeferredItem<io.github.sjzeero.voltworks.redstone.RedstoneCableItem> REDSTONE_CABLE = ITEMS.registerItem("redstone_cable",
             p -> new io.github.sjzeero.voltworks.redstone.RedstoneCableItem(p));
 
@@ -51,7 +47,6 @@ public final class VoltworksItems {
     public static final DeferredItem<?> SMALL_CORD_REEL_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SMALL_CORD_REEL);
     public static final DeferredItem<?> SMALL_CABLE_REEL_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SMALL_CABLE_REEL);
 
-    /** End of the cable pulled out of a reel; only exists in the hand of the player carrying it. */
     public static final DeferredItem<io.github.sjzeero.voltworks.reel.ReelPlugItem> REEL_PLUG = ITEMS.registerItem("reel_plug",
             p -> new io.github.sjzeero.voltworks.reel.ReelPlugItem(p.stacksTo(1)));
 

@@ -23,9 +23,6 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 import io.github.sjzeero.voltworks.Voltworks;
 
-/**
- * Dummy property used for documenting certain properties of components.
- */
 public class ConstantProperty extends ComponentProperty<String> {
     private final Component value;
 

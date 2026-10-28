@@ -41,7 +41,6 @@ public class ColdCathodeRegulatorTubeWire extends NeonBulbWire {
     public void preSolve() {
         if(!isConverged())
             return;
-        // Update discharge state
         double V = potentialDifference(), I = current();
         if(litTicks <= 0 && V > breakdownVoltage) {
             updateConductance(dischargeConductance);

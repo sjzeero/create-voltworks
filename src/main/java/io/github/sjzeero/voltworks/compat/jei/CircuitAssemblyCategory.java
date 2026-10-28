@@ -101,7 +101,6 @@ public class CircuitAssemblyCategory implements IRecipeCategory<Object> {
         poseStack.translate(35 - 8 - 2,  -8 - 2, -10);
         poseStack.scale(2, 2, 1);
         depot.draw(graphics, 0, 0);
-//        depot.render(graphics, new Rectangle(0, 0, 16, 16), mouseX, mouseY, partialTick);
         poseStack.popPose();
 
         poseStack.popPose();
@@ -112,12 +111,6 @@ public class CircuitAssemblyCategory implements IRecipeCategory<Object> {
         IRecipeCategory.super.draw(recipe, recipeSlotsView, guiGraphics, mouseX, mouseY);
         guiGraphics.blit(TEXTURE, 0, 0, 0, 0, getWidth(), getHeight());
         renderScene(guiGraphics);
-//        List<Widget> widgets = new ArrayList<>();
-//        widgets.add(Widgets.createRecipeBase(bounds));
-//        widgets.add(Widgets.createDrawableWidget((graphics, mouseX, mouseY, partialTick) ->
-//                renderScene(graphics, mouseX, mouseY, partialTick, bounds)));
-//        widgets.add(Widgets.createTexturedWidget(TEXTURE, bounds, 0, 0));
-//        guiGraphics.
 
         arm.heldItemSupplier = () ->
             recipeSlotsView.getSlotViews().get(0).getDisplayedItemStack().orElse(ItemStack.EMPTY);

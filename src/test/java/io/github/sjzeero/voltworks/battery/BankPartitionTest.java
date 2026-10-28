@@ -104,27 +104,22 @@ class BankPartitionTest {
         assertEquals(2 * C, banks.get(0).energy(), 1e-6);
     }
 
-    /** The model's joined sides: towards blocks of the same bank only, so the frame shows around the whole bank. */
     @Test
     void joinedSidesFaceTheRestOfTheBank() {
-        // a lone battery shows its frame all round
         for (Direction d : Direction.values())
             assertFalse(BankPartition.joined(0, 0, 0, 1, 1, 1, d), d.toString());
-        // 3 wide (x), 2 high, 2 deep: the middle bottom-north block
         assertTrue(BankPartition.joined(1, 0, 0, 3, 2, 2, Direction.EAST));
         assertTrue(BankPartition.joined(1, 0, 0, 3, 2, 2, Direction.WEST));
         assertTrue(BankPartition.joined(1, 0, 0, 3, 2, 2, Direction.UP));
         assertTrue(BankPartition.joined(1, 0, 0, 3, 2, 2, Direction.SOUTH));
         assertFalse(BankPartition.joined(1, 0, 0, 3, 2, 2, Direction.NORTH));
         assertFalse(BankPartition.joined(1, 0, 0, 3, 2, 2, Direction.DOWN));
-        // the top south-east corner
         assertFalse(BankPartition.joined(2, 1, 1, 3, 2, 2, Direction.EAST));
         assertFalse(BankPartition.joined(2, 1, 1, 3, 2, 2, Direction.UP));
         assertFalse(BankPartition.joined(2, 1, 1, 3, 2, 2, Direction.SOUTH));
         assertTrue(BankPartition.joined(2, 1, 1, 3, 2, 2, Direction.WEST));
         assertTrue(BankPartition.joined(2, 1, 1, 3, 2, 2, Direction.DOWN));
         assertTrue(BankPartition.joined(2, 1, 1, 3, 2, 2, Direction.NORTH));
-        // joined is symmetric inside a bank
         for (int x = 0; x < 3; x++)
             for (int y = 0; y < 2; y++)
                 for (int z = 0; z < 2; z++)

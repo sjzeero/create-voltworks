@@ -1,3 +1,20 @@
+/*
+ * Copyright 2025-2026 patryk3211
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by sjzeero: ported from Create: Power Grid to Voltworks.
+ */
 package io.github.sjzeero.voltworks.battery;
 
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
@@ -32,22 +49,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-/**
- * A full-block rechargeable battery, ported from Create: Power Grid's {@code powergrid:battery} (patryk3211,
- * Apache-2.0); its model and textures are original (sjzeero). Touching batteries join into banks ({@link BatteryBanks}); the bank's top corner block
- * carries the + and - terminal posts, every block of the bank is wired to the same storage. A bank shows as one rack: the
- * {@link #JOINED} sides of a block (towards blocks of the same bank) drop their frame, the cells and bus bars run on.
- */
 public class BatteryBlock extends SimpleElectricalDeviceBlock<BatteryDevice> implements IBE<BatteryBlockEntity> {
-    /** True on the bank's top north-west block, which carries the terminal posts. */
     public static final BooleanProperty TERMINALS = BooleanProperty.create("terminals");
-    /** Per side: the neighbour there belongs to the same bank (only drives the model, see blockstates/battery.json). */
     public static final Map<Direction, BooleanProperty> JOINED = Map.of(
             Direction.NORTH, BlockStateProperties.NORTH, Direction.SOUTH, BlockStateProperties.SOUTH,
             Direction.EAST, BlockStateProperties.EAST, Direction.WEST, BlockStateProperties.WEST,
             Direction.UP, BlockStateProperties.UP, Direction.DOWN, BlockStateProperties.DOWN);
 
-    /** Tops of the terminal posts standing on the block, in sixteenths: + (copper) on the west, - (iron) on the east. */
     public static final Vec3 PLUS = new Vec3(5 / 16.0, 18 / 16.0, 8 / 16.0);
     public static final Vec3 MINUS = new Vec3(11 / 16.0, 18 / 16.0, 8 / 16.0);
     public static final String ENERGY_TAG = "Energy";
@@ -68,7 +76,6 @@ public class BatteryBlock extends SimpleElectricalDeviceBlock<BatteryDevice> imp
         super.createBlockStateDefinition(builder);
     }
 
-    /** The state with the terminal posts and the joined sides of the block at (x, y, z) of an sx * sy * sz bank. */
     public static BlockState withBankLook(BlockState s, boolean terminals, int x, int y, int z, int sx, int sy, int sz) {
         s = s.setValue(TERMINALS, terminals);
         for (Direction d : Direction.values())
@@ -86,7 +93,6 @@ public class BatteryBlock extends SimpleElectricalDeviceBlock<BatteryDevice> imp
         return id == 1 ? MINUS : PLUS;
     }
 
-    /** Terminals stay registered on every block of a bank (wires already on them keep working); only the post block's can be reached. */
     @Override
     public boolean isNodeAccessible(Level level, BlockPos pos, BlockState state, int id) {
         return state.getValue(TERMINALS);
@@ -113,7 +119,6 @@ public class BatteryBlock extends SimpleElectricalDeviceBlock<BatteryDevice> imp
         }
     }
 
-    /** Energy a battery item carries; a battery that was never placed is {@link BatterySpec#INITIAL_SOC} charged. */
     public static double storedEnergy(ItemStack stack) {
         CustomData data = stack.get(DataComponents.CUSTOM_DATA);
         if (data == null || !data.contains(ENERGY_TAG))
@@ -127,7 +132,6 @@ public class BatteryBlock extends SimpleElectricalDeviceBlock<BatteryDevice> imp
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
     }
 
-    /** A broken battery keeps its share of the bank's energy. */
     @Override
     protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
         List<ItemStack> drops = super.getDrops(state, params);

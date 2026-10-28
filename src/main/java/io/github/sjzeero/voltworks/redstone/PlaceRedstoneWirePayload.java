@@ -11,7 +11,6 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Sent when a player finishes a redstone wire: the face points they clicked, in order. The first is the source, the last the output. */
 public record PlaceRedstoneWirePayload(List<WallCell> points) implements CustomPacketPayload {
     public static final int MAX_POINTS = 512;
     public static final Type<PlaceRedstoneWirePayload> TYPE = new Type<>(Voltworks.asResource("place_redstone_wire"));

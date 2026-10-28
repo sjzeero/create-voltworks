@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Lets a redstone cable output show up as a signal on the face it ends on, for weak and strong power alike. */
 @Mixin(BlockBehaviour.BlockStateBase.class)
 public abstract class BlockStateSignalMixin {
     @Inject(method = "getSignal", at = @At("RETURN"), cancellable = true)

@@ -17,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-/** Per dimension store of wall wire routes, keyed by the Electro Energetics connection they belong to. */
 public class WallWireData extends SavedData {
     private static final String NAME = "voltworks_wall_wires";
 
@@ -98,7 +97,6 @@ public class WallWireData extends SavedData {
         sweep = Collections.emptyIterator();
     }
 
-    /** Called when Electro Energetics drops a connection; checked at the end of the tick, since burnt wires get replaced in place. */
     public void queueCheck(InWorldNodeConnection connection) {
         if(routes.containsKey(connection))
             pendingChecks.add(connection);
@@ -132,7 +130,6 @@ public class WallWireData extends SavedData {
                 breakWire(sd, c);
         }
 
-        // slow sweep so changes that skipped neighbour updates are caught too
         if(!sweep.hasNext())
             sweep = new ArrayList<>(routes.keySet()).iterator();
         if(sweep.hasNext()) {
@@ -174,7 +171,6 @@ public class WallWireData extends SavedData {
         pendingChecks.add(c);
     }
 
-    /** Checks the cells touching {@code pos}, or all loaded cells when pos is null. */
     private boolean stillSupported(WallRoute route, @Nullable BlockPos pos) {
         for(WallCell cell : route.cells) {
             if(pos != null && !cell.pos().equals(pos) && !cell.front().equals(pos))

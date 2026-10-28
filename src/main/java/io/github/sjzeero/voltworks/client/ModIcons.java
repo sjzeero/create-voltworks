@@ -30,10 +30,6 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import io.github.sjzeero.voltworks.Voltworks;
 
-/**
- * Mostly a copy of Create's AllIcons class
- * @see AllIcons
- */
 public class ModIcons extends AllIcons {
     public static final ResourceLocation ICON_ATLAS = Voltworks.asResource("textures/gui/icons.png");
     public static final int ATLAS_SIZE = 64;
@@ -58,7 +54,6 @@ public class ModIcons extends AllIcons {
     public static final ModIcons I_Wh = newRow();
     public static final ModIcons I_kWh = next();
 
-    // Unfortunately we need these since AllIcons has them private, and we need them in render function.
     private final int iconX;
     private final int iconY;
 

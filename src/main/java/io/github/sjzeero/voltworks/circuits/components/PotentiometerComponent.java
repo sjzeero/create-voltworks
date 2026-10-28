@@ -34,11 +34,9 @@ import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import io.github.sjzeero.voltworks.circuits.thermal.ThermalBuilder;
 import io.github.sjzeero.voltworks.sim.ElectricWire;
 
-
 public class PotentiometerComponent extends OrientableComponent implements IInteractableComponent, IGoggleLabel {
     public static final FloatProperty RESISTANCE = new FloatProperty(Voltworks.MOD_ID, "potentiometer_resistance", 1000, 100, 100000);
     public static final IntProperty VALUE = new IntProperty(Voltworks.MOD_ID, "potentiometer_value", 50, 0, 100);
-
 
     public PotentiometerComponent(ComponentFootprint footprint) {
         super(footprint);
@@ -53,7 +51,6 @@ public class PotentiometerComponent extends OrientableComponent implements IInte
     @Override
     public void bake(@NotNull PlacedComponent placed, @NotNull ComponentCircuitBuilder builder, ThermalBuilder.@NotNull IEmitter thermals) {
         var R = placed.get(RESISTANCE);
-        // Remap setting to prevent infinite conductance.
         var V = Mth.map(placed.get(VALUE) / 100.0f, 0, 1, 0.01f, 0.99f);
         var wire1 = builder.connect(R * V, builder.terminalNode(0), builder.terminalNode(1));
         var wire2 = builder.connect(R * (1 - V), builder.terminalNode(1), builder.terminalNode(2));
@@ -91,7 +88,6 @@ public class PotentiometerComponent extends OrientableComponent implements IInte
             return;
 
         var R = placed.get(RESISTANCE);
-        // Remap setting to prevent infinite conductance.
         var V = Mth.map(placed.get(VALUE) / 100.0f, 0, 1, 0.01f, 0.99f);
         var wire1 = (ElectricWire) placed.wires.get(0);
         var wire2 = (ElectricWire) placed.wires.get(1);

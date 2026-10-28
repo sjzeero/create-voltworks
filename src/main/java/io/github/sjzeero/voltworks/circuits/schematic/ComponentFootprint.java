@@ -122,22 +122,18 @@ public class ComponentFootprint {
             int x, y;
             switch(orientation) {
                 case RIGHT -> {
-                    // No rotation
                     x = position.x();
                     y = position.y();
                 }
                 case DOWN -> {
-                    // 90 degree rotation
                     x = this.height - position.y() - 1;
                     y = position.x();
                 }
                 case LEFT -> {
-                    // 180 degree rotation
                     x = this.width - position.x() - 1;
                     y = this.height - position.y() - 1;
                 }
                 case UP -> {
-                    // 270 degree rotation
                     x = position.y();
                     y = this.width - position.x() - 1;
                 }
@@ -147,7 +143,6 @@ public class ComponentFootprint {
         }
 
         var footprint = new ComponentFootprint(width, height, originalWidth, originalHeight, pads, this.outline, withItem, arrow == null ? null : arrow.rotate(orientation));
-        // Copy cached stack if one is available.
         footprint.renderedStack = this.renderedStack;
         return footprint;
     }
@@ -163,7 +158,6 @@ public class ComponentFootprint {
         }
 
         var footprint = new ComponentFootprint(width, height, originalWidth, originalHeight, pads, this.outline, withItem, arrow == null ? null : arrow.isX() ? arrow.getOpposite() : arrow);
-        // Copy cached stack if one is available.
         footprint.renderedStack = this.renderedStack;
         return footprint;
     }
@@ -179,7 +173,6 @@ public class ComponentFootprint {
         }
 
         var footprint = new ComponentFootprint(width, height, originalWidth, originalHeight, pads, this.outline, withItem, arrow == null ? null : arrow.isY() ? arrow.getOpposite() : arrow);
-        // Copy cached stack if one is available.
         footprint.renderedStack = this.renderedStack;
         return footprint;
     }

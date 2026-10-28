@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** A cord only plugs into sockets, so Electro Energetics must only highlight the two cord contacts of a socket while one is held. */
 @Mixin(value = WireApplyingBehaviour.class, remap = false)
 public class WireApplyingBehaviourMixin {
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)

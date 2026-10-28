@@ -271,7 +271,6 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
         return use(state, level, pos, player, hit);
     }
 
-    /** The part a ray (relative to the block) hits first, or null. */
     public static @Nullable BoardBlockEntity.Interactable pick(Iterable<BoardBlockEntity.Interactable> list, BlockState state, Vec3 origin, Vec3 target) {
         var o = unrotate(origin, getAngleX(state), getAngleY(state));
         var t = unrotate(target, getAngleX(state), getAngleY(state));

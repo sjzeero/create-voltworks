@@ -23,14 +23,10 @@ import io.github.sjzeero.voltworks.sim.solver.IStaticResidual;
 import java.util.List;
 import io.github.sjzeero.voltworks.Voltworks;
 
-/**
- * Warning! Current source nodes cannot be directly connected to transformer couplings.
- */
 public class CurrentSourceNode extends ElectricNode implements IStaticResidual {
     protected double current;
 
     public CurrentSourceNode() {
-
     }
 
     @Override

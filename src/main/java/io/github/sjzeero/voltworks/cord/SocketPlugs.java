@@ -24,19 +24,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-/**
- * The plug of a copper cord sitting in a socket: the same {@link SocketBlock#PLUG} state (and so the same 3D plug model,
- * with the cord contacts at its back) for a cord reel and for both ends of a socket-to-socket cord. Plugs are put in
- * when a cord is laid, come out when its last strand goes away (checked at the end of the tick), and a slow sweep
- * fixes sockets of cords laid before plugs existed.
- */
 public final class SocketPlugs {
     private SocketPlugs() {}
 
     private static final Map<ServerLevel, Set<BlockPos>> PENDING = new WeakHashMap<>();
     private static final int SWEEP_TICKS = 100;
 
-    /** Turns the plug in the socket at {@code socket} so its cord leaves towards {@code towards} (world space). */
     public static void plugTowards(ServerLevel sl, BlockPos socket, Vec3 towards) {
         BlockState st = sl.getBlockState(socket);
         if (!(st.getBlock() instanceof SocketBlock))
@@ -47,19 +40,16 @@ public final class SocketPlugs {
             sl.setBlock(socket, st.setValue(SocketBlock.PLUG, side), Block.UPDATE_ALL);
     }
 
-    /** World-space direction of a plug in A orientation (Sable sub-levels turned along). */
     private static Vec3 axisWorld(ServerLevel sl, BlockPos socket, BlockState st) {
         Vector3f axis = SocketBlock.plugAxis(st);
         Vec3 centre = Vec3.atCenterOf(socket);
         return WallSpace.toWorld(sl, centre.add(axis.x, axis.y, axis.z)).subtract(WallSpace.toWorld(sl, centre));
     }
 
-    /** A when the cord's way out ({@code towards}) is on the plug axis' side of the socket, B otherwise. */
     public static SocketBlock.Plug side(Vec3 centre, Vec3 axis, Vec3 towards) {
         return axis.dot(towards.subtract(centre)) >= 0 ? SocketBlock.Plug.A : SocketBlock.Plug.B;
     }
 
-    /** Both sockets of a freshly laid cord: towards the other socket (hanging) or the end of the wall route next to each. */
     public static void plugCord(ServerLevel sl, InWorldNode a, InWorldNode b, @Nullable List<WallCell> cellsFromA) {
         Vec3 pa = WallSpace.toWorld(sl, Vec3.atCenterOf(a.sourcePos())), pb = WallSpace.toWorld(sl, Vec3.atCenterOf(b.sourcePos()));
         Vec3 ta = pb, tb = pa;
@@ -71,7 +61,6 @@ public final class SocketPlugs {
         plugTowards(sl, b.sourcePos(), tb);
     }
 
-    /** Hook for every removed connection: a socket losing a cord strand is checked at the end of the tick. */
     public static void removed(ServerLevel sl, InWorldNodeConnection c) {
         for (InWorldNode n : new InWorldNode[]{c.node1(), c.node2()})
             if (n.id() == SocketBlock.CORD_POSITIVE || n.id() == SocketBlock.CORD_NEGATIVE)
@@ -88,7 +77,6 @@ public final class SocketPlugs {
             sweep(sl);
     }
 
-    /** Plug out when nothing is plugged into the cord contacts any more. */
     private static void check(ServerLevel sl, BlockPos p) {
         if (!sl.isLoaded(p))
             return;
@@ -100,7 +88,6 @@ public final class SocketPlugs {
             sl.setBlock(p, st.setValue(SocketBlock.PLUG, SocketBlock.Plug.NONE), Block.UPDATE_ALL);
     }
 
-    /** Socket-to-socket cords laid before this version: give their sockets a plug too. */
     private static void sweep(ServerLevel sl) {
         InfrastructureSavedData sd = InfrastructureSavedData.load(sl);
         List<InWorldNode> nodes = new ArrayList<>();
@@ -147,7 +134,6 @@ public final class SocketPlugs {
                 ? c.node1() : c.node2();
     }
 
-    /** The supply strand of a copper cord between this socket and another socket (not a reel's), or null. */
     public static @Nullable InWorldNodeConnection socketCord(ServerLevel sl, InfrastructureSavedData sd, BlockPos p) {
         if (CableReelBlockEntity.pluggedInto(sl, p) != null)
             return null;

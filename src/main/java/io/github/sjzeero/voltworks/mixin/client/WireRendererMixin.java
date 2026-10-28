@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.List;
 import io.github.sjzeero.voltworks.Voltworks;
 
-/** Wall wires are drawn by Voltworks, so Electro Energetics' immediate renderer skips them. */
 @Mixin(value = WireRenderer.class, remap = false)
 public abstract class WireRendererMixin {
     @Redirect(method = "render", at = @At(value = "INVOKE",
@@ -21,7 +20,6 @@ public abstract class WireRendererMixin {
         return ClientWallRoutes.withoutWallWires(WireRenderer.getAllConnections());
     }
 
-    /** Cable reel cables pay out and wind in with the distance; the immediate renderer reads the length from the list. */
     @org.spongepowered.asm.mixin.injection.Inject(method = "render", at = @At("HEAD"), require = 0)
     private static void voltworks$reelLengths(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
         io.github.sjzeero.voltworks.reel.client.ReelClient.followLengths(net.createmod.catnip.animation.AnimationTickHolder.getPartialTicks());

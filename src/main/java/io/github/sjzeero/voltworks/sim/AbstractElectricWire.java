@@ -95,7 +95,6 @@ public abstract class AbstractElectricWire implements INetworkElement, IMultiHoo
     }
 
     public void flipNodes() {
-        // Node order doesn't matter in the conductance matrix so no additional updates are required.
         var b = node2;
         node2 = node1;
         node1 = b;

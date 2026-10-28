@@ -8,7 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Passive: every outlet's contacts are tied to the strip's own cord in parallel through a tiny contact resistance. */
 public class PowerStripDevice extends SimpleElectricalDevice {
     public PowerStripDevice(Level level, BlockPos pos, DevicesSavedData sd, SimulatedDeviceType<?> type) {
         super(level, pos, sd, type);

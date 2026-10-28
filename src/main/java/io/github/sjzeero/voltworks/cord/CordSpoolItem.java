@@ -13,7 +13,6 @@ import net.minecraft.world.level.Level;
 
 import java.util.function.Supplier;
 
-/** Copper cord spool: laid only by Voltworks' surface wiring, never hung as a single Electro Energetics wire. */
 public class CordSpoolItem extends WireSpoolItem {
     public CordSpoolItem(Properties properties, Supplier<WireType> wireType) {
         super(properties, wireType);

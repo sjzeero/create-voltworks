@@ -29,15 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Click by click redstone wire placement, the same way as a wall wire: the first click is the source face, the next ones
- * are points the wire is routed through along the surfaces, and a click on the last point again finishes it on that face.
- * Sneak undoes the last point.
- */
 public final class RedstoneCableClient {
-    /** The points clicked so far; the first is the source face. */
     public static final List<WallCell> points = new ArrayList<>();
-    /** The routed cells of the wire so far, drawn as a preview. */
     public static final List<WallCell> committed = new ArrayList<>();
     private static @Nullable WallCell hoverCell;
     private static @Nullable List<WallCell> hoverPath;
@@ -139,7 +132,6 @@ public final class RedstoneCableClient {
         if(player == null || level == null || !holding(player))
             return;
         boolean shift = player.isShiftKeyDown();
-        // with nothing started, a sneak click goes to the item, which removes the wires of that face
         if(shift && points.isEmpty())
             return;
         event.setCanceled(true);

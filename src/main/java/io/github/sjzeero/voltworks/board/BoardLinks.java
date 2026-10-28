@@ -37,11 +37,6 @@ import static io.github.sjzeero.voltworks.circuits.components.ViaComponent.EDGE_
 import static io.github.sjzeero.voltworks.circuits.components.ViaComponent.VERTICAL_PASSTHROUGH;
 import io.github.sjzeero.voltworks.Voltworks;
 
-/**
- * Edge vias and vertical headers between neighbouring boards, same matching rules as Power Grid's
- * CircuitBoardBlockEntity#edgeConnect. Power Grid joins the two via nodes with a 0.002 ohm wire in its
- * global network; here each linked via becomes an extra board pin and the two pins are bridged in EE.
- */
 public final class BoardLinks {
     public static final double LINK_RESISTANCE = 0.002;
 
@@ -51,7 +46,6 @@ public final class BoardLinks {
     private BoardLinks() {
     }
 
-    /** Vias that can ever take part in a link. */
     public static boolean canLink(PlacedComponent placed) {
         if(!(placed.component instanceof ViaComponent))
             return false;
@@ -154,7 +148,6 @@ public final class BoardLinks {
         for(var placed : self.baked().components) {
             if(!(placed.component instanceof ViaComponent) || !placed.get(EDGE_CONNECTIONS))
                 continue;
-            // Corners sit on two edges.
             if(placed.x == 0)
                 processViaOrientation(state, other, otherState, expected, placed, Orientation.LEFT, placed.y, result);
             if(placed.y == 0)

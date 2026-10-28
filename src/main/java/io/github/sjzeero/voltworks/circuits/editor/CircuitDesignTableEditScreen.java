@@ -112,12 +112,8 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
     public CircuitDesignTableEditScreen(T container, Inventory inv, Component title) {
         super(container, inv, title);
 
-        // For the editor we take a copy since the underlying circuit can change
-        // when packets are received, and we don't want to deal with that here.
         schematic = new CircuitSchematic(container.contentHolder.getSchematic());
     }
-
-
 
     public void save() {
         PacketDistributor.sendToServer(SaveSchematicPayload.save(menu.contentHolder, nameField.getValue(), schematic));
@@ -184,9 +180,9 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
 
         cancelBtn.withCallback(this::discard);
 
-        connectBtn.withCallback(() -> toolSelect(Tool.CONNECT)); //toolCallback(this, Tool.CONNECT));
-        deleteBtn.withCallback(() -> toolSelect(Tool.DELETE));//toolCallback(this, Tool.DELETE));
-        selectBtn.withCallback(() -> toolSelect(Tool.SELECT));//toolCallback(this, Tool.SELECT));
+        connectBtn.withCallback(() -> toolSelect(Tool.CONNECT));
+        deleteBtn.withCallback(() -> toolSelect(Tool.DELETE));
+        selectBtn.withCallback(() -> toolSelect(Tool.SELECT));
 
         layerBtn.withCallback(this::flipLayer);
 
@@ -274,7 +270,6 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
         boolean isTrace = layer.hasTrace(clickX, clickY);
 
         if (x1 == x2 && y1 == y2) {
-            // Don't allow single-cell traces (ones that don't connect to anything)
             UiSounds.PLACE_TRACE.play();
             return CircuitEditWidget.SelectionResult.BEGIN_NEW;
         }
@@ -288,7 +283,7 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
 
         changed = true;
         UiSounds.PLACE_TRACE.play();
-        if((schematic.isPad(clickX, clickY) || isTrace) ^ Screen.hasShiftDown()) // Invert (XOR) if shifting
+        if((schematic.isPad(clickX, clickY) || isTrace) ^ Screen.hasShiftDown())
             return CircuitEditWidget.SelectionResult.BEGIN_NEW;
         return CircuitEditWidget.SelectionResult.CONTINUE;
     }
@@ -430,7 +425,6 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
             }
             return true;
         }
-        // Prevent closing on Inventory Key and ESC
         var focused = getFocused();
         var handled = focused != null && focused.keyPressed(keyCode, scanCode, modifiers);
         if(handled)
@@ -439,7 +433,6 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
         if(selectedComponent != null || focused instanceof EditBox)
             return true;
 
-        // Hotbar as component quick select
         var hotbar = minecraft.options.keyHotbarSlots;
         for(int i = 0; i < hotbar.length; ++i) {
             if(hotbar[i].matches(keyCode, scanCode)) {
@@ -448,22 +441,12 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
             }
         }
 
-        // Other tool keybinds
         if(ModdedKeys.ROTATE_COMPONENT.matchesKey(keyCode, scanCode)) {
             if(currentComponent != null) {
                 if(currentComponent.component.rotate(currentComponent, Screen.hasShiftDown())) {
                     UiSounds.COMPONENT_ROTATE.play();
                 }
             }
-//            if(currentComponent != null && currentComponent.has(Orientation.PROPERTY)) {
-//                var current = currentComponent.get(Orientation.PROPERTY);
-//                if(Screen.hasShiftDown()) {
-//                    current = current.getCounterClockwise();
-//                } else {
-//                    current = current.getClockwise();
-//                }
-//                currentComponent.set(Orientation.PROPERTY, current);
-//            }
         } else if(ModdedKeys.PLACE_TRACE.matchesKey(keyCode, scanCode)) {
             toolSelect(Tool.CONNECT);
             UiSounds.PLACE_TRACE.play();
@@ -490,7 +473,6 @@ public class CircuitDesignTableEditScreen<T extends CircuitEditMenu<?>> extends 
             var ms = ctx.pose();
             ms.pushPose();
             ms.translate(0, 0, 10);
-            // Apply another layer of gradient
             ctx.fillGradient(0, 0, width, height, -1072689136, -804253680);
 
             AllIcons.I_CONFIG_SAVE.render(ctx, width / 2 - 8, height / 2 - 8);

@@ -8,7 +8,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Sends the routes of the redstone wires to the clients that draw them. */
 public final class RedstoneSync {
     private RedstoneSync() {
     }

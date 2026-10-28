@@ -94,11 +94,9 @@ public class CircuitEditWidget extends AbstractSimiWidget {
         ms.scale(1f / scale, 1f / scale, 1f / scale);
 
         if (selectMode == SelectMode.NONE || selectMode == SelectMode.POINT) {
-            // Draw cursor
             ctx.renderOutline(gridX * scale, gridY * scale, scale, scale, 0xFFAAAAFF);
         }
         else if (!selectStarted) {
-            // Extend or reduce select cursor by the same rules for rendering selections below
             if (selectMode == SelectMode.LINE) {
                 ctx.fill(gridX * scale + TRACE_PADDING, gridY * scale + TRACE_PADDING,
                         gridX * scale + scale - TRACE_PADDING, gridY * scale + scale - TRACE_PADDING,
@@ -118,7 +116,6 @@ public class CircuitEditWidget extends AbstractSimiWidget {
             int lenX = Math.abs(gridX - startX) + 1;
             int lenY = Math.abs(gridY - startY) + 1;
             if (lenX >= lenY) {
-                // Horizontal
                 var x1 = Math.min(gridX, startX);
                 var x2 = x1 + lenX;
                 ctx.fill(x1 * scale + TRACE_PADDING, startY * scale + TRACE_PADDING,
@@ -126,7 +123,6 @@ public class CircuitEditWidget extends AbstractSimiWidget {
                         selectionColor);
             }
             else {
-                // Vertical
                 var y1 = Math.min(gridY, startY);
                 var y2 = y1 + lenY;
                 ctx.fill(startX * scale + TRACE_PADDING, y1 * scale + TRACE_PADDING,
@@ -140,7 +136,6 @@ public class CircuitEditWidget extends AbstractSimiWidget {
             var x2 = Math.max(startX, gridX) + 1;
             var y2 = Math.max(startY, gridY) + 1;
 
-            // Go over boundaries by a bit to show that neighbors will be disconnected
             ctx.fill(
                 x1 * scale - (x1 > 0 ? TRACE_PADDING : 0),
                 y1 * scale - (y1 > 0 ? TRACE_PADDING : 0),
@@ -166,13 +161,11 @@ public class CircuitEditWidget extends AbstractSimiWidget {
                     int lenX = Math.abs(endX - startX);
                     int lenY = Math.abs(endY - startY);
                     if(lenX >= lenY) {
-                        // Horizontal
                         x1 = Math.min(endX, startX);
                         x2 = x1 + lenX;
                         y1 = y2 = startY;
                         endY = startY;
                     } else {
-                        // Vertical
                         y1 = Math.min(endY, startY);
                         y2 = y1 + lenY;
                         x1 = x2 = startX;
@@ -223,7 +216,7 @@ public class CircuitEditWidget extends AbstractSimiWidget {
             if(button == 0) {
                 placementCallback.accept(gridX - offsetX, gridY - offsetY);
             }
-            return true; //super.mouseClicked(mouseX, mouseY, button);
+            return true;
         }
 
         if(button == 0 && selectMode != SelectMode.NONE) {
@@ -244,7 +237,7 @@ public class CircuitEditWidget extends AbstractSimiWidget {
         } else if (button == 1) {
             cancelSelection();
         }
-        return true; //super.mouseClicked(mouseX, mouseY, button);
+        return true;
     }
 
     public void requestSelection(SelectMode mode, int color, SelectCallback callback) {

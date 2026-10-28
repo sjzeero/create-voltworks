@@ -67,12 +67,10 @@ public class CircuitFileBox extends EditableScrollBox {
                         options.add(path.getFileName().toString());
                     });
         } catch (NoSuchFileException e) {
-            // No Schematics created yet
         } catch (IOException e) {
             Voltworks.LOGGER.error("Exception when loading circuit schematics", e);
         }
 
-        // Copy of Create's schematic loader sort
         options.sort((aT, bT) -> {
             String a = aT;
             String b = bT;
@@ -114,10 +112,10 @@ public class CircuitFileBox extends EditableScrollBox {
                     return aChar - bChar;
             }
             if (asNumeric)
-                if (aLength > bLength && a.charAt(bLength) >= '0' && a.charAt(bLength) <= '9') // as number
-                    return 1; // a has bigger size, thus b is smaller
-                else if (bLength > aLength && b.charAt(aLength) >= '0' && b.charAt(aLength) <= '9') // as number
-                    return -1; // b has bigger size, thus a is smaller
+                if (aLength > bLength && a.charAt(bLength) >= '0' && a.charAt(bLength) <= '9')
+                    return 1;
+                else if (bLength > aLength && b.charAt(aLength) >= '0' && b.charAt(aLength) <= '9')
+                    return -1;
                 else if (lastNumericCompare == 0)
                     return aLength - bLength;
                 else

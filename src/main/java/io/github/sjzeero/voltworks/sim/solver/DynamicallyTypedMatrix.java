@@ -41,7 +41,6 @@ import static io.github.sjzeero.voltworks.sim.ElectricalNetwork.G_MIN;
 import io.github.sjzeero.voltworks.Voltworks;
 
 public class DynamicallyTypedMatrix {
-    // This will need to be tuned, probably.
     private static final int SPARSE_THRESHOLD = 6;
     private static final double G_THRESHOLD = G_MIN / 1000;
 
@@ -197,7 +196,6 @@ public class DynamicallyTypedMatrix {
         return a;
     }
 
-
     private void makeSolver() {
         if(sparse) {
             var solver = solverType.sparseFactory.apply(FillReducing.NONE);
@@ -223,7 +221,6 @@ public class DynamicallyTypedMatrix {
             makeSolver();
         }
         if(!solverValid && solverType == Solver.CHOLESKY) {
-            // Switch to LU since matrix might not be SPD
             solverType = Solver.LU;
             makeSolver();
         }
@@ -279,7 +276,6 @@ public class DynamicallyTypedMatrix {
 
             final int N = U.numCols;
 
-            // w * U = b
             int idx0 = U.col_idx[0];
             for(int col = 0; col < N; col++) {
                 int idx1 = U.col_idx[col + 1];
@@ -299,8 +295,6 @@ public class DynamicallyTypedMatrix {
                 idx0 = idx1;
             }
 
-            // v * L = w
-            // Diagonal assumed to be all ones
             idx0 = L.col_idx[N];
             for(int col = N - 1; col >= 0; --col) {
                 int idx1 = L.col_idx[col];
@@ -313,7 +307,6 @@ public class DynamicallyTypedMatrix {
                 idx0 = idx1;
             }
 
-            // v * L = w
             for(int i = 0; i < N; ++i)
                 X.unsafe_set(0, i, x[pinv[i]]);
         } else {
@@ -326,7 +319,6 @@ public class DynamicallyTypedMatrix {
 
             final int N = LU.numCols;
 
-            // w * U = b
             for(int col = 0; col < N; col++) {
                 double x_j = B.unsafe_get(0, col);
                 for(int row = 0; row < col; ++row) {
@@ -335,14 +327,12 @@ public class DynamicallyTypedMatrix {
                 x[col] = x_j / LU.unsafe_get(col, col);
             }
 
-            // v * L = w
             for(int col = N - 1; col >= 0; --col) {
                 for(int row = col + 1; row < N; ++row) {
                     x[col] -= x[row] * LU.unsafe_get(row, col);
                 }
             }
 
-            // v * L = w
             for(int i = 0; i < N; ++i)
                 X.unsafe_set(0, i, x[pinv[i]]);
         }
@@ -351,7 +341,6 @@ public class DynamicallyTypedMatrix {
     public void reshapeTo(DynamicallyTypedMatrix target) {
         var n = target.getNumRows();
         if(target.sparse == sparse && n == getNumRows()) {
-            // Correct shape
             return;
         }
         if(target.sparse) {

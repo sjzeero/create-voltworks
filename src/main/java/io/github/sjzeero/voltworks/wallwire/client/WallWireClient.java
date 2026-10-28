@@ -66,7 +66,6 @@ import java.util.Locale;
 import java.util.Optional;
 import io.github.sjzeero.voltworks.compat.CeeCompat;
 
-/** Wire placement mode toggle and the click by click wall wire placement. */
 public final class WallWireClient {
     public enum Mode { AIR, WALL }
 
@@ -77,7 +76,6 @@ public final class WallWireClient {
     static @Nullable InWorldNode start;
     static final List<WallCell> points = new ArrayList<>();
     static final List<WallCell> committed = new ArrayList<>();
-    /** Socket the player is pointing at with a cord in hand; the renderer draws the plug on it. */
     static @Nullable InWorldNode hoverSocket;
     private static @Nullable WallCell hoverCell;
     private static @Nullable List<WallCell> hoverPath;
@@ -117,7 +115,6 @@ public final class WallWireClient {
         return player.getOffhandItem().getItem() instanceof DyeItem dye ? dye.getDyeColor() : null;
     }
 
-    /** Wall mode: wires are laid along surfaces. The copper cord follows the toggle like every other wire. */
     static boolean wall(LocalPlayer player) {
         return mode == Mode.WALL;
     }
@@ -147,7 +144,6 @@ public final class WallWireClient {
         return start == null ? null : WallSpace.nodePos(level, start);
     }
 
-    /** Length placed so far: the lead from the start node plus the routed cells. */
     static double placedLength(ClientLevel level) {
         Vec3 s = startPos(level);
         if(s == null || committed.isEmpty())
@@ -178,7 +174,6 @@ public final class WallWireClient {
         }
         cordHover(mc, player, mc.level);
         if(!holdingSpool(player) || !wall(player)) {
-            // a cord in air mode keeps its first socket until the second click
             if(start != null && !(holdingSpool(player) && CordPair.isCord(heldWireType(player))))
                 reset();
             return;
@@ -187,7 +182,6 @@ public final class WallWireClient {
             preview(mc, player, mc.level);
     }
 
-    /** Outlines both cord contacts of the socket under the crosshair while a cord is held. */
     private static void cordHover(Minecraft mc, LocalPlayer player, ClientLevel level) {
         if(!holdingSpool(player) || !CordPair.isCord(heldWireType(player)))
             return;
@@ -266,14 +260,12 @@ public final class WallWireClient {
             return null;
         LocalPlayer player = Minecraft.getInstance().player;
         if(player != null && CordPair.isCord(heldWireType(player))) {
-            // a cord plugs into the whole socket: aiming anywhere at it is enough
             InWorldNode[] socket = CordPair.ends(level, hit.getBlockPos(), hit.getLocation());
             return socket == null ? null : socket[0];
         }
         InWorldNode node = InWorldNode.getHitNode(hit, level);
         if(node == null || player == null)
             return node;
-        // a cord always plugs into the supply contact of the block; the return strand follows on the server
         InWorldNode[] ends = CordPair.ends(level, node);
         return ends == null ? null : ends[0];
     }
@@ -286,7 +278,6 @@ public final class WallWireClient {
         ClientLevel level = mc.level;
         if(player == null || level == null || !holdingSpool(player) || !wall(player) && !CordPair.isCord(heldWireType(player)))
             return;
-        // a spool clicked on a cable reel's drum (not on its terminals) winds the wire into the reel
         if(start == null && !player.isShiftKeyDown() && mc.hitResult instanceof BlockHitResult reelHit && reelHit.getType() == HitResult.Type.BLOCK
                 && level.getBlockState(reelHit.getBlockPos()).getBlock() instanceof io.github.sjzeero.voltworks.reel.CableReelBlock reel
                 && !reel.nearTerminal(level.getBlockState(reelHit.getBlockPos()), reelHit.getBlockPos(), reelHit.getLocation()))
@@ -311,7 +302,6 @@ public final class WallWireClient {
             return;
 
         if(!wall(player)) {
-            // air mode with a cord: two sockets, the server hangs both strands
             InWorldNode airNode = hoveredNode(level, hit);
             if(airNode == null)
                 return;
@@ -329,7 +319,6 @@ public final class WallWireClient {
         }
         InWorldNode node = hoveredNode(level, hit);
         if(start != null && !WallSpace.sameSpace(level, hit.getBlockPos(), start.sourcePos())) {
-            // between a sub-level and the main world the wire hangs like a normal one (never a cord)
             if(node != null && !node.equals(start)) {
                 PacketDistributor.sendToServer(new PlaceWallWirePayload(start, node, List.of()));
                 reset();
@@ -451,7 +440,6 @@ public final class WallWireClient {
         }
     }
 
-    /** Lets the empty spool, wire cutters and dyes pick a wall wire by looking at it on its face. */
     public static void pickWallWire() {
         try {
             pick();

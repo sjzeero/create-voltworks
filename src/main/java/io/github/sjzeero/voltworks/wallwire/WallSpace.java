@@ -11,11 +11,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Wall wires are stored in block space: for blocks of a Sable sub-level that is the plot the blocks really sit in,
- * far away from where the sub-level is shown. Anything that compares a wire with the player, the camera or the
- * world has to go through here first.
- */
 public final class WallSpace {
     private WallSpace() {
     }
@@ -24,7 +19,6 @@ public final class WallSpace {
         return SableCompanion.INSTANCE.getContaining(level, pos);
     }
 
-    /** True when both blocks are in the main world, or in the same sub-level. */
     public static boolean sameSpace(Level level, BlockPos a, BlockPos b) {
         SubLevelAccess sa = subLevel(level, a), sb = subLevel(level, b);
         return sa == null ? sb == null : sb != null && sa.getUniqueId().equals(sb.getUniqueId());
@@ -38,13 +32,11 @@ public final class WallSpace {
         return Math.sqrt(SableCompanion.INSTANCE.distanceSquaredWithSubLevels(level, a, b));
     }
 
-    /** Where the node sits in block space, next to the cells of the wires that start or end on it. */
     public static Vec3 nodePos(Level level, InWorldNode node) {
         Vec3 local = node.getLocalPosition(level);
         return local == null ? node.sourcePos().getCenter() : node.toGlobalPosNoSable(local, level);
     }
 
-    /** Pose used to draw a sub-level at this frame, or null for the main world. */
     public static @Nullable Pose3dc renderPose(Level level, BlockPos pos, float partialTick) {
         SubLevelAccess sub = subLevel(level, pos);
         if(sub instanceof ClientSubLevelAccess client)

@@ -1,3 +1,20 @@
+/*
+ * Copyright 2025-2026 patryk3211
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by sjzeero: ported from Create: Power Grid to Voltworks.
+ */
 package io.github.sjzeero.voltworks.solar;
 
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
@@ -35,17 +52,12 @@ import io.github.sjzeero.voltworks.registry.VoltworksDevices;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
-/**
- * Ported from Create: Power Grid (patryk3211, Apache-2.0) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
- * FACING points at the attached panels; the input shaft is on the opposite face.
- */
 public class SolarPanelBearingBlock extends DirectionalKineticElectricBlock<SolarPanelBearingDevice> implements IBE<SolarPanelBearingBlockEntity> {
     private static final VoxelShaper SHAPER;
     static {
         SHAPER = VoxelShaper.forDirectional(Shapes.or(box(2, 2, 4, 14, 14, 16), box(1, 1, 0, 15, 15, 4)), Direction.NORTH);
         SHAPER.withVerticalShapes(Shapes.or(box(2, 0, 2, 14, 12, 14), box(1, 12, 1, 15, 16, 15)));
     }
-    /** PG terminal centres for FACING=NORTH in pixels: 0 = + (red), 1 = - (blue). */
     private static final double[][] TERMINALS = {{10.5, 14.5, 11.5}, {5.5, 14.5, 11.5}};
 
     public SolarPanelBearingBlock(Properties properties) {

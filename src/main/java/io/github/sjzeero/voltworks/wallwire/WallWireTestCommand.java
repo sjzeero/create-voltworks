@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
 
-/** {@code /voltworks wallwiretest <pos>}: builds a small test room with wall wires over a wall and along a ceiling. */
 public final class WallWireTestCommand {
     private WallWireTestCommand() {
     }
@@ -90,15 +89,12 @@ public final class WallWireTestCommand {
 
         StringBuilder out = new StringBuilder();
         WireType copper = CEEWireTypes.COPPER.get(), heavy = CEEWireTypes.HEAVILY_INSULATED.get();
-        // copper over the wall: floor, up the front, over the top, down the back
         out.append(wire(level, new InWorldNode(0, battery1), new InWorldNode(0, bulb1), copper,
                 List.of(new WallCell(o.offset(2, 1, 5), Direction.UP, 8, 15, 8))));
         out.append(wire(level, new InWorldNode(1, battery1), new InWorldNode(1, bulb1), copper,
                 List.of(new WallCell(o.offset(3, 1, 5), Direction.UP, 8, 15, 8))));
-        // heavily insulated up the wall, along the ceiling and back down
         out.append(wire(level, new InWorldNode(0, battery2), new InWorldNode(0, bulb2), heavy,
                 List.of(new WallCell(o.offset(7, 3, 3), Direction.DOWN, 8, 0, 8), new WallCell(o.offset(10, 3, 3), Direction.DOWN, 8, 0, 8))));
-        // heavily insulated on the floor
         out.append(wire(level, new InWorldNode(1, battery2), new InWorldNode(1, bulb2), heavy, List.of()));
         source.sendSuccess(() -> Component.literal(out.toString().trim()), true);
         return 1;
@@ -130,7 +126,6 @@ public final class WallWireTestCommand {
         return BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("create", id));
     }
 
-    /** One-carriage train on a short east-west track; the station sits at pos, first bogey right after it. */
     private static int buildTrain(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return buildTrainWith(ctx, false);
     }
@@ -198,7 +193,6 @@ public final class WallWireTestCommand {
         return 1;
     }
 
-    /** Test helper: holds a train at a fixed speed for a number of ticks like a player on the controls would. */
     private static void push(net.minecraft.server.MinecraftServer server, double v, int ticks) {
         if(ticks <= 0)
             return;
@@ -213,7 +207,6 @@ public final class WallWireTestCommand {
         }));
     }
 
-    /** Test helper: voltage and node state of the device at pos, read from the last electrical simulation. */
     private static int circuitInfo(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerLevel level = ctx.getSource().getLevel();
         BlockPos p = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
@@ -234,7 +227,6 @@ public final class WallWireTestCommand {
         return 1;
     }
 
-    /** Test helper: a fake player presses the switch of the board on the assembled test carriage the way Create forwards a click. */
     private static int trainUse(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerLevel level = ctx.getSource().getLevel();
         BlockPos o = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
@@ -263,7 +255,6 @@ public final class WallWireTestCommand {
         return 1;
     }
 
-    /** Test helper: wires the battery on the test carriage to the board next to it. */
     private static int trainWire(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerLevel level = ctx.getSource().getLevel();
         BlockPos o = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
@@ -386,7 +377,6 @@ public final class WallWireTestCommand {
         return String.format(java.util.Locale.ROOT, "%.2f m; ", length);
     }
 
-    /** Closest face pixel to a node that a wall wire can lie on, not on the device itself. */
     private static WallCell nearest(ServerLevel level, Vec3 node) {
         BlockPos centre = BlockPos.containing(node);
         WallCell best = null;

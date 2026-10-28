@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Routes of the redstone wires in the client's current dimension. */
 public final class ClientRedstoneWires {
     public record Entry(List<WallCell> cells, List<WallRoute.Segment> segments, AABB bounds) {
     }

@@ -45,7 +45,6 @@ public class ModularDisplayComponent extends OrientableComponent {
         super(footprint);
     }
 
-    //some of these might be moved to enum
     private static final float SHEET_HEIGHT = 16f;
     private static final float FRAME_WIDTH = 5f;
     private static final float FRAME_HEIGHT = 7f;
@@ -78,8 +77,6 @@ public class ModularDisplayComponent extends OrientableComponent {
         var coilNodeToResetCurrent = Math.abs(coilNodeToReset.current());
         var charCount = (placed.get(REMOVE_BLANKING_PAGE) ? module.getCharacterCount() - 1 : module.getCharacterCount());
         var index = placed.get(INDEX);
-        //every module display texture has the characters in the sprite plus a blank space and the first character again for smooth transition
-        //but im only counting characters before the blank space and adding one for the blank space and two for the transition
 
         if (placed.get(WIRE_RESET) == true){
             coilNodeToReset.setState(false);
@@ -142,7 +139,5 @@ public class ModularDisplayComponent extends OrientableComponent {
                 .setThermalMass(0.15f)
                 .setMaxPower(25, 125f)
                 .addHeatSource(coil);
-
     }
-
 }

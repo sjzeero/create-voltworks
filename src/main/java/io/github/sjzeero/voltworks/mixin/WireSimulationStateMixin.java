@@ -24,7 +24,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.*;
 
-/** Wall wires get their points from the route instead of a sagging curve, so sections, contacts and shocks follow the faces. */
 @Mixin(value = WireSimulationState.class, remap = false)
 public abstract class WireSimulationStateMixin {
     @Shadow @Final public InfrastructureSavedData sd;
@@ -68,11 +67,6 @@ public abstract class WireSimulationStateMixin {
         reloadLazyConnections();
     }
 
-    /**
-     * An end of a wire moved (Sable sub-level or detached node). A cable from a cable reel pays out or winds in here,
-     * before Electro Energetics checks the new distance against the wire length; returning true makes Electro
-     * Energetics remove the connection, which the reel's removal hook turns into winding the cable back in.
-     */
     @Inject(method = "relocateConnection", at = @At("HEAD"), cancellable = true, require = 0)
     private void voltworks$reelFollows(InWorldNodeConnection connection, WireData wireData, org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Boolean> cir) {
         if(sd != null && io.github.sjzeero.voltworks.reel.CableReels.follow(sd, connection, wireData))

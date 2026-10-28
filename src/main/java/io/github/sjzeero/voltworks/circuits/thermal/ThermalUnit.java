@@ -59,7 +59,6 @@ public class ThermalUnit {
     }
 
     private void temperatureChanged() {
-        // Heat sources are removed if device has overheated
         if(hasOverheated()) {
             heatSources.forEach(AbstractElectricWire::remove);
             if(overheatCallback != null)

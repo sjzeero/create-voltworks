@@ -47,7 +47,6 @@ public class RecipeApplierMixin {
         if(!stackIn.is(CircuitTags.CIRCUIT_SCHEMATIC_HOLDER) ||
                 !stackIn.has(DataComponents.CUSTOM_DATA) || !stackIn.get(DataComponents.CUSTOM_DATA).contains("Schematic"))
             return;
-        // Modify output with NBT
         for(var output : outputs) {
             if(output.is(CircuitTags.CIRCUIT_SCHEMATIC_HOLDER)) {
                 var schematic = stackIn.get(DataComponents.CUSTOM_DATA).copyTag().getCompound("Schematic").copy();

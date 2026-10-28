@@ -21,9 +21,7 @@ class BatterySpecTest {
     @Test
     void currentsStayPowerGrids() {
         double k = 300 / 12.7;
-        // short circuit of a full block: 127 A as in Power Grid (below the ~150 A that overheats EE's insulated wire)
         assertEquals(127, BatterySpec.voltage(C, C) / BatterySpec.resistance(1, 1), 0.1);
-        // a standard EE motor (30 ohm) on one full block: ~9 A, ~2.6 kW, terminals well above the motor's 80 V minimum
         double i = 300 / (30 + BatterySpec.resistance(1, 1));
         assertEquals(9.26, i, 0.01);
         assertTrue(30 * i > 270);
@@ -44,9 +42,7 @@ class BatterySpecTest {
     void oneKilowattHourPerBlock() {
         assertEquals(1000, BatterySpec.CAPACITY_WH);
         assertEquals(3.6e6, C, 1e-6);
-        // far above Electro Energetics' small accumulator (~215 Wh)
         assertTrue(BatterySpec.CAPACITY_WH > 4 * 215);
-        // a full 3x3x5 bank: 45 kWh
         assertEquals(45, 45 * BatterySpec.CAPACITY_WH / 1000, 1e-12);
     }
 
@@ -60,11 +56,8 @@ class BatterySpecTest {
 
     @Test
     void energyFlow() {
-        // discharging into a load: positive power, EMF times current
         assertEquals(12 * 1.0, BatterySpec.energyOut(12, 1, 11), 1e-12);
-        // charging from a higher voltage: negative
         assertTrue(BatterySpec.energyOut(12, 1, 13) < 0);
-        // an empty battery still charges (Power Grid's rule would leave it at 0 for ever)
         assertEquals(-4.0 * 4.0 / 2.0, BatterySpec.energyOut(0, 2, 4), 1e-12);
         assertEquals(0, BatterySpec.energyOut(0, 2, 0), 1e-12);
     }

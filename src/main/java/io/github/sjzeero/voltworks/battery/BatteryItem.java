@@ -10,7 +10,6 @@ import net.minecraft.world.level.block.Block;
 import java.util.List;
 import java.util.Locale;
 
-/** Battery item: shows the charge it carries. */
 public class BatteryItem extends BlockItem {
     public BatteryItem(Block block, Properties properties) {
         super(block, properties);

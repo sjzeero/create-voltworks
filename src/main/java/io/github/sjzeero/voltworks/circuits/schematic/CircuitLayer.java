@@ -30,7 +30,6 @@ public class CircuitLayer {
 
     private TraceMatrix traces;
 
-    // Mirror data stored in traces; recalculated when necessary
     private final List<Line> verticalLines;
     private final List<Line> horizontalLines;
 
@@ -74,7 +73,6 @@ public class CircuitLayer {
         verticalLines.clear();
         horizontalLines.clear();
 
-        // Vertical lines
         Integer start = null;
         for (int x = 0; x < GRID_SIZE; x++) {
             for (int y = 0; y < GRID_SIZE; y++) {
@@ -92,7 +90,6 @@ public class CircuitLayer {
             }
         }
 
-        // Horizontal lines
         start = null;
         for (int y = 0; y < GRID_SIZE; y++) {
             for (int x = 0; x < GRID_SIZE; x++) {

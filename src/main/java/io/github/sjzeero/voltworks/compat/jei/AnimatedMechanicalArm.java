@@ -68,7 +68,6 @@ public class AnimatedMechanicalArm extends AnimatedKinetics {
         var trStack = TransformStack.of(matrixStack);
         trStack.center();
 
-        // The whole animation takes 65 ticks (about 3 seconds)
         float animationTick = AnimationTickHolder.getRenderTime() % 65;
         float lowerArmAnimation =
                   animationPart(animationTick, 5, 10)

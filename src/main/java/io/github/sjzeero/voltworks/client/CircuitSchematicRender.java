@@ -29,12 +29,9 @@ import static io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableEdit
 import static io.github.sjzeero.voltworks.circuits.schematic.CircuitLayer.GRID_TO_GRID_SCALE;
 import io.github.sjzeero.voltworks.Voltworks;
 
-
-
 public class CircuitSchematicRender {
     public static final int COLOR_TERMINAL = 0xFFFCB603;
 
-    //TODO: add a setting to change the trace colors
     public static final int COLOR_TRACE_FRONT = 0xFFFFFFFF;
     public static final int COLOR_TRACE_BACK = 0x80FFFFFF;
     public static final int COLOR_TRACE_FRONT_HC = 0xFFFF0000;
@@ -44,7 +41,6 @@ public class CircuitSchematicRender {
 
     public static void render(CircuitSchematic schematic, GuiGraphics context, int x, int y, int scale) {}
 
-    // It's not the most efficient, but it gets the job done. The only way to make this better is to dynamically create textures.
     public static void renderLayer(CircuitLayer layer, GuiGraphics ctx, int xOffset, int yOffset, int scale, int color) {
         for (var line : layer.readVerticalLines()) {
             drawTrace(line.position(), line.start(), line.position(), line.end(), ctx, xOffset, yOffset, scale, color);
@@ -54,7 +50,6 @@ public class CircuitSchematicRender {
 
         for (var line : layer.readHorizontalLines()) {
             if ((color & 0xFF000000) != 0xFF000000) {
-                // Overlaps will be visible for non-opaque colors, so trade off more fill calls for avoiding overlaps
                 startX = layer.hasVerticalTrace(line.start(), line.position()) ?
                         line.start() * scale + scale + xOffset - TRACE_PADDING :
                         line.start() * scale + xOffset + TRACE_PADDING;
@@ -64,7 +59,6 @@ public class CircuitSchematicRender {
 
                 for (int i = line.start() + 1; i <= line.end(); i++) {
                     if (layer.hasVerticalTrace(i, line.position())) {
-                        // Flush line, skip the center of this cell, and start a new line
                         ctx.fill(startX, startY, i * scale + xOffset + TRACE_PADDING, endY, color);
                         startX = i * scale + scale + xOffset - TRACE_PADDING;
                     }
@@ -74,7 +68,6 @@ public class CircuitSchematicRender {
                 }
             }
             else {
-                // Overlaps with vertical lines are invisible for opaque colors
                 drawTrace(line.start(), line.position(), line.end(), line.position(), ctx, xOffset, yOffset, scale, color);
             }
         }

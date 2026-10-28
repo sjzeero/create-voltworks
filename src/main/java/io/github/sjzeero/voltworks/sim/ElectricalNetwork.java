@@ -88,7 +88,6 @@ public class ElectricalNetwork implements IStamped {
     public void cleanup() {
         if(mna != null)
             mna.cleanup();
-        // We must not use the backend after it has been cleaned up.
         mna = null;
     }
 
@@ -97,7 +96,6 @@ public class ElectricalNetwork implements IStamped {
             mna.setPrecision(absoluteCriterion, relativeCriterion, minimumPrecision, searchAlpha);
     }
 
-    // Make sure all variables are completely rebuilt and repopulated.
     public void setDirty() {
         this.dirty = true;
     }
@@ -151,14 +149,12 @@ public class ElectricalNetwork implements IStamped {
         }
     }
 
-    // This method should be much faster than ArrayList.contains()
     protected boolean hasNode(INode node) {
         if(node == null)
             return false;
         int index = node.getIndex();
         if(index < 0 || index >= nodes.size())
             return false;
-        // If this network owns this node it will be at the recorded index.
         return nodes.get(index) == node;
     }
 
@@ -209,19 +205,16 @@ public class ElectricalNetwork implements IStamped {
         if(node.getIndex() == -1 && node.getNetwork() == this)
             return;
         if(node.getNetwork() != this || node.getIndex() >= nodes.size() || nodes.get(node.getIndex()) != node)
-            // This node is not actually in this network.
             return;
 
         if(mna != null) {
             var StateVector = mna.stateVector();
             for (int i = node.getIndex() + 1; i < nodes.size(); ++i) {
-                // Move back all nodes by one.
                 nodes.get(i).assignIndex(i - 1);
                 StateVector.safe_set(i - 1, 0, StateVector.safe_get(i, 0));
             }
         } else {
             for (int i = node.getIndex() + 1; i < nodes.size(); ++i) {
-                // Move back all nodes by one.
                 nodes.get(i).assignIndex(i - 1);
             }
         }
@@ -266,7 +259,6 @@ public class ElectricalNetwork implements IStamped {
 
     public void addWire(AbstractElectricWire wire) {
         if(wire.node1 != null && !hasNode(wire.node1) && !leafNodes.containsKey(wire.node1)) {
-            // If node of a wire is not null it must be in the network's node set.
             var suffix = wire.node1.getNetwork() == null ? "no network" : "different network";
             if(LOGGER == null) {
                 throw new IllegalArgumentException("Both nodes of a wire must be part of the network (node1 " + wire.node1 + " isn't - " + suffix + ")");
@@ -276,7 +268,6 @@ public class ElectricalNetwork implements IStamped {
             }
         }
         if(wire.node2 != null && !hasNode(wire.node2) && !leafNodes.containsKey(wire.node2)) {
-            // If node of a wire is not null it must be in the network's node set.
             var suffix = wire.node2.getNetwork() == null ? "no network" : "different network";
             if(LOGGER == null) {
                 throw new IllegalArgumentException("Both nodes of a wire must be part of the network (node2 " + wire.node2 + " isn't - " + suffix + ")");
@@ -446,8 +437,6 @@ public class ElectricalNetwork implements IStamped {
         });
         for(var node : couplings) {
             try {
-                // This is using the same method as wires but coupling nodes,
-                // probably shouldn't target eliminated nodes.
                 node.couple(mna::jacobianAdd);
             } catch(IllegalArgumentException | NullPointerException e) {
                 LOGGER.error("Failed to couple {}:", node, e);
@@ -468,17 +457,11 @@ public class ElectricalNetwork implements IStamped {
                     anyNode = floating;
                 }
             }
-            // Every floating node gets a tiny leak to ground (gmin). Without it an island that is not
-            // connected to any source (e.g. an unwired relay on a board) makes the matrix singular
-            // and breaks the whole network.
             for (var node : nodes) {
                 if (node instanceof FloatingNode floating)
                     mna.jacobianAdd(floating.getIndex(), floating.getIndex(), G_MIN);
             }
             if(groundReferenceCount == 0) {
-                // Add a shunt to ground to the first floating node.
-                // This ensures that the simulation is anchored to a 0V reference somewhere
-                // and should improve performance and stability when there are only 2 port sources.
                 if (shouldAnchor) {
                     if(anchor != null) {
                         mna.jacobianAdd(anchor.getIndex(), anchor.getIndex(), 1000);
@@ -501,7 +484,6 @@ public class ElectricalNetwork implements IStamped {
         });
         other.nodes.forEach(this::addNode);
         other.wires.forEach(wire -> {
-            // Drop stale wires
             if((wire.node1 == null || hasNode(wire.node1) || leafNodes.containsKey(wire.node1)) &&
                     (wire.node2 == null || hasNode(wire.node2) || leafNodes.containsKey(wire.node2))) {
                 addWire(wire);
@@ -509,7 +491,6 @@ public class ElectricalNetwork implements IStamped {
                 LOGGER.warn("Dropped stale wire {} between {} and {}", wire, wire.node1, wire.node2);
             }
         });
-        // Make the other network empty.
         other.clear();
     }
 
@@ -591,7 +572,6 @@ public class ElectricalNetwork implements IStamped {
 
         node1.assignIndex(index2);
         node2.assignIndex(index1);
-        // Jacobian needs a rebuild
         dirty = true;
     }
 
@@ -608,7 +588,6 @@ public class ElectricalNetwork implements IStamped {
                 var hook = iter.next();
                 for(var coupled : hook.coupledNodes()) {
                     if(node == coupled) {
-                        // Disable hook because this node is not simulated anymore
                         leafInnerHooks.add(hook);
                         iter.remove();
                     }
@@ -636,7 +615,6 @@ public class ElectricalNetwork implements IStamped {
                         }
                     }
                     if(isFull) {
-                        // Enable hook since all nodes are simulate
                         innerHooks.add(hook);
                         mna.hooksChanged();
                         iter.remove();
@@ -659,12 +637,8 @@ public class ElectricalNetwork implements IStamped {
             dirty = false;
 
             currentMultiTick = multiTicks;
-            // Conductance and coupling matrices need to be fully rebuild only after a state size change,
-            // individual resistance and coupling value changes are handled by `updateResistance()` and `updateCoupling()` respectively.
             populateConductanceMatrix();
         } else if(conductanceUpdates >= nodeCount * 40 || conductanceDelta > 1000) {
-            // To prevent resistance from deviating due to floating point imprecision sometimes we rebuild
-            // the matrices from scratch.
             currentMultiTick = multiTicks;
             if(LOGGER != null && LOGGER.isDebugEnabled())
                 LOGGER.debug("Cumulated conductance updates triggered admittance matrix recalculation ({} {})",
@@ -712,7 +686,6 @@ public class ElectricalNetwork implements IStamped {
     }
 
     public void convergenceProblems(double residual, IMatrixAccess ResidualVector) {
-
     }
 
     @Override
@@ -723,7 +696,6 @@ public class ElectricalNetwork implements IStamped {
     public void prepare(int multiTicks) {
         if(mna == null)
             return;
-        // Prepare is called if multi-tick is or was enabled
         if(multiTicks > 1 || currentMultiTick > 1) {
             for (var hook : multiHooks)
                 hook.prepare(multiTicks);
@@ -739,7 +711,6 @@ public class ElectricalNetwork implements IStamped {
             return;
         }
 
-        // Verify possession of nodes
         for(var node : nodes) {
             if(node.getNetwork() != this) {
                 if(LOGGER != null)

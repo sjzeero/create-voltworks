@@ -73,7 +73,6 @@ public class VoltworksJEI implements IModPlugin {
 
             @Override
             public void onComplete() {
-
             }
         });
     }
@@ -94,7 +93,6 @@ public class VoltworksJEI implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        // Register dummy recipes.
         registration.addRecipes(CircuitDesignCategory.TYPE, List.of(new Object()));
         registration.addRecipes(CircuitAssemblyCategory.TYPE, List.of(new Object()));
     }

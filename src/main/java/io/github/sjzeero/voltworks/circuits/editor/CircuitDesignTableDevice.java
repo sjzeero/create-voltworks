@@ -21,7 +21,6 @@ public class CircuitDesignTableDevice extends SimpleElectricalDevice {
     public static final double RESISTANCE = 480;
     public static final float REQUIRED_POWER = 30;
 
-    // Same thermal values as Power Grid's table: 50 W max power, 0.5 thermal mass, 175 C overheat.
     public static final float THERMAL_MASS = 0.5f;
     public static final float MAX_POWER = 50;
     public static final float OVERHEAT_TEMPERATURE = 175;

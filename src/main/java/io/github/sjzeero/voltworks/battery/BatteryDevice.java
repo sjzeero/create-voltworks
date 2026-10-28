@@ -11,16 +11,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-/**
- * Electrical side of a battery block. The bank's controller is a voltage source with internal resistance
- * ({@link BatterySpec}) between its internal bus nodes 2 (+) and 3 (-); the terminals 0 (+) and 1 (-) of every block
- * of the bank are tied to that bus, so a wire on any block of the bank reaches the whole bank. After Create: Power
- * Grid's battery (patryk3211, Apache-2.0), reimplemented on Electro Energetics devices by sjzeero.
- */
 public class BatteryDevice extends SimpleElectricalDevice {
     public static final double CONTACT_RESISTANCE = 1.0E-3;
     public static final int BUS_PLUS = 2, BUS_MINUS = 3;
-    /** Seconds one simulation tick stands for. */
     public static final double TICK_SECONDS = 0.05;
 
     private double sourceVoltage, sourceResistance;

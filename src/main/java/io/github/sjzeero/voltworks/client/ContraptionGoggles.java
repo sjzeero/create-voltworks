@@ -20,7 +20,6 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 import java.util.ArrayList;
 
-/** Goggle readout for circuit boards on a contraption: the crosshair never hits those as world blocks, so Create's overlay stays empty. */
 public final class ContraptionGoggles {
     private ContraptionGoggles() {
     }

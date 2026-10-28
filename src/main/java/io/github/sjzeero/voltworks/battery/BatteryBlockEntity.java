@@ -1,3 +1,20 @@
+/*
+ * Copyright 2025-2026 patryk3211
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by sjzeero: ported from Create: Power Grid to Voltworks.
+ */
 package io.github.sjzeero.voltworks.battery;
 
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
@@ -19,18 +36,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * One battery block. Blocks joined into a bank all point at the bank's controller (its lowest north-west corner),
- * which holds the bank's size and energy; the other blocks hold no energy of their own. A block that is not in a bank
- * yet ({@link #formed} false, e.g. just placed) keeps the energy it was placed with until {@link BatteryBanks} joins it.
- * Bank logic after Create: Power Grid (patryk3211, Apache-2.0), modified for Voltworks by sjzeero.
- */
 public class BatteryBlockEntity extends BlockEntity implements IHaveGoggleInformation {
     private @Nullable BlockPos controller;
     private int sx = 1, sy = 1, sz = 1;
     double energy = BatterySpec.INITIAL_SOC * BatterySpec.CAPACITY;
     boolean formed;
-    /** Power the bank gave out last tick, W (negative while charging); controller only, for the goggles. */
     double power;
     private double syncedEnergy = -1, syncedPower;
 
@@ -68,7 +78,6 @@ public class BatteryBlockEntity extends BlockEntity implements IHaveGoggleInform
         return BatterySpec.CAPACITY * size();
     }
 
-    /** True when this block is in a bank whose controller is loaded and still covers this block. */
     public boolean validBank() {
         if (!formed)
             return false;
@@ -80,7 +89,6 @@ public class BatteryBlockEntity extends BlockEntity implements IHaveGoggleInform
                 && p.getZ() >= o.getZ() && p.getZ() < o.getZ() + c.sz;
     }
 
-    /** This block's share of its bank's energy (what it keeps when the bank is broken up). */
     public double cellEnergy() {
         if (!formed)
             return energy;
@@ -102,7 +110,6 @@ public class BatteryBlockEntity extends BlockEntity implements IHaveGoggleInform
         sync();
     }
 
-    /** Leaves the bank holding {@code energy} on its own (the block is being removed or is alone). */
     void makeSingle(double energy) {
         setBank(worldPosition, 1, 1, 1, energy);
     }
@@ -113,7 +120,6 @@ public class BatteryBlockEntity extends BlockEntity implements IHaveGoggleInform
         setChanged();
     }
 
-    /** Sends the controller's energy to clients when it moved enough to matter for the goggles. */
     void syncIfChanged() {
         if (Math.abs(energy - syncedEnergy) > capacity() * 1.0E-4 || Math.abs(power - syncedPower) > 0.05)
             sync();
@@ -179,9 +185,7 @@ public class BatteryBlockEntity extends BlockEntity implements IHaveGoggleInform
             sz = Math.max(1, s[2]);
         }
         power = tag.getDouble("Power");
-        // never more than the bank holds (also catches saves from a version with a different capacity)
         energy = Double.isFinite(energy) ? Math.max(0, Math.min(BatterySpec.CAPACITY * size(), energy)) : 0;
-        // joined faces lose their borders: redraw this block when its bank changed
         if (level != null && level.isClientSide && (!oldController.equals(controllerPos()) || oldSize != size()))
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_IMMEDIATE);
     }

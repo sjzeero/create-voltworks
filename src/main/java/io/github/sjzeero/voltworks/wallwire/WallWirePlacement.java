@@ -28,7 +28,6 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-/** Server side checks for a wall wire and the actual connection. The client only suggests the points. */
 public final class WallWirePlacement {
     private WallWirePlacement() {
     }
@@ -96,7 +95,6 @@ public final class WallWirePlacement {
                 return;
             }
         }
-        // the last point is clicked right before the end node; earlier points may be behind the player now
         if(WallSpace.distance(level, eye, points.getLast().point()) > reach + 1) {
             deny(player, "invalid", null);
             return;
@@ -163,7 +161,6 @@ public final class WallWirePlacement {
         }
     }
 
-    /** Ends in different spaces (sub-level and main world): an ordinary hanging wire, never a cord. */
     private static void hang(ServerPlayer player, ServerLevel level, ItemStack held, WireType type, InWorldNode start, InWorldNode end) {
         if(start.equals(end) || !level.isLoaded(start.sourcePos()) || !level.isLoaded(end.sourcePos())) {
             deny(player, "invalid", end.sourcePos());
@@ -222,7 +219,6 @@ public final class WallWirePlacement {
         }
     }
 
-    /** Recolours a whole insulated wall wire with the dye in hand. The wire type and its electrical data stay as they are. */
     public static boolean dye(ServerPlayer player, InWorldNodeConnection connection, ItemStack stack) {
         ServerLevel level = player.serverLevel();
         WallWireData data = WallWireData.get(level);
@@ -243,11 +239,6 @@ public final class WallWirePlacement {
         return true;
     }
 
-    /**
-     * A socket takes one wire only: true when any contact (terminals 0, 1 and cord contacts 2, 3) of a given socket
-     * already has a connection. A power strip outlet only needs its own two contacts free. Either is busy while a
-     * loose cord's plug is in it.
-     */
     private static boolean busy(ServerLevel level, InfrastructureSavedData sd, InWorldNode... nodes) {
         io.github.sjzeero.voltworks.cord.LooseCords loose = io.github.sjzeero.voltworks.cord.LooseCords.get(level);
         for(InWorldNode n : nodes) {

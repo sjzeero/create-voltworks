@@ -49,19 +49,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * Cords with at least one end out of an outlet. A cord plugged in at both ends is an ordinary Electro Energetics
- * connection pair (see {@link CordPair}); pull one plug out and the connection goes away and the cord lives here
- * instead, with the plug still in the other outlet, the free end in the player's hand ({@link ReelPlugItem} stack) or
- * lying on the floor ({@link CableEndEntity}) - the same loose-end system as a cable reel's. Pull the other plug too
- * and the player carries the whole cord: one end in the hand, the other dragged along on the floor, never further
- * than the cord is long. Plug both ends back in, one after the other, and the connection is made again.
- * <p>
- * A power strip's own cord is the same, with its strip end fixed in the strip ({@link Kind#STRIP}); "stowed" (put away
- * in the strip) means neither a connection nor an entry here. Wire cutters take a cord away for good, no items.
- * <p>
- * Saved with the level; held ends are checked against the holder's main hand, lying ends against their entity.
- */
 public final class LooseCords extends SavedData {
     private static final String NAME = "voltworks_loose_cords";
     private static final int CHECK_TICKS = 20;
@@ -72,10 +59,8 @@ public final class LooseCords extends SavedData {
 
     public static final class End {
         State state;
-        /** PLUGGED: the outlet; LYING: last block the entity was seen in. */
         BlockPos pos = BlockPos.ZERO;
         int supply;
-        /** HELD: the player; LYING: the entity. */
         @Nullable UUID who;
         long grab;
 
@@ -126,9 +111,7 @@ public final class LooseCords extends SavedData {
 
     private final ServerLevel level;
     private final Map<UUID, Cord> cords = new LinkedHashMap<>();
-    /** Length each cord was made with, by the key of its supply connection, while it is plugged in at both ends. */
     private final Map<String, Double> reaches = new HashMap<>();
-    /** Lying ends being taken away on purpose: their removal is not a lost cord. */
     private final Set<UUID> quiet = new HashSet<>();
 
     private LooseCords(ServerLevel level) {
@@ -178,8 +161,6 @@ public final class LooseCords extends SavedData {
         return tag;
     }
 
-    // ---- small helpers -----------------------------------------------------------------------------------------
-
     public static boolean isCutters(ItemStack stack) {
         return !stack.isEmpty() && stack.is(CEETags.WIRE_CUTTERS);
     }
@@ -193,7 +174,6 @@ public final class LooseCords extends SavedData {
         return x.compareTo(y) <= 0 ? x + "|" + y : y + "|" + x;
     }
 
-    /** World position of the plug in an outlet (the back of the plug, where the cord leaves it). */
     public static Vec3 plugWorld(Level level, BlockPos pos, int supply) {
         try {
             return WallSpace.toWorld(level, WallSpace.nodePos(level, new InWorldNode(supply, pos)));
@@ -210,7 +190,6 @@ public final class LooseCords extends SavedData {
         return id != null && level.getEntity(id) instanceof CableEndEntity e ? e : null;
     }
 
-    /** Where an end is now (world space), or null when unknown (holder offline, entity unloaded). */
     private @Nullable Vec3 where(End e) {
         return switch (e.state) {
             case PLUGGED -> level.isLoaded(e.pos) ? plugWorld(level, e.pos, e.supply) : null;
@@ -225,7 +204,6 @@ public final class LooseCords extends SavedData {
         };
     }
 
-    /** Is the outlet {@code supply} of the block at {@code pos} holding the plug of a cord whose other end is out? */
     public boolean isAnchor(BlockPos pos, int supply) {
         for (Cord c : cords.values())
             for (End e : c.ends)
@@ -249,14 +227,12 @@ public final class LooseCords extends SavedData {
         return null;
     }
 
-    /** No plug in this outlet: no cord or reel connection on its contacts, no loose cord's plug. */
     public boolean free(BlockPos pos, int supply) {
         InfrastructureSavedData sd = InfrastructureSavedData.load(level);
         return sd.getConnections(new InWorldNode(supply, pos)).isEmpty() && sd.getConnections(new InWorldNode(supply + 1, pos)).isEmpty()
                 && !isAnchor(pos, supply);
     }
 
-    /** The supply strand of a cord (not a reel's) plugged into this outlet, or into the strip's own cord end. */
     public static @Nullable InWorldNodeConnection cordAt(ServerLevel sl, BlockPos pos, int supply) {
         InfrastructureSavedData sd = InfrastructureSavedData.load(sl);
         for (int id : new int[]{supply, supply + 1})
@@ -282,7 +258,6 @@ public final class LooseCords extends SavedData {
             sd.removeConnectionNoDrops(supplyStrand);
     }
 
-    /** Takes the plug out of a socket when nothing holds it in any more (strip outlets draw their plugs from the cords). */
     private void plugOut(BlockPos pos) {
         if (!level.isLoaded(pos))
             return;
@@ -314,8 +289,6 @@ public final class LooseCords extends SavedData {
         return id;
     }
 
-    // ---- the held end ------------------------------------------------------------------------------------------
-
     public static boolean isLooseCord(ItemStack stack) {
         CustomData data = stack.get(DataComponents.CUSTOM_DATA);
         return data != null && data.contains("LooseCord");
@@ -326,7 +299,6 @@ public final class LooseCords extends SavedData {
         return data == null || !data.contains("LooseCord") ? null : data.copyTag();
     }
 
-    /** What the client needs to draw the cord from the hand to its other end. */
     private ItemStack heldStack(Cord c, int end) {
         ItemStack stack = ReelPlugItem.look(true);
         CompoundTag t = new CompoundTag();
@@ -342,7 +314,6 @@ public final class LooseCords extends SavedData {
         return stack;
     }
 
-    /** The cord and end a held stack stands for, while it still does. */
     private @Nullable Cord heldCord(ItemStack stack, Player player) {
         CompoundTag t = tag(stack);
         if (t == null || !t.hasUUID("LooseCord"))
@@ -371,7 +342,6 @@ public final class LooseCords extends SavedData {
         setDirty();
     }
 
-    /** Puts the end down as a lying end at {@code at} (no further than the cord reaches from its other end). */
     private void lay(Cord c, int end, Vec3 at, Vec3 motion) {
         End o = c.ends[1 - end];
         Vec3 anchor = o.state == State.LYING && entity(o.who) == null ? null : where(o);
@@ -389,7 +359,6 @@ public final class LooseCords extends SavedData {
         setDirty();
     }
 
-    /** Pushes where each end's other end is to its entity / held stack. */
     private void refresh(Cord c) {
         for (int i = 0; i < 2; i++) {
             End e = c.ends[i], o = c.ends[1 - i];
@@ -408,7 +377,6 @@ public final class LooseCords extends SavedData {
         }
     }
 
-    /** Takes a free end out of the world: the held stack out of the hand, the lying entity away. */
     private void takeAway(End e) {
         if (e.state == State.HELD) {
             ServerPlayer p = player(e.who);
@@ -428,14 +396,6 @@ public final class LooseCords extends SavedData {
         }
     }
 
-    // ---- unplugging ------------------------------------------------------------------------------------------------
-
-    /**
-     * Right-click with an empty hand (or anything that is not a block or a tool) on an outlet: the plug in it comes
-     * out. A reel's cord comes out like before; one end of a laid cord comes out into the hand (or falls in front of the
-     * outlet when the hand is full) while its other plug stays in; the last plug of a cord already out at one end
-     * comes out too and the player carries the whole cord. False when no plug is in there.
-     */
     public boolean useOutlet(ServerLevel sl, BlockPos pos, int supply, ServerPlayer p) {
         CableReelBlockEntity reel = CableReelBlockEntity.pluggedInto(sl, pos, supply);
         if (reel != null) {
@@ -465,7 +425,6 @@ public final class LooseCords extends SavedData {
         return true;
     }
 
-    /** Frees end {@code i}: into the empty main hand, else onto the floor at {@code at}. */
     private void free(Cord c, int i, @Nullable ServerPlayer p, Vec3 at) {
         if (p != null && p.getMainHandItem().isEmpty() && c.ends[1 - i].state != State.HELD)
             giveEnd(c, i, p);
@@ -474,10 +433,6 @@ public final class LooseCords extends SavedData {
         refresh(c);
     }
 
-    /**
-     * Turns the laid cord whose supply strand is {@code strand} into a loose cord plugged in only at its far end
-     * (index 0); end 1 (the one at {@code pos}) is left for the caller to set.
-     */
     private Cord unlay(InWorldNodeConnection strand, BlockPos pos, int supply) {
         InfrastructureSavedData sd = InfrastructureSavedData.load(level);
         WireData data = sd.getConnectionData(strand);
@@ -495,20 +450,12 @@ public final class LooseCords extends SavedData {
             c.reach = CordReach.reachOf(remembered, laid);
         }
         c.ends[0] = End.plugged(other.sourcePos(), other.id() & ~1);
-        c.ends[1] = End.plugged(pos, supply); // placeholder until the caller frees it
+        c.ends[1] = End.plugged(pos, supply);
         cords.put(c.id, c);
         setDirty();
         return c;
     }
 
-    // ---- plugging in -----------------------------------------------------------------------------------------------
-
-    /**
-     * The held end clicked on a block: into the outlet under the click. With the other end in, the connection is made
-     * (no longer than the cord); with the other end out too, this end just stays in that outlet. Clicking the outlet
-     * the other end is in takes that one out too (carrying the cord); clicking a power strip with its own cord puts the
-     * cord back in. True when the held stack is used up.
-     */
     public boolean plugHeld(ServerPlayer p, ItemStack stack, BlockPos pos, Vec3 click) {
         Cord c = heldCord(stack, p);
         if (c == null)
@@ -528,7 +475,6 @@ public final class LooseCords extends SavedData {
             return false;
         }
         if (o.state == State.PLUGGED && o.pos.equals(pos) && o.supply == supply) {
-            // its own other plug: that one comes out as well, the cord is carried
             lay(c, 1 - end, plugWorld(level, pos, supply), Vec3.ZERO);
             plugOut(pos);
             click(plugWorld(level, pos, supply));
@@ -567,7 +513,6 @@ public final class LooseCords extends SavedData {
             message(p, "voltworks.cord.plugged", CableReelBlockEntity.fmt(c.reach));
             return true;
         }
-        // the other end is out too: this one stays in the outlet, the other one lies where it was dropped
         c.ends[end] = End.plugged(pos, supply);
         if (o.state == State.HELD)
             lay(c, 1 - end, p.position().add(0, 0.5, 0), Vec3.ZERO);
@@ -580,7 +525,6 @@ public final class LooseCords extends SavedData {
         return true;
     }
 
-    /** Sneak-click into the air with the end in the hand: a strip's cord goes back in, any other cord is put down. */
     public void sneakHeld(ServerPlayer p, ItemStack stack) {
         Cord c = heldCord(stack, p);
         if (c == null) {
@@ -597,10 +541,6 @@ public final class LooseCords extends SavedData {
         level.playSound(null, p.blockPosition(), SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.PLAYERS, 0.6f, 1.2f);
     }
 
-    /**
-     * Every few ticks for a held end: out of the main hand it falls; past the cord length from its plugged-in other end
-     * (plus a little give, warned about first) it slips out of the hand. A free other end is dragged along instead.
-     */
     public void heldTick(ItemStack stack, ServerPlayer p, boolean selected) {
         Cord c = heldCord(stack, p);
         if (c == null) {
@@ -630,7 +570,6 @@ public final class LooseCords extends SavedData {
         }
     }
 
-    /** Dropped or thrown (Q, death): it falls on as a lying end. */
     public void thrown(ItemStack stack, ItemEntity item) {
         CompoundTag t = tag(stack);
         if (t == null || !t.hasUUID("LooseCord"))
@@ -642,9 +581,6 @@ public final class LooseCords extends SavedData {
         lay(c, end, item.position(), item.getDeltaMovement());
     }
 
-    // ---- the lying end -----------------------------------------------------------------------------------------
-
-    /** Is this entity still a lying end of a cord (else it goes away)? Also keeps its other end up to date. */
     public boolean entityTick(CableEndEntity ent) {
         Cord c = cords.get(ent.cordId());
         int end = ent.end();
@@ -664,7 +600,6 @@ public final class LooseCords extends SavedData {
         return true;
     }
 
-    /** Right-click on a lying end: into the empty main hand. */
     public void pickUp(ServerPlayer p, CableEndEntity ent) {
         Cord c = cords.get(ent.cordId());
         int end = ent.end();
@@ -687,7 +622,6 @@ public final class LooseCords extends SavedData {
         refresh(c);
     }
 
-    /** A lying end went away for good (killed, fell out of the world): the cord is lost, a strip's goes back in. */
     public void entityGone(CableEndEntity ent) {
         if (quiet.remove(ent.getUUID()))
             return;
@@ -701,9 +635,6 @@ public final class LooseCords extends SavedData {
             cut(c);
     }
 
-    // ---- cutting and putting away ------------------------------------------------------------------------------
-
-    /** Wire cutters: the cord is gone, no items. A strip's own cord can't be cut off the strip: it goes back in. */
     public void cut(Cord c) {
         cords.remove(c.id);
         for (End e : c.ends) {
@@ -728,7 +659,6 @@ public final class LooseCords extends SavedData {
         message(p, c.kind == Kind.STRIP ? "voltworks.power_strip.stowed" : "voltworks.cord.cut");
     }
 
-    /** The strip's cord back into the strip, wherever its plug is. */
     private void stow(Cord c) {
         cords.remove(c.id);
         for (int i = 1; i < 2; i++) {
@@ -740,7 +670,6 @@ public final class LooseCords extends SavedData {
         setDirty();
     }
 
-    /** Wire cutters on an outlet (or a strip's cord end): the cord plugged in there is cut, no items. */
     public boolean cutAt(ServerLevel sl, BlockPos pos, int supply, ServerPlayer p) {
         Vec3 at = plugWorld(sl, pos, supply);
         boolean stripInput = Outlets.isStripInput(sl.getBlockState(pos), supply);
@@ -789,7 +718,6 @@ public final class LooseCords extends SavedData {
         return true;
     }
 
-    /** A laid cord (both plugs in) cut anywhere: both strands go, no items; a strip's cord goes back into the strip. */
     public void cutLaid(InWorldNodeConnection strand) {
         InWorldNodeConnection supply = CordPair.isReturn(strand) ? CordPair.sibling(strand) : strand;
         reaches.remove(key(supply.node1(), supply.node2()));
@@ -799,12 +727,6 @@ public final class LooseCords extends SavedData {
         setDirty();
     }
 
-    // ---- the power strip -------------------------------------------------------------------------------------------
-
-    /**
-     * Empty hand on the strip (not on an outlet): its own cord's plug comes out into the hand. Sneaking: the cord goes
-     * back into the strip, wherever its plug is (in an outlet, in someone's hand, on the floor).
-     */
     public void useStrip(ServerLevel sl, BlockPos strip, ServerPlayer p, boolean sneaking) {
         Cord own = stripCord(strip);
         InWorldNodeConnection laid = cordAt(sl, strip, StripGeometry.INPUT);
@@ -844,7 +766,6 @@ public final class LooseCords extends SavedData {
         message(p, "voltworks.power_strip.grabbed", CableReelBlockEntity.fmt(c.reach));
     }
 
-    /** A strip placed against a socket (or another strip): its cord goes straight into a free outlet there. */
     public void plugStripInto(ServerLevel sl, BlockPos strip, BlockPos target, Vec3 eye, @Nullable ServerPlayer p) {
         if (!sl.isLoaded(target) || target.equals(strip))
             return;
@@ -881,15 +802,8 @@ public final class LooseCords extends SavedData {
             message(p, "voltworks.power_strip.auto_plugged");
     }
 
-    // ---- blocks going away ---------------------------------------------------------------------------------------
-
-    /**
-     * A socket or power strip broken by a player (before Electro Energetics drops its wires): cords plugged in there
-     * fall out and lie in front of it, their other plugs stay in; the strip's own cord goes away with the strip.
-     */
     public void blockBroken(ServerLevel sl, BlockPos pos) {
         BlockState st = sl.getBlockState(pos);
-        // the strip's own cord leaves with the strip, without items
         if (st.getBlock() instanceof PowerStripBlock) {
             Cord own = stripCord(pos);
             if (own != null)
@@ -911,7 +825,7 @@ public final class LooseCords extends SavedData {
                         lay(c, i, at, Vec3.ZERO);
                 }
             if (CableReelBlockEntity.pluggedInto(sl, pos, s) != null)
-                continue; // the reel's own hook drops its end
+                continue;
             InWorldNodeConnection strand = cordAt(sl, pos, s);
             if (strand != null) {
                 Cord c = unlay(strand, pos, s);
@@ -921,18 +835,12 @@ public final class LooseCords extends SavedData {
         setDirty();
     }
 
-    /**
-     * A laid strip cord removed some other way (its outlet block exploded, a Sable structure tore it): no cord items,
-     * the cord is back in the strip. True when the connection was a strip's.
-     */
     public static boolean isStripStrand(ServerLevel sl, InWorldNodeConnection c) {
         for (InWorldNode n : new InWorldNode[]{c.node1(), c.node2()})
             if (sl.isLoaded(n.sourcePos()) && Outlets.isStripInput(sl.getBlockState(n.sourcePos()), n.id()))
                 return true;
         return false;
     }
-
-    // ---- consistency -----------------------------------------------------------------------------------------------
 
     public static void tick(ServerLevel sl) {
         if (sl.getGameTime() % CHECK_TICKS != 7)
@@ -942,11 +850,6 @@ public final class LooseCords extends SavedData {
             d.check();
     }
 
-    /**
-     * Plugs whose outlet is gone fall out; a strip's cord whose strip is gone goes with it; a held end no longer in the
-     * holder's hand (online, same level) falls at the holder; a lying end whose entity vanished while its chunk was
-     * loaded counts as lost.
-     */
     private void check() {
         for (Cord c : new ArrayList<>(cords.values())) {
             if (!cords.containsKey(c.id))
@@ -970,7 +873,7 @@ public final class LooseCords extends SavedData {
                     case HELD -> {
                         ServerPlayer p = player(e.who);
                         if (p == null)
-                            continue; // offline: the stack is saved with the player
+                            continue;
                         if (p.level() != level) {
                             Vec3 o = where(c.ends[1 - i]);
                             lay(c, i, o != null ? o : Vec3.atCenterOf(e.pos), Vec3.ZERO);
@@ -993,9 +896,6 @@ public final class LooseCords extends SavedData {
         }
     }
 
-    // ---- client-visible lookups (server side) --------------------------------------------------------------------
-
-    /** Socket plugs that must stay in: the loose cords' plugged ends. */
     public static boolean keepsPlug(ServerLevel sl, BlockPos pos) {
         return get(sl).isAnchor(pos, SocketBlock.CORD_POSITIVE);
     }

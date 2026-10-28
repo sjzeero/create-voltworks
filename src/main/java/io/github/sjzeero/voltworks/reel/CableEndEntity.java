@@ -23,22 +23,11 @@ import org.joml.Vector3d;
 
 import java.util.UUID;
 
-/**
- * The free end of a reel cable lying on the ground: dropped, thrown, slipped out of the hand, or left behind when the
- * block it was plugged into went away. It falls like an item, can't be pushed further from its reel than the wire on
- * the drum (past it the wire holds it like a rope: it swings and hangs below the reel, never floats), and a right-click picks it up as the Cable End item
- * again. It carries no current: there is no Electro Energetics connection while the end lies around.
- * <p>
- * The reel remembers the entity's UUID; the entity only remembers its reel. Either side going away clears the link
- * (the reel winds back, the entity disappears).
- */
 public class CableEndEntity extends Entity {
     private static final EntityDataAccessor<BlockPos> REEL = SynchedEntityData.defineId(CableEndEntity.class, EntityDataSerializers.BLOCK_POS);
-    /** Loose cord ({@link LooseCords}) this is an end of; empty for a reel's end. */
     private static final EntityDataAccessor<String> CORD = SynchedEntityData.defineId(CableEndEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> END = SynchedEntityData.defineId(CableEndEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> REACH = SynchedEntityData.defineId(CableEndEntity.class, EntityDataSerializers.FLOAT);
-    /** The cord's other end: plugged into this outlet (supply >= 0), held by this player (id >= 0), else lying. */
     private static final EntityDataAccessor<BlockPos> OTHER_POS = SynchedEntityData.defineId(CableEndEntity.class, EntityDataSerializers.BLOCK_POS);
     private static final EntityDataAccessor<Integer> OTHER_SUPPLY = SynchedEntityData.defineId(CableEndEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> OTHER_PLAYER = SynchedEntityData.defineId(CableEndEntity.class, EntityDataSerializers.INT);
@@ -57,7 +46,6 @@ public class CableEndEntity extends Entity {
         setYRot(level.random.nextFloat() * 360f);
     }
 
-    /** An end of a loose cord (see {@link LooseCords}). */
     public CableEndEntity(Level level, UUID cord, int end, float reach, Vec3 pos, Vec3 motion) {
         this(VoltworksEntities.CABLE_END.get(), level);
         cordId = cord;
@@ -103,18 +91,15 @@ public class CableEndEntity extends Entity {
         return entityData.get(OTHER_POS);
     }
 
-    /** Supply contact of the outlet the cord's other end is in, or -1. */
     public int otherSupply() {
         return entityData.get(OTHER_SUPPLY);
     }
 
-    /** The player holding the cord's other end, or null. */
     public @Nullable Player otherHolder() {
         int id = entityData.get(OTHER_PLAYER);
         return id >= 0 && level().getEntity(id) instanceof Player p ? p : null;
     }
 
-    /** The cord's other end when it lies on the floor too, or null. */
     public @Nullable CableEndEntity otherEnd() {
         if (otherCache != null && !otherCache.isRemoved())
             return otherCache;
@@ -128,7 +113,6 @@ public class CableEndEntity extends Entity {
         return null;
     }
 
-    /** Where the cord's other end is (world space): the plug in its outlet, the holder's hand, the other lying end. */
     public @Nullable Vec3 otherAt(float pt) {
         int supply = otherSupply();
         if (supply >= 0)
@@ -144,7 +128,6 @@ public class CableEndEntity extends Entity {
         return entityData.get(REEL);
     }
 
-    /** The reel this end belongs to, if loaded (on the server: only while the reel still points at this entity). */
     public @Nullable CableReelBlockEntity reel() {
         BlockPos pos = reelPos();
         if (!level().isLoaded(pos) || !(level().getBlockEntity(pos) instanceof CableReelBlockEntity be))
@@ -166,9 +149,6 @@ public class CableEndEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
-        // Only ever unstick from a solid full block (spawned in a wall): lift onto its top. Never vanilla's
-        // moveTowardsClosestSpace + noPhysics: that sets an upward speed every tick something overlaps the box, whether
-        // or not a full block is there, and with noPhysics on nothing stops it - the end flew into the sky.
         BlockPos in = BlockPos.containing(getX(), getY() + 0.01, getZ());
         if (level().getBlockState(in).isCollisionShapeFullBlock(level(), in)
                 && !level().getBlockState(in.above()).isCollisionShapeFullBlock(level(), in.above()))
@@ -186,11 +166,11 @@ public class CableEndEntity extends Entity {
             Vec3 o = be.outletWorld();
             step = LooseEndPhysics.step(pos, vel, new Vector3d(o.x, o.y, o.z), be.stored());
         } else {
-            step = LooseEndPhysics.step(pos, vel, pos, Double.POSITIVE_INFINITY); // gravity only
+            step = LooseEndPhysics.step(pos, vel, pos, Double.POSITIVE_INFINITY);
         }
         setDeltaMovement(step.velocity().x, step.velocity().y, step.velocity().z);
         if (step.teleport())
-            setPos(step.move().x, step.move().y, step.move().z); // stuck far past the reach: pulled through
+            setPos(step.move().x, step.move().y, step.move().z);
         else
             move(MoverType.SELF, new Vec3(step.move().x, step.move().y, step.move().z));
         Vec3 after = getDeltaMovement();
@@ -208,7 +188,7 @@ public class CableEndEntity extends Entity {
         }
         BlockPos pos = reelPos();
         if (!level().isLoaded(pos))
-            return; // reel not loaded: just lie here, it checks the link again once it is
+            return;
         CableReelBlockEntity be = reel();
         if (be == null) {
             discard();
@@ -256,7 +236,6 @@ public class CableEndEntity extends Entity {
         return false;
     }
 
-    /** Killed, fell out of the world, /kill...: the reel winds the cable back in. Unloading keeps the link. */
     @Override
     public void remove(RemovalReason reason) {
         if (isCord() && reason.shouldDestroy() && level() instanceof ServerLevel sl) {

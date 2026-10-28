@@ -11,11 +11,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/**
- * Clamp meter on a wire run along walls and floors: the current reads the same as on a hanging wire (the overlay), but
- * Electro Energetics' chasing dots would fly along a straight sagging line between the two ends, through the walls,
- * so they are left out there.
- */
 @Mixin(value = OutlinesOnWireRenderer.class, remap = false)
 public class OutlinesOnWireRendererMixin {
     @Inject(method = "renderCurrent", at = @At("HEAD"), cancellable = true)

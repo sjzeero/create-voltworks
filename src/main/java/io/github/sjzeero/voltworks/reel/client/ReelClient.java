@@ -48,17 +48,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Client side of the cable reels.
- * <ul>
- *   <li>The cable end carried in the hand is drawn with Electro Energetics' own wire renderer and the reel's wire type
- *   (the same segment model and sag as a laid wire), from the reel outlet to the hand. Stretched past the wire on the
- *   drum it gets red sparks, like Electro Energetics' spool preview.</li>
- *   <li>A laid reel cable takes its drawn length from the distance the client sees each frame, the way the reel
- *   pays out and winds in on the server, so it hangs the same while a Sable structure carries one end around instead
- *   of waiting for (and snapping to) length updates from the server.</li>
- * </ul>
- */
 public final class ReelClient {
     private ReelClient() {}
 
@@ -67,9 +56,6 @@ public final class ReelClient {
         HeldEndTracker.init();
     }
 
-    // ---- laid cables -------------------------------------------------------------------------------------------
-
-    /** The reel whose hidden outlet this node is, on the client, or null. */
     private static @Nullable CableReelBlockEntity reelAt(Level level, InWorldNode node) {
         if (!level.isLoaded(node.sourcePos()))
             return null;
@@ -79,7 +65,6 @@ public final class ReelClient {
         return level.getBlockEntity(node.sourcePos()) instanceof CableReelBlockEntity be ? be : null;
     }
 
-    /** Gives a reel cable the length it has at this frame's distance; other wires are left alone. */
     public static void followLength(InWorldNodeConnection connection, WireData data, float partialTick) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null || data == null)
@@ -98,7 +83,6 @@ public final class ReelClient {
         data.length = ReelMath.followLength(p1.distanceTo(p2), total);
     }
 
-    /** For Electro Energetics' immediate (non-Flywheel) wire renderer, which draws straight from the connection list. */
     public static void followLengths(float partialTick) {
         for (Pair<InWorldNodeConnection, WireData> w : WireRenderer.getAllConnections())
             followLength(w.getFirst(), w.getSecond(), partialTick);
@@ -116,16 +100,9 @@ public final class ReelClient {
         renderHeld(event, mc, player, level);
     }
 
-    // ---- plugs in sockets --------------------------------------------------------------------------------------
-
     private static final double PLUG_RANGE = 96;
     private static @Nullable ItemStack plugLook;
 
-    /**
-     * A cord plugged into a socket - a cord reel's or either end of a cord between two sockets: the plug model sits in
-     * the socket's slots (blades hidden in the socket), turned by the socket's {@link SocketBlock#PLUG} state so the
-     * cord leaves towards where it goes, and the cord - whose nodes the socket moved to the plug's back - ends in it.
-     */
     private static void renderPlugs(RenderLevelStageEvent event, Minecraft mc, ClientLevel level) {
         float pt = event.getPartialTick().getGameTimeDeltaPartialTick(true);
         Vec3 cam = event.getCamera().getPosition();
@@ -146,7 +123,6 @@ public final class ReelClient {
             for (InWorldNode socket : new InWorldNode[]{c.node1(), c.node2()})
                 any |= plugIn(mc, level, pose, buffer, cam, pt, socket.sourcePos(), socket.id(), done);
         }
-        // plugs of cords pulled out at their other end: known from the lying ends and the held ends
         for (Entity e : level.entitiesForRendering())
             if (e instanceof io.github.sjzeero.voltworks.reel.CableEndEntity end && end.isCord() && end.otherSupply() >= 0)
                 any |= plugIn(mc, level, pose, buffer, cam, pt, end.otherPos(), end.otherSupply(), done);
@@ -159,7 +135,6 @@ public final class ReelClient {
             buffer.endBatch();
     }
 
-    /** The plug in outlet contact {@code id} of the block at {@code sp}, once per outlet. */
     private static boolean plugIn(Minecraft mc, ClientLevel level, PoseStack pose, MultiBufferSource buffer, Vec3 cam, float pt,
                                   BlockPos sp, int id, Set<Long> done) {
         if (!level.isLoaded(sp))
@@ -174,13 +149,11 @@ public final class ReelClient {
         return drawPlugAt(mc, level, pose, buffer, cam, pt, sp, Outlets.plugPose(st, id & ~1));
     }
 
-    /** The plug model in the socket at {@code sp}, turned by {@code st}'s PLUG (A when NONE). False when too far. */
     public static boolean drawPlug(Minecraft mc, ClientLevel level, PoseStack pose, MultiBufferSource buffer, Vec3 cam, float pt,
                                    BlockPos sp, BlockState st) {
         return drawPlugAt(mc, level, pose, buffer, cam, pt, sp, Outlets.plugPose(st, SocketBlock.CORD_POSITIVE));
     }
 
-    /** The plug model drawn with {@code local} (block space, as {@link Outlets#plugPose}) in the block at {@code sp}. */
     public static boolean drawPlugAt(Minecraft mc, ClientLevel level, PoseStack pose, MultiBufferSource buffer, Vec3 cam, float pt,
                                      BlockPos sp, @Nullable Matrix4f local) {
         if (local == null)
@@ -202,17 +175,13 @@ public final class ReelClient {
         }
         pose.translate(sp.getX(), sp.getY(), sp.getZ());
         pose.mulPose(local);
-        pose.translate(0.5f, 0.5f, 0.5f); // the item renderer centres the model again
+        pose.translate(0.5f, 0.5f, 0.5f);
         mc.getItemRenderer().renderStatic(plugLook, ItemDisplayContext.NONE, LevelRenderer.getLightColor(level, sp),
                 OverlayTexture.NO_OVERLAY, pose, buffer, level, 0);
         pose.popPose();
         return true;
     }
 
-    /**
-     * Preview while aiming a cord at a free socket: the same plug, turned towards {@code towards} (world space), drawn
-     * with its own batch.
-     */
     public static void drawPlugPreview(ClientLevel level, PoseStack pose, Vec3 cam, float pt, BlockPos sp, Vec3 towards) {
         BlockState st = level.getBlockState(sp);
         if (!(st.getBlock() instanceof SocketBlock))
@@ -228,11 +197,8 @@ public final class ReelClient {
             buffer.endBatch();
     }
 
-    // ---- cable end in the hand -----------------------------------------------------------------------------------
-
     private static long heldLogged;
 
-    /** Where the cable of a held end comes from: the reel outlet or the cord's other end, and how it leaves there. */
     private record Source(Vec3 from, Vec3 fromOut, WireType type, double length, BlockPos skip) {}
 
     private static void renderHeld(RenderLevelStageEvent event, Minecraft mc, LocalPlayer local, ClientLevel level) {
@@ -260,7 +226,7 @@ public final class ReelClient {
         Vec3 local = block.localNode(be.getBlockState(), block.outletId());
         Pose3dc reelPose = WallSpace.renderPose(level, be.getBlockPos(), pt);
         Vec3 from = WallSpace.toWorld(reelPose, Vec3.atLowerCornerOf(be.getBlockPos()).add(local));
-        Vec3 fromOut = WallSpace.rotate(reelPose, block.outletDir(be.getBlockState())); // turned with a Sable structure too
+        Vec3 fromOut = WallSpace.rotate(reelPose, block.outletDir(be.getBlockState()));
         return new Source(from, fromOut, type, be.stored(), be.getBlockPos());
     }
 
@@ -275,7 +241,6 @@ public final class ReelClient {
         Vec3 guess = handPos(mc, player, event.getCamera(), pt);
         HeldEndTracker.Seen seen = null;
         if (isLocal) {
-            // the back of the end model as really drawn this frame (display transform, bob, swing, field of view)
             Matrix4f view = new Matrix4f(RenderSystem.getModelViewMatrix()).mul(event.getPoseStack().last().pose());
             seen = HeldEndTracker.world(mc.options.getCameraType().isFirstPerson(), new Vector3d(cam.x, cam.y, cam.z),
                     view, new Matrix4f(RenderSystem.getProjectionMatrix()));
@@ -287,7 +252,6 @@ public final class ReelClient {
             return;
         double stored = src.length();
         WireData look = WireData.ofLength(type, ReelMath.followLength(distance, Math.max(stored, distance)));
-        // out of the back of the model along its cord axis, then a smooth curve to the reel
         List<Vec3> points = drawn ? ReelWire.points(from, src.fromOut(), hand, seen.out(), CablePath.HELD_RUN, look.getSag(distance), Double.NEGATIVE_INFINITY,
                 level, src.skip())
                 : ReelWire.points(type, from, hand, look.getSag(distance), Double.NEGATIVE_INFINITY);
@@ -306,20 +270,12 @@ public final class ReelClient {
         pose.popPose();
         buffer.endBatch(type.renderType());
 
-        // stretched further than the wire on the drum (or the cord is long): red sparks like Electro Energetics' spool preview
         if (isLocal && distance > stored && !mc.isPaused())
             for (Vec3 p : points)
                 if (level.random.nextInt(9) == 0)
                     level.addParticle(new DustParticleOptions(new Vector3f(0.9f, 0.3f, 0.3f), 0.8f), p.x, p.y, p.z, 0, 0, 0);
     }
 
-    /**
-     * Fallback when the held model was not seen being drawn (hand hidden, another mod drawing items): where the held
-     * cable end is, roughly, the way vanilla finds the hand holding a fishing rod line: in first person a point
-     * on the camera's near plane at the main-hand corner (scaled by the field of view, so the wire runs into the held
-     * item at the bottom of the screen instead of stopping in front of the crosshair), in third person the hand of
-     * the body model.
-     */
     static Vec3 handPos(Minecraft mc, Player player, Camera camera, float pt) {
         int side = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
         float swing = Mth.sin(Mth.sqrt(player.getAttackAnim(pt)) * Mth.PI);

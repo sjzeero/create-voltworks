@@ -11,7 +11,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** The cable leaves the reel through its outlet guide, horizontally out of its face - not over the top of the block. */
 class ReelOutletTest {
     static final String[] FACINGS = {"north", "east", "south", "west"};
 
@@ -32,7 +31,6 @@ class ReelOutletTest {
                     int y = v.has("y") ? v.get("y").getAsInt() : 0;
                     assertEquals(q * 90, y, reel + " " + FACINGS[q] + ": blockstate turn");
                     String model = v.get("model").getAsString().replace("voltworks:", "assets/voltworks/models/") + ".json";
-                    // the guide is a ring of bars around a real hole: its bounds, and the hole's centre is open
                     double[] from = null, to = null;
                     List<double[][]> bars = new java.util.ArrayList<>();
                     for (JsonElement e : ReelAssetsTest.json(model).getAsJsonArray("elements"))
@@ -45,16 +43,14 @@ class ReelOutletTest {
                     assertNotNull(from, model + ": outlet guide");
                     String what = reel + " " + FACINGS[q] + " fill " + fill;
                     assertEquals(4, bars.size(), what + ": four bars around the hole");
-                    for (double[][] b : bars) // nothing of the guide at the cable's start: it comes out of the hole
+                    for (double[][] b : bars)
                         assertFalse(b[0][0] < px[0] && px[0] < b[1][0] && b[0][1] < px[1] && px[1] < b[1][1], what + ": hole at the cable start");
-                    // the outer face of the guide (z = from.z for the north model), its centre - turned like the model
                     assertEquals(from[2], px[2], 1e-9, what + ": on the outer face");
                     assertEquals((from[0] + to[0]) / 2, px[0], 1e-9, what + ": centred across");
                     assertEquals((from[1] + to[1]) / 2, px[1], 1e-9, what + ": centred in height");
                     Vector3d at = ReelOutlet.local(q, small), out = ReelOutlet.dir(q);
                     Vector3d faceCentre = ReelOutlet.rotated(q, (from[0] + to[0]) / 2, (from[1] + to[1]) / 2, from[2]);
                     assertEquals(0, at.distance(faceCentre), 1e-9, what);
-                    // the face looks along `out`: the guide's inside is behind it
                     Vector3d inside = ReelOutlet.rotated(q, (from[0] + to[0]) / 2, (from[1] + to[1]) / 2, to[2]);
                     assertTrue(new Vector3d(at).sub(inside).normalize().dot(out) > 0.999, what + ": out of the face");
                     assertEquals(0, out.y, 1e-12, what + ": level");
@@ -69,7 +65,6 @@ class ReelOutletTest {
         for (int q = 0; q < 4; q++) {
             Vector3d reel = new Vector3d(10, 64, -3);
             Vector3d from = ReelOutlet.local(q, small).add(reel), out = ReelOutlet.dir(q);
-            // an end lying on the ground (reel standing on y = 64) 6 blocks out in front and a bit to the side, and one behind the reel
             for (Vector3d to : new Vector3d[]{new Vector3d(out).mul(6).add(from).add(out.z * 2, 0, out.x * 2).setComponent(1, 64 + CablePath.RADIUS),
                     new Vector3d(out).mul(-4).add(from).add(1.5, 0, 1.5).setComponent(1, 64 + CablePath.RADIUS)}) {
                 Vector3d endOut = new Vector3d(from).sub(to).setComponent(1, 0).normalize();

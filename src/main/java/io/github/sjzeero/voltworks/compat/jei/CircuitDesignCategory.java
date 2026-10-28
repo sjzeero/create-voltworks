@@ -75,7 +75,6 @@ public class CircuitDesignCategory implements IRecipeCategory<Object> {
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, Object recipe, IFocusGroup focuses) {
         var schematicIn = builder.addInputSlot(21, 38)
-//                .setOutputSlotBackground()
                 .addItemLike(BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("create", "empty_schematic")));
         var schematicOut = builder.addOutputSlot(113, 38)
                 .addItemLike(VoltworksItems.CIRCUIT_SCHEMATIC.get());

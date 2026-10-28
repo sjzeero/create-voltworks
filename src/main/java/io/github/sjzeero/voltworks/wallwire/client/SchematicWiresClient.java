@@ -9,7 +9,6 @@ import net.minecraft.nbt.ListTag;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Client side of saving a schematic: the wall routes the client knows about. */
 public final class SchematicWiresClient {
     private SchematicWiresClient() {
     }

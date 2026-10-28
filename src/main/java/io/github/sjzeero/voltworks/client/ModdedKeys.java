@@ -22,9 +22,6 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import org.lwjgl.glfw.GLFW;
 import io.github.sjzeero.voltworks.Voltworks;
 
-/**
- * @see com.simibubi.create.AllKeys
- */
 public enum ModdedKeys {
     CATEGORY_CIRCUIT_EDITOR("key.categories.voltworks.circuit_editor"),
 

@@ -8,7 +8,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.jetbrains.annotations.Nullable;
 
-/** Live state of a circuit board that rides on a contraption: either the whole board or a state update. */
 public record ContraptionBoardPayload(int entity, BlockPos pos, @Nullable CompoundTag full, @Nullable BoardStatePayload state) implements CustomPacketPayload {
     public static final Type<ContraptionBoardPayload> TYPE = new Type<>(Voltworks.asResource("contraption_board"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ContraptionBoardPayload> CODEC = StreamCodec.of(ContraptionBoardPayload::write, ContraptionBoardPayload::read);

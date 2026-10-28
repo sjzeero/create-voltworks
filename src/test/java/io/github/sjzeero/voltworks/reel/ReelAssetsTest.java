@@ -16,7 +16,6 @@ import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Every reel has its blockstate, models, loot table, recipe and names in both languages. */
 public class ReelAssetsTest {
     static final List<String> BIG = List.of("cord_reel", "cable_reel");
     static final List<String> SMALL = List.of("small_cord_reel", "small_cable_reel");
@@ -82,7 +81,6 @@ public class ReelAssetsTest {
                 }
     }
 
-    /** No mixels: every face's uv rectangle is exactly as many texture pixels as the face is model pixels. */
     @Test
     void oneTexelPerModelPixelOnEveryFace() throws IOException {
         for (String r : REELS)
@@ -106,7 +104,7 @@ public class ReelAssetsTest {
                         int rot = face.has("rotation") ? face.get("rotation").getAsInt() : 0;
                         if (rot % 180 != 0) { double t = w; w = h; h = t; }
                         if (!face.has("uv"))
-                            continue; // Minecraft's own uv is the face's position on the block: 1:1
+                            continue;
                         var uv = face.getAsJsonArray("uv");
                         String what = r + " fill " + fill + " " + o.get("name") + " " + f.getKey();
                         assertEquals(w, Math.abs(uv.get(2).getAsDouble() - uv.get(0).getAsDouble()), 1e-9, what + " width");
@@ -115,7 +113,6 @@ public class ReelAssetsTest {
                 }
     }
 
-    /** The reel is a small thing on the floor, not a full block: 12 px frame, 10 px tall, centred, knobs on top. */
     @Test
     void smallReelCentredOnTheFloor() throws IOException {
         for (String r : SMALL)
@@ -139,7 +136,6 @@ public class ReelAssetsTest {
             }
     }
 
-    /** A wire runs from the coil into the outlet guide whenever there is wire on the drum, coil texture 1:1. */
     @Test
     void wireFromTheCoilToTheOutlet() throws IOException {
         for (String r : REELS)
@@ -172,7 +168,6 @@ public class ReelAssetsTest {
                     assertTrue(wire.isEmpty(), what + ": no wire on an empty drum");
                     continue;
                 }
-                // one straight 2 px cable, level at the hole's height, from the coil's front face into the guide's hole
                 assertEquals(1, wire.size(), what + ": one straight piece, no post");
                 double[] of = outFrom, ot = outTo, w0 = wire.get(0)[0], w1 = wire.get(0)[1];
                 assertEquals(2, w1[0] - w0[0], 1e-9, what + ": 2 px wide");
@@ -185,7 +180,6 @@ public class ReelAssetsTest {
             }
     }
 
-    /** Two boxes touch or overlap (share at least a face patch). */
     static boolean touches(double[] a0, double[] a1, double[] b0, double[] b1) {
         int flush = 0;
         for (int i = 0; i < 3; i++) {
@@ -197,7 +191,6 @@ public class ReelAssetsTest {
         return flush <= 1;
     }
 
-    /** Coil element of a fill model, or null when the drum is bare. */
     static JsonObject coil(String reel, int fill) throws IOException {
         for (var e : json(model(reel, fill)).getAsJsonArray("elements"))
             if ("coil".equals(e.getAsJsonObject().get("name").getAsString()))
@@ -228,7 +221,7 @@ public class ReelAssetsTest {
 
     @Test
     void recipesUseAnEmptySpoolAndAndesiteCasing() throws IOException {
-        for (String r : SMALL) { // a big reel turns into a small one and back
+        for (String r : SMALL) {
             JsonObject toSmall = json("data/voltworks/recipe/crafting/" + r + ".json");
             assertEquals("voltworks:" + r, toSmall.getAsJsonObject("result").get("id").getAsString());
             assertEquals("voltworks:" + r.substring(6), toSmall.getAsJsonArray("ingredients").get(0).getAsJsonObject().get("item").getAsString());
@@ -261,12 +254,6 @@ public class ReelAssetsTest {
         assertEquals("Кабельная лебёдка", json("assets/voltworks/lang/ru_ru.json").get("block.voltworks.cable_reel").getAsString());
     }
 
-    /**
-     * The cable end item is 3D: the socket plug for the cord reel (item property voltworks:cord), a copper lug for the
-     * cable reel. Both on the 16 px grid with one texel per pixel (no mixels), lying on y = 6 with the cable leaving at
-     * the back point CableEndRenderer draws the wire to.
-     */
-    /** Held like a lead, not a brick: hand transforms shrink the few-pixel model, the GUI one enlarges it. */
     @Test
     void cableEndsAreSmallInTheHand() throws IOException {
         for (String name : List.of("cord_plug", "cable_lug")) {
@@ -284,7 +271,6 @@ public class ReelAssetsTest {
         JsonObject over = item.getAsJsonArray("overrides").get(0).getAsJsonObject();
         assertEquals(1, over.getAsJsonObject("predicate").get("voltworks:cord").getAsInt());
         assertEquals("voltworks:item/cord_plug", over.get("model").getAsString());
-        // name, back point (px), axis the cable leaves along (0 = x, 2 = z), lowest y
         for (String[] m : new String[][]{{"cord_plug", "12", "4", "8", "0", "1"}, {"cable_lug", "8", "7", "11", "2", "6"}}) {
             JsonObject model = json("assets/voltworks/models/item/" + m[0] + ".json");
             assertEquals("voltworks:item/" + m[0], model.getAsJsonObject("textures").get("0").getAsString());
@@ -332,11 +318,6 @@ public class ReelAssetsTest {
         }
     }
 
-    /**
-     * The plug is modelled standing in a floor socket: its blades are exactly the two dark slots painted on the
-     * socket's top face (socket.png through socket_v's up face), and go down into the socket, not through it; the
-     * body rests on the top face.
-     */
     @Test
     void plugBladesFitTheSocketSlots() throws IOException {
         JsonObject base = json("assets/voltworks/models/block/socket_v.json").getAsJsonArray("elements").get(0).getAsJsonObject();
@@ -356,7 +337,7 @@ public class ReelAssetsTest {
         for (int i = 0; i < w; i++)
             for (int j = 0; j < d; j++) {
                 double a = (i + 0.5) / w, b = (j + 0.5) / d;
-                double ra = b, rb = 1 - a; // face rotation 90
+                double ra = b, rb = 1 - a;
                 int tx = (int) Math.floor(u0 + (u1 - u0) * ra), ty = (int) Math.floor(v0 + (v1 - v0) * rb);
                 if ((tex.getRGB(tx, ty) & 0xFFFFFF) == SLOT)
                     slots.add((int) (bf[0] + i) + "," + (int) (bf[2] + j));
@@ -382,12 +363,6 @@ public class ReelAssetsTest {
         assertEquals(bt[1], bodyBottom, "plug body rests on the socket");
     }
 
-
-    /**
-     * No see-through gaps: the end models have all six faces on every cuboid (so the lug's screw hole, the one
-     * intended opening, has copper walls), painted with opaque texels only, and in the reel models every face left
-     * out is covered by a neighbouring cuboid.
-     */
     @Test
     void modelsAreClosed() throws IOException {
         for (String n : List.of("cord_plug", "cable_lug")) {
@@ -427,7 +402,6 @@ public class ReelAssetsTest {
                 els.add(o);
             }
             if (m.equals("item/cable_lug")) {
-                // the ring lug's screw hole is a real opening through the tongue, walled on all four sides
                 double[][] hole = {{7.5, 6.5, 3.5}, {8.5, 6.5, 3.5}, {7.5, 6.5, 4.5}, {8.5, 6.5, 4.5}};
                 for (double[] p : hole)
                     for (double[][] box : boxes)
@@ -467,7 +441,6 @@ public class ReelAssetsTest {
     }
 
     private static final int SLOT = 0x2e383a;
-    /** No reel face shows see-through texels: e.g. the shaft ends' sides must not sample the empty part of axis_top. */
     @Test
     void reelFacesAreOpaque() throws IOException {
         for (String r : REELS)
@@ -484,14 +457,14 @@ public class ReelAssetsTest {
                         String path = "assets/" + id.substring(0, id.indexOf(':')) + "/textures/" + id.substring(id.indexOf(':') + 1) + ".png";
                         var uv = face.getAsJsonArray("uv");
                         int u0 = uv.get(0).getAsInt(), v0 = uv.get(1).getAsInt(), u1 = uv.get(2).getAsInt(), v1 = uv.get(3).getAsInt();
-                        if (id.equals("create:block/axis_top")) // only its centre 4x4 (the shaft end) is opaque
+                        if (id.equals("create:block/axis_top"))
                             assertTrue(Math.min(u0, u1) >= 6 && Math.max(u0, u1) <= 10 && Math.min(v0, v1) >= 6 && Math.max(v0, v1) <= 10,
                                     r + "_fill" + f + " " + e.get("name") + " " + fe.getKey() + ": outside the shaft end of axis_top " + uv);
                         if (e.get("name").getAsString().equals("outlet"))
                             assertNotEquals("#casing", face.get("texture").getAsString(), r + "_fill" + f + ": outlet in clean andesite, not the casing crop");
                         if (!exists(path)) {
                             assertFalse(id.startsWith("voltworks:"), "missing " + path);
-                            continue; // a dependency's texture that is not on the test classpath
+                            continue;
                         }
                         BufferedImage img;
                         try (InputStream in = ReelAssetsTest.class.getClassLoader().getResourceAsStream(path)) {

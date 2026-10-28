@@ -17,11 +17,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Keeps the wires of moved blocks in the contraption instead of letting Electro Energetics drop them.
- * Fields have no initializers on purpose (some construction paths skip them); every access goes through a lazy getter
- * and every hook swallows its own errors so Create's assembly is never affected.
- */
 @Mixin(value = Contraption.class, remap = false)
 public abstract class ContraptionMixin implements io.github.sjzeero.voltworks.wallwire.ContraptionWireView {
     @Unique

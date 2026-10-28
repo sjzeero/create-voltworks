@@ -9,7 +9,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Route updates for clients. {@code reset} drops everything the client knew first (login, dimension change). */
 public record WallRoutesPayload(boolean reset, List<WallRoute> added, List<InWorldNodeConnection> removed) implements CustomPacketPayload {
     public static final Type<WallRoutesPayload> TYPE = new Type<>(Voltworks.asResource("wall_routes"));
     public static final StreamCodec<RegistryFriendlyByteBuf, WallRoutesPayload> CODEC = StreamCodec.of((buf, p) -> p.write(buf), WallRoutesPayload::read);

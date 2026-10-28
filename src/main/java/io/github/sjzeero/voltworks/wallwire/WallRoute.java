@@ -16,10 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Where a wall wire runs. The cells go from {@code connection.node1()} to {@code connection.node2()};
- * the ends of the wire are straight leads from each node to the first and last cell.
- */
 public final class WallRoute {
     public final InWorldNodeConnection connection;
     public final List<WallCell> cells;
@@ -41,7 +37,6 @@ public final class WallRoute {
         return new WallRoute(connection, cells, length, color);
     }
 
-    /** Builds a route from cells ordered from {@code start}, flipping them if {@code start} is not node1. */
     public static WallRoute oriented(InWorldNode start, InWorldNode end, List<WallCell> cellsFromStart, double length) {
         InWorldNodeConnection connection = new InWorldNodeConnection(start, end);
         List<WallCell> cells = new ArrayList<>(cellsFromStart);
@@ -54,7 +49,6 @@ public final class WallRoute {
         return WallRouter.pixels(cells) / 16.0;
     }
 
-    /** Points along the whole wire for Electro Energetics' own bookkeeping (sections, contacts, particles). */
     public List<Vec3> samplePoints(Vec3 pos1, Vec3 pos2) {
         List<Vec3> out = new ArrayList<>();
         out.add(pos1);
@@ -80,7 +74,6 @@ public final class WallRoute {
         return bb;
     }
 
-    /** A straight piece of wire; {@code air} pieces go straight out from a surface to the one facing it. */
     public record Segment(Vec3 a, Vec3 b, Direction normal, BlockPos lightPos, boolean air) {
         public Segment(Vec3 a, Vec3 b, Direction normal, BlockPos lightPos) {
             this(a, b, normal, lightPos, false);
@@ -91,7 +84,6 @@ public final class WallRoute {
         }
     }
 
-    /** Straight flat runs along the faces, merged where they continue in the same direction. */
     public List<Segment> surfaceSegments() {
         return segments(cells);
     }

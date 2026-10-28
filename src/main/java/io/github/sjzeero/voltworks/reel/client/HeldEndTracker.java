@@ -14,10 +14,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
-/**
- * Remembers where the local player's held cable end model was really drawn (fed by ItemRendererMixin with the pose
- * the item renderer uses for the model, display transform included), so the held wire can end exactly in its back.
- */
 public final class HeldEndTracker {
     private HeldEndTracker() {}
 
@@ -39,7 +35,6 @@ public final class HeldEndTracker {
         NeoForge.EVENT_BUS.addListener((RenderPlayerEvent.Post e) -> localPlayer = false);
     }
 
-    /** Called by the item renderer once the model's whole pose (display transform and -0.5 centring) is applied. */
     public static void capture(ItemStack stack, ItemDisplayContext ctx, PoseStack pose) {
         if (!(stack.getItem() instanceof ReelPlugItem))
             return;
@@ -59,14 +54,8 @@ public final class HeldEndTracker {
             third = shot;
     }
 
-    /** The held model's cord point in the world, and its cord axis out of the model (unit). */
     public record Seen(Vector3d at, Vector3d out) {}
 
-    /**
-     * Where the held model's cord leaves it, for this frame's world camera, or null if it was not drawn in the
-     * current or last frame for this camera mode. The axis is the captured pose's own, moved to the world the same
-     * way as the point, so on screen the cable continues the cord straight out of the model.
-     */
     public static @Nullable Seen world(boolean firstPerson, Vector3d cam, Matrix4f view, Matrix4f projection) {
         Shot s = firstPerson ? first : third;
         if (s == null || frame - s.frame > 1)

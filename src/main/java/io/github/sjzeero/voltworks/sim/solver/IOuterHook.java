@@ -20,14 +20,7 @@ package io.github.sjzeero.voltworks.sim.solver;
 import io.github.sjzeero.voltworks.Voltworks;
 
 public interface IOuterHook {
-    /**
-     * Called before the Newton solve loop is started.
-     */
     default void preSolve() { }
 
-    /**
-     * Called once the whole process of solving (including repeats) is complete.
-     * Here, is where you should save component state for the next iteration.
-     */
     default void postUpperSolve() { }
 }

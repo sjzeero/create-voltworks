@@ -54,7 +54,6 @@ public class CapacitorComponent extends OrientableComponent {
     @Override
     public boolean tick(@NotNull PlacedComponent placed) {
         if(!placed.wires.isEmpty()) {
-            // Make charge persistent
             placed.set(CHARGE, (float) ((CRSeriesWire) placed.wires.get(0)).capacitorVoltage());
         }
         return true;
@@ -83,7 +82,6 @@ public class CapacitorComponent extends OrientableComponent {
 
         @Override
         public Float parse(String str) throws NumberFormatException {
-            // Not allowed
             return 0.0f;
         }
 

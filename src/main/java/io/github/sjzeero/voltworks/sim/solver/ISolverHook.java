@@ -23,17 +23,8 @@ import java.util.Collection;
 import io.github.sjzeero.voltworks.Voltworks;
 
 public interface ISolverHook {
-    /**
-     * Called at the start of each iteration of Newton solve.
-     * In this hook you can change system state matrices.
-     */
     default void startIteration(int iteration) { }
 
-    /**
-     * Called after the initial residual has been calculated (r = b - A * x)
-     * Here, you should only apply changes to the provided residual.
-     * @param residual Residual matrix
-     */
     default void addResidual(IResidualAdder residual) { }
 
     Collection<IElectricNode> coupledNodes();

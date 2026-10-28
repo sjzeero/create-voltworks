@@ -11,7 +11,6 @@ import java.util.*;
 import java.util.function.Supplier;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
 
-/** Creative tab sections: order of items in the Voltworks tab and banner styling. */
 public final class VoltworksTabSections {
     public record Section(String id, int background, int border, int text, List<Item> items) {
         public String titleKey() { return "voltworks.tab_section." + id; }

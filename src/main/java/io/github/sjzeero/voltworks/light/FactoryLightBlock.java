@@ -1,3 +1,20 @@
+/*
+ * Copyright 2025-2026 patryk3211
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by sjzeero: ported from Create: Power Grid to Voltworks.
+ */
 package io.github.sjzeero.voltworks.light;
 
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
@@ -28,17 +45,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Ported from Create: Power Grid (patryk3211, Apache-2.0): the Factory Light. Models and textures are from Power Grid;
- * the electrical side is reimplemented on CEE devices as a resistive load between node 0 (+) and node 1 (-).
- * PART: 0 single; axis Z 1 north end, 2 middle, 3 south end; axis X 4 west end, 5 middle, 6 east end.
- * It is derived from the neighbours on the same axis, so rows join and split by themselves.
- */
 public class FactoryLightBlock extends SimpleElectricalDeviceBlock<FactoryLightDevice> {
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
     public static final IntegerProperty POWER = IntegerProperty.create("power", 0, 3);
     public static final IntegerProperty PART = IntegerProperty.create("part", 0, 6);
-    /** false: node 0 (+) sits at the positive end of the axis; true: node 0 sits at the negative end (after rotation). */
     public static final BooleanProperty FLIP = BooleanProperty.create("flip");
 
     public FactoryLightBlock(Properties properties) {
@@ -106,8 +116,8 @@ public class FactoryLightBlock extends SimpleElectricalDeviceBlock<FactoryLightD
     private static boolean hasNode(BlockState state, int id) {
         int part = state.getValue(PART);
         if (part == 0) return true;
-        boolean negEnd = part == 1 || part == 4; // neighbour only on the positive side: minus terminal (node 1)
-        boolean posEnd = part == 3 || part == 6; // neighbour only on the negative side: plus terminal (node 0)
+        boolean negEnd = part == 1 || part == 4;
+        boolean posEnd = part == 3 || part == 6;
         return ((id == 0) != state.getValue(FLIP)) ? posEnd : negEnd;
     }
 

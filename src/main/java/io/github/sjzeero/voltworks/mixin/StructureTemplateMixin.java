@@ -21,7 +21,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Carries wall wire routes through schematics next to the wires Electro Energetics already stores there. */
 @Mixin(value = StructureTemplate.class, remap = false)
 public abstract class StructureTemplateMixin {
     @Unique

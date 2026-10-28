@@ -36,7 +36,6 @@ import io.github.sjzeero.voltworks.Voltworks;
 
 @Mixin(value = BasinRecipe.class, remap = false)
 public class BasinRecipeMixin {
-    // Items are already taken out of the basin when outputs are accepted, so remember what was extracted.
     @Unique
     private static final ThreadLocal<List<ItemStack>> voltworks$extracted = ThreadLocal.withInitial(ArrayList::new);
 

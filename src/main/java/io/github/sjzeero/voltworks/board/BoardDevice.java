@@ -136,7 +136,6 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
         });
     }
 
-    /** Press of the part under a ray given relative to the board block (used when the board rides on a contraption). */
     public void queueUseRay(net.minecraft.world.level.block.state.BlockState state, Vec3 origin, Vec3 target, net.minecraft.world.entity.player.Player player) {
         queue(device -> {
             if(device.baked == null)
@@ -248,7 +247,6 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
         return schematic;
     }
 
-    /** Pin readings from the last tick plus a per-part summary built on request (server thread only). */
     public Readings readings() {
         var r = readings;
         if(baked == null)
@@ -348,7 +346,6 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
         return list.stream().mapToInt(Integer::intValue).toArray();
     }
 
-    /** Every non-constant property, the temperatures and the burnt parts as they are now (server thread). */
     public @Nullable BoardStatePayload snapshotState() {
         if(baked == null)
             return null;
@@ -468,7 +465,6 @@ public class BoardDevice extends SimpleElectricalDevice implements BoardContext 
         return ownLinks;
     }
 
-    /** Links found from this board plus the ones neighbours found towards it, so both sides agree. */
     public List<BoardLinks.Link> allLinks(ServerLevel server) {
         if(!hasLinkVias || baked == null)
             return List.of();

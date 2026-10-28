@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
-/** Wall wires are picked along their faces instead of along an invisible hanging curve. */
 @Mixin(value = WireInteractionHandler.class, remap = false)
 public abstract class WireInteractionHandlerMixin {
     @Redirect(method = "tick", at = @At(value = "INVOKE",

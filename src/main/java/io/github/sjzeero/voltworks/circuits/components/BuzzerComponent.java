@@ -17,19 +17,10 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Piezo / electromagnetic DC buzzer placed on a circuit board.
- * <p>
- * Electrically it is a plain {@value #RESISTANCE} ohm load between pad 0 (+) and pad 1 (-).
- * While the voltage across it is at least {@value #THRESHOLD} V it sounds: the board re-triggers a short,
- * loopable buzzer chunk at the component's world position, so the tone is continuous while powered and
- * dies out within one chunk once the voltage drops. The sound pitch follows the voltage.
- */
 public class BuzzerComponent extends OrientableComponent implements IGoggleLabel {
     public static final float RESISTANCE = 500f;
     public static final float THRESHOLD = 12f;
     public static final float MAX_POWER = 5f;
-    /** Length of buzzer.ogg in ticks (0.5 s). */
     public static final int CHUNK_TICKS = 10;
     public static final float VOLUME = 0.6f;
 
@@ -59,17 +50,14 @@ public class BuzzerComponent extends OrientableComponent implements IGoggleLabel
                 .setMaxPower(MAX_POWER, 125f);
     }
 
-    /** Pitch multiplier for a voltage across the buzzer: 0.75 at 12 V, 1.0 at 24 V, 1.5 at 48 V (clamped to 0.5..2). */
     public static float pitchFor(double voltage) {
         return (float) Mth.clamp(0.5 + voltage / 48.0, 0.5, 2.0);
     }
 
-    /** True when the buzzer sounds at this voltage (either polarity). */
     public static boolean sounds(double voltage) {
         return Double.isFinite(voltage) && Math.abs(voltage) >= THRESHOLD;
     }
 
-    /** Ticks between two chunk triggers: the chunk is shortened by the pitch, keep a slight overlap so it stays continuous. */
     public static int intervalFor(float pitch) {
         return Math.max(3, (int) Math.floor(CHUNK_TICKS / pitch));
     }

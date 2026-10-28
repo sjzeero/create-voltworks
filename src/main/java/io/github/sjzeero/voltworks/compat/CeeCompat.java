@@ -9,10 +9,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-/**
- * Bridges CEE API differences between 1.1.1, 1.1.2 and 1.2.0-123/127/132.
- * WireInteractionHandler.targetedPos is a Vec3 in 1.1.x and an OutlinesOnWireRenderer.PosOnWire in 1.2.0.
- */
 public final class CeeCompat {
     private static final Logger LOG = LoggerFactory.getLogger("voltworks/cee-compat");
     private static boolean resolved, broken;

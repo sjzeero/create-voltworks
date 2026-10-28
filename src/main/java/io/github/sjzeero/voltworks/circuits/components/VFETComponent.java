@@ -51,9 +51,9 @@ public class VFETComponent extends MirrorableComponent {
     public void bake(@NotNull PlacedComponent placed, @NotNull ComponentCircuitBuilder builder, ThermalBuilder.@NotNull IEmitter thermals) {
         var wire = new VFETWire(
                 placed.get(GAIN), placed.get(K_G), 0.5f,
-                builder.terminalNode(1), // Source
-                builder.terminalNode(0), // Drain
-                builder.terminalNode(2)  // Gate
+                builder.terminalNode(1),
+                builder.terminalNode(0),
+                builder.terminalNode(2)
         );
         builder.add(wire);
         placed.add(wire);

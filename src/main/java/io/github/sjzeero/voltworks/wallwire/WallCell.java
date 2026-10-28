@@ -6,10 +6,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * One pixel of a surface that a wall wire can lie on: the {@code face} side of the solid pixel {@code px, py, pz}
- * inside {@code pos}. On a full block face the coordinate along the normal is 15 for positive faces and 0 for negative.
- */
 public record WallCell(BlockPos pos, Direction face, int px, int py, int pz) {
     public static final double LIFT = 0.01;
 
@@ -42,7 +38,6 @@ public record WallCell(BlockPos pos, Direction face, int px, int py, int pz) {
         return Mth.clamp(Mth.floor(v * 16), 0, 15);
     }
 
-    /** The solid pixel in world pixel coordinates (16 per block). */
     public int[] worldPixel() {
         return new int[]{pos.getX() * 16 + px, pos.getY() * 16 + py, pos.getZ() * 16 + pz};
     }
@@ -51,7 +46,6 @@ public record WallCell(BlockPos pos, Direction face, int px, int py, int pz) {
         return new int[]{px, py, pz};
     }
 
-    /** Point on the face at the pixel centre, lifted a little off the surface. */
     public Vec3 point(double lift) {
         double[] c = {(px + 0.5) / 16, (py + 0.5) / 16, (pz + 0.5) / 16};
         int a = face.getAxis().ordinal();
@@ -69,7 +63,6 @@ public record WallCell(BlockPos pos, Direction face, int px, int py, int pz) {
         return pixels()[face.getAxis().ordinal()] == (face.getAxisDirection() == Direction.AxisDirection.POSITIVE ? 15 : 0);
     }
 
-    /** The block the wire actually sits in. */
     public BlockPos front() {
         return onBlockFace() ? pos.relative(face) : pos;
     }
@@ -82,7 +75,6 @@ public record WallCell(BlockPos pos, Direction face, int px, int py, int pz) {
         return new WallCell(BlockPos.of(pos), Direction.from3DDataValue(local >> 12 & 7), local >> 8 & 15, local >> 4 & 15, local & 15);
     }
 
-    /** Manhattan distance in pixels between the unlifted points of two cells. */
     public int manhattan(WallCell o) {
         Vec3 a = point(0), b = o.point(0);
         return (int) Math.round((Math.abs(a.x - b.x) + Math.abs(a.y - b.y) + Math.abs(a.z - b.z)) * 16);

@@ -36,16 +36,9 @@ import org.joml.Vector3f;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Power strip: three socket outlets fed in parallel from the strip's own short cord, which ends in the same plug as
- * every other cord and goes into a socket (or another strip's outlet). Lies on the floor, hangs on a wall or under a
- * ceiling. Node 0/1 are the strip's cord, 2/3, 4/5 and 6/7 the outlets' contacts (always at the back of the plug
- * that goes in there, see {@link StripGeometry}).
- */
 public class PowerStripBlock extends SimpleElectricalDeviceBlock<PowerStripDevice> {
     public static final EnumProperty<AttachFace> FACE = BlockStateProperties.ATTACH_FACE;
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    /** Length of the strip's own cord, in blocks. */
     public static final double CORD_LENGTH = 4.0;
 
     private static final Map<BlockState, VoxelShape> SHAPES = new HashMap<>();
@@ -60,7 +53,6 @@ public class PowerStripBlock extends SimpleElectricalDeviceBlock<PowerStripDevic
         builder.add(FACE, FACING);
     }
 
-    /** Blockstate y rotation of each facing (the model's +X turns towards the facing's right... see blockstates/power_strip.json). */
     public static int yRot(Direction facing) {
         return switch (facing) {
             case EAST -> 90;
@@ -78,26 +70,22 @@ public class PowerStripBlock extends SimpleElectricalDeviceBlock<PowerStripDevic
         };
     }
 
-    /** The rotation the blockstate gives the floor model, about the block centre (vanilla's x-then-y order). */
     public static Quaternionf rotation(BlockState state) {
         return new Quaternionf().rotateYXZ((float) Math.toRadians(-yRot(state.getValue(FACING))),
                 (float) Math.toRadians(-xRot(state.getValue(FACE))), 0);
     }
 
-    /** A floor-model pixel position to block space (0..1) for this state. */
     public static Vec3 place(BlockState state, double[] px) {
         Vector3f v = new Vector3f((float) (px[0] / 16 - 0.5), (float) (px[1] / 16 - 0.5), (float) (px[2] / 16 - 0.5));
         rotation(state).transform(v);
         return new Vec3(round(v.x + 0.5), round(v.y + 0.5), round(v.z + 0.5));
     }
 
-    /** A floor-model direction to block space. */
     public static Vec3 turn(BlockState state, double[] dir) {
         Vector3f v = rotation(state).transform(new Vector3f((float) dir[0], (float) dir[1], (float) dir[2]));
         return new Vec3(v.x, v.y, v.z);
     }
 
-    /** Block space (0..1) back to floor-model pixels. */
     public static Vec3 unplace(BlockState state, Vec3 local) {
         Vector3f v = new Vector3f((float) (local.x - 0.5), (float) (local.y - 0.5), (float) (local.z - 0.5));
         rotation(state).conjugate(new Quaternionf()).transform(v);
@@ -108,10 +96,6 @@ public class PowerStripBlock extends SimpleElectricalDeviceBlock<PowerStripDevic
         return Math.round(v * 1024) / 1024.0;
     }
 
-    /**
-     * The outlet whose slot is nearest to {@code local} (block space, 0..1) on the strip's top, or -1 when the point is
-     * nearer the strip's own cord quarter than to any outlet.
-     */
     public static int outletAt(BlockState state, Vec3 local) {
         Vec3 px = unplace(state, local);
         int best = -1;
@@ -148,7 +132,6 @@ public class PowerStripBlock extends SimpleElectricalDeviceBlock<PowerStripDevic
         return s.setValue(FACE, AttachFace.WALL).setValue(FACING, clicked);
     }
 
-    /** The block the strip was put against (the face it was placed on), where its cord can plug in at once. */
     public static BlockPos support(BlockState state, BlockPos pos) {
         return switch (state.getValue(FACE)) {
             case FLOOR -> pos.below();
@@ -157,7 +140,6 @@ public class PowerStripBlock extends SimpleElectricalDeviceBlock<PowerStripDevic
         };
     }
 
-    /** Put against a socket (or another strip): the strip's cord goes straight into it. */
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
@@ -175,10 +157,6 @@ public class PowerStripBlock extends SimpleElectricalDeviceBlock<PowerStripDevic
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
-    /**
-     * Empty hand on an outlet: the plug in it comes out (like on a socket). Empty hand elsewhere: take the strip's own
-     * cord end out (sneaking: put it back in). Wire cutters on an outlet cut the cord plugged in there.
-     */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         ItemStack held = player.getMainHandItem();

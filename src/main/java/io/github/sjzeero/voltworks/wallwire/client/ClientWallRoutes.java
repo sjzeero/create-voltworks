@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Routes of the wall wires in the client's current dimension. */
 public final class ClientWallRoutes {
     public record Entry(WallRoute route, List<WallRoute.Segment> segments, AABB bounds) {
     }
@@ -57,7 +56,6 @@ public final class ClientWallRoutes {
         return ROUTES.values();
     }
 
-    /** Electro Energetics' own wire list without the wall wires, for code that draws or picks hanging wires. */
     public static List<Pair<InWorldNodeConnection, WireData>> withoutWallWires(List<Pair<InWorldNodeConnection, WireData>> wires) {
         if(ROUTES.isEmpty())
             return wires;

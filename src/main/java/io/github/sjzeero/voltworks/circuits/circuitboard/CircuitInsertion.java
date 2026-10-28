@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-// Lets a deployer put parts into an incomplete circuit sitting on a belt or depot.
 public class CircuitInsertion {
     public static void onDeployerRecipeSearch(DeployerRecipeSearchEvent event) {
         var inventory = event.getInventory();

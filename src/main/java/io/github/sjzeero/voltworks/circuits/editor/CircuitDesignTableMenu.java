@@ -93,6 +93,5 @@ public class CircuitDesignTableMenu extends AbstractCircuitDesignTableMenu<Circu
     public void removed(Player playerIn) {
         super.removed(playerIn);
         clearContainer(playerIn, contentHolder.getInventory());
-//        this.context.run((world, pos) -> this.dropInventory(player, this.input));
     }
 }

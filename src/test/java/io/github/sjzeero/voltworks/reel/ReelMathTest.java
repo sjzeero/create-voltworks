@@ -54,7 +54,6 @@ class ReelMathTest {
         assertEquals(48, stored, 1e-9);
     }
 
-    /** Simulates a Sable structure carrying the far end away and back: wire follows, nothing is created or lost. */
     @Test
     void cableFollowsAMovingEnd() {
         double total = 64, pulled = ReelMath.pullLength(5, total), stored = total - pulled;
@@ -108,9 +107,7 @@ class ReelMathTest {
         assertEquals(1.0, ReelMath.reachScale(5, 16), 1e-9);
         assertEquals(1.0, ReelMath.reachScale(16, 16), 1e-9);
         assertEquals(0.5, ReelMath.reachScale(32, 16), 1e-9);
-        // pulled back exactly onto full reach
         assertEquals(16.0, 20 * ReelMath.reachScale(20, 16), 1e-9);
-        // an empty drum keeps the end at the outlet
         assertEquals(0.0, ReelMath.reachScale(3, 0), 1e-9);
         assertEquals(0.0, ReelMath.reachScale(3, -1), 1e-9);
     }

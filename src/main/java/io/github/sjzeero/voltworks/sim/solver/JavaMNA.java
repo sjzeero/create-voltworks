@@ -73,12 +73,10 @@ public class JavaMNA implements IMNA {
 
     @Override
     public void cleanup() {
-
     }
 
     @Override
     public void hooksChanged() {
-
     }
 
     @Override
@@ -180,7 +178,6 @@ public class JavaMNA implements IMNA {
     @Override
     public void allocate(int size) {
         var NewState = new DMatrixRMaj(size, 1);
-        // Use previous state matrix to accelerate warm up
         if(StateVector != null) {
             var nodes = network.getNodes();
             for(int i = 0; i < size; ++i) {
@@ -205,7 +202,6 @@ public class JavaMNA implements IMNA {
             rowScales = new double[size];
         }
 
-        // Invalidate scales
         scalesAge = MAX_SCALE_REUSE_COUNT + 1;
     }
 
@@ -237,7 +233,6 @@ public class JavaMNA implements IMNA {
             if(converged)
                 network.convergenceProblems(norm, residualAccess);
             converged = false;
-            // Drop exchanged rows since they might reduce precision
             enableRowExchange = false;
             if (LOGGER != null) {
                 if (LOGGER.isDebugEnabled()) {
@@ -247,8 +242,6 @@ public class JavaMNA implements IMNA {
         } else {
             converged = true;
             if(warmUpTicks > 0) {
-                // This effectively freezes component states and allows the network
-                // to settle completely after a structure change (or world load).
                 --warmUpTicks;
                 converged = false;
             }
@@ -264,7 +257,6 @@ public class JavaMNA implements IMNA {
             workMatrix.multColumns(columnScales, ScaledJ);
             ScaledJ.multRows(rowScales, null);
             ScaledJ.markRefactorize();
-            // Make sure to drop all exchanged rows
             enableRowExchange = false;
             recalculateScales = false;
         }
@@ -302,7 +294,6 @@ public class JavaMNA implements IMNA {
                     for (var row : changedRows) {
                         var status = row.solveRow(A0, rowRecalc, changedRows);
                         if (status == 2) {
-                            // Drop changed rows
                             valid = false;
                             break;
                         } else if (status == 1) {
@@ -334,7 +325,6 @@ public class JavaMNA implements IMNA {
                 if(SCALING)
                     CommonOps_DDRM.multRows(columnScales, StateVector);
                 CommonOps_DDRM.subtract(StateVector, StateDelta, StateDelta);
-                // Perform solution fitting
                 double alpha = 0;
                 workMatrix = Jacobian;
                 while(alpha < maxSearchAlpha) {
@@ -447,7 +437,6 @@ public class JavaMNA implements IMNA {
             A0.solveRow(changedRow, solvedCoefficients);
             if(solvedCoefficients.unsafe_get(0, index) == 0)
                 return 2;
-            // Apply rows up to this row (assumes that the collection has fixed ordering)
             var vec = solvedCoefficients.getData();
             for(var row : allRows) {
                 if(row == this)
@@ -461,7 +450,6 @@ public class JavaMNA implements IMNA {
                         continue;
                     vec[i] -= x * row.solvedCoefficients.unsafe_get(0, i);
                     if(Math.abs(vec[i]) > 1e+6 || !Double.isFinite(vec[i])) {
-                        // The numerical errors might cause convergence issues
                         return 2;
                     }
                 }

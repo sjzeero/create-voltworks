@@ -13,7 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import java.util.*;
 import io.github.sjzeero.voltworks.registry.VoltworksCreativeTabs;
 
-/** Lays out the Voltworks creative tab into titled sections and draws their banners. */
 public final class CreativeTabSectionsClient {
     private static final int PER_ROW = 9;
     private static final int FRAMES = 8, FRAME_MS = 110;
@@ -32,7 +31,6 @@ public final class CreativeTabSectionsClient {
         return tab != null && tab == VoltworksCreativeTabs.TAB.get();
     }
 
-    /** Rebuilds the menu item list with an empty header row before each section and row padding after it. */
     public static void layout(List<ItemStack> menuItems, CreativeModeTab tab) {
         Map<Item, ItemStack> available = new LinkedHashMap<>();
         for (var st : tab.getDisplayItems()) available.putIfAbsent(st.getItem(), st);

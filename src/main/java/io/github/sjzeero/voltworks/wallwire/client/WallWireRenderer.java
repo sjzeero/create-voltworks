@@ -44,22 +44,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-/**
- * Draws wall wires as small boxes lying on the faces: one pixel square for normal wires, three pixels for
- * heavily insulated ones. The texture is taken from the wire's own segment model and repeats every half block
- * like Electro Energetics' hanging wires. The leads to the nodes are straight boxes of the same size.
- */
 public final class WallWireRenderer {
     private static final double RENDER_DISTANCE = 128;
     private static final double PX = 1 / 16.0;
-    /** Length of wire covered by one repeat of the segment texture (the segment model is 8 px long). */
     private static final double TEX_PERIOD = 0.5;
     private static final Map<BakedModel, Tex> TEXTURES = new java.util.IdentityHashMap<>();
 
     private WallWireRenderer() {
     }
 
-    /** Where the texture strip of a wire sits in the atlas: corners at (along, across) = (0,0), (0,1), (1,0), (1,1). */
     private record Tex(float[] u, float[] v) {
         float u(double t, double s) {
             return (float) ((u[0] * (1 - s) + u[1] * s) * (1 - t) + (u[2] * (1 - s) + u[3] * s) * t);
@@ -70,14 +63,12 @@ public final class WallWireRenderer {
         }
     }
 
-    /** Width of the wire's cross-section along the surface, in pixels. */
     public static int widthPixels(WireType type) {
         if(type == VoltworksWireTypes.COPPER_CORD.get())
             return 2;
         return isHeavy(type) ? 3 : 1;
     }
 
-    /** Height of the wire's cross-section above the surface, in pixels. */
     public static int heightPixels(WireType type) {
         return isHeavy(type) ? 3 : 1;
     }
@@ -91,7 +82,6 @@ public final class WallWireRenderer {
         return false;
     }
 
-    /** Dyed insulated wires use Electro Energetics' own coloured variant; bare wires, also after burning, keep their look. */
     private static WireType look(WireType type, @Nullable DyeColor color) {
         return color != null && type instanceof WireType.Dyeable dyeable ? dyeable.getDyed(color) : type;
     }
@@ -136,7 +126,6 @@ public final class WallWireRenderer {
                     .route(entry.route().cells, entry.segments(), c.node1(), c.node2());
         }
 
-        // redstone wires are laid the same way, drawn as red insulated wire
         WireType redType = CEEWireTypes.STANDARD.get();
         for(ClientRedstoneWires.Entry entry : ClientRedstoneWires.all()) {
             Pose3dc space = WallSpace.renderPose(level, entry.cells().getFirst().pos(), partial);
@@ -163,8 +152,6 @@ public final class WallWireRenderer {
             }
         }
 
-        // plugs of laid cords (hanging or on the walls) are drawn by ReelClient, the same model as a cord reel's;
-        // the plug shows up on the socket the cord is about to go into, turned towards the player
         if(hover) {
             WireType type = WallWireClient.heldWireType(mc.player);
             if(type != null && CordPair.isCord(type)) {
@@ -181,12 +168,10 @@ public final class WallWireRenderer {
             java.util.List<io.github.sjzeero.voltworks.wallwire.ContraptionWires.Drawn> drawn = view.voltworks$drawn();
             if(drawn == null || drawn.isEmpty())
                 continue;
-            // same interpolated position as Create's ContraptionMatrices.translateToEntity, taken fresh every frame
             double ex = Mth.lerp(partial, e.xOld, e.getX()), ey = Mth.lerp(partial, e.yOld, e.getY()), ez = Mth.lerp(partial, e.zOld, e.getZ());
             if(Math.sqrt((ex - cam.x) * (ex - cam.x) + (ey - cam.y) * (ey - cam.y) + (ez - cam.z) * (ez - cam.z)) > RENDER_DISTANCE)
                 continue;
             try {
-                // same local transform Create uses for the blocks of this entity (yaw, pitch, initial yaw, carts, riding), so wires cannot drift from them
                 PoseStack local = new PoseStack();
                 ace.applyLocalTransforms(local, partial);
                 org.joml.Matrix4f m = new org.joml.Matrix4f(local.last().pose());
@@ -205,7 +190,6 @@ public final class WallWireRenderer {
                     new Drawer(level, pose.last(), buffer, used, w.type(), w.color(), cam, space, point, normal, light)
                             .route(w.cells(), w.segments(), w.p1(), w.p2());
             } catch(RuntimeException ex2) {
-                // a broken contraption wire must never break world rendering
             }
         }
 
@@ -213,7 +197,6 @@ public final class WallWireRenderer {
             buffer.endBatch(type);
     }
 
-    /** Draws a wall route inside a schematic preview. Points are in the schematic's own space, the pose stack does the rest. */
     public static void drawSchematic(net.minecraft.world.level.Level level, PoseStack.Pose pose, MultiBufferSource buffer, WireType type, @Nullable DyeColor color, WallRoute route) {
         InWorldNodeConnection c = route.connection;
         new Drawer(level, pose, buffer, new java.util.HashSet<>(), type, color, Vec3.ZERO, null, p -> p, n -> n, 15728880)
@@ -235,10 +218,6 @@ public final class WallWireRenderer {
         return TEXTURES.computeIfAbsent(model, WallWireRenderer::extract);
     }
 
-    /**
-     * Picks the longest quad of the segment model (preferring the one facing up) and reads the atlas uvs
-     * of its four corners, ordered by position along the wire (model z) and across it.
-     */
     private static Tex extract(BakedModel model) {
         BakedQuad best = null;
         double bestScore = -1;
@@ -305,7 +284,6 @@ public final class WallWireRenderer {
         return (p[0] - q[0]) * (p[0] - q[0]) + (p[1] - q[1]) * (p[1] - q[1]);
     }
 
-    /** Emits the boxes of one wire. */
     private static final class Drawer {
         private final WireType type;
         final net.minecraft.world.level.Level level;
@@ -313,7 +291,6 @@ public final class WallWireRenderer {
         final VertexConsumer vb;
         Tex tex;
         final Vec3 cam;
-        /** Cross-section: {@code w} across the run on the surface, {@code h} off the surface. */
         final double w, h;
         final @Nullable Pose3dc space;
         final java.util.function.UnaryOperator<Vec3> mapPoint, mapNormal;
@@ -342,7 +319,6 @@ public final class WallWireRenderer {
             this.h = heightPixels(type) * PX;
         }
 
-        /** Redstone wire look: copper coil windings instead of the plain insulated wire texture. */
         Drawer coil() {
             this.tex = coilTex();
             return this;
@@ -383,11 +359,9 @@ public final class WallWireRenderer {
                 lead(WallSpace.nodePos(level, node), cell, seg);
                 return;
             }
-            // cord: the socket moved both contacts to the back of the plug model (drawn by ReelClient), the lead starts there
             lead(a.add(b).scale(0.5), cell, seg);
         }
 
-        /** Box of the wire's cross section from a to b; {@code flat} is the direction its height goes along. */
         private void straight(Vec3 a, Vec3 b, Vec3 flat, WallCell cell, boolean bottom) {
             Vec3 d = b.subtract(a);
             double len = d.length();
@@ -405,12 +379,6 @@ public final class WallWireRenderer {
             return new Vec3(d.getStepX(), d.getStepY(), d.getStepZ());
         }
 
-        /**
-         * One straight run. Joints are built so that neighbouring boxes touch without overlapping:
-         * turns on a face extend the first run over the corner square, inner corners stop at the other face
-         * and the next run starts on top of this one, outer corners overhang by the wire size and the next run
-         * starts under the overhang. Hidden end faces are not drawn.
-         */
         private void segment(List<WallRoute.Segment> segs, int i) {
             WallRoute.Segment seg = segs.get(i);
             if(seg.air()) {
@@ -441,11 +409,9 @@ public final class WallWireRenderer {
                         capStart = false;
                     }
                 } else if(pu.dot(n) < 0) {
-                    // inner corner: we start on top of the previous run
                     from += h - lift;
                     capStart = false;
                 } else {
-                    // outer corner: the previous run overhangs down to the face we are on
                     from += lift;
                     capStart = false;
                 }
@@ -476,7 +442,6 @@ public final class WallWireRenderer {
             box(origin, u, s, n, to - from, w, h, capStart, capEnd, false, light);
         }
 
-        /** A span through the air, standing on top of the runs it leaves and lands on. */
         private void air(WallRoute.Segment seg) {
             Vec3 u = step(seg.normal());
             double lift = WallCell.LIFT;
@@ -499,7 +464,6 @@ public final class WallWireRenderer {
             box(origin, u, s, n, w, w, h, true, true, false, light(cell.front()));
         }
 
-        /** Straight wire from the node into the middle of the end of the surface run. */
         private void lead(Vec3 node, WallCell cell, WallRoute.Segment seg) {
             if(node == null)
                 return;
@@ -520,14 +484,9 @@ public final class WallWireRenderer {
             Vec3 origin = node.subtract(side.scale(w / 2)).subtract(up.scale(h / 2));
             int light = WireRenderer.maxLightLevel(light(BlockPos.containing(node)),
                     light(cell.front()));
-            // stop at the near side of the surface run so the lead does not poke through it
             box(origin, u, side, up, Math.max(h / 2, len - h / 2), w, h, true, true, true, light);
         }
 
-        /**
-         * Box starting at {@code o}, {@code len} along {@code u}, {@code w} along {@code s} and {@code h} along {@code n}.
-         * Split into pieces of one texture repeat each.
-         */
         private void box(Vec3 o, Vec3 u, Vec3 s, Vec3 n, double len, double w, double h,
                          boolean capStart, boolean capEnd, boolean bottom, int light) {
             double pos = 0;
@@ -538,11 +497,9 @@ public final class WallWireRenderer {
                 Vec3 a = o.add(u.scale(pos)), b = o.add(u.scale(next));
                 Vec3 sw = s.scale(w), nh = n.scale(h);
                 double sideS = Math.min(1, h / w);
-                // top
                 face(a.add(nh), b.add(nh), b.add(nh).add(sw), a.add(nh).add(sw), n, t0, t1, 0, 1, light);
                 if(bottom)
                     face(a, b, b.add(sw), a.add(sw), n.scale(-1), t0, t1, 0, 1, light);
-                // sides
                 face(a, b, b.add(nh), a.add(nh), s.scale(-1), t0, t1, 0, sideS, light);
                 face(a.add(sw), b.add(sw), b.add(sw).add(nh), a.add(sw).add(nh), s, t0, t1, 0, sideS, light);
                 if(capStart && pos == 0)
@@ -558,10 +515,6 @@ public final class WallWireRenderer {
             face(p, p.add(nh), p.add(nh).add(sw), p.add(sw), normal, 0, t, 0, 1, light);
         }
 
-        /**
-         * Quad with corners c0 (t0, s0), c1 (t1, s0), c2 (t1, s1), c3 (t0, s1); the winding is flipped when needed
-         * so the front side faces {@code normal}.
-         */
         private void face(Vec3 c0, Vec3 c1, Vec3 c2, Vec3 c3, Vec3 normal, double t0, double t1, double s0, double s1, int light) {
             Vec3[] c = {c0, c1, c2, c3};
             double[][] ts = {{t0, s0}, {t1, s0}, {t1, s1}, {t0, s1}};
@@ -582,7 +535,6 @@ public final class WallWireRenderer {
             }
         }
 
-        /** Vanilla's directional block shading, blended for faces that are not axis aligned. */
         private static float shade(Vec3 n) {
             double up = n.y > 0 ? 1.0 : 0.5;
             return (float) (n.x * n.x * 0.6 + n.z * n.z * 0.8 + n.y * n.y * up);

@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Half shaft on the FACING side; always drawn here (no flywheel visual), like the servo. */
 public class PGMotorRenderer<T extends KineticBlockEntity> extends KineticBlockEntityRenderer<T> {
     public PGMotorRenderer(BlockEntityRendererProvider.Context context) {
         super(context);

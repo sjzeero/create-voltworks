@@ -17,24 +17,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** Joins touching batteries into banks and breaks banks up again, keeping every joule (see {@link BankPartition}). */
 public final class BatteryBanks {
     private BatteryBanks() {}
 
-    /** Largest group of touching batteries re-formed at once; more is left to the next placement. */
     public static final int MAX_GROUP = 1024;
 
     private static @Nullable BatteryBlockEntity battery(Level level, BlockPos pos) {
         return level.isLoaded(pos) && level.getBlockEntity(pos) instanceof BatteryBlockEntity be ? be : null;
     }
 
-    /** Forms the bank of a newly placed (or moved) battery, together with the batteries it touches. */
     public static void ensure(Level level, BlockPos pos) {
         BatteryBlockEntity be = battery(level, pos);
         if (be == null)
             return;
         if (be.validBank()) {
-            // a bank saved before its blocks had joined sides: bring the look up to date once
             BatteryBlockEntity c = be.controllerBE();
             if (c != null) {
                 BlockPos o = c.getBlockPos(), p = be.getBlockPos();
@@ -48,7 +44,6 @@ public final class BatteryBanks {
         reform(level, List.of(pos), null);
     }
 
-    /** The battery at {@code pos} is going away: it keeps its share, the batteries it touched form new banks. */
     public static void removed(Level level, BlockPos pos, BatteryBlockEntity be) {
         double share = be.cellEnergy();
         List<BlockPos> seeds = new ArrayList<>();
@@ -57,7 +52,6 @@ public final class BatteryBanks {
                 seeds.add(pos.relative(d));
         if (!seeds.isEmpty()) {
             reform(level, seeds, pos);
-            // the post block is going: its wires move to the posts of the bank that was under/next to it
             if (level instanceof ServerLevel sl && BatteryWires.hasWires(sl, pos)) {
                 BatteryBlockEntity next = battery(level, seeds.get(0));
                 BatteryBlockEntity c = next == null ? null : next.controllerBE();
@@ -68,7 +62,6 @@ public final class BatteryBanks {
         be.makeSingle(share);
     }
 
-    /** The block of a bank that carries the terminal posts: the top one above the controller (north-west corner). */
     public static BlockPos terminalPos(BatteryBlockEntity controller) {
         return controller.getBlockPos().above(controller.sizeY() - 1);
     }
@@ -89,15 +82,12 @@ public final class BatteryBanks {
                 }
             }
         }
-        // every block's share of its old bank, read before anything changes
         Map<BlockPos, Double> shares = new HashMap<>();
         for (BlockPos p : group) {
             BatteryBlockEntity be = battery(level, p);
             if (be != null)
                 shares.put(p, be.cellEnergy());
         }
-        // blocks of the old banks the walk did not reach (only when the group was cut off at MAX_GROUP) keep their
-        // share as single batteries, so nothing is lost
         Set<BlockPos> orphans = new LinkedHashSet<>();
         for (BlockPos p : group) {
             BatteryBlockEntity be = battery(level, p);
@@ -142,11 +132,6 @@ public final class BatteryBanks {
             refreshDisplay(level, c);
     }
 
-    /**
-     * Brings the terminal posts and joined sides of a bank's blocks up to date: only the top block above the controller
-     * (the bank's north-west corner) shows the posts, and wires still on any other block of the bank move onto them.
-     * @return true when any block changed
-     */
     public static boolean refreshDisplay(Level level, BatteryBlockEntity controller) {
         boolean changed = false;
         BlockPos o = controller.getBlockPos();
@@ -166,7 +151,6 @@ public final class BatteryBanks {
                         level.setBlock(p, n, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
                         changed = true;
                     }
-                    // wires left on a block that no longer has posts follow the posts
                     if (!top && level instanceof ServerLevel sl && BatteryWires.hasWires(sl, p))
                         BatteryWires.move(sl, p, terminal);
                 }
@@ -174,7 +158,6 @@ public final class BatteryBanks {
         return changed;
     }
 
-    /** Lets comparators next to any block of the bank read the new charge. */
     public static void updateComparators(Level level, BatteryBlockEntity controller) {
         BlockPos o = controller.getBlockPos();
         for (int x = 0; x < controller.sizeX(); x++)

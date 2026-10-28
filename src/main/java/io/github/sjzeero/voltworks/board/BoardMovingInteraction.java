@@ -12,10 +12,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Presses parts of a circuit board that rides on a contraption. The block is not in the world any more, so the press goes
- * through the board device that stays frozen at the old position (see {@link FrozenDevices}).
- */
 public class BoardMovingInteraction extends MovingInteractionBehaviour {
     public static final BoardMovingInteraction INSTANCE = new BoardMovingInteraction();
 

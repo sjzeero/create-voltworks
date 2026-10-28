@@ -293,7 +293,6 @@ public class BoardTestCommand {
         return base(source).south(6);
     }
 
-    /** Two boards joined by an edge via ("edge") or a vertical header ("header"), one battery across them. */
     private static int links(CommandSourceStack source, String kind) {
         ServerLevel level = source.getLevel();
         var a = linkBase(source);
@@ -309,7 +308,6 @@ public class BoardTestCommand {
         sb.place("connector", 0, 0);
         sb.place("connector", 0, 13);
         if(kind.equals("header")) {
-            // Upper board looks down onto the lower one; same facing mirrors x (Power Grid rule).
             sa.place("via", 8, 7, ViaComponent.VERTICAL_PASSTHROUGH, true)
                     .set(ViaComponent.EDGE_CONNECTIONS, false);
             sa.h(14, 1, 8).v(8, 7, 14);
@@ -361,7 +359,6 @@ public class BoardTestCommand {
         return base(source).south(12);
     }
 
-    /** Places count boards of a preset in a grid, each with its own wired creative battery. */
     private static int many(CommandSourceStack source, int count, String presetName) {
         ServerLevel level = source.getLevel();
         var preset = TestBoards.build(presetName, BoardTestCommand::component);

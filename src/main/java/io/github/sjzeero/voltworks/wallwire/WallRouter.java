@@ -10,12 +10,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 
-/**
- * Finds axis aligned pixel paths along block surfaces, wrapping over edges and into corners. Where there is no
- * surface a path may jump straight through the air: out from a surface to one facing it or to the edge of one beside
- * its way, or on across a gap to where the surface continues or to a face rising in its way. A pixel through the air
- * costs the same as a pixel on a surface, so the shorter way wins; on a tie the surface is kept.
- */
 public final class WallRouter {
     private static final int STEP = 64;
     public static final int MAX_EXPANSIONS = 30_000;
@@ -31,7 +25,6 @@ public final class WallRouter {
         return type.shouldScaleLast();
     }
 
-    /** A pixel surface can carry a wire when its pixel is solid and the pixel in front of it is not. */
     public static boolean supports(BlockGetter level, WallCell cell) {
         return supports(new WallShapes(level), cell);
     }
@@ -42,7 +35,6 @@ public final class WallRouter {
         return shapes.solid(v[0], v[1], v[2]) && !shapes.solid(v[0] + f.getStepX(), v[1] + f.getStepY(), v[2] + f.getStepZ());
     }
 
-    /** The rule before partial blocks were supported: a full face with nothing full pressed against it. */
     static boolean supportsFullFace(BlockGetter level, WallCell cell) {
         if(!cell.onBlockFace())
             return false;
@@ -51,10 +43,6 @@ public final class WallRouter {
                 && !level.getBlockState(front).isFaceSturdy(level, front, cell.face().getOpposite(), SupportType.FULL);
     }
 
-    /**
-     * Calls {@code out} with the cell reached by one pixel step in each direction along the surface,
-     * and with the cells reached by spans through the air, together with their length in pixels.
-     */
     static void neighbours(WallShapes shapes, WallCell cell, NeighbourSink out) {
         Direction face = cell.face();
         int[] v = cell.worldPixel();
@@ -63,16 +51,12 @@ public final class WallRouter {
             if(d.getAxis() == face.getAxis())
                 continue;
             int tx = d.getStepX(), ty = d.getStepY(), tz = d.getStepZ();
-            // inside corner: climb onto the side of the pixel standing in front of us
             if(shapes.solid(v[0] + nx + tx, v[1] + ny + ty, v[2] + nz + tz))
                 out.accept(WallCell.ofPixel(v[0] + nx + tx, v[1] + ny + ty, v[2] + nz + tz, d.getOpposite()), d, 1);
-            // flat: the same surface on the next pixel
             else if(shapes.solid(v[0] + tx, v[1] + ty, v[2] + tz))
                 out.accept(WallCell.ofPixel(v[0] + tx, v[1] + ty, v[2] + tz, face), d, 1);
             else {
-                // outside corner: wrap around the edge of this pixel
                 out.accept(WallCell.ofPixel(v[0], v[1], v[2], d), d, 1);
-                // or cross the gap to where this surface goes on
                 for(int i = 2; i <= MAX_SPAN; ) {
                     int x = v[0] + tx * i, y = v[1] + ty * i, z = v[2] + tz * i;
                     int run = Math.min(shapes.emptyRun(x, y, z, d), shapes.emptyRun(x + nx, y + ny, z + nz, d));
@@ -92,7 +76,6 @@ public final class WallRouter {
                 }
             }
         }
-        // straight out to the surface facing this one, or onto the edge of one beside the way
         for(int i = 2; i <= MAX_SPAN; ) {
             int x = v[0] + nx * i, y = v[1] + ny * i, z = v[2] + nz * i;
             int run = shapes.emptyRun(x, y, z, face);
@@ -127,7 +110,6 @@ public final class WallRouter {
         return a.manhattan(b) > 1;
     }
 
-    /** Length of a path in pixels. */
     public static int pixels(List<WallCell> cells) {
         int n = 0;
         for(int i = 1; i < cells.size(); i++)
@@ -139,7 +121,6 @@ public final class WallRouter {
         boolean accept(int x, int y, int z);
     }
 
-    /** Calls {@code out} with every pixel a span passes through, stopping early when it returns false. */
     static boolean forEachSpanPixel(WallCell a, WallCell b, PixelSink out) {
         int[] p = a.worldPixel(), q = b.worldPixel();
         Direction fa = a.face(), fb = b.face();
@@ -167,10 +148,6 @@ public final class WallRouter {
     private record Move(WallCell cell, int dir, int pixels) {
     }
 
-    /**
-     * Shortest path from {@code from} to {@code to} (both included), preferring fewer turns among paths of equal length.
-     * @return null if there is no path within {@code maxSteps} pixel steps
-     */
     public static @Nullable List<WallCell> findPath(BlockGetter level, WallCell from, WallCell to, int maxSteps) {
         return findPath(level, from, to, maxSteps, MAX_EXPANSIONS);
     }
@@ -232,7 +209,6 @@ public final class WallRouter {
         return out;
     }
 
-    /** Joins a path through the given waypoints. Returns null if any leg has no path. */
     public static @Nullable List<WallCell> route(BlockGetter level, List<WallCell> waypoints, int maxSteps) {
         if(waypoints.isEmpty())
             return null;

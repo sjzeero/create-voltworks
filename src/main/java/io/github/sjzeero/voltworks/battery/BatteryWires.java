@@ -10,19 +10,11 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-/**
- * Keeps the wires on a bank's terminals when the bank changes shape: only one block of a bank shows the posts, so when
- * another block becomes the terminal block (blocks added, the bank split, the post block broken) the wires on the old
- * posts are moved over to the new ones, + to + and - to -. A wire that would get longer than its type allows, or would
- * end on the battery itself, drops as items instead, as Electro Energetics does for a broken wire.
- */
 public final class BatteryWires {
     private BatteryWires() {}
 
-    /** Terminal node ids: 0 is +, 1 is -. */
     static final List<Integer> NODES = List.of(0, 1);
 
-    /** Whether the block at {@code pos} has any wire on its terminals. */
     public static boolean hasWires(ServerLevel level, BlockPos pos) {
         InfrastructureSavedData sd = InfrastructureSavedData.load(level);
         for (int id : NODES)
@@ -31,7 +23,6 @@ public final class BatteryWires {
         return false;
     }
 
-    /** Moves every wire on the terminals at {@code from} to the same terminals at {@code to}. */
     public static void move(ServerLevel level, BlockPos from, BlockPos to) {
         if (from.equals(to))
             return;

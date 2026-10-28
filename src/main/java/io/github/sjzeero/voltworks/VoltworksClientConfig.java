@@ -2,7 +2,6 @@ package io.github.sjzeero.voltworks;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-/** Client options, same keys as Power Grid's "Circuit Design Table" client config. The high contrast defaults are red top and green bottom traces (Power Grid defaults to white). */
 public final class VoltworksClientConfig {
     public static final ModConfigSpec SPEC;
     public static final ModConfigSpec.BooleanValue HIGH_CONTRAST_TRACES;

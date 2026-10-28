@@ -16,7 +16,6 @@ import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-/** Turns a potentiometer on a board with the mouse wheel while looking at it, no screen. */
 public final class PotentiometerScroll {
     private static final double REACH = 8;
 
@@ -51,7 +50,6 @@ public final class PotentiometerScroll {
             double dy = event.getScrollDeltaY();
             if(dy == 0)
                 return;
-            // The wheel belongs to the potentiometer while it is under the crosshair.
             event.setCanceled(true);
             int step = player.isShiftKeyDown() ? 1 : 5;
             int current = placed.get(PotentiometerComponent.VALUE);

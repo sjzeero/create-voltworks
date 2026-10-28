@@ -53,7 +53,6 @@ public class RelayComponent extends MirrorableComponent {
 
     @Override
     public void bake(@NotNull PlacedComponent placed, @NotNull ComponentCircuitBuilder builder, ThermalBuilder.@NotNull IEmitter thermals) {
-        // Target power is 1.2 W
         var onCurrent = placed.get(THRESHOLD_CURRENT);
         var offCurrent = onCurrent * VoltworksConfig.holdingCurrentPercent();
 

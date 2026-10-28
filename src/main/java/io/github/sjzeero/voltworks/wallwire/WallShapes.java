@@ -15,10 +15,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Blocks as 16x16x16 pixel grids, taken from the outline shape of blocks that have a collision shape.
- * A pixel is solid when its centre lies inside one of the shape's boxes.
- */
 public final class WallShapes {
     private static final long[] EMPTY = new long[64];
     private static final long[] FULL = new long[64];
@@ -36,14 +32,12 @@ public final class WallShapes {
         this.level = level;
     }
 
-    /** Whether the pixel at world pixel coordinates (16 per block) is solid. */
     public boolean solid(int x, int y, int z) {
         long[] mask = blockMask(x, y, z);
         int i = (x & 15) << 8 | (y & 15) << 4 | (z & 15);
         return (mask[i >> 6] >>> (i & 63) & 1) != 0;
     }
 
-    /** Pixels from here along {@code d} that stay inside the same block, if that block is empty; 0 otherwise. */
     public int emptyRun(int x, int y, int z, Direction d) {
         if(blockMask(x, y, z) != EMPTY)
             return 0;
@@ -75,7 +69,6 @@ public final class WallShapes {
         return mask;
     }
 
-    /** Copycat blocks, Create's own and those from Copycats+, which wires run through. */
     public static boolean passable(BlockState state) {
         return PASSABLE.computeIfAbsent(state.getBlock(), b -> b instanceof CopycatBlock
                 || BuiltInRegistries.BLOCK.getKey(b).getNamespace().equals("copycats"));

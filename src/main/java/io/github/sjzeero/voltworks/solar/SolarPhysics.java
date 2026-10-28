@@ -1,3 +1,20 @@
+/*
+ * Copyright 2025-2026 patryk3211
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by sjzeero: ported from Create: Power Grid to Voltworks.
+ */
 package io.github.sjzeero.voltworks.solar;
 
 import net.minecraft.core.BlockPos;
@@ -13,10 +30,6 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import io.github.sjzeero.voltworks.Voltworks;
 
-/**
- * Ported from Create: Power Grid (patryk3211) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
- * Irradiance, sun occlusion and the panel I-V curve (PG SolarHelper / SolarPanelBlockEntity).
- */
 public final class SolarPhysics {
     public static final double SOLAR_CONSTANT = 1361;
     public static final double IDEALITY = 1.5, W_REF = 1000.0, T_REF = 25.0;
@@ -47,13 +60,11 @@ public final class SolarPhysics {
         return ambient + (NOCT - 20) * (irradiance / 800);
     }
 
-    /** Ambient temperature in C derived from the biome base temperature (plains 0.8 -> 22 C). */
     public static double ambientTemp(Level level, BlockPos pos) {
         float t = level.getBiome(pos).value().getBaseTemperature();
         return Mth.clamp(22 + (t - 0.8) * 25, -20, 50);
     }
 
-    /** Light transmission factor of a block on the ray, or -1 if it is opaque. */
     private static float transmission(BlockState s) {
         if (s.is(QUARTER)) return .25f;
         if (s.is(HALF)) return .5f;
@@ -71,7 +82,6 @@ public final class SolarPhysics {
         return true;
     }
 
-    /** Voxel walk from start to end; returns the fraction of light that gets through (0..1). */
     public static float trace(Level level, Vec3 start, Vec3 end, BlockPos self) {
         Vec3 dir = end.subtract(start);
         double length = dir.length();
@@ -117,12 +127,10 @@ public final class SolarPhysics {
         return trace(level, pos.getCenter(), pos.getCenter().add(0, top - pos.getY() + 1, 0), pos) > 0;
     }
 
-    /** Linearised panel I-V curve around v0: returns {Ieq, G} of the Norton equivalent. */
     public static double[] ivCurve(double irradiance, double cellTempC, double v0) {
         return ivCurve(irradiance, cellTempC, v0, 1, 1);
     }
 
-    /** Array of {@code series} panels per string and {@code parallel} strings (PG SolarHelper.IVCurve). */
     public static double[] ivCurve(double irradiance, double cellTempC, double v0, int series, int parallel) {
         double k = 1.380649e-23, q = 1.602176634e-19;
         double dT = cellTempC - T_REF;

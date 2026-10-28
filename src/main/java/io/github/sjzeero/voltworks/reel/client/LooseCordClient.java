@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-/** Client side of a cord pulled out of its outlets: where the cable of an end held in a hand comes from. */
 public final class LooseCordClient {
     private LooseCordClient() {}
 
@@ -34,7 +33,6 @@ public final class LooseCordClient {
         return data == null || !data.contains("LooseCord") ? null : data.copyTag();
     }
 
-    /** The outlet the other end of the held cord is plugged into, or null. */
     public static @Nullable Anchor anchor(ItemStack stack) {
         CompoundTag t = tag(stack);
         if (t == null || !t.contains("OtherSupply") || t.getInt("OtherSupply") < 0)
@@ -66,6 +64,5 @@ public final class LooseCordClient {
         return null;
     }
 
-    /** Source of a held cable: start, its direction out of there, wire type, length, block the path may pass through. */
     record ReelClientSource(Vec3 from, Vec3 fromOut, WireType type, double length, BlockPos skip) {}
 }

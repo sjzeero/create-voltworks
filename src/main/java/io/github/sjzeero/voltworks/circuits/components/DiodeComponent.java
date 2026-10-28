@@ -49,7 +49,6 @@ public class DiodeComponent extends VerticallyOrientableComponent {
 
     @Override
     public void bake(@NotNull PlacedComponent placed, @NotNull ComponentCircuitBuilder builder, ThermalBuilder.@NotNull IEmitter thermals) {
-        // Variation of 1N4007 diode model
         var pnJunctionWire = new PNJunctionWire(5.47e-9, 0.075f,22, 1.783,
                 1000, 1e-6,
                 builder.terminalNode(1), builder.terminalNode(0));

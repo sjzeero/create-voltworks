@@ -9,13 +9,11 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Mod entity types. */
 public final class VoltworksEntities {
     private VoltworksEntities() {}
 
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(Registries.ENTITY_TYPE, Voltworks.MOD_ID);
 
-    /** The end of a reel cable lying on the ground. */
     public static final DeferredHolder<EntityType<?>, EntityType<CableEndEntity>> CABLE_END = ENTITIES.register("cable_end",
             () -> EntityType.Builder.<CableEndEntity>of(CableEndEntity::new, MobCategory.MISC)
                     .sized(0.3f, 0.2f)

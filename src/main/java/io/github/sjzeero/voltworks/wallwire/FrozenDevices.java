@@ -26,11 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Electrical devices and wires of contraptions that are assembled right now. The blocks are gone from the world, but the
- * Electro Energetics device (and its nodes) stays at the old position and the wires between them are fed into the circuit
- * by hand, so the circuit keeps running while the contraption moves. The group goes away when the contraption is placed again.
- */
 public class FrozenDevices extends SavedData {
     private static final String NAME = "voltworks_frozen_devices";
 
@@ -115,7 +110,6 @@ public class FrozenDevices extends SavedData {
         return positions.size();
     }
 
-    /** Called before the contraption takes its blocks out of the world; {@code captured} are the wires the contraption just took off the nodes. */
     public @Nullable UUID freeze(ServerLevel level, Contraption contraption, BlockPos offset, ListTag captured) {
         BlockPos shift = contraption.anchor.offset(offset);
         List<Long> rel = new ArrayList<>();
@@ -148,10 +142,6 @@ public class FrozenDevices extends SavedData {
         return g.id();
     }
 
-    /**
-     * Puts the contraption back: the state of every frozen device goes to the device at its new position, the frozen
-     * originals that are not under a device block any more are removed with their nodes.
-     */
     public void thaw(ServerLevel level, UUID id, StructureTransform transform) {
         Group g = groups.remove(id);
         if(g == null)
@@ -205,7 +195,6 @@ public class FrozenDevices extends SavedData {
         }
     }
 
-    /** Original world position of the frozen device behind a contraption block, or null. */
     public @Nullable BlockPos worldPos(@Nullable UUID id, BlockPos rel) {
         Group g = id == null ? null : groups.get(id);
         if(g == null)
@@ -228,10 +217,6 @@ public class FrozenDevices extends SavedData {
             SENT.keySet().removeIf(k -> k.entity() == entity.getId());
     }
 
-    /**
-     * The block entities of boards on an assembled contraption are not in the world, so nothing sends them the state of
-     * their frozen board device. This relays it to the players that see the contraption.
-     */
     public static void forward(ServerLevel level) {
         try {
             FrozenDevices data = get(level);
@@ -279,7 +264,6 @@ public class FrozenDevices extends SavedData {
         }
     }
 
-    /** Adds the wires of assembled contraptions to the circuit. */
     public static void addToGraph(AddToElectricGraphEvent event) {
         try {
             FrozenDevices data = get(event.level);

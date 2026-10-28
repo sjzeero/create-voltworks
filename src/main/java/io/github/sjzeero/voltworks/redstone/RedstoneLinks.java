@@ -22,18 +22,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-/**
- * Redstone wires of one dimension. A wire lies along the surfaces like a wall wire; its first cell is the source face and its
- * last cell the output face. It reads the redstone level arriving at the source face and shows it on the output face: the
- * output is added to the signal queries of the neighbour of the output face.
- */
 public class RedstoneLinks extends SavedData {
     private static final String NAME = "voltworks_redstone_links";
     private static final Map<ServerLevel, RedstoneLinks> LOADED = new WeakHashMap<>();
-    /** True while a source is being read, so a wire never feeds on its own output. */
     private static boolean reading;
 
-    /** Identifies a wire by the faces it joins. */
     public record Key(BlockPos src, Direction srcFace, BlockPos dst, Direction dstFace) {}
 
     public static final class Link {
@@ -131,7 +124,6 @@ public class RedstoneLinks extends SavedData {
             level.updateNeighborsAt(n, level.getBlockState(n).getBlock());
     }
 
-    /** Signal the output faces add to a query of (pos, dir); called from the block state mixin. */
     public static int outputSignal(BlockGetter getter, BlockPos pos, Direction dir) {
         if(reading || LOADED.isEmpty() || !(getter instanceof ServerLevel sl))
             return 0;
@@ -155,7 +147,6 @@ public class RedstoneLinks extends SavedData {
         return false;
     }
 
-    /** Adds a wire along {@code cells}; returns the denial key (suffix of voltworks.redstone_cable.*) or null when it was made. */
     public @Nullable String add(List<WallCell> cells, double length) {
         if(cells.size() < 2)
             return "need_point";
@@ -174,10 +165,6 @@ public class RedstoneLinks extends SavedData {
         return null;
     }
 
-    /**
-     * Removes every wire that has this face as source or output; returns how many went. With {@code drop} each wire
-     * leaves its cable items along its route, like a cut Electro Energetics wire.
-     */
     public int removeAt(BlockPos pos, Direction face, boolean drop) {
         List<Link> gone = new ArrayList<>();
         for(Link l : links)
@@ -203,7 +190,6 @@ public class RedstoneLinks extends SavedData {
         }
     }
 
-    /** Spreads the refund of one wire (cable items, or the spool with alternate placement) along its cells. */
     private void dropCable(Link l) {
         if(l.cells.isEmpty())
             return;
@@ -223,7 +209,6 @@ public class RedstoneLinks extends SavedData {
         List<Link> gone = new ArrayList<>();
         List<Link> changed = new ArrayList<>();
         for(Link l : links) {
-            // a wire whose end block was broken goes with it
             if(level.isLoaded(l.src) && level.getBlockState(l.src).isAir() || level.isLoaded(l.dst) && level.getBlockState(l.dst).isAir()) {
                 gone.add(l);
                 continue;

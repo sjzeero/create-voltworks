@@ -73,7 +73,6 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
     private int light;
     private int version = -1;
     private @Nullable CompoundTag pendingSchematic;
-    /** Parts carried in the block entity tag (Create moves boards through it); applied once to a device that has none. */
     private @Nullable CompoundTag carriedSchematic;
     private @Nullable BoardDevice carriedDevice;
     private int carriedTries;
@@ -288,7 +287,6 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
             be.pendingSchematic = null;
         }
         if(be.carriedSchematic != null) {
-            // keep pushing until this device really holds the parts (the device can be recreated while a moved board settles)
             if(!device.schematic().components().isEmpty() || be.carriedTries > 200)
                 be.carriedSchematic = null;
             else if(be.carriedDevice != device || be.carriedTries % 20 == 0)
@@ -439,7 +437,6 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
         return Float.NaN;
     }
 
-    /** The part under the crosshair, same hit test as Power Grid's board goggles. Client only. */
     private @Nullable PlacedComponent hoveredComponent() {
         if(level == null || !level.isClientSide)
             return null;

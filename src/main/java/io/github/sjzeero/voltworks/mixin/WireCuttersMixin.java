@@ -19,11 +19,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/**
- * Wire cutters on a copper cord (hanging or run along walls and floors): the cord is cut, both strands, and is gone -
- * no spool back (a power strip's own cord goes back into the strip). On a reel's cable the cable winds back as before;
- * a connection already gone does nothing (Electro Energetics would crash on it).
- */
 @Mixin(value = WireCuttersWireInteractionBehaviour.class, remap = false)
 public class WireCuttersMixin {
     @Inject(method = "interactWire", at = @At("HEAD"), cancellable = true)

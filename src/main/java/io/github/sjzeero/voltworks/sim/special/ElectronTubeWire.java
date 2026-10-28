@@ -78,7 +78,6 @@ public class ElectronTubeWire extends CompoundWire implements ISolverHook {
 
     @Override
     public void startIteration(int iteration) {
-        // Norman Koren triode model, http://www.normankoren.com/Audio/Tubemodspice_article.html
         double vCathode = node1.getVoltage();
         double vGrid = grid.getVoltage();
         double vAnode = node2.getVoltage();
@@ -261,13 +260,9 @@ public class ElectronTubeWire extends CompoundWire implements ISolverHook {
 
         @Override
         public void stamp(IAdmittanceAdder admittance, double change) {
-            // Anode-Cathode
             admittance.add(node2.getIndex(), node1.getIndex(), -change);
-            // Anode-Grid
             admittance.add(node2.getIndex(), node3.getIndex(), change);
-            // Cathode-Cathode
             admittance.add(node1.getIndex(), node1.getIndex(), change);
-            // Cathode-Grid
             admittance.add(node1.getIndex(), node3.getIndex(), -change);
         }
 

@@ -14,7 +14,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import java.util.List;
 
-/** Server side checks for a redstone wire and the actual connection. The client only suggests the points. */
 public final class RedstoneWirePlacement {
     private RedstoneWirePlacement() {
     }

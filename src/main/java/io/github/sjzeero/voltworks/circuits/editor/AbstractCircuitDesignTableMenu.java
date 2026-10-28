@@ -49,7 +49,6 @@ public abstract class AbstractCircuitDesignTableMenu<T extends BlockEntity & IMe
     }
 
     protected void addPlayerSlots(int xOffset, int yOffset) {
-        // Player Inventory
         for(int row = 0; row < 3; ++row) {
             for(int col = 0; col < 9; ++col) {
                 addSlot(new Slot(player.getInventory(), col + row * 9 + 9, xOffset + col * 18, yOffset + row * 18));
@@ -59,16 +58,13 @@ public abstract class AbstractCircuitDesignTableMenu<T extends BlockEntity & IMe
         for(int hotbarSlot = 0; hotbarSlot < 9; ++hotbarSlot) {
             addSlot(new Slot(player.getInventory(), hotbarSlot, xOffset + hotbarSlot * 18, yOffset + 18 * 3 + 4));
         }
-
     }
 
     @Override
     protected void initAndReadInventory(T contentHolder) {
-
     }
 
     @Override
     protected void saveData(T contentHolder) {
-
     }
 }

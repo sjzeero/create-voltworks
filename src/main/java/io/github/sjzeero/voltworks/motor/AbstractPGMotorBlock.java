@@ -1,3 +1,20 @@
+/*
+ * Copyright 2025-2026 patryk3211
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by sjzeero: ported from Create: Power Grid to Voltworks.
+ */
 package io.github.sjzeero.voltworks.motor;
 
 import com.george_vi.electroenergetics.foundation.base.DirectionalKineticElectricBlock;
@@ -27,12 +44,8 @@ import io.github.sjzeero.voltworks.Voltworks;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
-/**
- * Ported from Create: Power Grid (patryk3211) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
- */
 public abstract class AbstractPGMotorBlock extends DirectionalKineticElectricBlock<PGMotorDevice> {
     public static final BooleanProperty ROLL = DirectionalRolledDeviceBlock.ROLL;
-    /** Node positions (0:+ red, 1:- blue) taken from the PG motor model pins and the blockstate rotations. */
     private static final Map<String, Vec3[]> NODES = new java.util.HashMap<>();
     static {
         NODES.put("NORTHfalse", new Vec3[]{new Vec3(0.375, 0.84375, 0.9375), new Vec3(0.625, 0.84375, 0.9375)});
@@ -64,7 +77,6 @@ public abstract class AbstractPGMotorBlock extends DirectionalKineticElectricBlo
         return Block.box(x1, y1, z1, x2, y2, z2);
     }
 
-    /** PG motor shape (north: body 3..13 along z 0.5..15.5, flange at the back), rotated for every facing. */
     private static VoxelShape shapeFor(Direction f) {
         double[][] boxes = {{3, 3, 0.5, 13, 13, 15.5}, {2.5, 2.5, 10.5, 13.5, 13.5, 15.5}};
         VoxelShape s = Shapes.empty();

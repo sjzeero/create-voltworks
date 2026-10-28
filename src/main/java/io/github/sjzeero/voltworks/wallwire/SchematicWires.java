@@ -18,11 +18,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Wall wire routes inside a schematic. Electro Energetics keeps the wires themselves in the template, but not where
- * they lie on the walls, so without this a pasted wire hangs in the air. Routes are stored relative to the template
- * origin and put back after the wires are connected, rotated and mirrored like the blocks.
- */
 public final class SchematicWires {
     public static final String KEY = "voltworks_wall_wires";
 
@@ -39,7 +34,6 @@ public final class SchematicWires {
         return capture(WallWireData.get(level).all(), origin, size);
     }
 
-    /** Create saves schematics on the client, so the routes come from either side's own store. */
     public static ListTag capture(java.util.Collection<WallRoute> routes, BlockPos origin, Vec3i size) {
         ListTag out = new ListTag();
         for(WallRoute route : routes) {
@@ -123,7 +117,6 @@ public final class SchematicWires {
         return out;
     }
 
-    /** Registers the routes once Electro Energetics has connected the wires; runs on the next server tick. */
     public static void place(ServerLevel level, ListTag list, BlockPos origin, StructurePlaceSettings settings) {
         List<Parsed> pending = parse(list, origin, settings);
         if(pending.isEmpty())
@@ -141,7 +134,6 @@ public final class SchematicWires {
 
     private static final java.util.Map<Object, List<WallRoute>> PREVIEW = java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
 
-    /** Remembers the routes of a schematic level (the hologram) so the client can draw them. */
     public static void placePreview(Object level, ListTag list, BlockPos origin, StructurePlaceSettings settings) {
         List<WallRoute> out = new ArrayList<>();
         for(Parsed p : parse(list, origin, settings))
@@ -151,7 +143,6 @@ public final class SchematicWires {
 
     private static final java.util.Map<ServerLevel, List<WallRoute>> PENDING = java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
 
-    /** Schematic cannon: Electro Energetics connects the wires itself later, so the routes wait for that connect. */
     public static void addPending(ServerLevel level, ListTag list, BlockPos origin, StructurePlaceSettings settings) {
         List<WallRoute> routes = new ArrayList<>();
         for(Parsed p : parse(list, origin, settings))
@@ -163,7 +154,6 @@ public final class SchematicWires {
         }
     }
 
-    /** Called after a wire between two nodes was connected; turns a waiting route into a wall wire. */
     public static void onConnect(ServerLevel level, InWorldNode a, InWorldNode b) {
         List<WallRoute> list = PENDING.get(level);
         if(list == null)

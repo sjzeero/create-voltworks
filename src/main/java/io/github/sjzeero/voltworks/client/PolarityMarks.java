@@ -31,7 +31,6 @@ public final class PolarityMarks {
         return marked;
     }
 
-    // two-pole parts without pad labels: node 0 is +, node 1 is -
     private static List<Map.Entry<Point, Boolean>> byNodeOrder(ComponentFootprint fp) {
         var marked = new ArrayList<Map.Entry<Point, Boolean>>();
         if(fp.getPads().size() != 2)

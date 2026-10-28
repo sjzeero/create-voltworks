@@ -76,8 +76,6 @@ public class CircuitDesignTableLoadScreen extends AbstractSimiContainerScreen<Ci
         super(container, inv, title);
     }
 
-
-
     private void save() {
         if(fileNameInput.getValue().isEmpty()) {
             popup(NO_NAME);
@@ -185,8 +183,6 @@ public class CircuitDesignTableLoadScreen extends AbstractSimiContainerScreen<Ci
     @Override
     protected void renderBg(GuiGraphics ctx, float partialTick, int mouseX, int mouseY) {
         int bgX = getLeftOfCentered(WIDTH);
-//        int invY = topPos + HEIGHT + 4;
-//        renderPlayerInventory(ctx, bgX + 2, invY);
 
         ctx.blit(BACKGROUND, bgX, topPos, 0, 0, WIDTH, HEIGHT);
         ctx.drawString(font, FILE_DIALOG, leftPos + 5, topPos + 4, 0x404040, false);

@@ -11,7 +11,6 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Sent when a player finishes a wall wire: the two nodes and the face points they clicked, in order. */
 public record PlaceWallWirePayload(InWorldNode start, InWorldNode end, List<WallCell> points) implements CustomPacketPayload {
     public static final int MAX_POINTS = 512;
     public static final Type<PlaceWallWirePayload> TYPE = new Type<>(Voltworks.asResource("place_wall_wire"));

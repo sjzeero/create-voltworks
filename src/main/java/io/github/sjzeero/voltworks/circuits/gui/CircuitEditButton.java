@@ -37,7 +37,6 @@ public class CircuitEditButton extends AbstractSimiWidget {
                 ctx.vLine(getX() - 1, getY() - 1, getY() + height + 1, 0xFFFFFFFF);
                 ctx.hLine(getX(), getX() + width, getY() + height, 0xFF888888);
                 ctx.vLine(getX() + width, getY() - 1, getY() + height + 1, 0xFF888888);
-//                ctx.drawBorder(getX(), getY(), width + 2, height + 2, 0xFF888888);
             }
         }
     }

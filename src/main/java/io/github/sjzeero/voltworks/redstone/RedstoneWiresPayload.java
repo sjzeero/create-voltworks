@@ -11,7 +11,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Redstone wire routes for the client: the wires that came (cells, first to last) and the ones that went (by their faces). */
 public record RedstoneWiresPayload(boolean reset, List<List<WallCell>> added, List<RedstoneLinks.Key> removed) implements CustomPacketPayload {
     public static final Type<RedstoneWiresPayload> TYPE = new Type<>(Voltworks.asResource("redstone_wires"));
     public static final StreamCodec<RegistryFriendlyByteBuf, RedstoneWiresPayload> CODEC = StreamCodec.of((buf, p) -> p.write(buf), RedstoneWiresPayload::read);

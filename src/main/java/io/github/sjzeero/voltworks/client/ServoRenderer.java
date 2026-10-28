@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** PG servo renderer: half shaft on the FACING side. */
 public class ServoRenderer extends KineticBlockEntityRenderer<ServoBlockEntity> {
     public ServoRenderer(BlockEntityRendererProvider.Context context) {
         super(context);

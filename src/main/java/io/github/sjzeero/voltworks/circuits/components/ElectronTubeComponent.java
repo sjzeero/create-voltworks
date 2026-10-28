@@ -33,9 +33,7 @@ import io.github.sjzeero.voltworks.circuits.Thermal;
 import io.github.sjzeero.voltworks.sim.special.ElectronTubeWire;
 
 public class ElectronTubeComponent extends MirrorableComponent {
-    // Koren mu (amplification factor), not small-signal voltage gain
     public static final FloatProperty GAIN = new FloatProperty(Voltworks.MOD_ID, "tube_gain", 5, 1, 100);
-    // Doubled from 6800 to preserve operating point with the Koren (1 + sgn(E1)) factor
     public static final FloatProperty K_G = new FloatProperty(Voltworks.MOD_ID, "tube_kg", 13_600, 200, 20_000);
     public static final FloatProperty K_P = new FloatProperty(Voltworks.MOD_ID, "tube_kp", 600, 50, 2000);
     public static final FloatProperty K_VB = new FloatProperty(Voltworks.MOD_ID, "tube_kvb", 300, 10, 1000);
@@ -62,9 +60,9 @@ public class ElectronTubeComponent extends MirrorableComponent {
         final var saturationCurrent = placed.get(SATURATION_CURRENT);
         var tube = new ElectronTubeWire(
                 placed.get(GAIN), placed.get(K_G), placed.get(K_P), placed.get(K_VB), placed.get(EX), saturationCurrent,
-                builder.terminalNode(0), // Cathode
-                builder.terminalNode(2), // Anode
-                builder.terminalNode(1)  // Grid
+                builder.terminalNode(0),
+                builder.terminalNode(2),
+                builder.terminalNode(1)
         );
         builder.add(tube);
 
@@ -99,7 +97,6 @@ public class ElectronTubeComponent extends MirrorableComponent {
     public void dataFixup(@NotNull CompoundTag tag, int version) {
         if(version == 1) {
             var props = tag.getCompound("Properties");
-            // tube_kp present means saved under the full Koren model (or already migrated)
             if (props.contains(K_P.id().toString()))
                 return;
 

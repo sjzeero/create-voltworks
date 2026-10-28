@@ -1,3 +1,20 @@
+/*
+ * Copyright 2025-2026 patryk3211
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by sjzeero: ported from Create: Power Grid to Voltworks.
+ */
 package io.github.sjzeero.voltworks.battery;
 
 import net.minecraft.core.BlockPos;
@@ -12,34 +29,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * How touching battery blocks join into banks; free of world access so it can be unit tested.
- * <p>
- * As in Create: Power Grid (patryk3211, Apache-2.0) a bank is a solid box of batteries at most {@link #MAX_HEIGHT}
- * tall; Voltworks lets its footprint be any rectangle up to {@link #MAX_WIDTH} by {@link #MAX_WIDTH} (Power Grid only
- * joins square footprints, so two batteries side by side stayed apart). The controller is the box's lowest
- * north-west corner and holds the energy of the whole bank.
- * <p>
- * Blocks are taken from the bottom up (then west to east, north to south); each still free block becomes the corner of
- * the biggest box of free blocks above and beside it. When banks are re-formed every block brings its share of its old
- * bank's energy, so energy is never made or lost by joining or splitting.
- */
 public final class BankPartition {
     private BankPartition() {}
 
     public static final int MAX_WIDTH = 3;
     public static final int MAX_HEIGHT = 5;
 
-    /**
-     * Whether the block at ({@code x}, {@code y}, {@code z}) of a bank of {@code sx * sy * sz} blocks (counted from the
-     * controller) has a block of the same bank on side {@code d}: that side of its model drops the frame.
-     */
     public static boolean joined(int x, int y, int z, int sx, int sy, int sz, Direction d) {
         int nx = x + d.getStepX(), ny = y + d.getStepY(), nz = z + d.getStepZ();
         return nx >= 0 && nx < sx && ny >= 0 && ny < sy && nz >= 0 && nz < sz;
     }
 
-    /** A bank: the box from {@code origin} spanning {@code sx} by {@code sy} by {@code sz} blocks, holding {@code energy}. */
     public record Bank(BlockPos origin, int sx, int sy, int sz, double energy) {
         public int size() {
             return sx * sy * sz;
@@ -61,14 +61,8 @@ public final class BankPartition {
         }
     }
 
-    /** Blocks ordered bottom-up, then west-east, then north-south: each block is reached before any box above or east/south of it. */
     public static final Comparator<BlockPos> ORDER = Comparator.comparingInt((BlockPos p) -> p.getY()).thenComparingInt(p -> p.getX()).thenComparingInt(p -> p.getZ());
 
-    /**
-     * Splits the blocks into banks.
-     * @param energyPerBlock each block's share of its old bank's energy (missing = 0)
-     * @param capacityPerBlock energy one block holds; a bank's energy is capped at its size times this
-     */
     public static List<Bank> partition(Collection<BlockPos> blocks, Map<BlockPos, Double> energyPerBlock, double capacityPerBlock) {
         Set<BlockPos> free = new HashSet<>();
         for (BlockPos p : blocks)
@@ -88,7 +82,6 @@ public final class BankPartition {
                     while (sy < MAX_HEIGHT && layerFree(free, o, sx, sz, sy))
                         sy++;
                     int v = sx * sy * sz;
-                    // bigger wins; on a tie the more compact footprint, then the taller bank
                     if (v > best || v == best && (Math.max(sx, sz) < Math.max(bx, bz) || Math.max(sx, sz) == Math.max(bx, bz) && sy > by)) {
                         best = v;
                         bx = sx;
@@ -118,7 +111,6 @@ public final class BankPartition {
         return true;
     }
 
-    /** Every block's share of the energy of the bank it is in. */
     public static Map<BlockPos, Double> shares(Collection<Bank> banks) {
         Map<BlockPos, Double> out = new HashMap<>();
         for (Bank b : banks) {

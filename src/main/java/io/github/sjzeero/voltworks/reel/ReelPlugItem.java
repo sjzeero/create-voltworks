@@ -26,17 +26,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * The cable end taken from a reel. It only lives in the hand of the player carrying it: click a socket (cord reel) or
- * a terminal (cable reel) to plug it in, click the reel or sneak-click the air to let it wind back. Dropping or
- * throwing it, switching to another slot, or walking a few blocks further than the wound length (which first warns
- * on the action bar) lets it fall to the ground as a {@link CableEndEntity}, still pulled out of the reel.
- * <p>
- * The same item is an end of a loose cord pulled out of a socket or power strip outlet ({@link LooseCords}); such a
- * stack carries the cord's id instead of a reel position and everything it does goes through {@link LooseCords}.
- */
 public class ReelPlugItem extends Item {
-    /** How far past the wound length the player may stretch before the end slips out of the hand. */
     public static final double SNAP_SLACK = 6.0;
 
     public ReelPlugItem(Properties properties) {
@@ -54,7 +44,6 @@ public class ReelPlugItem extends Item {
         return stack;
     }
 
-    /** A bare stack that only picks the model: the socket plug ({@code cord}) or the copper lug. */
     public static ItemStack look(boolean cord) {
         ItemStack stack = new ItemStack(VoltworksItems.REEL_PLUG.get());
         if (cord) {
@@ -65,7 +54,6 @@ public class ReelPlugItem extends Item {
         return stack;
     }
 
-    /** End of a cord reel (drawn as the plug that goes into a socket) rather than of a cable reel (a copper lug). */
     public static boolean isCord(ItemStack stack) {
         CustomData data = stack.get(DataComponents.CUSTOM_DATA);
         return data != null && data.copyTag().getBoolean("Cord");
@@ -83,7 +71,6 @@ public class ReelPlugItem extends Item {
         return data == null ? 0 : data.copyTag().getLong("Grab");
     }
 
-    /** The reel this end belongs to, or null when the reel is gone or the end was taken back. */
     public static @Nullable CableReelBlockEntity reel(Level level, ItemStack stack) {
         BlockPos pos = reelPos(stack);
         if (pos == null || !level.isLoaded(pos))
@@ -156,7 +143,6 @@ public class ReelPlugItem extends Item {
             return;
         }
         if (!selected || player.getMainHandItem() != stack) {
-            // moved to another slot (or the hotbar moved away from it): the end is no longer held, it falls
             stack.setCount(0);
             be.dropLoose(player.position().add(0, 0.5, 0), Vec3.ZERO);
             return;
@@ -176,7 +162,6 @@ public class ReelPlugItem extends Item {
         }
     }
 
-    /** A dropped or thrown cable end (Q, death, ...) keeps flying as a lying cable end, still pulled out of the reel. */
     @Override
     public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
         if (!entity.level().isClientSide && LooseCords.isLooseCord(stack)) {

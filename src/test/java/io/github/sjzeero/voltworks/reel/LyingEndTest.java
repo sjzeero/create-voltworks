@@ -12,7 +12,6 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** The cable must go exactly into the back of the lying model, and the model must lie on the ground, not in it. */
 class LyingEndTest {
     static final double[] YAWS = {0, 0.4, 1.3, Math.PI / 2, 2.2, Math.PI, -0.7, -2.5};
 
@@ -32,7 +31,6 @@ class LyingEndTest {
         return out;
     }
 
-    /** What the renderer does: pose.mulPose(new Matrix4f(pose)), then ItemRenderer translates by -0.5 and draws pixels / 16. */
     static Vector3d rendered(Matrix4d pose, double[] px) {
         Matrix4f m = new Matrix4f(pose).translate(-0.5f, -0.5f, -0.5f);
         Vector3f v = m.transformPosition(new Vector3f((float) px[0] / 16, (float) px[1] / 16, (float) px[2] / 16));
@@ -66,7 +64,6 @@ class LyingEndTest {
     @Test
     void plugLiesOnItsBackBladesUp() {
         Matrix4d pose = LyingEnd.pose(LyingEnd.PLUG, 0);
-        // blades are the elements below the body in the socket model (y 1..3); lying, they must be the highest part
         double bladeMin = Double.MAX_VALUE, bodyMax = -Double.MAX_VALUE;
         for (double[] c : new double[][]{{7, 1, 6}, {9, 1, 10}})
             bladeMin = Math.min(bladeMin, rendered(pose, c).y);
@@ -79,13 +76,12 @@ class LyingEndTest {
     void backFacesTheReel() {
         for (LyingEnd.Lie lie : new LyingEnd.Lie[]{LyingEnd.PLUG, LyingEnd.LUG})
             for (double a : YAWS) {
-                double dx = Math.sin(a) * 7, dz = Math.cos(a) * 7; // reel 7 blocks away in direction a
+                double dx = Math.sin(a) * 7, dz = Math.cos(a) * 7;
                 Vector3d back = LyingEnd.attach(lie, LyingEnd.yaw(lie, dx, dz, 0));
                 assertTrue(back.x * dx + back.z * dz > 0, lie + ": back points away from the reel at " + a);
             }
     }
 
-    /** The lying end is drawn from the baked quads with no display transform; no model may smuggle one in for NONE. */
     @Test
     void noDisplayTransformForTheLyingModel() throws IOException {
         for (String name : new String[]{"cord_plug", "cable_lug"}) {

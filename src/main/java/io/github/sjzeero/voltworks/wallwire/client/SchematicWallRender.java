@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** Draws the wall wires of a schematic hologram along their routes instead of Electro Energetics' straight wire. */
 public final class SchematicWallRender {
     private static final double TOLERANCE = 0.75;
     private static final ThreadLocal<List<Vec3[]>> HIDDEN = new ThreadLocal<>();
@@ -36,7 +35,6 @@ public final class SchematicWallRender {
         return out;
     }
 
-    /** Called before the hologram is drawn: remember where the wall wires run so the straight ones can be skipped. */
     public static void begin(SchematicLevel level) {
         List<Vec3[]> hidden = new ArrayList<>();
         for(WallRoute route : routes(level))

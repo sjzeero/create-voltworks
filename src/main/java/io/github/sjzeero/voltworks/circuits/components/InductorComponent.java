@@ -46,7 +46,6 @@ public class InductorComponent extends OrientableComponent {
     @Override
     public void bake(@NotNull PlacedComponent placed, @NotNull ComponentCircuitBuilder builder, ThermalBuilder.@NotNull IEmitter thermals) {
         var L = placed.get(INDUCTANCE);
-//        var R = L * 1.2; // 1.2 Ω/H
         var wire = new LRSeriesWire(L, 0.01f, builder.terminalNode(0), builder.terminalNode(1));
         wire.setCurrent(placed.get(CURRENT));
         builder.add(wire);
@@ -56,7 +55,6 @@ public class InductorComponent extends OrientableComponent {
     @Override
     public boolean tick(@NotNull PlacedComponent placed) {
         if(!placed.wires.isEmpty()) {
-            // Make charge persistent
             placed.set(CURRENT, (float) placed.wires.get(0).current());
         }
         return true;
@@ -85,7 +83,6 @@ public class InductorComponent extends OrientableComponent {
 
         @Override
         public Float parse(String str) throws NumberFormatException {
-            // Not allowed
             return 0.0f;
         }
 

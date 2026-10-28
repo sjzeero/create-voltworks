@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Dyeing a wall wire only changes its colour, never the wire type. */
 @Mixin(value = DyeWireInteractionBehaviour.class, remap = false)
 public abstract class DyeWireInteractionBehaviourMixin {
     @Inject(method = "interactWire", at = @At("HEAD"), cancellable = true, require = 0)

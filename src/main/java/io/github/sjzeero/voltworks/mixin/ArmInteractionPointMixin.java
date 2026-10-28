@@ -53,7 +53,6 @@ public abstract class ArmInteractionPointMixin {
         var handler = getHandler(armBE);
         if (handler == null)
             return null;
-        // Try to insert into a circuit
         for(int i = 0; i < handler.getSlots(); ++i) {
             var circuitStack = handler.getStackInSlot(i);
             if(circuitStack.isEmpty())
@@ -64,10 +63,8 @@ public abstract class ArmInteractionPointMixin {
                     if(!simulate) {
                         var extracted = handler.extractItem(i, 1, false);
                         if(handler.insertItem(i, newCircuit, true).isEmpty()) {
-                            // Commit
                             handler.insertItem(i, newCircuit, false);
                         } else {
-                            // Abort
                             handler.insertItem(i, extracted, false);
                             return componentStack;
                         }

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Headless simulation of the lying end's tick on flat ground at y = 0 (the entity's move() clamps to the floor). */
 class LooseEndPhysicsTest {
     record Sim(Vector3d pos, Vector3d vel, double maxY) {}
 
@@ -58,7 +57,6 @@ class LooseEndPhysicsTest {
 
     @Test
     void pastTheReachItHangsBelowTheOutletNeverAboveIt() {
-        // reel up on a 10 block pillar with 5 blocks of wire, end let go level with the outlet at full reach
         Vector3d outlet = new Vector3d(0, 10, 0);
         Vector3d pos = new Vector3d(5, 10, 0), vel = new Vector3d();
         double maxY = pos.y;
@@ -86,7 +84,6 @@ class LooseEndPhysicsTest {
 
     @Test
     void theRopeNeverAddsSpeed() {
-        // the rope only takes the outward part away: on a swing horizontal speed may turn upwards, but never grow
         Vector3d outlet = new Vector3d(0, 3, 0);
         for (double x = -6; x <= 6; x += 0.5)
             for (double y = -6; y <= 6; y += 0.5)

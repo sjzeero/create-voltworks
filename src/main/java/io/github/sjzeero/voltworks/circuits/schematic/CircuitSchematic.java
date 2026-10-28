@@ -37,7 +37,6 @@ import static io.github.sjzeero.voltworks.circuits.schematic.CircuitLayer.GRID_T
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
 
 public class CircuitSchematic {
-    // This value should be updated when component properties change, to allow for old schematics to be migrated.
     public static final int VERSION = 2;
 
     private static final Point[] MANHATTAN_NEIGHBORHOOD = new Point[] {
@@ -48,7 +47,6 @@ public class CircuitSchematic {
     private final CircuitLayer front = new CircuitLayer();
     private final CircuitLayer back = new CircuitLayer();
 
-    // Stores locations of component thru holes (pads); generated from components
     private final PadLayer pads = new PadLayer();
 
     private final List<PlacedComponent> components = new ArrayList<>();
@@ -125,7 +123,6 @@ public class CircuitSchematic {
 
     public void deserializeNbt(HolderLookup.Provider provider, CompoundTag tag) {
         try {
-            // Default to legacy full pixel traces
             boolean fullPixelTraces = true;
             if (tag.contains("FullPixelTraces")) {
                 fullPixelTraces = tag.getBoolean("FullPixelTraces");
@@ -241,7 +238,6 @@ public class CircuitSchematic {
     }
 
     private boolean getAreaState(CircuitLayer layer, int x, int y) {
-        // TODO: Using hasTrace here means rendering traces in the world will ignore directions & paint full pixels
         return layer.hasTrace(x, y);
     }
 
@@ -298,7 +294,6 @@ public class CircuitSchematic {
         if(!component.canPlace(x, y))
             return false;
 
-        // Check pad clearance
         var thisFootprint = component.footprint();
         for(var pad : thisFootprint.getPads().keySet()) {
             if(pads.get(x * GRID_TO_GRID_SCALE + pad.x(), y * GRID_TO_GRID_SCALE + pad.y()))
@@ -309,7 +304,6 @@ public class CircuitSchematic {
         for(var placed : components) {
             boolean thatVia = placed.component instanceof ViaComponent;
             if(thisVia != thatVia) {
-                // Vias only collide with other vias, components don't collide with vias
                 continue;
             }
             if(placed.intersects(x, y, width, height))
@@ -355,18 +349,15 @@ public class CircuitSchematic {
 
             if (visitMap.visit(layer, nX, nY)) {
                 if (isPad(nX, nY)) {
-                    // We need to trace the other layer and check for component node.
                     var componentNode = makeComponentNode(nX, nY);
                     componentNode.ifPresent(nodes::add);
 
-                    // Flood opposite layer.
                     if (hasTrace(layer.opposite(), nX, nY)) {
                         var componentNodes = flood(layer.opposite(), nX, nY, visitMap);
                         nodes.addAll(componentNodes);
                     }
                 }
 
-                // Add neighbors that haven't been visited.
                 for (Point delta : MANHATTAN_NEIGHBORHOOD) {
                     Point neighbor = new Point(nX + delta.x(), nY + delta.y());
 
@@ -377,8 +368,6 @@ public class CircuitSchematic {
                         continue;
                     }
 
-                    // Visit if this node has correct trace direction and neighbor has complementary trace direction
-                    // (should never be the case that only one of these is true)
                     if (getLayer(layer).get(nX, nY, TraceMatrix.TraceDirection.fromXY(delta.x(), delta.y())) &&
                             getLayer(layer).get(neighbor.x(), neighbor.y(), TraceMatrix.TraceDirection.fromXY(-delta.x(), -delta.y()))) {
                         toVisit.add(neighbor);

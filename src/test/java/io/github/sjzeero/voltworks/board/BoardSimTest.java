@@ -185,7 +185,6 @@ class BoardSimTest {
         assertEquals(1.5f, BuzzerComponent.pitchFor(48), 1e-4);
         assertEquals(2.0f, BuzzerComponent.pitchFor(500), 1e-4);
         assertTrue(BuzzerComponent.pitchFor(30) > BuzzerComponent.pitchFor(20));
-        // re-trigger interval keeps the shortened chunk continuous (chunk length / pitch, floored)
         assertEquals(13, BuzzerComponent.intervalFor(0.75f));
         assertEquals(10, BuzzerComponent.intervalFor(1.0f));
         assertEquals(6, BuzzerComponent.intervalFor(1.5f));
@@ -274,13 +273,10 @@ class BoardSimTest {
         };
         var baked = BakedCircuit.from(buttonBoard(), client);
         var button = baked.components.stream().filter(p -> p.component == TestComponents.get("button")).findFirst().orElseThrow();
-        // state packet "pressed" arrives
         button.set(ButtonComponent.STATE, ButtonComponent.PRESS_TICKS);
         var modelBefore = button.component.getModelId(button);
         for(int i = 0; i < 40; i++)
             baked.clientTick();
-        // the client must not count down on its own, otherwise the later "released" packet is a no-op
-        // and the board model is never rebuilt (button stuck pressed)
         assertEquals(ButtonComponent.PRESS_TICKS, button.get(ButtonComponent.STATE));
         button.set(ButtonComponent.STATE, 0);
         assertNotEquals(modelBefore, button.component.getModelId(button));

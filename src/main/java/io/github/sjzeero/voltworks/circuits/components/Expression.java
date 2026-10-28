@@ -48,7 +48,6 @@ public interface Expression {
                 if(depth != 0)
                     continue;
             }
-            // Negative number.
             if(c == '-' && i == 0)
                 continue;
             if(condition.apply(c))

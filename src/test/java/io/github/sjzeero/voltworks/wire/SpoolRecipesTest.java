@@ -17,12 +17,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Voltworks spools follow Electro Energetics: a spool is crafted only from its own wire around an empty spool
- * ({@code " w ", "wsw", " w "}), and the bare wire is a separate crafting item.
- */
 class SpoolRecipesTest {
-    /** spool item -> its wire item */
     static final Map<String, String> SPOOLS = Map.of(
             "voltworks:copper_cord", "voltworks:two_core_wire",
             "voltworks:redstone_cable", "voltworks:redstone_cable_wire");

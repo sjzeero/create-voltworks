@@ -24,25 +24,25 @@ import io.github.sjzeero.voltworks.Voltworks;
 
 public class TraceMatrix {
     private static final char[] CELL_TO_CHAR = new char[] {
-            ' ',  // 0b0000  ' '
-            '<',  // 0b0001  '←'
-            '>',  // 0b0010  '→'
-            '-',  // 0b0011  '─'
+            ' ',
+            '<',
+            '>',
+            '-',
 
-            '^',  // 0b0100  '↑'
-            '/',  // 0b0101  '┌'
-            '\\', // 0b0110  '┐'
-            'T',  // 0b0111  '┬'
+            '^',
+            '/',
+            '\\',
+            'T',
 
-            'V',  // 0b1000  '↓'
-            '\\', // 0b1001  '└'
-            '/',  // 0b1010  '┘'
-            'W',  // 0b1011  '┴'
+            'V',
+            '\\',
+            '/',
+            'W',
 
-            '|',  // 0b1100  '│'
-            '}',  // 0b1101  '├'
-            '{',  // 0b1110  '┤'
-            '+',  // 0b1111  '┼'
+            '|',
+            '}',
+            '{',
+            '+',
     };
 
     public static final int GRID_SIZE = 16;
@@ -67,12 +67,9 @@ public class TraceMatrix {
 
     public void deserialize(long[] tag, boolean fullPixelTraces) {
         if (!fullPixelTraces || tag.length > 16) {
-            // Use new directional traces if requested or if there's too much data for this to be legacy
-            // 16 longs = 32 bytes = 256 bits
             map = BitSet.valueOf(tag);
         }
         else {
-            // Legacy circuit with full pixel traces
             map = new BitSet(TOTAL_SIZE);
             BitSet old = BitSet.valueOf(tag);
             for (int y = 0; y < HEIGHT; y++) {
@@ -118,15 +115,12 @@ public class TraceMatrix {
     }
 
     public void clear(int x1, int y1, int x2, int y2) {
-        // Clear requested area
         for (int x = x1; x <= x2; x++) {
             for (int y = y1; y <= y2; y++) {
                 clear(x, y);
             }
         }
 
-        // Clear incoming connections from area borders
-        // Deletes single-cell traces (ones that don't connect to anything)
         if (y1 > 0) {
             for (int x = x1; x <= x2; x++) {
                 set(x, y1 - 1, TraceDirection.DOWN, false);
@@ -176,7 +170,6 @@ public class TraceMatrix {
     }
 
     public enum TraceDirection {
-        // 0 is MSB, 3 is LSB (farthest right)
         UP(0), DOWN(1), LEFT(2), RIGHT(3);
 
         private final int bitIndex;

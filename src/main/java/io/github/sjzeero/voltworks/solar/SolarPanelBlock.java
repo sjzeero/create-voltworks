@@ -1,3 +1,20 @@
+/*
+ * Copyright 2025-2026 patryk3211
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by sjzeero: ported from Create: Power Grid to Voltworks.
+ */
 package io.github.sjzeero.voltworks.solar;
 
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
@@ -34,10 +51,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 
-/**
- * Ported from Create: Power Grid (patryk3211) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
- * A 4 px thick panel; FACING points at its back, the cells face the opposite way.
- */
 public class SolarPanelBlock extends SimpleElectricalDeviceBlock<SolarPanelDevice> {
     private static final int PLACEMENT_HELPER_ID = PlacementHelpers.register(new PanelPlacementHelper());
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
@@ -73,7 +86,6 @@ public class SolarPanelBlock extends SimpleElectricalDeviceBlock<SolarPanelDevic
         return VoltworksDevices.SOLAR_PANEL_DEVICE.get();
     }
 
-    /** Two terminals on the back face, 4 px either side of the centre: 0 = +, 1 = -. */
     private static Vec3 node(BlockState state, int id) {
         Direction f = state.getValue(FACING);
         Direction side = f.getAxis().isVertical() ? Direction.EAST : f.getClockWise();
@@ -135,7 +147,6 @@ public class SolarPanelBlock extends SimpleElectricalDeviceBlock<SolarPanelDevic
         return super.useItemOn(stack, state, level, pos, player, hand, hit);
     }
 
-    /** Ported from Create: Power Grid (patryk3211, Apache-2.0): ghost preview + side placement keeping the panel facing. */
     private static class PanelPlacementHelper implements IPlacementHelper {
         @Override
         public java.util.function.Predicate<ItemStack> getItemPredicate() {

@@ -1,3 +1,20 @@
+/*
+ * Copyright 2025-2026 patryk3211
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by sjzeero: ported from Create: Power Grid to Voltworks.
+ */
 package io.github.sjzeero.voltworks.cord;
 
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
@@ -37,15 +54,9 @@ import org.joml.Vector3f;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Socket, ported from Create: Power Grid (patryk3211, Apache-2.0); electrical side reimplemented on CEE devices.
- * Nodes 0 (+) and 1 (-) are the screw terminals for ordinary wires, 2 and 3 are the hidden contacts a cord plugs into.
- * FACING points at the block the socket is mounted on, like in Power Grid, so PG's blockstate is used unchanged.
- */
 public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final IntegerProperty ROTATION = IntegerProperty.create("rotation", 0, 3);
-    /** A cord's plug sitting in the slots (cord reel or either end of a socket-to-socket cord); A = cord leaves towards the model's +X, B = towards -X. */
     public static final EnumProperty<Plug> PLUG = EnumProperty.create("plug", Plug.class);
     public static final int POSITIVE = 0, NEGATIVE = 1, CORD_POSITIVE = 2, CORD_NEGATIVE = 3;
 
@@ -58,10 +69,8 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
         }
     }
 
-    /** Back of the plugged-in reel plug (cord_plug.json strain relief), in floor model pixels. */
     private static final double[] PLUG_BACK = {12, 4, 8};
 
-    /** In pixels, in the floor model (power_plug_v). Both cord strands share the single plug hole on top. */
     private static final double[][] FLOOR_NODES = {{8, 1, 3.5}, {8, 1, 12.5}, {8, 3.5, 8}, {8, 3.5, 8}};
     private static final double[] FLOOR_BOX = {4, 0, 4, 12, 3, 12};
     private static final int[] FLOOR_Y = {-90, 0, 90, 180};
@@ -80,7 +89,6 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
         builder.add(FACING, ROTATION, PLUG);
     }
 
-    /** Same rotation the blockstate applies to the model: x/y as in PG's socket.json, around the block center. */
     private static Vec3 place(BlockState state, double px, double py, double pz) {
         Direction facing = state.getValue(FACING);
         int rot = state.getValue(ROTATION);
@@ -109,10 +117,6 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
         return new Quaternionf().rotateYXZ((float) Math.toRadians(-ry), (float) Math.toRadians(-rx), 0);
     }
 
-    /**
-     * Rotation (about the block centre) that takes a model built in floor-socket pixels - like cord_plug.json - onto
-     * this socket, including the side the plugged-in cord leaves towards.
-     */
     public static Quaternionf modelRotation(BlockState state) {
         Quaternionf q = blockstateRotation(state);
         if (state.getValue(FACING).getAxis().isHorizontal())
@@ -122,7 +126,6 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
         return q;
     }
 
-    /** World-space direction (unit, block space) the cord leaves a plug in {@link Plug#A} orientation. */
     public static Vector3f plugAxis(BlockState state) {
         return modelRotation(state.setValue(PLUG, Plug.A)).transform(new Vector3f(1, 0, 0));
     }
@@ -177,14 +180,6 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
         return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
     }
 
-
-    /**
-     * Right-click on a socket with a plug in it pulls the plug out (see {@link LooseCords#useOutlet}): a cord reel's,
-     * or one end of a cord - the other end stays plugged in; the last plug of a cord already out at one end comes out
-     * too and the cord is carried. With something in the hand only when that is not a block to place or a tool of
-     * Electro Energetics / Create / Voltworks (wires, wrench, cable ends...), and not while sneaking. Wire cutters cut
-     * the cord plugged in here (no items).
-     */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         boolean cutters = LooseCords.isCutters(player.getMainHandItem());
@@ -195,12 +190,10 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
         LooseCords cords = LooseCords.get(sl);
         if (cutters ? cords.cutAt(sl, pos, CORD_POSITIVE, sp) : cords.useOutlet(sl, pos, CORD_POSITIVE, sp))
             return InteractionResult.SUCCESS;
-        // the cord went away without taking the plug along: just clear it
         sl.setBlock(pos, state.setValue(PLUG, Plug.NONE), Block.UPDATE_ALL);
         return InteractionResult.SUCCESS;
     }
 
-    /** Broken by a player: a cord plugged in here falls out in front of it (its other plug stays in), no items. */
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (level instanceof ServerLevel sl)

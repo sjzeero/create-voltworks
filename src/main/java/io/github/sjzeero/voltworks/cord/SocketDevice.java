@@ -8,7 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Passive: the screw terminals are tied to the cord contacts through a tiny contact resistance. */
 public class SocketDevice extends SimpleElectricalDevice {
     public static final double CONTACT_RESISTANCE = 1.0E-3;
 

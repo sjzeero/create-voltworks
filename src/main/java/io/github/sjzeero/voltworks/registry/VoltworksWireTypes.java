@@ -16,7 +16,6 @@ public final class VoltworksWireTypes {
 
     public static final PartialModel CORD_SEGMENT = PartialModel.of(Voltworks.asResource("block/cord_segment"));
 
-    /** Copper cord (Power Grid port): a Voltworks wall wire drawn flat, 2 px wide and 1 px high. */
     public static final DeferredHolder<WireType, WireType> COPPER_CORD = WIRE_TYPES.register("copper_cord",
             () -> new WireType.Builder(CORD_SEGMENT)
                     .resistance(CEEConfigs.server().resistanceValues.wireResistance::get)

@@ -89,7 +89,6 @@ public class NeonBulbWire extends AbstractElectricWire implements IOuterHook, IS
     public void preSolve() {
         if(!isConverged())
             return;
-        // Update discharge state
         double V = Math.abs(potentialDifference()), I = Math.abs(current());
         if(litTicks <= 0 && V > breakdownVoltage) {
             updateConductance(dischargeConductance);

@@ -43,10 +43,8 @@ public class SwitchedWire extends ElectricWire {
             this.state = state;
             if(network != null) {
                 if(state) {
-                    // Switch is now on, add its conductance
                     network.updateConductance(this, super.conductance() - OFF_CONDUCTANCE);
                 } else {
-                    // Switch is now off, remove its conductance
                     network.updateConductance(this, -super.conductance() + OFF_CONDUCTANCE);
                 }
                 stamp = network.getStamp();
@@ -68,7 +66,6 @@ public class SwitchedWire extends ElectricWire {
         if(state) {
             super.setResistance(resistance);
         } else {
-            // If switch is off we don't update the conductance matrix since it is zero anyway.
             this.resistance = resistance;
         }
     }

@@ -1,3 +1,20 @@
+/*
+ * Copyright 2025-2026 patryk3211
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by sjzeero: ported from Create: Power Grid to Voltworks.
+ */
 package io.github.sjzeero.voltworks.light;
 
 import io.github.sjzeero.voltworks.VoltageGuard;
@@ -18,12 +35,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-/**
- * Ported from Create: Power Grid (patryk3211) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
- * A heating filament between node 0 (+) and node 1 (-): resistance grows with temperature (cold 15, hot 100 ohm),
- * brightness follows temperature, and a filament held above the overheat temperature burns out in an explosion.
- * Rated: about 45 V (20 W). Brightness starts around 22 V, full at ~42 V, explodes above ~52 V.
- */
 public class FactoryLightDevice extends SimpleElectricalDevice {
     public static final double R_COLD = 15;
     public static final double R_HOT = 100;
@@ -60,7 +71,6 @@ public class FactoryLightDevice extends SimpleElectricalDevice {
         if (level.isLoaded(pos)) {
             BlockState st = level.getBlockState(pos);
             if (st.getBlock() instanceof FactoryLightBlock) {
-                // rows: node 0 of this lamp is wired to node 1 of the next lamp on the same axis
                 BlockPos next = pos.relative(Direction.get(Direction.AxisDirection.POSITIVE, st.getValue(FactoryLightBlock.AXIS)));
                 if (level.isLoaded(next)) {
                     BlockState ns = level.getBlockState(next);

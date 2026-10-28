@@ -63,7 +63,6 @@ public class InductorWire extends AbstractElectricWire implements IStaticResidua
     public void postUpperSolve() {
         if(isConverged()) {
             Vprev = TRAPEZOID_APPROX ? inductance * (current() - I) / getDeltaTime() : 0;
-            // Save current with a bit of leakage
             I = current() * 0.99999;
         }
     }

@@ -1,3 +1,20 @@
+/*
+ * Copyright 2025-2026 patryk3211
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Modified by sjzeero: ported from Create: Power Grid to Voltworks.
+ */
 package io.github.sjzeero.voltworks.motor;
 
 import com.george_vi.electroenergetics.config.CEEConfigs;
@@ -17,24 +34,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.List;
 import io.github.sjzeero.voltworks.Voltworks;
 
-/**
- * Ported from Create: Power Grid (patryk3211) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
- * Electrical model follows Create: Electro Energetics' own electric motor (see {@link MotorPower}): the rated power
- * U^2 / R (R = EE's motorResistance config) becomes stress at 1 W -> 1 SU, and the coil draws
- * U^2 / (0.8 * min(6 R, R / load)), i.e. 1.25 W per SU used, never under the 1/6-load idle draw.
- */
 public abstract class AbstractPGMotorBlockEntity extends GeneratingKineticBlockEntity {
     public static final int AVERAGING_TICKS = 5;
-    /** PG's power -> speed constant; kept for the servo, which still uses PG's speed model. */
     public static final float CONVERSION_CONSTANT = (float) (60 * Math.PI / 2);
-    /** Stress step (SU) the supplied power is rounded down to; also the least stress the motor starts with. */
     public static final float STRESS_CAPACITY = 64f;
     public static final float TORQUE_FOR_STRESS = 15f;
     public static final float MIN_LOAD = (float) MotorPower.MIN_LOAD;
 
     public final RMSHolder voltage;
     protected float load = MIN_LOAD;
-    /** Signed rated stress (SU) summed over the averaging window. */
     protected float avgStress;
 
     protected AbstractPGMotorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -55,7 +63,6 @@ public abstract class AbstractPGMotorBlockEntity extends GeneratingKineticBlockE
         return power / torque * CONVERSION_CONSTANT;
     }
 
-    /** EE's motorResistance server config (30 ohm by default): the rated resistance of EE's own motors. */
     public static double motorResistance() {
         try {
             return CEEConfigs.server().resistanceValues.motorResistance.get();
@@ -64,17 +71,14 @@ public abstract class AbstractPGMotorBlockEntity extends GeneratingKineticBlockE
         }
     }
 
-    /** Resistance the coil presents to the CEE grid this tick (EE motor: 0.8 * min(6 R, R / load)). */
     public double coilResistance() {
         return MotorPower.coilResistance(motorResistance(), load);
     }
 
-    /** Electrical power drawn from the grid at the current voltage and load, in watts. */
     public double inputPower() {
         return MotorPower.inputPower(voltage.getSigned(), motorResistance(), load);
     }
 
-    /** Signed stress the averaged electrical power provides (1 W -> 1 SU), rounded down to STRESS_CAPACITY steps. */
     protected float electricalStress() {
         return quantizeStress(avgStress / AVERAGING_TICKS);
     }
@@ -108,10 +112,8 @@ public abstract class AbstractPGMotorBlockEntity extends GeneratingKineticBlockE
         if (level != null && (!level.isClientSide || isVirtual())) onElectricalStress(newStress);
     }
 
-    /** Signed stress (SU, capacity x RPM) the supplied power provides; the sign is the supply polarity. */
     protected abstract void onElectricalStress(float stress);
 
-    /** Voltage fluctuations must not trip Create's flicker protection (PG solved this with a mixin hack). */
     @Override
     public int getFlickerScore() {
         return 0;

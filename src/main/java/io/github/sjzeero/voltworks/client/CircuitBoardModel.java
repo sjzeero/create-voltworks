@@ -138,7 +138,6 @@ public class CircuitBoardModel implements BakedModel {
     public ModelData getModelData(BlockAndTintGetter level, BlockPos pos, BlockState state, ModelData modelData) {
         var be = level.getBlockEntity(pos);
         if(be instanceof BoardBlockEntity circuit) {
-            // Emit components
             var schematic = circuit.getSchematic();
             return ModelData.builder()
                     .with(FRONT_LAYER, schematic.calculateAreas(CircuitSchematic.Layer.FRONT))

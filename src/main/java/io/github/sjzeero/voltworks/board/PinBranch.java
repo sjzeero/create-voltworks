@@ -34,7 +34,6 @@ public class PinBranch extends MicroTickingElectricalProperties {
     public void afterTick(double[] allVoltages, int n1, int n2, int microTick, int totalMicroTicks) {
         if (j == 0) {
             double u = allVoltages[n1 * totalMicroTicks + microTick] - allVoltages[n2 * totalMicroTicks + microTick];
-            // Break the CEE <-> board feedback loop: never store a blown-up (Inf/NaN/1e25 V) pin voltage.
             if (VoltageGuard.isSane(u))
                 sim.pinU[k] += BoardSim.PIN_RELAX * (u - sim.pinU[k]);
             else

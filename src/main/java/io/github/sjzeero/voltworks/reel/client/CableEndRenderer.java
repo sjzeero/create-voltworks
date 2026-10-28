@@ -36,12 +36,6 @@ import org.joml.Vector3d;
 
 import java.util.List;
 
-/**
- * A lying cable end: the 3D end model lying on the ground along the cable (the socket plug for the cord reel, a copper
- * lug for the cable reel), and the cable from the reel outlet into the back of it, drawn with Electro Energetics' wire
- * renderer and the reel's wire type like the end carried in the hand. A cable lying on the floor does not hang below
- * the floor: no point of it goes lower than its lower end.
- */
 public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
     private final ItemRenderer items;
     private final ItemStack plug = ReelPlugItem.look(true), lug = ReelPlugItem.look(false);
@@ -54,14 +48,9 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
 
     @Override
     public boolean shouldRender(CableEndEntity entity, Frustum frustum, double camX, double camY, double camZ) {
-        return true; // the cable reaches far outside the end's own little box
+        return true;
     }
 
-    /**
-     * How an end model lies on the floor. {@code base} turns the model about its centre first, after which its lowest
-     * point is at {@code floorPx}, the cable leaves along {@code axis} (radians from +Z towards +X) out of the middle
-     * of the back face at {@code backPx}. The wire is drawn up to exactly there.
-     */
     @Override
     public void render(CableEndEntity entity, float entityYaw, float pt, PoseStack pose, MultiBufferSource buffer, int light) {
         if (entity.isCord()) {
@@ -70,7 +59,7 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
             return;
         }
         Level level = entity.level();
-        Vec3 at = entity.getPosition(pt); // the dispatcher put the pose origin here (same interpolation)
+        Vec3 at = entity.getPosition(pt);
         CableReelBlockEntity be = level.isLoaded(entity.reelPos()) && level.getBlockEntity(entity.reelPos()) instanceof CableReelBlockEntity r ? r : null;
         boolean cord = be != null && be.block().cord;
 
@@ -80,27 +69,24 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
             Vec3 local = block.localNode(be.getBlockState(), block.outletId());
             dev.ryanhcode.sable.companion.math.Pose3dc reelPose = WallSpace.renderPose(level, be.getBlockPos(), pt);
             from = WallSpace.toWorld(reelPose, Vec3.atLowerCornerOf(be.getBlockPos()).add(local));
-            fromOut = WallSpace.rotate(reelPose, block.outletDir(be.getBlockState())); // turned with a Sable structure too
+            fromOut = WallSpace.rotate(reelPose, block.outletDir(be.getBlockState()));
         }
-        // lie along the cable: the back of the end towards the reel
         LyingEnd.Lie lie = cord ? LyingEnd.PLUG : LyingEnd.LUG;
         double fallback = Math.toRadians(-entity.getYRot());
         double yaw = from == null ? fallback - lie.axis() : LyingEnd.yaw(lie, from.x - at.x, from.z - at.z, fallback);
         Matrix4d model = LyingEnd.pose(lie, yaw);
 
-        // The baked model's quads straight through LyingEnd's matrix: no ItemRenderer.render, so no display transform
-        // (or any other context handling) can sit between the matrix the cable uses and the one the model is drawn with.
         ItemStack stack = cord ? plug : lug;
         BakedModel baked = items.getModel(stack, level, null, entity.getId());
         pose.pushPose();
         pose.mulPose(new Matrix4f(model));
-        pose.translate(-0.5f, -0.5f, -0.5f); // model pixels / 16 are 0..1; LyingEnd works about the model centre
+        pose.translate(-0.5f, -0.5f, -0.5f);
         for (BakedModel pass : baked.getRenderPasses(stack, true))
             for (RenderType rt : pass.getRenderTypes(stack, true))
                 items.renderModelLists(pass, stack, light, OverlayTexture.NO_OVERLAY, pose, buffer.getBuffer(rt));
         pose.popPose();
 
-        Vector3d back = LyingEnd.toEntity(model, lie.backPx()); // same matrix as the model: the cable meets its back
+        Vector3d back = LyingEnd.toEntity(model, lie.backPx());
         if (Minecraft.getInstance().getDebugOverlay().showDebugScreen())
             debug(pose, buffer, at, back, from);
         log(entity, cord, yaw, at, back, from, be);
@@ -110,12 +96,10 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
             double distance = from.distanceTo(to);
             if (distance > 0.05) {
                 WireData look = WireData.ofLength(type, ReelMath.followLength(distance, Math.max(be.stored(), distance)));
-                // a cable lying on the floor does not hang through it
-                // straight out of the back along the cord axis, then the curve to the reel
                 List<Vec3> points = ReelWire.points(from, fromOut, to, LyingEnd.direction(model, lie.backDir()), CablePath.RUN,
                         look.getSag(distance), Math.min(from.y, to.y), level, be.getBlockPos());
                 pose.pushPose();
-                pose.translate(-at.x, -at.y, -at.z); // entity space -> world space relative to the camera
+                pose.translate(-at.x, -at.y, -at.z);
                 ReelWire.render(points, pose, buffer, type, level);
                 pose.popPose();
             }
@@ -123,7 +107,6 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
         super.render(entity, entityYaw, pt, pose, buffer, light);
     }
 
-    /** How an end of a pulled-out cord lies: plug along the cord, its back towards the cord's other end. */
     static Matrix4d cordModel(CableEndEntity entity, float pt) {
         Vec3 at = entity.getPosition(pt);
         Vec3 to = entity.otherAt(pt);
@@ -133,7 +116,6 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
         return LyingEnd.pose(lie, yaw);
     }
 
-    /** World position where the cord leaves the back of a lying cord end, and its direction out of the plug. */
     static Vec3[] cordBack(CableEndEntity entity, float pt) {
         Matrix4d model = cordModel(entity, pt);
         Vector3d back = LyingEnd.toEntity(model, LyingEnd.PLUG.backPx());
@@ -141,11 +123,6 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
         return new Vec3[]{entity.getPosition(pt).add(back.x, back.y, back.z), new Vec3(dir.x, dir.y, dir.z)};
     }
 
-    /**
-     * An end of a cord pulled out of its outlets: the plug lying on the floor and the cord to its other end, which is
-     * plugged into an outlet or lies on the floor too (then the end 0 draws the cord between the two). When a player
-     * carries the other end, the held-end renderer draws the cord from the hand.
-     */
     private void renderCord(CableEndEntity entity, float pt, PoseStack pose, MultiBufferSource buffer, int light) {
         Level level = entity.level();
         Vec3 at = entity.getPosition(pt);
@@ -174,7 +151,7 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
                     io.github.sjzeero.voltworks.cord.Outlets.cordDir(level.getBlockState(op), supply));
             skip = op;
         } else if (entity.otherHolder() != null || entity.end() != 0) {
-            return; // drawn from the hand, or by the other lying end
+            return;
         } else {
             CableEndEntity other = entity.otherEnd();
             if (other == null)
@@ -198,7 +175,6 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
 
     private static final java.util.Map<Integer, Long> LOGGED = new java.util.HashMap<>();
 
-    /** One log line per lying end every 5 seconds, debug screen or not. */
     private static void log(CableEndEntity entity, boolean cord, double yaw, Vec3 at, Vector3d back, @Nullable Vec3 from,
                             @Nullable CableReelBlockEntity be) {
         long now = System.currentTimeMillis();
@@ -212,7 +188,6 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
                 Math.toDegrees(yaw), back, from, be == null ? null : be.wireType());
     }
 
-    /** F3 on: a green box on the entity origin (on the ground), a red one where the cable goes in, a yellow line to the reel outlet. */
     private static void debug(PoseStack pose, MultiBufferSource buffer, Vec3 at, Vector3d back, @Nullable Vec3 from) {
         VertexConsumer lines = buffer.getBuffer(RenderType.lines());
         double r = 1 / 32.0;
