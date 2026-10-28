@@ -3,6 +3,7 @@
   "textures": {
     "particle": "create:block/andesite_casing",
     "casing": "create:block/andesite_casing",
+    "frame": "voltworks:block/reel_frame_large",
     "axle": "create:block/axis_top",
     "coil": "voltworks:block/cord_reel_coil",
     "parts": "voltworks:block/cable_reel_parts"
@@ -85,45 +86,45 @@
         "north": {
           "texture": "#casing",
           "uv": [
+            0,
             1,
-            1,
-            3,
+            2,
             14
           ]
         },
         "south": {
           "texture": "#casing",
           "uv": [
+            14,
             1,
-            1,
-            3,
+            16,
             14
           ]
         },
         "east": {
-          "texture": "#casing",
+          "texture": "#frame",
           "uv": [
-            1,
-            1,
-            15,
-            14
+            0,
+            0,
+            14,
+            13
           ]
         },
         "west": {
-          "texture": "#casing",
+          "texture": "#frame",
           "uv": [
-            1,
-            1,
-            15,
-            14
+            0,
+            0,
+            14,
+            13
           ]
         },
         "up": {
           "texture": "#casing",
           "uv": [
+            0,
             1,
-            1,
-            3,
+            2,
             15
           ]
         }
@@ -145,45 +146,45 @@
         "north": {
           "texture": "#casing",
           "uv": [
-            13,
+            0,
             1,
-            15,
+            2,
             14
           ]
         },
         "south": {
           "texture": "#casing",
           "uv": [
-            13,
+            14,
             1,
-            15,
+            16,
             14
           ]
         },
         "east": {
-          "texture": "#casing",
+          "texture": "#frame",
           "uv": [
-            1,
-            1,
-            15,
-            14
+            0,
+            0,
+            14,
+            13
           ]
         },
         "west": {
-          "texture": "#casing",
+          "texture": "#frame",
           "uv": [
-            1,
-            1,
-            15,
-            14
+            0,
+            0,
+            14,
+            13
           ]
         },
         "up": {
           "texture": "#casing",
           "uv": [
-            13,
+            0,
             1,
-            15,
+            2,
             15
           ]
         }
