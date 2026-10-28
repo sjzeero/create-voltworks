@@ -225,36 +225,36 @@
         "north": {
           "texture": "#axle",
           "uv": [
-            0,
+            6,
             7,
-            1,
+            7,
             9
           ]
         },
         "south": {
           "texture": "#axle",
           "uv": [
-            0,
+            6,
             7,
-            1,
+            7,
             9
           ]
         },
         "up": {
           "texture": "#axle",
           "uv": [
-            0,
+            6,
             7,
-            1,
+            7,
             9
           ]
         },
         "down": {
           "texture": "#axle",
           "uv": [
-            0,
+            6,
             7,
-            1,
+            7,
             9
           ]
         }
@@ -285,36 +285,36 @@
         "north": {
           "texture": "#axle",
           "uv": [
-            15,
+            6,
             7,
-            16,
+            7,
             9
           ]
         },
         "south": {
           "texture": "#axle",
           "uv": [
-            15,
+            6,
             7,
-            16,
+            7,
             9
           ]
         },
         "up": {
           "texture": "#axle",
           "uv": [
-            15,
+            6,
             7,
-            16,
+            7,
             9
           ]
         },
         "down": {
           "texture": "#axle",
           "uv": [
-            15,
+            6,
             7,
-            16,
+            7,
             9
           ]
         }
@@ -518,48 +518,48 @@
           ]
         },
         "south": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            5,
-            2
+            8,
+            4,
+            12,
+            5
           ]
         },
         "east": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            3,
-            2
+            8,
+            4,
+            10,
+            5
           ]
         },
         "west": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            3,
-            2
+            8,
+            4,
+            10,
+            5
           ]
         },
         "up": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            5,
-            3
+            8,
+            4,
+            12,
+            6
           ]
         },
         "down": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            5,
-            3
+            8,
+            4,
+            12,
+            6
           ]
         }
       }
@@ -587,48 +587,48 @@
           ]
         },
         "south": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            5,
-            2
+            8,
+            4,
+            12,
+            5
           ]
         },
         "east": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            3,
-            2
+            8,
+            4,
+            10,
+            5
           ]
         },
         "west": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            3,
-            2
+            8,
+            4,
+            10,
+            5
           ]
         },
         "up": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            5,
-            3
+            8,
+            4,
+            12,
+            6
           ]
         },
         "down": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            5,
-            3
+            8,
+            4,
+            12,
+            6
           ]
         }
       }
@@ -656,48 +656,48 @@
           ]
         },
         "south": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            2,
-            3
+            8,
+            4,
+            9,
+            6
           ]
         },
         "east": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            3,
-            3
+            8,
+            4,
+            10,
+            6
           ]
         },
         "west": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            3,
-            3
+            8,
+            4,
+            10,
+            6
           ]
         },
         "up": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            2,
-            3
+            8,
+            4,
+            9,
+            6
           ]
         },
         "down": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            2,
-            3
+            8,
+            4,
+            9,
+            6
           ]
         }
       }
@@ -725,48 +725,48 @@
           ]
         },
         "south": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            2,
-            3
+            8,
+            4,
+            9,
+            6
           ]
         },
         "east": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            3,
-            3
+            8,
+            4,
+            10,
+            6
           ]
         },
         "west": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            3,
-            3
+            8,
+            4,
+            10,
+            6
           ]
         },
         "up": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            2,
-            3
+            8,
+            4,
+            9,
+            6
           ]
         },
         "down": {
-          "texture": "#casing",
+          "texture": "#parts",
           "uv": [
-            1,
-            1,
-            2,
-            3
+            8,
+            4,
+            9,
+            6
           ]
         }
       }

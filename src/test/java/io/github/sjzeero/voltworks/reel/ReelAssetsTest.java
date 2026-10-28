@@ -467,4 +467,42 @@ public class ReelAssetsTest {
     }
 
     private static final int SLOT = 0x2e383a;
+    /** No reel face shows see-through texels: e.g. the shaft ends' sides must not sample the empty part of axis_top. */
+    @Test
+    void reelFacesAreOpaque() throws IOException {
+        for (String r : REELS)
+            for (int f = 0; f < LEVELS; f++) {
+                JsonObject m = json(model(r, f));
+                JsonObject tex = m.getAsJsonObject("textures");
+                for (var el : m.getAsJsonArray("elements")) {
+                    JsonObject e = el.getAsJsonObject();
+                    for (var fe : e.getAsJsonObject("faces").entrySet()) {
+                        JsonObject face = fe.getValue().getAsJsonObject();
+                        if (!face.has("uv"))
+                            continue;
+                        String id = tex.get(face.get("texture").getAsString().substring(1)).getAsString();
+                        String path = "assets/" + id.substring(0, id.indexOf(':')) + "/textures/" + id.substring(id.indexOf(':') + 1) + ".png";
+                        var uv = face.getAsJsonArray("uv");
+                        int u0 = uv.get(0).getAsInt(), v0 = uv.get(1).getAsInt(), u1 = uv.get(2).getAsInt(), v1 = uv.get(3).getAsInt();
+                        if (id.equals("create:block/axis_top")) // only its centre 4x4 (the shaft end) is opaque
+                            assertTrue(Math.min(u0, u1) >= 6 && Math.max(u0, u1) <= 10 && Math.min(v0, v1) >= 6 && Math.max(v0, v1) <= 10,
+                                    r + "_fill" + f + " " + e.get("name") + " " + fe.getKey() + ": outside the shaft end of axis_top " + uv);
+                        if (e.get("name").getAsString().equals("outlet"))
+                            assertNotEquals("#casing", face.get("texture").getAsString(), r + "_fill" + f + ": outlet in clean andesite, not the casing crop");
+                        if (!exists(path)) {
+                            assertFalse(id.startsWith("voltworks:"), "missing " + path);
+                            continue; // a dependency's texture that is not on the test classpath
+                        }
+                        BufferedImage img;
+                        try (InputStream in = ReelAssetsTest.class.getClassLoader().getResourceAsStream(path)) {
+                            img = ImageIO.read(in);
+                        }
+                        for (int x = Math.min(u0, u1); x < Math.max(u0, u1); x++)
+                            for (int y = Math.min(v0, v1); y < Math.max(v0, v1); y++)
+                                assertTrue((img.getRGB(x, y) >>> 24) == 255,
+                                        r + "_fill" + f + " " + e.get("name") + " " + fe.getKey() + ": see-through texel " + x + "," + y + " of " + id);
+                    }
+                }
+            }
+    }
 }
