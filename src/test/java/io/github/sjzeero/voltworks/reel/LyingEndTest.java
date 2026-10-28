@@ -84,4 +84,14 @@ class LyingEndTest {
                 assertTrue(back.x * dx + back.z * dz > 0, lie + ": back points away from the reel at " + a);
             }
     }
+
+    /** The lying end is drawn from the baked quads with no display transform; no model may smuggle one in for NONE. */
+    @Test
+    void noDisplayTransformForTheLyingModel() throws IOException {
+        for (String name : new String[]{"cord_plug", "cable_lug"}) {
+            JsonObject m = ReelAssetsTest.json("assets/voltworks/models/item/" + name + ".json");
+            assertNull(m.get("parent"), name + " must not inherit transforms or elements");
+            assertFalse(m.getAsJsonObject("display").has("none"), name);
+        }
+    }
 }
