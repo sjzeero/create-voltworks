@@ -31,8 +31,16 @@ public abstract class InfrastructureSavedDataMixin {
 
     @Inject(method = {"removeConnection", "removeConnectionNoDrops"}, at = @At("RETURN"), require = 0)
     private void voltworks$forgetWallRoute(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
-        if(level != null)
+        if(level != null) {
             WallWireData.get(level).queueCheck(connection);
+            io.github.sjzeero.voltworks.cord.SocketPlugs.removed(level, connection);
+        }
+    }
+
+    @Inject(method = "removeAndDropConnection", at = @At("RETURN"), require = 0)
+    private void voltworks$plugOutOnDrop(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
+        if(level != null)
+            io.github.sjzeero.voltworks.cord.SocketPlugs.removed(level, connection);
     }
 
     @Inject(method = "connect(Lcom/george_vi/electroenergetics/foundation/nodes/InWorldNode;Lcom/george_vi/electroenergetics/foundation/nodes/InWorldNode;Lcom/george_vi/electroenergetics/simulation/WireType;)J", at = @At("RETURN"))

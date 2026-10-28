@@ -489,15 +489,7 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
      * cord strands move from the slot to the plug's back. The plug turns so its cord leaves towards this reel.
      */
     private void plugIn(ServerLevel sl, BlockPos pos) {
-        BlockState st = sl.getBlockState(pos);
-        if (!(st.getBlock() instanceof SocketBlock))
-            return;
-        Vector3f axis = SocketBlock.plugAxis(st);
-        Vec3 centre = WallSpace.toWorld(sl, Vec3.atCenterOf(pos));
-        Vec3 dir = WallSpace.toWorld(sl, Vec3.atCenterOf(pos).add(axis.x, axis.y, axis.z)).subtract(centre);
-        SocketBlock.Plug side = dir.dot(outletWorld().subtract(centre)) >= 0 ? SocketBlock.Plug.A : SocketBlock.Plug.B;
-        if (st.getValue(SocketBlock.PLUG) != side)
-            sl.setBlock(pos, st.setValue(SocketBlock.PLUG, side), Block.UPDATE_ALL);
+        io.github.sjzeero.voltworks.cord.SocketPlugs.plugTowards(sl, pos, outletWorld());
     }
 
     private static void unplug(ServerLevel sl, BlockPos pos) {

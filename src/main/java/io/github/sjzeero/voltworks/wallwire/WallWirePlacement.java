@@ -151,6 +151,7 @@ public final class WallWirePlacement {
         if(cord) {
             WallWireData.get(level).put(WallRoute.oriented(startRet, endRet, cells, length));
             sd.connect(startRet, endRet, WireData.ofLength(type, length));
+            io.github.sjzeero.voltworks.cord.SocketPlugs.plugCord(level, start, end, cells);
         }
         AllSoundEvents.WRENCH_REMOVE.playOnServer(level, BlockPos.containing(WallSpace.toWorld(level, end.sourcePos().getCenter())));
         player.displayClientMessage(Component.translatable("voltworks.wall_wire.placed", String.format(java.util.Locale.ROOT, "%.2f", length)), true);
@@ -209,8 +210,10 @@ public final class WallWirePlacement {
             return;
         }
         sd.connect(start, end, type);
-        if(startRet != null)
+        if(startRet != null) {
             sd.connect(startRet, endRet, type);
+            io.github.sjzeero.voltworks.cord.SocketPlugs.plugCord(level, start, end, null);
+        }
         AllSoundEvents.WRENCH_REMOVE.playOnServer(level, BlockPos.containing(WallSpace.toWorld(level, end.sourcePos().getCenter())));
         if(!player.isCreative()) {
             held.shrink(1);

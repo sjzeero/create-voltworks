@@ -107,13 +107,10 @@ public final class WallWireRenderer {
         boolean hover = WallWireClient.hoverSocket != null;
         boolean redPreview = !RedstoneCableClient.committed.isEmpty();
         Map<InWorldNodeConnection, WireData> wires = new HashMap<>();
-        boolean hangingCord = false;
         for(Pair<InWorldNodeConnection, WireData> w : WireRenderer.getAllConnections()) {
             wires.put(w.getFirst(), w.getSecond());
-            if(CordPair.isCord(w.getSecond().wireType()) && !CordPair.isReturn(w.getFirst()) && !ClientWallRoutes.isWall(w.getFirst()))
-                hangingCord = true;
         }
-        if(ClientWallRoutes.all().isEmpty() && !preview && !hover && !redPreview && !hangingCord && ClientRedstoneWires.all().isEmpty())
+        if(ClientWallRoutes.all().isEmpty() && !preview && !hover && !redPreview && ClientRedstoneWires.all().isEmpty())
             return;
 
         PoseStack pose = event.getPoseStack();
@@ -166,30 +163,16 @@ public final class WallWireRenderer {
             }
         }
 
-        // a cord hanging in the air (air mode, or between a sub-level and the world): plugs on both sockets
-        if(hangingCord) {
-            for(Map.Entry<InWorldNodeConnection, WireData> e : wires.entrySet()) {
-                InWorldNodeConnection c = e.getKey();
-                WireData data = e.getValue();
-                if(!CordPair.isCord(data.wireType()) || CordPair.isReturn(c) || ClientWallRoutes.isWall(c))
-                    continue;
-                for(InWorldNode n : new InWorldNode[]{c.node1(), c.node2()}) {
-                    // a socket on a sub-level lives far away in plot space: measure the distance in the world
-                    var sub = WallSpace.renderPose(level, n.sourcePos(), partial);
-                    if(WallSpace.toWorld(sub, n.sourcePos().getCenter()).distanceTo(cam) > RENDER_DISTANCE)
-                        continue;
-                    new Drawer(level, pose.last(), buffer, used, data.wireType(), null, cam, sub)
-                            .plugAt(n);
-                }
-            }
-        }
-
-        // the plug shows up on the socket the cord is about to go into
+        // plugs of laid cords (hanging or on the walls) are drawn by ReelClient, the same model as a cord reel's;
+        // the plug shows up on the socket the cord is about to go into, turned towards the player
         if(hover) {
             WireType type = WallWireClient.heldWireType(mc.player);
-            if(type != null && CordPair.isCord(type))
-                new Drawer(level, pose.last(), buffer, used, type, WallWireClient.offhandDye(mc.player), cam, WallSpace.renderPose(level, WallWireClient.hoverSocket.sourcePos(), partial))
-                        .plugAt(WallWireClient.hoverSocket);
+            if(type != null && CordPair.isCord(type)) {
+                Vec3 towards = WallWireClient.start != null && !WallWireClient.start.sourcePos().equals(WallWireClient.hoverSocket.sourcePos())
+                        ? WallSpace.toWorld(WallSpace.renderPose(level, WallWireClient.start.sourcePos(), partial), WallWireClient.start.sourcePos().getCenter())
+                        : mc.player.getEyePosition(partial);
+                io.github.sjzeero.voltworks.reel.client.ReelClient.drawPlugPreview(level, pose, cam, partial, WallWireClient.hoverSocket.sourcePos(), towards);
+            }
         }
 
         for(net.minecraft.world.entity.Entity e : level.entitiesForRendering()) {
@@ -400,43 +383,8 @@ public final class WallWireRenderer {
                 lead(WallSpace.nodePos(level, node), cell, seg);
                 return;
             }
-            // cord: straight from the top of the plug to the start of the wire on the surface
-            Vec3 plug = plugBody(node, a.add(b).scale(0.5));
-            lead(plug, cell, seg);
-        }
-
-        /** Draws only the plug on a socket, between its two cord contacts; used while the cord is still being aimed. */
-        void plugAt(InWorldNode node) {
-            InWorldNode[] pair = CordPair.ends(level, node.sourcePos());
-            if(pair == null)
-                return;
-            Vec3 a = WallSpace.nodePos(level, pair[0]), b = WallSpace.nodePos(level, pair[1]);
-            if(a == null || b == null)
-                return;
-            plugBody(node, a.add(b).scale(0.5));
-        }
-
-        /** The block of the plug sitting in the socket: 3x3 px wide, 2 px tall, centered on the contact point the wire leaves from. */
-        private Vec3 plugBody(InWorldNode node, Vec3 plug) {
-            var state = level.getBlockState(node.sourcePos());
-            if(!state.hasProperty(io.github.sjzeero.voltworks.cord.SocketBlock.FACING))
-                return plug;
-            // a cable reel's plug is in the socket (ReelClient draws it): its contacts are at the plug's back already
-            if(state.getValue(io.github.sjzeero.voltworks.cord.SocketBlock.PLUG) != io.github.sjzeero.voltworks.cord.SocketBlock.Plug.NONE)
-                return plug;
-            // FACING points at the block the socket is mounted on, so the plug sticks out the other way
-            Vec3 u = step(state.getValue(io.github.sjzeero.voltworks.cord.SocketBlock.FACING).getOpposite());
-            Vec3 up = Math.abs(u.y) > 0.5 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
-            Vec3 s = u.cross(up).normalize();
-            double width = 3 * PX, size = 3 * PX, height = 2 * PX;
-            // centered on the point the wire leaves from, so the wire comes out of the middle of the plug's side
-            // the plug stands on the socket body (contact is 0.5 px above it), the wire starts on top of it
-            Vec3 base = plug.subtract(u.scale(0.5 * PX));
-            Vec3 origin = base.subtract(s.scale(width / 2)).subtract(up.scale(size / 2));
-            int light = light(BlockPos.containing(plug));
-            // all six faces, the flag draws the side opposite to `up`; without it the cube is open and looks crooked
-            box(origin, u, s, up, height, width, size, true, true, true, light);
-            return base.add(u.scale(height + h / 2));
+            // cord: the socket moved both contacts to the back of the plug model (drawn by ReelClient), the lead starts there
+            lead(a.add(b).scale(0.5), cell, seg);
         }
 
         /** Box of the wire's cross section from a to b; {@code flat} is the direction its height goes along. */

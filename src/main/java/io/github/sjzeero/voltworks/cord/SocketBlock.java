@@ -46,7 +46,7 @@ import java.util.Map;
 public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final IntegerProperty ROTATION = IntegerProperty.create("rotation", 0, 3);
-    /** A cable reel's plug sitting in the slots; A = cord leaves towards the model's +X, B = towards -X. */
+    /** A cord's plug sitting in the slots (cord reel or either end of a socket-to-socket cord); A = cord leaves towards the model's +X, B = towards -X. */
     public static final EnumProperty<Plug> PLUG = EnumProperty.create("plug", Plug.class);
     public static final int POSITIVE = 0, NEGATIVE = 1, CORD_POSITIVE = 2, CORD_NEGATIVE = 3;
 
@@ -180,8 +180,9 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
 
 
     /**
-     * Right-click on a socket with a cable reel's plug in it pulls the plug out (see
-     * {@link CableReelBlockEntity#unplugByPlayer}). With something in the hand only when that is not a block to place
+     * Right-click on a socket with a plug in it pulls the plug out: a cord reel's (see
+     * {@link CableReelBlockEntity#unplugByPlayer}) or either end of a socket-to-socket cord (see
+     * {@link SocketPlugs#unplugByPlayer}). With something in the hand only when that is not a block to place
      * or a tool of Electro Energetics / Create / Voltworks (wires, wrench, cable ends...), and not while sneaking.
      */
     @Override
@@ -192,7 +193,10 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
             return InteractionResult.SUCCESS;
         CableReelBlockEntity reel = CableReelBlockEntity.pluggedInto(sl, pos);
         if (reel == null) {
-            // the reel's cord went away without taking the plug along: just clear it
+            // one end of a cord between two sockets: the whole cord comes off, back into the inventory
+            if (SocketPlugs.unplugByPlayer(sl, pos, sp))
+                return InteractionResult.SUCCESS;
+            // the cord went away without taking the plug along: just clear it
             sl.setBlock(pos, state.setValue(PLUG, Plug.NONE), Block.UPDATE_ALL);
             return InteractionResult.SUCCESS;
         }

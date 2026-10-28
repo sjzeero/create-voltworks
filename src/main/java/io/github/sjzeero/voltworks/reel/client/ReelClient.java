@@ -118,56 +118,88 @@ public final class ReelClient {
     private static @Nullable ItemStack plugLook;
 
     /**
-     * A cord reel plugged into a socket: the plug model sits in the socket's slots (blades hidden in the socket), turned
-     * by the socket's {@link SocketBlock#PLUG} state so the cord leaves towards the reel, and the cord - whose node the
-     * socket moved to the plug's back - ends in it. Ordinary cords into the same socket stay as they are.
+     * A cord plugged into a socket - a cord reel's or either end of a cord between two sockets: the plug model sits in
+     * the socket's slots (blades hidden in the socket), turned by the socket's {@link SocketBlock#PLUG} state so the
+     * cord leaves towards where it goes, and the cord - whose nodes the socket moved to the plug's back - ends in it.
      */
     private static void renderPlugs(RenderLevelStageEvent event, Minecraft mc, ClientLevel level) {
         float pt = event.getPartialTick().getGameTimeDeltaPartialTick(true);
         Vec3 cam = event.getCamera().getPosition();
         PoseStack pose = event.getPoseStack();
         MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
-        if (plugLook == null)
-            plugLook = ReelPlugItem.look(true);
         Set<BlockPos> done = new HashSet<>();
         boolean any = false;
         for (Pair<InWorldNodeConnection, WireData> w : WireRenderer.getAllConnections()) {
             InWorldNodeConnection c = w.getFirst();
-            InWorldNode socket = c.node2();
-            CableReelBlockEntity be = reelAt(level, c.node1());
-            if (be == null) {
-                be = reelAt(level, c.node2());
-                socket = c.node1();
+            boolean cord = io.github.sjzeero.voltworks.cord.CordPair.isCord(w.getSecond().wireType());
+            if (!cord) {
+                CableReelBlockEntity be = reelAt(level, c.node1());
+                if (be == null)
+                    be = reelAt(level, c.node2());
+                if (be == null || !be.block().cord)
+                    continue;
             }
-            if (be == null || !be.block().cord)
-                continue;
-            BlockPos sp = socket.sourcePos();
-            if (!done.add(sp) || !level.isLoaded(sp))
-                continue;
-            BlockState st = level.getBlockState(sp);
-            if (!(st.getBlock() instanceof SocketBlock) || st.getValue(SocketBlock.PLUG) == SocketBlock.Plug.NONE)
-                continue;
-            Pose3dc sub = WallSpace.renderPose(level, sp, pt);
-            Vec3 o = WallSpace.toWorld(sub, Vec3.ZERO);
-            if (WallSpace.toWorld(sub, sp.getCenter()).distanceToSqr(cam) > PLUG_RANGE * PLUG_RANGE)
-                continue;
-            pose.pushPose();
-            pose.translate(-cam.x, -cam.y, -cam.z);
-            if (sub != null) {
-                Vec3 ex = WallSpace.rotate(sub, new Vec3(1, 0, 0)), ey = WallSpace.rotate(sub, new Vec3(0, 1, 0)),
-                        ez = WallSpace.rotate(sub, new Vec3(0, 0, 1));
-                Matrix4f m = new Matrix4f((float) ex.x, (float) ex.y, (float) ex.z, 0, (float) ey.x, (float) ey.y, (float) ey.z, 0,
-                        (float) ez.x, (float) ez.y, (float) ez.z, 0, (float) o.x, (float) o.y, (float) o.z, 1);
-                pose.mulPose(m);
+            for (InWorldNode socket : new InWorldNode[]{c.node1(), c.node2()}) {
+                if (socket.id() != SocketBlock.CORD_POSITIVE && socket.id() != SocketBlock.CORD_NEGATIVE)
+                    continue;
+                BlockPos sp = socket.sourcePos();
+                if (done.contains(sp) || !level.isLoaded(sp))
+                    continue;
+                BlockState st = level.getBlockState(sp);
+                if (!(st.getBlock() instanceof SocketBlock) || st.getValue(SocketBlock.PLUG) == SocketBlock.Plug.NONE)
+                    continue;
+                done.add(sp);
+                any |= drawPlug(mc, level, pose, buffer, cam, pt, sp, st);
             }
-            pose.translate(sp.getX() + 0.5, sp.getY() + 0.5, sp.getZ() + 0.5);
-            pose.mulPose(SocketBlock.modelRotation(st));
-            mc.getItemRenderer().renderStatic(plugLook, ItemDisplayContext.NONE, LevelRenderer.getLightColor(level, sp),
-                    OverlayTexture.NO_OVERLAY, pose, buffer, level, 0);
-            pose.popPose();
-            any = true;
         }
         if (any)
+            buffer.endBatch();
+    }
+
+    /** The plug model in the socket at {@code sp}, turned by {@code st}'s PLUG (A when NONE). False when too far. */
+    public static boolean drawPlug(Minecraft mc, ClientLevel level, PoseStack pose, MultiBufferSource buffer, Vec3 cam, float pt,
+                                   BlockPos sp, BlockState st) {
+        if (plugLook == null)
+            plugLook = ReelPlugItem.look(true);
+        Pose3dc sub = WallSpace.renderPose(level, sp, pt);
+        Vec3 o = WallSpace.toWorld(sub, Vec3.ZERO);
+        if (WallSpace.toWorld(sub, sp.getCenter()).distanceToSqr(cam) > PLUG_RANGE * PLUG_RANGE)
+            return false;
+        if (st.getValue(SocketBlock.PLUG) == SocketBlock.Plug.NONE)
+            st = st.setValue(SocketBlock.PLUG, SocketBlock.Plug.A);
+        pose.pushPose();
+        pose.translate(-cam.x, -cam.y, -cam.z);
+        if (sub != null) {
+            Vec3 ex = WallSpace.rotate(sub, new Vec3(1, 0, 0)), ey = WallSpace.rotate(sub, new Vec3(0, 1, 0)),
+                    ez = WallSpace.rotate(sub, new Vec3(0, 0, 1));
+            Matrix4f m = new Matrix4f((float) ex.x, (float) ex.y, (float) ex.z, 0, (float) ey.x, (float) ey.y, (float) ey.z, 0,
+                    (float) ez.x, (float) ez.y, (float) ez.z, 0, (float) o.x, (float) o.y, (float) o.z, 1);
+            pose.mulPose(m);
+        }
+        pose.translate(sp.getX() + 0.5, sp.getY() + 0.5, sp.getZ() + 0.5);
+        pose.mulPose(SocketBlock.modelRotation(st));
+        mc.getItemRenderer().renderStatic(plugLook, ItemDisplayContext.NONE, LevelRenderer.getLightColor(level, sp),
+                OverlayTexture.NO_OVERLAY, pose, buffer, level, 0);
+        pose.popPose();
+        return true;
+    }
+
+    /**
+     * Preview while aiming a cord at a free socket: the same plug, turned towards {@code towards} (world space), drawn
+     * with its own batch.
+     */
+    public static void drawPlugPreview(ClientLevel level, PoseStack pose, Vec3 cam, float pt, BlockPos sp, Vec3 towards) {
+        BlockState st = level.getBlockState(sp);
+        if (!(st.getBlock() instanceof SocketBlock))
+            return;
+        Pose3dc sub = WallSpace.renderPose(level, sp, pt);
+        Vector3f a = SocketBlock.plugAxis(st);
+        Vec3 centre = WallSpace.toWorld(sub, sp.getCenter());
+        Vec3 axis = WallSpace.rotate(sub, new Vec3(a.x, a.y, a.z));
+        st = st.setValue(SocketBlock.PLUG, io.github.sjzeero.voltworks.cord.SocketPlugs.side(centre, axis, towards));
+        Minecraft mc = Minecraft.getInstance();
+        MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
+        if (drawPlug(mc, level, pose, buffer, cam, pt, sp, st))
             buffer.endBatch();
     }
 

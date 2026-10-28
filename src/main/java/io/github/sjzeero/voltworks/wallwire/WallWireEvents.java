@@ -26,6 +26,7 @@ public final class WallWireEvents {
     private static void levelTick(LevelTickEvent.Post event) {
         if(event.getLevel() instanceof ServerLevel level) {
             WallWireData.get(level).tick();
+            io.github.sjzeero.voltworks.cord.SocketPlugs.tick(level);
             if(level.getGameTime() % 5 == 0)
                 FrozenDevices.forward(level);
         }
