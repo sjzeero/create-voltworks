@@ -6,9 +6,11 @@ package io.github.sjzeero.voltworks.battery;
  * Minecraft classes so it can be unit tested.
  * <p>
  * A battery is a voltage source with an internal resistance, both depending on the state of charge {@code soc}
- * (0..1): the open-circuit voltage rises from 11.5 V (empty) to 12.7 V (full) and the resistance grows steeply when the
- * battery runs down (a deep-discharged lead-acid cell). Blocks joined into a bank are in parallel: the bank has the
- * same voltage, {@code size} times the capacity and 1/{@code size} of the resistance.
+ * (0..1). Voltworks runs it at 300 V: Power Grid's 12 V curves are scaled by {@link #SCALE} = 300 / 12.7, voltage and
+ * resistance alike, so currents stay exactly Power Grid's and power is {@code SCALE} times higher. The open-circuit
+ * voltage rises from 271.65 V (empty) to 300 V (full) and the resistance (2.36 ohm full) grows steeply when the battery
+ * runs down (a deep-discharged lead-acid cell). Blocks joined into a bank are in parallel: the bank has the same
+ * voltage, {@code size} times the capacity and 1/{@code size} of the resistance.
  */
 public final class BatterySpec {
     private BatterySpec() {}
@@ -19,10 +21,14 @@ public final class BatterySpec {
     public static final double CAPACITY = CAPACITY_WH * 3600;
     /** Charge of a freshly made battery (Power Grid's {@code acidBatteryInitialCharge}). */
     public static final double INITIAL_SOC = 0.9;
-    /** Internal resistance of one full block, ohms (Power Grid's {@code acidBatteryFullChargeInternalResistance}). */
-    public static final double FULL_RESISTANCE = 0.1;
+    /** Voltage of a full block, V. */
+    public static final double FULL_VOLTAGE = 300;
+    /** Voltworks voltage / Power Grid voltage (12.7 V full). */
+    public static final double SCALE = FULL_VOLTAGE / 12.7;
+    /** Internal resistance of one full block, ohms (Power Grid's {@code acidBatteryFullChargeInternalResistance}, 0.1, scaled). */
+    public static final double FULL_RESISTANCE = 0.1 * SCALE;
     /** Upper limit of one block's internal resistance, ohms. */
-    public static final double MAX_RESISTANCE = 10000;
+    public static final double MAX_RESISTANCE = 10000 * SCALE;
 
     public static double clampSoc(double soc) {
         return soc < 0 ? 0 : soc > 1 ? 1 : soc;
@@ -32,12 +38,12 @@ public final class BatterySpec {
     public static double voltage(double energy, double capacity) {
         if (energy <= 0 || capacity <= 0)
             return 0;
-        return 1.2 * clampSoc(energy / capacity) + 11.5;
+        return (1.2 * clampSoc(energy / capacity) + 11.5) * SCALE;
     }
 
     /** Internal resistance of a bank of {@code size} blocks. */
     public static double resistance(double soc, int size) {
-        double r = Math.min(MAX_RESISTANCE, Math.exp(-21.18323 * clampSoc(soc) + 10.58157) + FULL_RESISTANCE);
+        double r = Math.min(MAX_RESISTANCE, Math.exp(-21.18323 * clampSoc(soc) + 10.58157) * SCALE + FULL_RESISTANCE);
         return r / Math.max(1, size);
     }
 

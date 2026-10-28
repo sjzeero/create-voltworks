@@ -146,7 +146,7 @@ public class BatteryBlockEntity extends BlockEntity implements IHaveGoggleInform
             tooltip.add(Component.literal(" ").append(Component.translatable("voltworks.battery.goggles.bank",
                     c.sx, c.sy, c.sz, c.size()).withStyle(ChatFormatting.GRAY)));
         tooltip.add(Component.literal(" ").append(Component.translatable("voltworks.battery.goggles.voltage",
-                String.format(Locale.ROOT, "%.2f", BatterySpec.voltage(c.energy, cap))).withStyle(ChatFormatting.GRAY)));
+                String.format(Locale.ROOT, "%.1f", BatterySpec.voltage(c.energy, cap))).withStyle(ChatFormatting.GRAY)));
         if (Math.abs(c.power) >= 0.05)
             tooltip.add(Component.literal(" ").append(Component.translatable(c.power > 0 ? "voltworks.battery.goggles.discharging" : "voltworks.battery.goggles.charging",
                     fmt(Math.abs(c.power))).withStyle(c.power > 0 ? ChatFormatting.GOLD : ChatFormatting.AQUA)));
