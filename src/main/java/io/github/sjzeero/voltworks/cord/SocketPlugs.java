@@ -57,8 +57,10 @@ public final class SocketPlugs {
             ta = WallSpace.toWorld(sl, cellsFromA.getFirst().point());
             tb = WallSpace.toWorld(sl, cellsFromA.getLast().point());
         }
-        plugTowards(sl, a.sourcePos(), ta);
-        plugTowards(sl, b.sourcePos(), tb);
+        if (!StripGeometry.isStripNode(a.id()))
+            plugTowards(sl, a.sourcePos(), ta);
+        if (!StripGeometry.isStripNode(b.id()))
+            plugTowards(sl, b.sourcePos(), tb);
     }
 
     public static void removed(ServerLevel sl, InWorldNodeConnection c) {

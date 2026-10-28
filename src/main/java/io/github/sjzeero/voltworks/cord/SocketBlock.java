@@ -214,16 +214,19 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
 
     @Override
     public Map<Integer, Vec3> getNodePositions(Level level, BlockPos pos, BlockState state) {
-        Vec3[] n = nodes(state);
         Map<Integer, Vec3> m = new HashMap<>();
-        for (int i = 0; i < n.length; i++)
-            m.put(i, n[i]);
+        for (int i = 0; i < StripGeometry.NODES; i++)
+            m.put(i, getNodePosition(level, pos, state, i));
         return m;
     }
 
     @Override
     public Vec3 getNodePosition(Level level, BlockPos pos, BlockState state, int id) {
         Vec3[] n = nodes(state);
+        if (StripGeometry.isStripNode(id)) {
+            StripLinks.Placement p = level == null ? null : StripLinks.get(level, pos);
+            return p == null ? n[CORD_POSITIVE] : p.node(id).subtract(Vec3.atLowerCornerOf(pos));
+        }
         return id >= 0 && id < n.length ? n[id] : n[0];
     }
 
@@ -234,6 +237,8 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
 
     @Override
     public MutableComponent getNodeLabel(Level level, BlockPos pos, BlockState state, int id) {
+        if (StripGeometry.isInput(id))
+            return Component.translatable("voltworks.node.power_strip_cord");
         return Component.translatable("voltworks.node.socket_" + Math.min(id, 2));
     }
 

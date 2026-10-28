@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 public final class Outlets {
@@ -19,7 +20,7 @@ public final class Outlets {
         if (state.getBlock() instanceof SocketBlock)
             return SOCKET;
         if (state.getBlock() instanceof PowerStripBlock)
-            return StripGeometry.OUTLETS;
+            return PowerStripBlock.OUTLETS;
         return new int[0];
     }
 
@@ -28,6 +29,8 @@ public final class Outlets {
     }
 
     public static boolean isContact(BlockState state, int id) {
+        if (state.getBlock() instanceof SocketBlock && StripGeometry.isOutlet(id))
+            return true;
         int supply = id & ~1;
         for (int s : of(state))
             if (s == supply)
@@ -35,8 +38,14 @@ public final class Outlets {
         return false;
     }
 
+    public static boolean isStripOutlet(BlockState state, int id) {
+        return state.getBlock() instanceof SocketBlock && StripGeometry.isOutlet(id);
+    }
+
     public static boolean isStripInput(BlockState state, int id) {
-        return state.getBlock() instanceof PowerStripBlock && (id == StripGeometry.INPUT || id == StripGeometry.INPUT + 1);
+        if (state.getBlock() instanceof SocketBlock)
+            return StripGeometry.isInput(id);
+        return state.getBlock() instanceof PowerStripBlock && (id == PowerStripBlock.INPUT || id == PowerStripBlock.INPUT + 1);
     }
 
     public static InWorldNode @Nullable [] pair(Level level, BlockPos pos, int id) {
@@ -51,8 +60,6 @@ public final class Outlets {
         BlockState state = level.getBlockState(pos);
         if (state.getBlock() instanceof SocketBlock)
             return SocketBlock.CORD_POSITIVE;
-        if (state.getBlock() instanceof PowerStripBlock)
-            return hit == null ? StripGeometry.OUTLETS[0] : PowerStripBlock.outletAt(state, local(level, pos, hit).subtract(Vec3.atLowerCornerOf(pos)));
         return -1;
     }
 
@@ -63,32 +70,43 @@ public final class Outlets {
         return sub == null ? hit : WallSpace.toLocal(sub.logicalPose(), hit);
     }
 
+    public static Vec3 cordDir(Level level, BlockPos pos, int supply) {
+        BlockState state = level.getBlockState(pos);
+        if (state.getBlock() instanceof SocketBlock && StripGeometry.isStripNode(supply)) {
+            StripLinks.Placement p = StripLinks.get(level, pos);
+            if (p != null)
+                return p.dir(supply);
+        }
+        return cordDir(state, supply);
+    }
+
     public static Vec3 cordDir(BlockState state, int supply) {
         if (state.getBlock() instanceof SocketBlock) {
             Vector3f a = SocketBlock.plugAxis(state);
             double s = state.getValue(SocketBlock.PLUG) == SocketBlock.Plug.B ? -1 : 1;
             return new Vec3(a.x * s, a.y * s, a.z * s);
         }
-        if (state.getBlock() instanceof PowerStripBlock)
-            return PowerStripBlock.turn(state, isStripInput(state, supply) ? StripGeometry.INPUT_DIR : StripGeometry.cordDir(supply));
         return new Vec3(0, 1, 0);
     }
 
-    public static @Nullable Matrix4f plugPose(BlockState state, int supply) {
-        Matrix4f m = new Matrix4f().translate(0.5f, 0.5f, 0.5f);
-        if (state.getBlock() instanceof SocketBlock) {
-            if (state.getValue(SocketBlock.PLUG) == SocketBlock.Plug.NONE)
-                state = state.setValue(SocketBlock.PLUG, SocketBlock.Plug.A);
-            m.rotate(SocketBlock.modelRotation(state));
-        } else if (state.getBlock() instanceof PowerStripBlock && StripGeometry.isOutlet(supply)) {
-            m.rotate(PowerStripBlock.rotation(state));
-            double[] o = StripGeometry.offset(supply & ~1);
-            m.translate((float) o[0] / 16, (float) o[1] / 16, (float) o[2] / 16);
-            if (StripGeometry.flipped(supply & ~1))
-                m.rotateY((float) Math.PI);
-        } else {
-            return null;
+    public static @Nullable Matrix4f plugPose(Level level, BlockPos pos, BlockState state, int supply) {
+        if (state.getBlock() instanceof SocketBlock && StripGeometry.isOutlet(supply)) {
+            StripLinks.Placement p = StripLinks.get(level, pos);
+            if (p == null)
+                return null;
+            return StripGeometry.plugPose(new Vector3d(p.at().x, p.at().y, p.at().z), p.yaw(),
+                    new Vector3d(pos.getX(), pos.getY(), pos.getZ()), supply & ~1);
         }
+        return plugPose(state, supply);
+    }
+
+    public static @Nullable Matrix4f plugPose(BlockState state, int supply) {
+        if (!(state.getBlock() instanceof SocketBlock) || supply != SocketBlock.CORD_POSITIVE)
+            return null;
+        Matrix4f m = new Matrix4f().translate(0.5f, 0.5f, 0.5f);
+        if (state.getValue(SocketBlock.PLUG) == SocketBlock.Plug.NONE)
+            state = state.setValue(SocketBlock.PLUG, SocketBlock.Plug.A);
+        m.rotate(SocketBlock.modelRotation(state));
         return m.translate(-0.5f, -0.5f, -0.5f);
     }
 }

@@ -358,7 +358,8 @@
   "voltworks.battery.goggles.charging": "Charging: %s W",
   "voltworks.battery.tooltip.charge": "Charge: %s%% (%s / %s Wh)",
   "block.voltworks.power_strip": "Power Strip",
-  "block.voltworks.power_strip.tooltip.summary": "Three _socket outlets_ on a _4 block_ cord of its own, fed in parallel. Place it _against a socket_ and its cord plugs in by itself. With an _empty hand_ click the strip to take its cord out and plug it into any socket; _sneak_-click to wind the cord back in. Cords plug into its outlets like into a socket.",
+  "entity.voltworks.power_strip": "Power Strip",
+  "block.voltworks.power_strip.tooltip.summary": "A portable block of _three outlets_ on its own _4 block_ cord. Use it _on a socket_ to drop it nearby already plugged in, or anywhere else to lay it down. _Right-click_ it to pick it up and carry it, again to put it down; it stays within reach of its cord. Plug cords into its outlets like into a socket; they move with the strip. _Sneak_-click to take it back as an item.",
   "voltworks.node.power_strip_cord": "Strip cord",
   "voltworks.cord.carried": "Cord unplugged at both ends: you carry it",
   "voltworks.cord.end_unplugged": "Cord end unplugged; the other end stays in",
@@ -372,8 +373,10 @@
   "voltworks.cord.cut": "Cord cut",
   "voltworks.power_strip.unplugged": "Strip cord unplugged",
   "voltworks.power_strip.stowed": "Strip cord wound back into the strip",
-  "voltworks.power_strip.cord_plugged": "The strip cord is plugged in; click its plug to take it out",
-  "voltworks.power_strip.cord_out": "The strip cord is already out",
+  "voltworks.power_strip.carried": "Carrying the strip; click it again to put it down",
+  "voltworks.power_strip.slipped": "The strip slipped out of your hands",
+  "voltworks.power_strip.no_power": "Plug the strip into a socket first",
+  "voltworks.power_strip.no_chain": "A strip cannot be plugged into another strip",
   "voltworks.power_strip.grabbed": "Strip cord taken out (%s blocks)",
-  "voltworks.power_strip.auto_plugged": "Strip cord plugged into the socket"
+  "voltworks.power_strip.plugged_in": "Strip plugged into the socket (%s block cord)"
 }

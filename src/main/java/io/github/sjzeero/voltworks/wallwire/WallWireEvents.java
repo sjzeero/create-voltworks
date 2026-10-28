@@ -1,11 +1,13 @@
 package io.github.sjzeero.voltworks.wallwire;
 
+import io.github.sjzeero.voltworks.cord.LooseCords;
 import io.github.sjzeero.voltworks.cord.SocketPlugs;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
@@ -15,6 +17,7 @@ public final class WallWireEvents {
 
     public static void register() {
         NeoForge.EVENT_BUS.addListener(WallWireEvents::levelTick);
+        NeoForge.EVENT_BUS.addListener(WallWireEvents::chunkLoad);
         NeoForge.EVENT_BUS.addListener(FrozenDevices::addToGraph);
         NeoForge.EVENT_BUS.addListener(FrozenDevices::startTracking);
         NeoForge.EVENT_BUS.addListener(WallWireEvents::neighbourNotify);
@@ -31,6 +34,11 @@ public final class WallWireEvents {
             if(level.getGameTime() % 5 == 0)
                 FrozenDevices.forward(level);
         }
+    }
+
+    private static void chunkLoad(ChunkEvent.Load event) {
+        if(event.getLevel() instanceof ServerLevel level)
+            LooseCords.chunkLoaded(level, event.getChunk());
     }
 
     private static void neighbourNotify(BlockEvent.NeighborNotifyEvent event) {

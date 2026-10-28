@@ -16,9 +16,9 @@ public class PowerStripDevice extends SimpleElectricalDevice {
     @Override
     public void preTick(BridgeCollector bridges) {
         var b = bridges.builder(pos);
-        for (int supply : StripGeometry.OUTLETS) {
-            b.resistor(StripGeometry.INPUT, supply, SocketDevice.CONTACT_RESISTANCE);
-            b.resistor(StripGeometry.INPUT + 1, supply + 1, SocketDevice.CONTACT_RESISTANCE);
+        for (int supply : PowerStripBlock.OUTLETS) {
+            b.resistor(PowerStripBlock.INPUT, supply, SocketDevice.CONTACT_RESISTANCE);
+            b.resistor(PowerStripBlock.INPUT + 1, supply + 1, SocketDevice.CONTACT_RESISTANCE);
         }
     }
 

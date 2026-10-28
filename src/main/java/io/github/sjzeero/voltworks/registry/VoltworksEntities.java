@@ -1,6 +1,7 @@
 package io.github.sjzeero.voltworks.registry;
 
 import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.cord.PowerStripEntity;
 import io.github.sjzeero.voltworks.reel.CableEndEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
@@ -21,6 +22,13 @@ public final class VoltworksEntities {
                     .updateInterval(2)
                     .setShouldReceiveVelocityUpdates(true)
                     .build("cable_end"));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<PowerStripEntity>> POWER_STRIP = ENTITIES.register("power_strip",
+            () -> EntityType.Builder.<PowerStripEntity>of(PowerStripEntity::new, MobCategory.MISC)
+                    .sized(0.9f, 0.25f)
+                    .clientTrackingRange(10)
+                    .updateInterval(1)
+                    .build("power_strip"));
 
     public static void register(IEventBus bus) {
         ENTITIES.register(bus);

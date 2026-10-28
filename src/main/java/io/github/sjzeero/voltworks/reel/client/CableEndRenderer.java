@@ -16,6 +16,9 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.cord.LooseCords;
 import io.github.sjzeero.voltworks.cord.Outlets;
+import io.github.sjzeero.voltworks.cord.PowerStripEntity;
+import io.github.sjzeero.voltworks.cord.StripGeometry;
+import io.github.sjzeero.voltworks.cord.StripLinks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -154,8 +157,14 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
                 return;
             from = LooseCords.plugWorld(level, op, supply);
             fromOut = WallSpace.rotate(WallSpace.renderPose(level, op, pt),
-                    Outlets.cordDir(level.getBlockState(op), supply));
+                    Outlets.cordDir(level, op, supply));
             skip = op;
+        } else if (entity.otherStrip() != null) {
+            PowerStripEntity strip = entity.otherStrip();
+            StripLinks.Placement place = strip.placement(pt);
+            from = place.node(StripGeometry.INPUT);
+            fromOut = place.dir(StripGeometry.INPUT);
+            skip = strip.blockPosition();
         } else if (entity.otherHolder() != null || entity.end() != 0) {
             return;
         } else {

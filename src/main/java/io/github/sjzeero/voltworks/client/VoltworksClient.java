@@ -4,6 +4,7 @@ import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.redstone.client.RedstoneCableClient;
 import io.github.sjzeero.voltworks.reel.ReelPlugItem;
 import io.github.sjzeero.voltworks.reel.client.CableEndRenderer;
+import io.github.sjzeero.voltworks.reel.client.PowerStripRenderer;
 import io.github.sjzeero.voltworks.reel.client.ReelClient;
 import io.github.sjzeero.voltworks.registry.VoltworksMenus;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableEditScreen;
@@ -83,6 +84,7 @@ public class VoltworksClient {
         event.registerBlockEntityRenderer(VoltworksBlockEntities.SOLAR_PANEL_BEARING_BE.get(), SolarPanelBearingRenderer::new);
         event.registerBlockEntityRenderer(VoltworksBlockEntities.CONSTANT_SPEED_MOTOR_BE.get(), PGMotorRenderer::new);
         event.registerEntityRenderer(VoltworksEntities.CABLE_END.get(), CableEndRenderer::new);
+        event.registerEntityRenderer(VoltworksEntities.POWER_STRIP.get(), PowerStripRenderer::new);
     }
 
     private static void setup(FMLClientSetupEvent event) {

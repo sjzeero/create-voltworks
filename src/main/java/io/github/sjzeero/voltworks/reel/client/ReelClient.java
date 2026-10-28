@@ -13,6 +13,7 @@ import io.github.sjzeero.voltworks.cord.CordPair;
 import io.github.sjzeero.voltworks.cord.Outlets;
 import io.github.sjzeero.voltworks.cord.SocketBlock;
 import io.github.sjzeero.voltworks.cord.SocketPlugs;
+import io.github.sjzeero.voltworks.cord.StripLinks;
 import io.github.sjzeero.voltworks.reel.CableEndEntity;
 import io.github.sjzeero.voltworks.reel.CablePath;
 import io.github.sjzeero.voltworks.reel.CableReelBlock;
@@ -92,6 +93,7 @@ public final class ReelClient {
     }
 
     private static void render(RenderLevelStageEvent event) {
+        StripLinks.partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(true);
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES)
             return;
         Minecraft mc = Minecraft.getInstance();
@@ -147,9 +149,9 @@ public final class ReelClient {
             return false;
         if (st.getBlock() instanceof SocketBlock && st.getValue(SocketBlock.PLUG) == SocketBlock.Plug.NONE)
             return false;
-        if (!done.add(sp.asLong() * 8 + (id & ~1)))
+        if (!done.add(sp.asLong() * 16 + (id & ~1)))
             return false;
-        return drawPlugAt(mc, level, pose, buffer, cam, pt, sp, Outlets.plugPose(st, id & ~1));
+        return drawPlugAt(mc, level, pose, buffer, cam, pt, sp, Outlets.plugPose(level, sp, st, id & ~1));
     }
 
     public static boolean drawPlug(Minecraft mc, ClientLevel level, PoseStack pose, MultiBufferSource buffer, Vec3 cam, float pt,

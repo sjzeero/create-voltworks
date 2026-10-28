@@ -3,6 +3,9 @@ package io.github.sjzeero.voltworks.reel.client;
 import com.george_vi.electroenergetics.simulation.WireType;
 import io.github.sjzeero.voltworks.cord.LooseCords;
 import io.github.sjzeero.voltworks.cord.Outlets;
+import io.github.sjzeero.voltworks.cord.PowerStripEntity;
+import io.github.sjzeero.voltworks.cord.StripGeometry;
+import io.github.sjzeero.voltworks.cord.StripLinks;
 import io.github.sjzeero.voltworks.reel.CableEndEntity;
 import io.github.sjzeero.voltworks.registry.VoltworksWireTypes;
 import io.github.sjzeero.voltworks.wallwire.WallSpace;
@@ -51,12 +54,20 @@ public final class LooseCordClient {
             if (!level.isLoaded(a.pos()))
                 return null;
             Vec3 from = LooseCords.plugWorld(level, a.pos(), a.supply());
-            Vec3 out = WallSpace.rotate(WallSpace.renderPose(level, a.pos(), pt), Outlets.cordDir(level.getBlockState(a.pos()), a.supply()));
+            Vec3 out = WallSpace.rotate(WallSpace.renderPose(level, a.pos(), pt), Outlets.cordDir(level, a.pos(), a.supply()));
             return new ReelClientSource(from, out, type, reach, a.pos());
         }
         UUID id = t.getUUID("LooseCord");
         int end = t.getInt("End");
         AABB box = holder.getBoundingBox().inflate(reach + 8);
+        if (t.hasUUID("OtherStrip")) {
+            UUID strip = t.getUUID("OtherStrip");
+            for (PowerStripEntity e : level.getEntitiesOfClass(PowerStripEntity.class, box, e -> strip.equals(e.getUUID()))) {
+                StripLinks.Placement place = e.placement(pt);
+                return new ReelClientSource(place.node(StripGeometry.INPUT), place.dir(StripGeometry.INPUT), type, reach, e.blockPosition());
+            }
+            return null;
+        }
         for (CableEndEntity e : level.getEntitiesOfClass(CableEndEntity.class, box, e -> id.equals(e.cordId()) && e.end() != end)) {
             Vec3[] back = CableEndRenderer.cordBack(e, pt);
             return new ReelClientSource(back[0], back[1], type, reach, e.blockPosition());

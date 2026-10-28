@@ -1,5 +1,6 @@
 package io.github.sjzeero.voltworks.registry;
 
+import io.github.sjzeero.voltworks.cord.PowerStripItem;
 import io.github.sjzeero.voltworks.cord.CordSpoolItem;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.battery.BatteryItem;
@@ -33,7 +34,7 @@ public final class VoltworksItems {
 
     public static final DeferredItem<?> SERVO_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SERVO);
     public static final DeferredItem<?> SOCKET_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SOCKET);
-    public static final DeferredItem<?> POWER_STRIP_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.POWER_STRIP);
+    public static final DeferredItem<PowerStripItem> POWER_STRIP_ITEM = ITEMS.registerItem("power_strip", PowerStripItem::new);
     public static final DeferredItem<Item> TWO_CORE_WIRE = ITEMS.registerSimpleItem("two_core_wire");
 
     public static final DeferredItem<Item> REDSTONE_CABLE_WIRE = ITEMS.registerSimpleItem("redstone_cable_wire");

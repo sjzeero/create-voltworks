@@ -360,7 +360,8 @@
   "voltworks.battery.goggles.charging": "Заряд: %s Вт",
   "voltworks.battery.tooltip.charge": "Заряд: %s%% (%s / %s Вт·ч)",
   "block.voltworks.power_strip": "Удлинитель",
-  "block.voltworks.power_strip.tooltip.summary": "Три _розетки_ на собственном шнуре длиной _4 блока_, подключены параллельно. Поставьте его _к розетке_ — шнур сам воткнётся в неё. _Пустой рукой_ кликните по удлинителю, чтобы достать шнур и воткнуть его в любую розетку; клик с _Shift_ сматывает шнур обратно. Шнуры втыкаются в его розетки как в обычную розетку.",
+  "entity.voltworks.power_strip": "Удлинитель",
+  "block.voltworks.power_strip.tooltip.summary": "Переносной блок из _трёх розеток_ на собственном шнуре длиной _4 блока_. Используйте его _на розетке_ — он ляжет рядом уже включённым, или в любом другом месте — просто ляжет. _ПКМ_ по нему — взять и нести, ещё раз — положить; дальше длины шнура он не уйдёт. Шнуры втыкаются в его розетки как в обычную розетку и двигаются вместе с ним. Клик с _Shift_ забирает его предметом.",
   "voltworks.node.power_strip_cord": "Шнур удлинителя",
   "voltworks.cord.carried": "Шнур вынут с обеих сторон: вы несёте его",
   "voltworks.cord.end_unplugged": "Конец шнура вынут, другой остаётся в розетке",
@@ -374,8 +375,10 @@
   "voltworks.cord.cut": "Шнур перерезан",
   "voltworks.power_strip.unplugged": "Шнур удлинителя вынут",
   "voltworks.power_strip.stowed": "Шнур смотан обратно в удлинитель",
-  "voltworks.power_strip.cord_plugged": "Шнур удлинителя воткнут; кликните по вилке, чтобы вынуть",
-  "voltworks.power_strip.cord_out": "Шнур удлинителя уже вытащен",
+  "voltworks.power_strip.carried": "Вы несёте удлинитель; кликните ещё раз, чтобы положить",
+  "voltworks.power_strip.slipped": "Удлинитель выскользнул из рук",
+  "voltworks.power_strip.no_power": "Сначала включите удлинитель в розетку",
+  "voltworks.power_strip.no_chain": "Удлинитель нельзя включить в другой удлинитель",
   "voltworks.power_strip.grabbed": "Шнур удлинителя вытащен (%s бл.)",
-  "voltworks.power_strip.auto_plugged": "Шнур удлинителя воткнут в розетку"
+  "voltworks.power_strip.plugged_in": "Удлинитель включён в розетку (шнур %s бл.)"
 }

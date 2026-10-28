@@ -1,6 +1,8 @@
 package io.github.sjzeero.voltworks.reel;
 
 import io.github.sjzeero.voltworks.cord.LooseCords;
+import io.github.sjzeero.voltworks.cord.PowerStripEntity;
+import io.github.sjzeero.voltworks.cord.StripGeometry;
 import io.github.sjzeero.voltworks.registry.VoltworksEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -31,6 +33,7 @@ public class CableEndEntity extends Entity {
     private static final EntityDataAccessor<BlockPos> OTHER_POS = SynchedEntityData.defineId(CableEndEntity.class, EntityDataSerializers.BLOCK_POS);
     private static final EntityDataAccessor<Integer> OTHER_SUPPLY = SynchedEntityData.defineId(CableEndEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> OTHER_PLAYER = SynchedEntityData.defineId(CableEndEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> OTHER_STRIP = SynchedEntityData.defineId(CableEndEntity.class, EntityDataSerializers.INT);
     private @Nullable UUID cordId;
     private @Nullable CableEndEntity otherCache;
 
@@ -87,6 +90,15 @@ public class CableEndEntity extends Entity {
         entityData.set(REACH, reach);
     }
 
+    public void setOtherStrip(int strip) {
+        entityData.set(OTHER_STRIP, strip);
+    }
+
+    public @Nullable PowerStripEntity otherStrip() {
+        int id = entityData.get(OTHER_STRIP);
+        return id >= 0 && level().getEntity(id) instanceof PowerStripEntity s ? s : null;
+    }
+
     public BlockPos otherPos() {
         return entityData.get(OTHER_POS);
     }
@@ -120,6 +132,9 @@ public class CableEndEntity extends Entity {
         Player p = otherHolder();
         if (p != null)
             return p.getPosition(pt).add(0, p.getBbHeight() * 0.55, 0);
+        PowerStripEntity strip = otherStrip();
+        if (strip != null)
+            return strip.placement(pt).node(StripGeometry.INPUT);
         CableEndEntity o = otherEnd();
         return o == null ? null : o.getPosition(pt);
     }
@@ -144,6 +159,7 @@ public class CableEndEntity extends Entity {
         builder.define(OTHER_POS, BlockPos.ZERO);
         builder.define(OTHER_SUPPLY, -1);
         builder.define(OTHER_PLAYER, -1);
+        builder.define(OTHER_STRIP, -1);
     }
 
     @Override
