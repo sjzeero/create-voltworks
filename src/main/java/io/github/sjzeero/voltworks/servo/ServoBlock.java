@@ -24,6 +24,7 @@ import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.foundation.block.IBE;
 import io.github.sjzeero.voltworks.Voltworks;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import net.createmod.catnip.data.Iterate;
 import net.minecraft.core.BlockPos;
@@ -50,7 +51,7 @@ import net.minecraft.network.chat.MutableComponent;
 
 public class ServoBlock extends DirectionalKineticElectricBlock<ServoDevice> implements IBE<ServoBlockEntity> {
     public static final BooleanProperty ROLL = DirectionalRolledDeviceBlock.ROLL;
-    private static final Map<String, Vec3[]> NODES = new java.util.HashMap<>();
+    private static final Map<String, Vec3[]> NODES = new HashMap<>();
     static {
         NODES.put("NORTHfalse", new Vec3[]{new Vec3(0.3125, 0.8125, 0.9375), new Vec3(0.6875, 0.8125, 0.9375), new Vec3(0.5, 0.8125, 0.9375)});
         NODES.put("NORTHtrue", new Vec3[]{new Vec3(0.3125, 0.8125, 0.9375), new Vec3(0.6875, 0.8125, 0.9375), new Vec3(0.5, 0.8125, 0.9375)});
@@ -153,7 +154,7 @@ public class ServoBlock extends DirectionalKineticElectricBlock<ServoDevice> imp
     @Override
     public Map<Integer, Vec3> getNodePositions(Level level, BlockPos pos, BlockState state) {
         Vec3[] n = nodes(state);
-        Map<Integer, Vec3> m = new java.util.HashMap<>();
+        Map<Integer, Vec3> m = new HashMap<>();
         for (int i = 0; i < n.length; i++) m.put(i, n[i]);
         return m;
     }

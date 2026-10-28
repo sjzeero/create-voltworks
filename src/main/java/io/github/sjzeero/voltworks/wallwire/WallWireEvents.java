@@ -1,5 +1,6 @@
 package io.github.sjzeero.voltworks.wallwire;
 
+import io.github.sjzeero.voltworks.cord.SocketPlugs;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.common.NeoForge;
@@ -26,7 +27,7 @@ public final class WallWireEvents {
     private static void levelTick(LevelTickEvent.Post event) {
         if(event.getLevel() instanceof ServerLevel level) {
             WallWireData.get(level).tick();
-            io.github.sjzeero.voltworks.cord.SocketPlugs.tick(level);
+            SocketPlugs.tick(level);
             if(level.getGameTime() % 5 == 0)
                 FrozenDevices.forward(level);
         }

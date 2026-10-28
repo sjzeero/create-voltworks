@@ -38,6 +38,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 import io.github.sjzeero.voltworks.registry.VoltworksDevices;
 import net.createmod.catnip.placement.IPlacementHelper;
 import net.createmod.catnip.placement.PlacementHelpers;
@@ -149,12 +150,12 @@ public class SolarPanelBlock extends SimpleElectricalDeviceBlock<SolarPanelDevic
 
     private static class PanelPlacementHelper implements IPlacementHelper {
         @Override
-        public java.util.function.Predicate<ItemStack> getItemPredicate() {
+        public Predicate<ItemStack> getItemPredicate() {
             return i -> i.getItem() instanceof BlockItem bi && bi.getBlock() instanceof SolarPanelBlock;
         }
 
         @Override
-        public java.util.function.Predicate<BlockState> getStatePredicate() {
+        public Predicate<BlockState> getStatePredicate() {
             return s -> s.getBlock() instanceof SolarPanelBlock;
         }
 

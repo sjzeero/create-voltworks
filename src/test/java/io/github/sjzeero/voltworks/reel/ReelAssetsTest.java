@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import javax.imageio.ImageIO;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -132,7 +134,7 @@ public class ReelAssetsTest {
                 String what = r + " fill " + fill;
                 assertEquals(0, lo[1], what + ": on the floor");
                 assertEquals(16, lo[0] + hi[0], 1e-9, what + ": centred across");
-                assertTrue(hi[0] - lo[0] <= 14 && hi[2] - lo[2] <= 13 && hi[1] <= 13, what + ": small " + java.util.Arrays.toString(lo) + java.util.Arrays.toString(hi));
+                assertTrue(hi[0] - lo[0] <= 14 && hi[2] - lo[2] <= 13 && hi[1] <= 13, what + ": small " + Arrays.toString(lo) + Arrays.toString(hi));
             }
     }
 
@@ -141,7 +143,7 @@ public class ReelAssetsTest {
         for (String r : REELS)
             for (int fill = 0; fill <= LEVELS; fill++) {
                 double[] outFrom = null, outTo = null, coilFrom = null, coilTo = null;
-                List<double[][]> wire = new java.util.ArrayList<>();
+                List<double[][]> wire = new ArrayList<>();
                 for (var e : json(model(r, fill)).getAsJsonArray("elements")) {
                     var o = e.getAsJsonObject();
                     double[] a = new double[3], b = new double[3];
@@ -383,14 +385,14 @@ public class ReelAssetsTest {
                 }
             }
         }
-        List<String> models = new java.util.ArrayList<>(List.of("item/cord_plug", "item/cable_lug"));
+        List<String> models = new ArrayList<>(List.of("item/cord_plug", "item/cable_lug"));
         for (String r : REELS)
             for (int f = 0; f <= LEVELS; f++)
                 models.add("block/" + r + "_fill" + f);
         String[] dirs = {"west", "east", "down", "up", "north", "south"};
         for (String m : models) {
-            List<double[][]> boxes = new java.util.ArrayList<>();
-            List<JsonObject> els = new java.util.ArrayList<>();
+            List<double[][]> boxes = new ArrayList<>();
+            List<JsonObject> els = new ArrayList<>();
             for (var e : json("assets/voltworks/models/" + m + ".json").getAsJsonArray("elements")) {
                 double[] f = new double[3], t = new double[3];
                 var o = e.getAsJsonObject();
@@ -405,7 +407,7 @@ public class ReelAssetsTest {
                 double[][] hole = {{7.5, 6.5, 3.5}, {8.5, 6.5, 3.5}, {7.5, 6.5, 4.5}, {8.5, 6.5, 4.5}};
                 for (double[] p : hole)
                     for (double[][] box : boxes)
-                        assertFalse(inside(p, box), "cable_lug: hole at " + java.util.Arrays.toString(p));
+                        assertFalse(inside(p, box), "cable_lug: hole at " + Arrays.toString(p));
                 for (double[] p : new double[][]{{6.5, 6.5, 4}, {9.5, 6.5, 4}, {8, 6.5, 2.5}, {8, 6.5, 5.5}})
                     assertTrue(boxes.stream().anyMatch(box -> inside(p, box)), "cable_lug: ring around the hole");
             }

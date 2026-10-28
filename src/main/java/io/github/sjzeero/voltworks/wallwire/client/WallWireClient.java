@@ -4,6 +4,7 @@ import io.github.sjzeero.voltworks.cord.CordPair;
 
 import com.george_vi.electroenergetics.CEERegistries;
 import com.george_vi.electroenergetics.client.WireRenderer;
+import com.george_vi.electroenergetics.content.clamp_meter.ClampMeterWireInteractionBehaviour;
 import com.george_vi.electroenergetics.content.wire.interaction.WireInteractionBehaviour;
 import com.george_vi.electroenergetics.content.wire.interaction.WireInteractionHandler;
 import com.george_vi.electroenergetics.content.wire_spool.DyeWireInteractionBehaviour;
@@ -65,6 +66,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import io.github.sjzeero.voltworks.compat.CeeCompat;
+import io.github.sjzeero.voltworks.reel.CableReelBlock;
 
 public final class WallWireClient {
     public enum Mode { AIR, WALL }
@@ -279,7 +281,7 @@ public final class WallWireClient {
         if(player == null || level == null || !holdingSpool(player) || !wall(player) && !CordPair.isCord(heldWireType(player)))
             return;
         if(start == null && !player.isShiftKeyDown() && mc.hitResult instanceof BlockHitResult reelHit && reelHit.getType() == HitResult.Type.BLOCK
-                && level.getBlockState(reelHit.getBlockPos()).getBlock() instanceof io.github.sjzeero.voltworks.reel.CableReelBlock reel
+                && level.getBlockState(reelHit.getBlockPos()).getBlock() instanceof CableReelBlock reel
                 && !reel.nearTerminal(level.getBlockState(reelHit.getBlockPos()), reelHit.getBlockPos(), reelHit.getLocation()))
             return;
         event.setCanceled(true);
@@ -464,7 +466,7 @@ public final class WallWireClient {
                 .filter(h -> h.isActiveFor(stack, player)).findFirst().orElse(null);
         boolean dye = behaviour instanceof DyeWireInteractionBehaviour;
         if(!(behaviour instanceof EmptySpoolWireInteractionBehaviour) && !(behaviour instanceof WireCuttersWireInteractionBehaviour)
-                && !(behaviour instanceof com.george_vi.electroenergetics.content.clamp_meter.ClampMeterWireInteractionBehaviour) && !dye)
+                && !(behaviour instanceof ClampMeterWireInteractionBehaviour) && !dye)
             return;
         double range = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 1;
         Vec3 from = player.getEyePosition();

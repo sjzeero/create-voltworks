@@ -157,6 +157,4 @@ public class FuseHolderComponent extends OrientableComponent implements IInterac
                 Voltworks.asResource("fuse_on")
         );
     }
-
-
 }

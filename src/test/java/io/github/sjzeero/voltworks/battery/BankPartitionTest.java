@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,7 +47,7 @@ class BankPartitionTest {
         for (int[] s : new int[][]{{1, 1, 1}, {2, 1, 1}, {1, 1, 2}, {2, 1, 2}, {1, 3, 1}, {3, 5, 3}, {2, 2, 3}}) {
             var cells = box(s[0], s[1], s[2]);
             var banks = BankPartition.partition(cells, each(cells, C / 2), C);
-            assertEquals(1, banks.size(), java.util.Arrays.toString(s));
+            assertEquals(1, banks.size(), Arrays.toString(s));
             var b = banks.get(0);
             assertEquals(new BlockPos(10, 64, -5), b.origin(), "controller is the lowest north-west corner");
             assertEquals(cells.size() * C / 2, b.energy(), 1e-6);

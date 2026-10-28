@@ -39,6 +39,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import io.github.sjzeero.voltworks.Voltworks;
 import net.minecraft.network.chat.Component;
@@ -46,7 +47,7 @@ import net.minecraft.network.chat.MutableComponent;
 
 public abstract class AbstractPGMotorBlock extends DirectionalKineticElectricBlock<PGMotorDevice> {
     public static final BooleanProperty ROLL = DirectionalRolledDeviceBlock.ROLL;
-    private static final Map<String, Vec3[]> NODES = new java.util.HashMap<>();
+    private static final Map<String, Vec3[]> NODES = new HashMap<>();
     static {
         NODES.put("NORTHfalse", new Vec3[]{new Vec3(0.375, 0.84375, 0.9375), new Vec3(0.625, 0.84375, 0.9375)});
         NODES.put("NORTHtrue", new Vec3[]{new Vec3(0.375, 0.84375, 0.9375), new Vec3(0.625, 0.84375, 0.9375)});
@@ -150,7 +151,7 @@ public abstract class AbstractPGMotorBlock extends DirectionalKineticElectricBlo
     @Override
     public Map<Integer, Vec3> getNodePositions(Level level, BlockPos pos, BlockState state) {
         Vec3[] n = nodes(state);
-        Map<Integer, Vec3> m = new java.util.HashMap<>();
+        Map<Integer, Vec3> m = new HashMap<>();
         for (int i = 0; i < n.length; i++) m.put(i, n[i]);
         return m;
     }

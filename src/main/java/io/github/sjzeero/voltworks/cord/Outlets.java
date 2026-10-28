@@ -1,6 +1,7 @@
 package io.github.sjzeero.voltworks.cord;
 
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
+import io.github.sjzeero.voltworks.wallwire.WallSpace;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -58,8 +59,8 @@ public final class Outlets {
     public static Vec3 local(Level level, BlockPos pos, Vec3 hit) {
         if (hit.distanceToSqr(Vec3.atCenterOf(pos)) <= 4)
             return hit;
-        var sub = io.github.sjzeero.voltworks.wallwire.WallSpace.subLevel(level, pos);
-        return sub == null ? hit : io.github.sjzeero.voltworks.wallwire.WallSpace.toLocal(sub.logicalPose(), hit);
+        var sub = WallSpace.subLevel(level, pos);
+        return sub == null ? hit : WallSpace.toLocal(sub.logicalPose(), hit);
     }
 
     public static Vec3 cordDir(BlockState state, int supply) {

@@ -1,8 +1,11 @@
 package io.github.sjzeero.voltworks.client;
 
+import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
+import io.github.sjzeero.voltworks.board.BoardBlock;
 import io.github.sjzeero.voltworks.board.BoardBlockEntity;
 import io.github.sjzeero.voltworks.network.BoardSchematicPayload;
 import io.github.sjzeero.voltworks.network.BoardStatePayload;
+import io.github.sjzeero.voltworks.network.ContraptionBoardPayload;
 import net.minecraft.client.Minecraft;
 
 public final class ClientPayloads {
@@ -15,9 +18,9 @@ public final class ClientPayloads {
             be.applyFull(payload.tag(), level.registryAccess());
     }
 
-    public static void contraptionBoard(io.github.sjzeero.voltworks.network.ContraptionBoardPayload payload) {
+    public static void contraptionBoard(ContraptionBoardPayload payload) {
         var level = Minecraft.getInstance().level;
-        if(level == null || !(level.getEntity(payload.entity()) instanceof com.simibubi.create.content.contraptions.AbstractContraptionEntity entity) || entity.getContraption() == null)
+        if(level == null || !(level.getEntity(payload.entity()) instanceof AbstractContraptionEntity entity) || entity.getContraption() == null)
             return;
         if(!(entity.getContraption().getOrCreateClientContraptionLazy().getBlockEntity(payload.pos()) instanceof BoardBlockEntity be))
             return;
@@ -33,8 +36,8 @@ public final class ClientPayloads {
         var client = entity.getContraption().getOrCreateClientContraptionLazy();
         var renderLevel = client.getRenderLevel();
         var state = renderLevel.getBlockState(payload.pos());
-        if(state.getBlock() instanceof io.github.sjzeero.voltworks.board.BoardBlock && state.getValue(io.github.sjzeero.voltworks.board.BoardBlock.LIGHT) != be.light()) {
-            renderLevel.setBlock(payload.pos(), state.setValue(io.github.sjzeero.voltworks.board.BoardBlock.LIGHT, be.light()), 0);
+        if(state.getBlock() instanceof BoardBlock && state.getValue(BoardBlock.LIGHT) != be.light()) {
+            renderLevel.setBlock(payload.pos(), state.setValue(BoardBlock.LIGHT, be.light()), 0);
             renderLevel.runLightEngine();
             changed = true;
         }

@@ -45,6 +45,5 @@ public interface INode extends INetworkElement {
     }
 
     default void setSavedValue(double value) {
-
     }
 }

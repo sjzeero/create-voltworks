@@ -1,6 +1,7 @@
 package io.github.sjzeero.voltworks.registry;
 
 import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.battery.BatteryBlockEntity;
 import io.github.sjzeero.voltworks.board.BoardBlockEntity;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableBlockEntity;
 import io.github.sjzeero.voltworks.servo.ServoBlockEntity;
@@ -10,6 +11,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import io.github.sjzeero.voltworks.motor.ConstantSpeedMotorBlockEntity;
+import io.github.sjzeero.voltworks.reel.CableReelBlockEntity;
 import io.github.sjzeero.voltworks.solar.SolarPanelBearingBlockEntity;
 
 public final class VoltworksBlockEntities {
@@ -37,12 +39,12 @@ public final class VoltworksBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SolarPanelBearingBlockEntity>> SOLAR_PANEL_BEARING_BE = BLOCK_ENTITIES.register("solar_panel_bearing",
             () -> BlockEntityType.Builder.of(SolarPanelBearingBlockEntity::new, VoltworksBlocks.SOLAR_PANEL_BEARING.get()).build(null));
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<io.github.sjzeero.voltworks.reel.CableReelBlockEntity>> CABLE_REEL_BE = BLOCK_ENTITIES.register("cable_reel",
-            () -> BlockEntityType.Builder.of(io.github.sjzeero.voltworks.reel.CableReelBlockEntity::new, VoltworksBlocks.CORD_REEL.get(), VoltworksBlocks.CABLE_REEL.get(),
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CableReelBlockEntity>> CABLE_REEL_BE = BLOCK_ENTITIES.register("cable_reel",
+            () -> BlockEntityType.Builder.of(CableReelBlockEntity::new, VoltworksBlocks.CORD_REEL.get(), VoltworksBlocks.CABLE_REEL.get(),
                     VoltworksBlocks.SMALL_CORD_REEL.get(), VoltworksBlocks.SMALL_CABLE_REEL.get()).build(null));
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<io.github.sjzeero.voltworks.battery.BatteryBlockEntity>> BATTERY_BE = BLOCK_ENTITIES.register("battery",
-            () -> BlockEntityType.Builder.of(io.github.sjzeero.voltworks.battery.BatteryBlockEntity::new, VoltworksBlocks.BATTERY.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BatteryBlockEntity>> BATTERY_BE = BLOCK_ENTITIES.register("battery",
+            () -> BlockEntityType.Builder.of(BatteryBlockEntity::new, VoltworksBlocks.BATTERY.get()).build(null));
 
     public static void register(IEventBus bus) {
         BLOCK_ENTITIES.register(bus);

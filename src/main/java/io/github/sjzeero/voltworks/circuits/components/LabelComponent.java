@@ -79,6 +79,4 @@ public class LabelComponent extends Component implements IGoggleLabel {
     public void bake(@NotNull PlacedComponent placed, @NotNull ComponentCircuitBuilder builder, ThermalBuilder.@NotNull IEmitter thermals) {
     
     }
-
-
 }

@@ -7,11 +7,13 @@ import io.github.sjzeero.voltworks.reel.LyingEnd;
 import io.github.sjzeero.voltworks.reel.ReelAssetsTest;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector2f;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -93,9 +95,9 @@ class HeldEndTest {
                 }
     }
 
-    static org.joml.Vector2f screen(Matrix4f proj, Vector3f a, Vector3f b) {
+    static Vector2f screen(Matrix4f proj, Vector3f a, Vector3f b) {
         Vector3f na = HeldEnd.ndc(proj, a), nb = HeldEnd.ndc(proj, b);
-        return new org.joml.Vector2f(nb.x - na.x, nb.y - na.y).normalize();
+        return new Vector2f(nb.x - na.x, nb.y - na.y).normalize();
     }
 
     @Test
@@ -112,12 +114,12 @@ class HeldEndTest {
                 Vector3d at = HeldEnd.world(cam, view, HeldEnd.reproject(eye, handProj, worldProj));
                 Vector3d out = HeldEnd.world(cam, view, HeldEnd.reproject(eyeOut, handProj, worldProj)).sub(at).normalize();
                 Vector3d reel = new Vector3d(cam).add(4, -1.5, 3);
-                java.util.List<Vector3d> p = CablePath.points(reel, at, out, CablePath.HELD_RUN,
+                List<Vector3d> p = CablePath.points(reel, at, out, CablePath.HELD_RUN,
                         CablePath.sagDepth(reel.distance(at), 1), CablePath.Floor.flat(Double.NEGATIVE_INFINITY));
                 Vector3d next = p.get(p.size() - 2);
                 Vector3f a = view.transformPosition(new Vector3f((float) (at.x - cam.x), (float) (at.y - cam.y), (float) (at.z - cam.z)), new Vector3f());
                 Vector3f b = view.transformPosition(new Vector3f((float) (next.x - cam.x), (float) (next.y - cam.y), (float) (next.z - cam.z)), new Vector3f());
-                org.joml.Vector2f wire = screen(worldProj, a, b), axis = screen(handProj, eye, eyeOut);
+                Vector2f wire = screen(worldProj, a, b), axis = screen(handProj, eye, eyeOut);
                 double deg = Math.toDegrees(Math.acos(Math.max(-1, Math.min(1, wire.dot(axis)))));
                 assertTrue(deg < 3, model + (right ? " right" : " left") + ": first segment " + deg + " degrees off the cord axis");
             }
@@ -143,7 +145,7 @@ class HeldEndTest {
                     Vector3d facing = new Vector3d(cam.x - reel.x, 0, cam.z - reel.z).normalize();
                     if (yaw > 200)
                         facing.negate();
-                    java.util.List<Vector3d> p = CablePath.points(reel, facing, CablePath.RUN, at, out, CablePath.HELD_RUN,
+                    List<Vector3d> p = CablePath.points(reel, facing, CablePath.RUN, at, out, CablePath.HELD_RUN,
                             CablePath.sagDepth(reel.distance(at), 1), CablePath.Floor.flat(ground + CablePath.RADIUS));
                     String what = model + " yaw " + yaw + " pitch " + pitch;
                     int n = p.size();

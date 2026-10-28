@@ -1,12 +1,14 @@
 package io.github.sjzeero.voltworks.wallwire;
 
 import com.george_vi.electroenergetics.CEEWireTypes;
+import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.foundation.device.ElectricalDeviceBlock;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.simulation.WireType;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
@@ -15,17 +17,45 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
+import com.simibubi.create.Create;
+import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
+import com.simibubi.create.content.contraptions.AssemblyException;
+import com.simibubi.create.content.contraptions.bearing.MechanicalBearingBlockEntity;
+import com.simibubi.create.content.trains.bogey.AbstractBogeyBlock;
+import com.simibubi.create.content.trains.station.StationBlockEntity;
+import com.simibubi.create.content.trains.track.TrackBlock;
+import com.simibubi.create.content.trains.track.TrackShape;
+import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.board.BoardBlock;
+import io.github.sjzeero.voltworks.board.BoardBlockEntity;
+import io.github.sjzeero.voltworks.board.BoardDevice;
+import io.github.sjzeero.voltworks.board.TestBoards;
+import io.github.sjzeero.voltworks.circuits.components.ComponentRegistry;
+import io.github.sjzeero.voltworks.registry.VoltworksBlocks;
 
 public final class WallWireTestCommand {
     private WallWireTestCommand() {
@@ -47,14 +77,14 @@ public final class WallWireTestCommand {
                         .executes(ctx -> buildTrainWith(ctx, true))))
                 .then(Commands.literal("boardinfo").then(Commands.argument("pos", BlockPosArgument.blockPos())
                         .executes(WallWireTestCommand::boardInfo)))
-                .then(Commands.literal("trainrun").then(Commands.argument("speed", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(-2, 2))
+                .then(Commands.literal("trainrun").then(Commands.argument("speed", DoubleArgumentType.doubleArg(-2, 2))
                         .executes(ctx -> {
-                            double v = com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(ctx, "speed");
+                            double v = DoubleArgumentType.getDouble(ctx, "speed");
                             var server = ctx.getSource().getServer();
-                            for(var t : com.simibubi.create.Create.RAILWAYS.trains.values())
+                            for(var t : Create.RAILWAYS.trains.values())
                                 t.leaveStation();
                             push(server, v, 600);
-                            for(var t : com.simibubi.create.Create.RAILWAYS.trains.values())
+                            for(var t : Create.RAILWAYS.trains.values())
                                 ctx.getSource().sendSuccess(() -> Component.literal("train speed=" + t.speed + " target=" + t.targetSpeed + " station=" + t.currentStation + " derailed=" + t.derailed + " graph=" + t.graph + " stallBefore=" + t.speedBeforeStall), false);
                             return 1;
                         })))
@@ -105,11 +135,11 @@ public final class WallWireTestCommand {
         BlockPos o = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
         fill(level, o.offset(-2, 0, -2), o.offset(8, 6, 4), Blocks.AIR.defaultBlockState());
         Block bearing = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("create", "mechanical_bearing"));
-        level.setBlockAndUpdate(o, bearing.defaultBlockState().setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.FACING, Direction.UP));
+        level.setBlockAndUpdate(o, bearing.defaultBlockState().setValue(BlockStateProperties.FACING, Direction.UP));
         Block chassis = BuiltInRegistries.BLOCK.get(ResourceLocation.fromNamespaceAndPath("create", "radial_chassis"));
         BlockState cs = chassis.defaultBlockState();
         for(var prop : cs.getProperties())
-            if(prop instanceof net.minecraft.world.level.block.state.properties.BooleanProperty bp && prop.getName().startsWith("sticky"))
+            if(prop instanceof BooleanProperty bp && prop.getName().startsWith("sticky"))
                 cs = cs.setValue(bp, true);
         level.setBlockAndUpdate(o.offset(0, 1, 0), cs);
         fill(level, o.offset(1, 1, 0), o.offset(3, 1, 1), Blocks.STONE_BRICKS.defaultBlockState());
@@ -133,8 +163,8 @@ public final class WallWireTestCommand {
         ServerLevel level = ctx.getSource().getLevel();
         BlockPos p = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
         String out = level.getBlockState(p).getBlock() + ": ";
-        if(level.getBlockEntity(p) instanceof io.github.sjzeero.voltworks.board.BoardBlockEntity be) {
-            var d = com.george_vi.electroenergetics.devices.device.DevicesSavedData.load(level).getDevice(p, io.github.sjzeero.voltworks.board.BoardDevice.class);
+        if(level.getBlockEntity(p) instanceof BoardBlockEntity be) {
+            var d = DevicesSavedData.load(level).getDevice(p, BoardDevice.class);
             out += "be parts=" + be.getSchematic().components().size() + " device parts=" + (d == null ? "no device" : d.schematic().components().size());
             var sd = InfrastructureSavedData.load(level);
             int conns = 0;
@@ -154,34 +184,34 @@ public final class WallWireTestCommand {
         fill(level, o.offset(-2, -1, -3), o.offset(70, 6, 3), Blocks.AIR.defaultBlockState());
         fill(level, o.offset(-2, -3, -3), o.offset(70, -2, 3), Blocks.STONE.defaultBlockState());
         BlockState track = create("track").defaultBlockState()
-                .setValue(com.simibubi.create.content.trains.track.TrackBlock.SHAPE, com.simibubi.create.content.trains.track.TrackShape.XO)
-                .setValue(com.simibubi.create.content.trains.track.TrackBlock.HAS_BE, true);
+                .setValue(TrackBlock.SHAPE, TrackShape.XO)
+                .setValue(TrackBlock.HAS_BE, true);
         for(int x = -1; x <= 68; x++)
             level.setBlock(o.offset(x, -1, 0), track, Block.UPDATE_ALL);
         level.setBlock(o.offset(0, -1, 1), create("track_station").defaultBlockState(), Block.UPDATE_ALL);
         level.setBlock(o.offset(0, -1, 0), track, Block.UPDATE_ALL);
-        if(level.getBlockEntity(o.offset(0, -1, 1)) instanceof com.simibubi.create.content.trains.station.StationBlockEntity be) {
-            net.minecraft.nbt.CompoundTag tag = be.saveWithFullMetadata(level.registryAccess());
-            tag.put("TargetTrack", net.minecraft.nbt.NbtUtils.writeBlockPos(new BlockPos(0, 0, -1)));
+        if(level.getBlockEntity(o.offset(0, -1, 1)) instanceof StationBlockEntity be) {
+            CompoundTag tag = be.saveWithFullMetadata(level.registryAccess());
+            tag.put("TargetTrack", NbtUtils.writeBlockPos(new BlockPos(0, 0, -1)));
             be.loadWithComponents(tag, level.registryAccess());
             be.setChanged();
         }
-        BlockState bogey = create("small_bogey").defaultBlockState().setValue(com.simibubi.create.content.trains.bogey.AbstractBogeyBlock.AXIS, Direction.Axis.X);
+        BlockState bogey = create("small_bogey").defaultBlockState().setValue(AbstractBogeyBlock.AXIS, Direction.Axis.X);
         level.setBlock(o.offset(1, 0, 0), bogey, Block.UPDATE_ALL);
         BlockState cs = create("radial_chassis").defaultBlockState();
         for(var prop : cs.getProperties())
-            if(prop instanceof net.minecraft.world.level.block.state.properties.BooleanProperty bp && prop.getName().startsWith("sticky"))
+            if(prop instanceof BooleanProperty bp && prop.getName().startsWith("sticky"))
                 cs = cs.setValue(bp, true);
         BlockPos c = o.offset(2, 0, 0);
         level.setBlock(c, cs, Block.UPDATE_ALL);
         level.setBlock(c.north(), create("controls").defaultBlockState()
-                .setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING, Direction.EAST), Block.UPDATE_ALL);
+                .setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.EAST), Block.UPDATE_ALL);
         device(level, c.east(), "creative_battery");
         String w = "";
         if(board) {
-            level.setBlockAndUpdate(c.south(), io.github.sjzeero.voltworks.registry.VoltworksBlocks.BOARD.get().defaultBlockState());
-            var preset = io.github.sjzeero.voltworks.board.TestBoards.build("relay", id -> io.github.sjzeero.voltworks.circuits.components.ComponentRegistry.get(io.github.sjzeero.voltworks.Voltworks.asResource(id)));
-            if(level.getBlockEntity(c.south()) instanceof io.github.sjzeero.voltworks.board.BoardBlockEntity be)
+            level.setBlockAndUpdate(c.south(), VoltworksBlocks.BOARD.get().defaultBlockState());
+            var preset = TestBoards.build("relay", id -> ComponentRegistry.get(Voltworks.asResource(id)));
+            if(level.getBlockEntity(c.south()) instanceof BoardBlockEntity be)
                 be.setSchematic(preset.schematic().serializeNbt(level.registryAccess()));
             w = "board with " + preset.schematic().components().size() + " parts";
         } else {
@@ -192,11 +222,11 @@ public final class WallWireTestCommand {
         return 1;
     }
 
-    private static void push(net.minecraft.server.MinecraftServer server, double v, int ticks) {
+    private static void push(MinecraftServer server, double v, int ticks) {
         if(ticks <= 0)
             return;
-        server.tell(new net.minecraft.server.TickTask(server.getTickCount() + 1, () -> {
-            for(var t : com.simibubi.create.Create.RAILWAYS.trains.values()) {
+        server.tell(new TickTask(server.getTickCount() + 1, () -> {
+            for(var t : Create.RAILWAYS.trains.values()) {
                 t.manualTick = true;
                 t.targetSpeed = v;
                 t.approachTargetSpeed(1);
@@ -210,7 +240,7 @@ public final class WallWireTestCommand {
         ServerLevel level = ctx.getSource().getLevel();
         BlockPos p = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
         var sd = InfrastructureSavedData.load(level);
-        var devices = com.george_vi.electroenergetics.devices.device.DevicesSavedData.load(level);
+        var devices = DevicesSavedData.load(level);
         var device = devices.getDevice(p);
         var frozen = FrozenDevices.get(level);
         String out = p.toShortString() + ": block=" + level.getBlockState(p).getBlock() + " device=" + (device == null ? "none" : device.getClass().getSimpleName())
@@ -218,9 +248,9 @@ public final class WallWireTestCommand {
                 + " allDevices=" + devices.getDevices().size() + " allNodes=" + sd.getNodes().size();
         var results = sd.ticker.lastResults;
         if(results != null && sd.getNodesAt(p).size() >= 2)
-            out += String.format(java.util.Locale.ROOT, " V01=%.3f", results.getVoltageAt(p, 0, 1));
-        if(device instanceof io.github.sjzeero.voltworks.board.BoardDevice b)
-            out += " boardParts=" + b.schematic().components().size() + " pinU=" + java.util.Arrays.toString(b.readings().pinU());
+            out += String.format(Locale.ROOT, " V01=%.3f", results.getVoltageAt(p, 0, 1));
+        if(device instanceof BoardDevice b)
+            out += " boardParts=" + b.schematic().components().size() + " pinU=" + Arrays.toString(b.readings().pinU());
         String o2 = out;
         ctx.getSource().sendSuccess(() -> Component.literal(o2), false);
         return 1;
@@ -232,21 +262,21 @@ public final class WallWireTestCommand {
         BlockPos rel = o.offset(2, 0, 1);
         String out = "";
         for(var e : level.getAllEntities()) {
-            if(!(e instanceof com.simibubi.create.content.contraptions.AbstractContraptionEntity entity) || entity.getContraption() == null)
+            if(!(e instanceof AbstractContraptionEntity entity) || entity.getContraption() == null)
                 continue;
             BlockPos local = null;
             for(var info : entity.getContraption().getBlocks().values())
-                if(info.state().getBlock() instanceof io.github.sjzeero.voltworks.board.BoardBlock)
+                if(info.state().getBlock() instanceof BoardBlock)
                     local = info.pos();
             if(local == null)
                 continue;
-            var player = net.neoforged.neoforge.common.util.FakePlayerFactory.getMinecraft(level);
+            var player = FakePlayerFactory.getMinecraft(level);
             Vec3 point = entity.toGlobalVector(new Vec3(local.getX() + 4.5 / 16, local.getY() + 0.1, local.getZ() + 12.5 / 16), 1f);
             player.setPos(point.x, point.y + 0.9 - player.getEyeHeight(), point.z);
             player.setXRot(90);
             player.setYRot(0);
-            player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.ItemStack.EMPTY);
-            boolean ok = entity.handlePlayerInteraction(player, local, Direction.UP, net.minecraft.world.InteractionHand.MAIN_HAND);
+            player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            boolean ok = entity.handlePlayerInteraction(player, local, Direction.UP, InteractionHand.MAIN_HAND);
             out += "entity=" + entity.getId() + " local=" + local.toShortString() + " handled=" + ok + " ";
         }
         String o2 = "trainuse " + out;
@@ -280,9 +310,9 @@ public final class WallWireTestCommand {
     private static int disassembleTrain(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerLevel level = ctx.getSource().getLevel();
         BlockPos o = BlockPosArgument.getLoadedBlockPos(ctx, "pos").offset(0, -1, 1);
-        if(level.getBlockEntity(o) instanceof com.simibubi.create.content.trains.station.StationBlockEntity be) {
+        if(level.getBlockEntity(o) instanceof StationBlockEntity be) {
             boolean ok = be.tryDisassembleTrain(ctx.getSource().getPlayer());
-            ctx.getSource().sendSuccess(() -> Component.literal("disassembled=" + ok + " trains=" + com.simibubi.create.Create.RAILWAYS.trains.size()), false);
+            ctx.getSource().sendSuccess(() -> Component.literal("disassembled=" + ok + " trains=" + Create.RAILWAYS.trains.size()), false);
         }
         return 1;
     }
@@ -291,27 +321,27 @@ public final class WallWireTestCommand {
         ServerLevel level = ctx.getSource().getLevel();
         BlockPos o0 = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
         BlockPos o = o0.offset(0, -1, 1);
-        if(level.getBlockEntity(o) instanceof com.simibubi.create.content.trains.station.StationBlockEntity be) {
-            java.util.UUID id = ctx.getSource().getEntity() != null ? ctx.getSource().getEntity().getUUID() : java.util.UUID.randomUUID();
+        if(level.getBlockEntity(o) instanceof StationBlockEntity be) {
+            UUID id = ctx.getSource().getEntity() != null ? ctx.getSource().getEntity().getUUID() : UUID.randomUUID();
             be.enterAssemblyMode(ctx.getSource().getPlayer());
             be.assemble(id);
             String dbg = "";
             try {
                 for(String f : new String[]{"lastException", "assemblyLength", "bogeyCount", "failedCarriageIndex"}) {
-                    java.lang.reflect.Field fl = com.simibubi.create.content.trains.station.StationBlockEntity.class.getDeclaredField(f);
+                    Field fl = StationBlockEntity.class.getDeclaredField(f);
                     fl.setAccessible(true);
-                    Object v = fl.get(be); dbg += f + "=" + (v instanceof com.simibubi.create.content.contraptions.AssemblyException ae ? ae.component.getString() : v) + " ";
+                    Object v = fl.get(be); dbg += f + "=" + (v instanceof AssemblyException ae ? ae.component.getString() : v) + " ";
                 }
-                java.lang.reflect.Field fl = com.simibubi.create.content.trains.station.StationBlockEntity.class.getDeclaredField("bogeyLocations");
+                Field fl = StationBlockEntity.class.getDeclaredField("bogeyLocations");
                 fl.setAccessible(true);
-                dbg += java.util.Arrays.toString((int[]) fl.get(be));
+                dbg += Arrays.toString((int[]) fl.get(be));
             } catch(Exception e) {
                 dbg = e.toString();
             }
             String dbg2 = dbg;
             ctx.getSource().sendSuccess(() -> Component.literal(dbg2), false);
             ctx.getSource().sendSuccess(() -> Component.literal("assembling=" + be.isAssembling() + " validTrack=" + be.edgePoint.hasValidTrack() + " dir=" + be.getAssemblyDirection() +  " bogey=" + level.getBlockState(o.offset(1, 1, -1)) + " chassis=" + level.getBlockState(o.offset(1, 2, -1)) + " controls=" + level.getBlockState(o.offset(1, 3, -1)) + " track=" + be.edgePoint.getGlobalPosition() + " " + be.edgePoint.getTrackBlockState()), false);
-            ctx.getSource().sendSuccess(() -> Component.literal("assemble called, station=" + be.getStation() + " trains=" + com.simibubi.create.Create.RAILWAYS.trains.size()), true);
+            ctx.getSource().sendSuccess(() -> Component.literal("assemble called, station=" + be.getStation() + " trains=" + Create.RAILWAYS.trains.size()), true);
         } else
             ctx.getSource().sendFailure(Component.literal("no station at " + o.toShortString()));
         return 1;
@@ -319,7 +349,7 @@ public final class WallWireTestCommand {
 
     private static int toggle(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerLevel level = ctx.getSource().getLevel();
-        if(level.getBlockEntity(BlockPosArgument.getLoadedBlockPos(ctx, "pos")) instanceof com.simibubi.create.content.contraptions.bearing.MechanicalBearingBlockEntity be) {
+        if(level.getBlockEntity(BlockPosArgument.getLoadedBlockPos(ctx, "pos")) instanceof MechanicalBearingBlockEntity be) {
             if(be.isRunning())
                 be.disassemble();
             else
@@ -373,7 +403,7 @@ public final class WallWireTestCommand {
             sd.removeConnectionNoDrops(new InWorldNodeConnection(a, b));
         WallWireData.get(level).put(WallRoute.oriented(a, b, cells, length));
         sd.connect(a, b, WireData.ofLength(type, length));
-        return String.format(java.util.Locale.ROOT, "%.2f m; ", length);
+        return String.format(Locale.ROOT, "%.2f m; ", length);
     }
 
     private static WallCell nearest(ServerLevel level, Vec3 node) {

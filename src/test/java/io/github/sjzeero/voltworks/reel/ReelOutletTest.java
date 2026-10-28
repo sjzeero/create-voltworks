@@ -7,6 +7,7 @@ import org.joml.Vector3d;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,7 +33,7 @@ class ReelOutletTest {
                     assertEquals(q * 90, y, reel + " " + FACINGS[q] + ": blockstate turn");
                     String model = v.get("model").getAsString().replace("voltworks:", "assets/voltworks/models/") + ".json";
                     double[] from = null, to = null;
-                    List<double[][]> bars = new java.util.ArrayList<>();
+                    List<double[][]> bars = new ArrayList<>();
                     for (JsonElement e : ReelAssetsTest.json(model).getAsJsonArray("elements"))
                         if ("outlet".equals(e.getAsJsonObject().get("name").getAsString())) {
                             double[] a = arr(e.getAsJsonObject(), "from"), b = arr(e.getAsJsonObject(), "to");

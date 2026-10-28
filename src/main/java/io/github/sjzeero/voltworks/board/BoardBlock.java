@@ -70,6 +70,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksDevices;
 import io.github.sjzeero.voltworks.client.ClientHooks;
@@ -190,7 +191,7 @@ public class BoardBlock extends SimpleElectricalDeviceBlock<BoardDevice> impleme
         return shape;
     }
 
-    private static final Map<BlockState, VoxelShape> PLATE_SHAPES = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final Map<BlockState, VoxelShape> PLATE_SHAPES = new ConcurrentHashMap<>();
 
     private static VoxelShape plateShape(BlockState state) {
         return PLATE_SHAPES.computeIfAbsent(state.setValue(LIGHT, 0).setValue(COLOR, BoardColor.GREEN), s -> Shapes.create(rotate(PLATE, s)));

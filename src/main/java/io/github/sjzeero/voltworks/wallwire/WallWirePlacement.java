@@ -1,6 +1,9 @@
 package io.github.sjzeero.voltworks.wallwire;
 
 import io.github.sjzeero.voltworks.cord.CordPair;
+import io.github.sjzeero.voltworks.cord.LooseCords;
+import io.github.sjzeero.voltworks.cord.SocketBlock;
+import io.github.sjzeero.voltworks.cord.SocketPlugs;
 
 import com.george_vi.electroenergetics.CEEItems;
 import com.george_vi.electroenergetics.config.CEEConfigs;
@@ -26,7 +29,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 public final class WallWirePlacement {
     private WallWirePlacement() {
@@ -149,10 +154,10 @@ public final class WallWirePlacement {
         if(cord) {
             WallWireData.get(level).put(WallRoute.oriented(startRet, endRet, cells, length));
             sd.connect(startRet, endRet, WireData.ofLength(type, length));
-            io.github.sjzeero.voltworks.cord.SocketPlugs.plugCord(level, start, end, cells);
+            SocketPlugs.plugCord(level, start, end, cells);
         }
         AllSoundEvents.WRENCH_REMOVE.playOnServer(level, BlockPos.containing(WallSpace.toWorld(level, end.sourcePos().getCenter())));
-        player.displayClientMessage(Component.translatable("voltworks.wall_wire.placed", String.format(java.util.Locale.ROOT, "%.2f", length)), true);
+        player.displayClientMessage(Component.translatable("voltworks.wall_wire.placed", String.format(Locale.ROOT, "%.2f", length)), true);
 
         if(!player.isCreative()) {
             held.shrink(1);
@@ -209,7 +214,7 @@ public final class WallWirePlacement {
         sd.connect(start, end, type);
         if(startRet != null) {
             sd.connect(startRet, endRet, type);
-            io.github.sjzeero.voltworks.cord.SocketPlugs.plugCord(level, start, end, null);
+            SocketPlugs.plugCord(level, start, end, null);
         }
         AllSoundEvents.WRENCH_REMOVE.playOnServer(level, BlockPos.containing(WallSpace.toWorld(level, end.sourcePos().getCenter())));
         if(!player.isCreative()) {
@@ -230,7 +235,7 @@ public final class WallWirePlacement {
             return true;
         double reach = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 2;
         Vec3 eye = player.getEyePosition();
-        WallCell near = route.cells.stream().min(java.util.Comparator.comparingDouble(c -> WallSpace.toWorld(level, c.point()).distanceToSqr(eye))).orElse(null);
+        WallCell near = route.cells.stream().min(Comparator.comparingDouble(c -> WallSpace.toWorld(level, c.point()).distanceToSqr(eye))).orElse(null);
         if(near == null || WallSpace.toWorld(level, near.point()).distanceTo(eye) > reach)
             return true;
         data.put(route.withColor(dye.getDyeColor()));
@@ -240,11 +245,11 @@ public final class WallWirePlacement {
     }
 
     private static boolean busy(ServerLevel level, InfrastructureSavedData sd, InWorldNode... nodes) {
-        io.github.sjzeero.voltworks.cord.LooseCords loose = io.github.sjzeero.voltworks.cord.LooseCords.get(level);
+        LooseCords loose = LooseCords.get(level);
         for(InWorldNode n : nodes) {
             if(n == null)
                 continue;
-            boolean socket = level.getBlockState(n.sourcePos()).getBlock() instanceof io.github.sjzeero.voltworks.cord.SocketBlock;
+            boolean socket = level.getBlockState(n.sourcePos()).getBlock() instanceof SocketBlock;
             int from = socket ? 0 : n.id() & ~1, to = socket ? 3 : (n.id() & ~1) + 1;
             for(int id = from; id <= to; id++)
                 if(!sd.getConnections(new InWorldNode(id, n.sourcePos())).isEmpty())

@@ -52,6 +52,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
@@ -65,7 +66,7 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
 
         @Override
         public String getSerializedName() {
-            return name().toLowerCase(java.util.Locale.ROOT);
+            return name().toLowerCase(Locale.ROOT);
         }
     }
 

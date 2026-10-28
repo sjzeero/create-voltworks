@@ -59,23 +59,22 @@ public class ModularDisplayComponent extends OrientableComponent {
         if (placed.wires.isEmpty())
             return true;
 
-        var coilNodeToReset = (SwitchedWire) placed.wires.get(0);
-        var coilNodeToNegative =  (SwitchedWire) placed.wires.get(2);
+        var reset = (SwitchedWire) placed.wires.get(0);
+        var negative = (SwitchedWire) placed.wires.get(2);
 
-        var coilNodeToNegativeCurrent = Math.abs(coilNodeToNegative.current());
-        var coilNodeToResetCurrent = Math.abs(coilNodeToReset.current());
+        var negativeCurrent = Math.abs(negative.current());
+        var resetCurrent = Math.abs(reset.current());
         var charCount = (placed.get(REMOVE_BLANKING_PAGE) ? module.getCharacterCount() - 1 : module.getCharacterCount());
         var index = placed.get(INDEX);
 
         if (placed.get(WIRE_RESET) == true){
-            coilNodeToReset.setState(false);
-            coilNodeToNegative.setState(true);
+            reset.setState(false);
+            negative.setState(true);
             placed.set(WIRE_RESET, false);
         }
 
-        if (coilNodeToNegative.isConverged()){
-
-            if (coilNodeToNegativeCurrent >= .5 && index != charCount+1 && !placed.get(HALF_CLICK)) {
+        if (negative.isConverged()){
+            if (negativeCurrent >= .5 && index != charCount+1 && !placed.get(HALF_CLICK)) {
                 placed.set(INDEX, index +1);
                 placed.set(HALF_CLICK, true);
                 placed.onServerWorld(() -> world -> CircuitSounds.RELAY_CLICK.playOnServer(world, placed.getPos(), 0.75f, 2f));
@@ -83,26 +82,26 @@ public class ModularDisplayComponent extends OrientableComponent {
                 placed.notifyClients(HALF_CLICK);
             }
 
-            if (coilNodeToNegativeCurrent < .5 && index == charCount+1 && coilNodeToNegative.getState()){
+            if (negativeCurrent < .5 && index == charCount+1 && negative.getState()){
                 placed.onServerWorld(() -> world -> CircuitSounds.RELAY_CLICK.playOnServer(world, placed.getPos(), 0.75f, 1.9f));
-                coilNodeToNegative.setState(false);
-                coilNodeToReset.setState(true);
+                negative.setState(false);
+                reset.setState(true);
                 placed.set(HALF_CLICK, false);
                 placed.notifyClients(HALF_CLICK);
             }
 
-            if (coilNodeToNegativeCurrent < .5 && coilNodeToNegative.getState() && placed.get(HALF_CLICK)) {
+            if (negativeCurrent < .5 && negative.getState() && placed.get(HALF_CLICK)) {
                 placed.set(HALF_CLICK, false);
                 placed.onServerWorld(() -> world -> CircuitSounds.RELAY_CLICK.playOnServer(world, placed.getPos(), 0.75f, 1.9f));
                 placed.notifyClients(HALF_CLICK);
             }
 
-            if (coilNodeToReset.getState() && coilNodeToResetCurrent >= .5 && index == charCount+1) {
+            if (reset.getState() && resetCurrent >= .5 && index == charCount+1) {
                 placed.onServerWorld(() -> world -> CircuitSounds.RELAY_CLICK.playOnServer(world, placed.getPos(), 0.75f, 2f));
                 placed.set(INDEX, index +1);
                 placed.set(HALF_CLICK, true);
-                coilNodeToNegative.setState(true);
-                coilNodeToReset.setState(false);
+                negative.setState(true);
+                reset.setState(false);
                 placed.notifyClients(INDEX);
                 placed.notifyClients(HALF_CLICK);
             }
@@ -117,12 +116,11 @@ public class ModularDisplayComponent extends OrientableComponent {
 
     @Override
     public void bake(@NotNull PlacedComponent placed, @NotNull ComponentCircuitBuilder builder, ThermalBuilder.@NotNull IEmitter thermals) {
-
         var coilNode = builder.addInternalNode();
         var coil = builder.connect(25, builder.terminalNode(0), coilNode);
-        var coilNodeToNegitive = builder.connectSwitch(0.1f, builder.terminalNode(1), coilNode, true);
-        var coilNodeToReset = builder.connectSwitch(0.1f, builder.terminalNode(2), coilNode, false);
-        placed.add(coilNodeToReset); placed.add(coil); placed.add(coilNodeToNegitive);
+        var negative = builder.connectSwitch(0.1f, builder.terminalNode(1), coilNode, true);
+        var reset = builder.connectSwitch(0.1f, builder.terminalNode(2), coilNode, false);
+        placed.add(reset); placed.add(coil); placed.add(negative);
 
         thermals.builder()
                 .setThermalMass(0.15f)

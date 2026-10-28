@@ -122,7 +122,6 @@ public class ComponentPropertiesWidget extends AbstractSimiWidget {
         for (int sliceWidth = Math.min(sourceWidth, width);
              drawX < x + width;
              drawX += sliceWidth) {
-
             int w = Math.min(sliceWidth, x + width - drawX);
             int u = uOffset + (sourceWidth - w) / 2;
 
@@ -131,7 +130,6 @@ public class ComponentPropertiesWidget extends AbstractSimiWidget {
             for (int sliceHeight = Math.min(sourceHeight, height);
                  drawY < y + height;
                  drawY += sliceHeight) {
-
                 int h = Math.min(sliceHeight, y + height - drawY);
                 int v = vOffset + (sourceHeight - h) / 2;
 

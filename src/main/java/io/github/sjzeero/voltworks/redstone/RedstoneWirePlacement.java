@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import java.util.List;
+import java.util.Locale;
 
 public final class RedstoneWirePlacement {
     private RedstoneWirePlacement() {
@@ -67,7 +68,7 @@ public final class RedstoneWirePlacement {
         }
         Spools.consume(player, player.getMainHandItem());
         AllSoundEvents.WRENCH_REMOVE.playOnServer(level, BlockPos.containing(WallSpace.toWorld(level, last.pos().getCenter())));
-        player.displayClientMessage(Component.translatable("voltworks.redstone_cable.linked", String.format(java.util.Locale.ROOT, "%.2f", length)), true);
+        player.displayClientMessage(Component.translatable("voltworks.redstone_cable.linked", String.format(Locale.ROOT, "%.2f", length)), true);
     }
 
     private static void deny(ServerPlayer player, String key, BlockPos pos) {

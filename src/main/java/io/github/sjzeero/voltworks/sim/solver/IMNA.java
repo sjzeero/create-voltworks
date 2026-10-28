@@ -19,7 +19,6 @@ package io.github.sjzeero.voltworks.sim.solver;
 
 import io.github.sjzeero.voltworks.Voltworks;
 
-
 public interface IMNA {
     void cleanup();
 

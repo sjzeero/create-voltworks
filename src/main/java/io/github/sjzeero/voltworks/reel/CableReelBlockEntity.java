@@ -10,9 +10,12 @@ import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureS
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
+import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.VoltworksConfig;
 import io.github.sjzeero.voltworks.cord.CordPair;
+import io.github.sjzeero.voltworks.cord.LooseCords;
 import io.github.sjzeero.voltworks.cord.SocketBlock;
+import io.github.sjzeero.voltworks.cord.SocketPlugs;
 import io.github.sjzeero.voltworks.mixin.WireSpoolItemAccessor;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksWireTypes;
@@ -33,6 +36,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -197,8 +201,8 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         Vec3 pos = outlet.add(at.subtract(outlet).scale(ReelMath.reachScale(at.distanceTo(outlet), stored)));
         CableEndEntity end = new CableEndEntity(sl, worldPosition, pos, motion);
         boolean added = sl.addFreshEntity(end);
-        io.github.sjzeero.voltworks.Voltworks.LOGGER.info("[voltworks] reel {} dropped loose end: type={} id={} uuid={} at={} added={}",
-                worldPosition, net.minecraft.world.entity.EntityType.getKey(end.getType()), end.getId(), end.getUUID(), pos, added);
+        Voltworks.LOGGER.info("[voltworks] reel {} dropped loose end: type={} id={} uuid={} at={} added={}",
+                worldPosition, EntityType.getKey(end.getType()), end.getId(), end.getUUID(), pos, added);
         if (added) {
             loose = end.getUUID();
             looseAt = end.blockPosition();
@@ -296,7 +300,7 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
                     deny(player, "socket_busy");
                     return false;
                 }
-            if (io.github.sjzeero.voltworks.cord.LooseCords.get(sl).isAnchor(pos, ends[0].id())) {
+            if (LooseCords.get(sl).isAnchor(pos, ends[0].id())) {
                 deny(player, "socket_busy");
                 return false;
             }
@@ -437,7 +441,7 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
     }
 
     private void plugIn(ServerLevel sl, BlockPos pos) {
-        io.github.sjzeero.voltworks.cord.SocketPlugs.plugTowards(sl, pos, outletWorld());
+        SocketPlugs.plugTowards(sl, pos, outletWorld());
     }
 
     private static void unplug(ServerLevel sl, BlockPos pos) {

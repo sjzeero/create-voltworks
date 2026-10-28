@@ -2,6 +2,7 @@ package io.github.sjzeero.voltworks.redstone;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
@@ -19,7 +20,7 @@ public final class RedstoneCableEvents {
         NeoForge.EVENT_BUS.addListener((PlayerEvent.PlayerRespawnEvent e) -> sync(e.getEntity()));
     }
 
-    private static void sync(net.minecraft.world.entity.player.Player player) {
+    private static void sync(Player player) {
         if(player instanceof ServerPlayer sp)
             RedstoneSync.sendAll(sp);
     }

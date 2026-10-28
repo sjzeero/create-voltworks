@@ -1,10 +1,16 @@
 package io.github.sjzeero.voltworks.mixin;
 
 import com.george_vi.electroenergetics.config.CEEConfigs;
+import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
+import com.george_vi.electroenergetics.simulation.WireType;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import io.github.sjzeero.voltworks.cord.CordPair;
+import io.github.sjzeero.voltworks.cord.LooseCords;
+import io.github.sjzeero.voltworks.cord.SocketPlugs;
+import io.github.sjzeero.voltworks.reel.CableReels;
+import io.github.sjzeero.voltworks.wallwire.SchematicWires;
 import io.github.sjzeero.voltworks.wallwire.WallCell;
 import io.github.sjzeero.voltworks.wallwire.WallRoute;
 import io.github.sjzeero.voltworks.wallwire.WallSpace;
@@ -33,31 +39,31 @@ public abstract class InfrastructureSavedDataMixin {
     private void voltworks$forgetWallRoute(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
         if(level != null) {
             WallWireData.get(level).queueCheck(connection);
-            io.github.sjzeero.voltworks.cord.SocketPlugs.removed(level, connection);
+            SocketPlugs.removed(level, connection);
         }
     }
 
     @Inject(method = "removeAndDropConnection", at = @At("RETURN"), require = 0)
     private void voltworks$plugOutOnDrop(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
         if(level != null)
-            io.github.sjzeero.voltworks.cord.SocketPlugs.removed(level, connection);
+            SocketPlugs.removed(level, connection);
     }
 
     @Inject(method = "connect(Lcom/george_vi/electroenergetics/foundation/nodes/InWorldNode;Lcom/george_vi/electroenergetics/foundation/nodes/InWorldNode;Lcom/george_vi/electroenergetics/simulation/WireType;)J", at = @At("RETURN"))
-    private void voltworks$wallRouteOnConnect(com.george_vi.electroenergetics.foundation.nodes.InWorldNode a, com.george_vi.electroenergetics.foundation.nodes.InWorldNode b, com.george_vi.electroenergetics.simulation.WireType type, CallbackInfoReturnable<Long> cir) {
+    private void voltworks$wallRouteOnConnect(InWorldNode a, InWorldNode b, WireType type, CallbackInfoReturnable<Long> cir) {
         if(level != null)
-            io.github.sjzeero.voltworks.wallwire.SchematicWires.onConnect(level, a, b);
+            SchematicWires.onConnect(level, a, b);
     }
 
     @Inject(method = "removeAndDropConnection", at = @At("HEAD"), cancellable = true, require = 0)
     private void voltworks$reelWindsBackOnDrop(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
-        if(level != null && io.github.sjzeero.voltworks.reel.CableReels.windBack(level, connection))
+        if(level != null && CableReels.windBack(level, connection))
             cir.setReturnValue(null);
     }
 
     @Inject(method = "removeConnection", at = @At("HEAD"), cancellable = true, require = 0)
     private void voltworks$reelWindsBack(InWorldNodeConnection connection, CallbackInfoReturnable<WireData> cir) {
-        if(level != null && io.github.sjzeero.voltworks.reel.CableReels.windBack(level, connection))
+        if(level != null && CableReels.windBack(level, connection))
             cir.setReturnValue(null);
     }
 
@@ -66,7 +72,7 @@ public abstract class InfrastructureSavedDataMixin {
         if(level == null)
             return;
         WireData own = getConnectionData(connection);
-        if(own != null && CordPair.isCord(own.wireType()) && io.github.sjzeero.voltworks.cord.LooseCords.isStripStrand(level, connection)) {
+        if(own != null && CordPair.isCord(own.wireType()) && LooseCords.isStripStrand(level, connection)) {
             InWorldNodeConnection sibling = CordPair.sibling(connection);
             if(getConnectionData(sibling) != null)
                 removeConnectionNoDrops(sibling);

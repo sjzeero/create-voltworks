@@ -14,6 +14,7 @@ import com.simibubi.create.content.contraptions.StructureTransform;
 import net.createmod.catnip.data.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
@@ -123,9 +124,9 @@ public final class ContraptionWires {
 
     private static ListTag vec(Vec3 v) {
         ListTag l = new ListTag();
-        l.add(net.minecraft.nbt.DoubleTag.valueOf(v.x));
-        l.add(net.minecraft.nbt.DoubleTag.valueOf(v.y));
-        l.add(net.minecraft.nbt.DoubleTag.valueOf(v.z));
+        l.add(DoubleTag.valueOf(v.x));
+        l.add(DoubleTag.valueOf(v.y));
+        l.add(DoubleTag.valueOf(v.z));
         return l;
     }
 
@@ -153,7 +154,7 @@ public final class ContraptionWires {
         return out;
     }
 
-    public record Drawn(WireType type, net.minecraft.world.item.DyeColor color, List<WallCell> cells, List<WallRoute.Segment> segments, Vec3 p1, Vec3 p2) {
+    public record Drawn(WireType type, DyeColor color, List<WallCell> cells, List<WallRoute.Segment> segments, Vec3 p1, Vec3 p2) {
     }
 
     public static List<Drawn> parseRender(ListTag list) {

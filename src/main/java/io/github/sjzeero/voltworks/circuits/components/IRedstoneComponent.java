@@ -31,7 +31,6 @@ public interface IRedstoneComponent {
     }
 
     default void receiveRedstone(@NotNull PlacedComponent component, int level) {
-
     }
 
     default int getEmittedLevel(@NotNull PlacedComponent component) {

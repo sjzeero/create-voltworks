@@ -2,7 +2,12 @@ package io.github.sjzeero.voltworks.mixin;
 
 import com.simibubi.create.content.contraptions.Contraption;
 import com.simibubi.create.content.contraptions.StructureTransform;
+import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.wallwire.ContraptionWireView;
 import io.github.sjzeero.voltworks.wallwire.ContraptionWires;
+import io.github.sjzeero.voltworks.wallwire.FrozenDevices;
+import java.util.List;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -18,13 +23,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = Contraption.class, remap = false)
-public abstract class ContraptionMixin implements io.github.sjzeero.voltworks.wallwire.ContraptionWireView {
+public abstract class ContraptionMixin implements ContraptionWireView {
     @Unique
     private ListTag voltworks$wires;
     @Unique
-    private java.util.List<ContraptionWires.Drawn> voltworks$drawn;
+    private List<ContraptionWires.Drawn> voltworks$drawn;
     @Unique
-    private java.util.UUID voltworks$frozen;
+    private UUID voltworks$frozen;
 
     @Unique
     private ListTag voltworks$wireList() {
@@ -36,18 +41,18 @@ public abstract class ContraptionMixin implements io.github.sjzeero.voltworks.wa
 
     @Unique
     private static void voltworks$warn(String where, Throwable t) {
-        io.github.sjzeero.voltworks.Voltworks.LOGGER.warn("voltworks: contraption wire {} skipped: {}", where, String.valueOf(t));
+        Voltworks.LOGGER.warn("voltworks: contraption wire {} skipped: {}", where, String.valueOf(t));
     }
 
     @Override
-    public java.util.UUID voltworks$frozenId() {
+    public UUID voltworks$frozenId() {
         return voltworks$frozen;
     }
 
     @Override
-    public java.util.List<ContraptionWires.Drawn> voltworks$drawn() {
-        java.util.List<ContraptionWires.Drawn> d = voltworks$drawn;
-        return d == null ? java.util.List.of() : d;
+    public List<ContraptionWires.Drawn> voltworks$drawn() {
+        List<ContraptionWires.Drawn> d = voltworks$drawn;
+        return d == null ? List.of() : d;
     }
 
     @Inject(method = "removeBlocksFromWorld", at = @At("HEAD"))
@@ -58,7 +63,7 @@ public abstract class ContraptionMixin implements io.github.sjzeero.voltworks.wa
                 voltworks$wireList().addAll(captured);
                 try {
                     if(voltworks$frozen == null)
-                        voltworks$frozen = io.github.sjzeero.voltworks.wallwire.FrozenDevices.get(level).freeze(level, (Contraption) (Object) this, offset, captured);
+                        voltworks$frozen = FrozenDevices.get(level).freeze(level, (Contraption) (Object) this, offset, captured);
                 } catch(Throwable t) {
                     voltworks$warn("freeze", t);
                 }
@@ -80,10 +85,10 @@ public abstract class ContraptionMixin implements io.github.sjzeero.voltworks.wa
             voltworks$warn("restore", t);
         }
         try {
-            java.util.UUID id = voltworks$frozen;
+            UUID id = voltworks$frozen;
             if(id != null && world instanceof ServerLevel level) {
                 voltworks$frozen = null;
-                io.github.sjzeero.voltworks.wallwire.FrozenDevices.get(level).thaw(level, id, transform);
+                FrozenDevices.get(level).thaw(level, id, transform);
             }
         } catch(Throwable t) {
             voltworks$warn("thaw", t);
@@ -111,12 +116,12 @@ public abstract class ContraptionMixin implements io.github.sjzeero.voltworks.wa
     @Inject(method = "readNBT", at = @At("TAIL"))
     private void voltworks$readWires(Level world, CompoundTag nbt, boolean spawnData, CallbackInfo ci) {
         try {
-            voltworks$frozen = nbt != null && nbt.contains("VoltworksFrozen") ? java.util.UUID.fromString(nbt.getString("VoltworksFrozen")) : null;
+            voltworks$frozen = nbt != null && nbt.contains("VoltworksFrozen") ? UUID.fromString(nbt.getString("VoltworksFrozen")) : null;
             voltworks$wires = nbt != null && nbt.contains("VoltworksWires") ? nbt.getList("VoltworksWires", Tag.TAG_COMPOUND) : new ListTag();
-            voltworks$drawn = nbt != null && nbt.contains("VoltworksRender") ? ContraptionWires.parseRender(nbt.getList("VoltworksRender", Tag.TAG_COMPOUND)) : java.util.List.of();
+            voltworks$drawn = nbt != null && nbt.contains("VoltworksRender") ? ContraptionWires.parseRender(nbt.getList("VoltworksRender", Tag.TAG_COMPOUND)) : List.of();
         } catch(Throwable t) {
             voltworks$wires = new ListTag();
-            voltworks$drawn = java.util.List.of();
+            voltworks$drawn = List.of();
             voltworks$warn("read", t);
         }
     }

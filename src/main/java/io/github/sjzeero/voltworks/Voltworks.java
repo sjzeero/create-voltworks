@@ -1,5 +1,6 @@
 package io.github.sjzeero.voltworks;
 
+import io.github.sjzeero.voltworks.redstone.RedstoneCableEvents;
 import io.github.sjzeero.voltworks.registry.VoltworksWireTypes;
 import com.mojang.logging.LogUtils;
 import io.github.sjzeero.voltworks.board.BoardTestCommand;
@@ -22,6 +23,7 @@ import io.github.sjzeero.voltworks.registry.VoltworksBlocks;
 import io.github.sjzeero.voltworks.registry.VoltworksContraptions;
 import io.github.sjzeero.voltworks.registry.VoltworksCreativeTabs;
 import io.github.sjzeero.voltworks.registry.VoltworksDevices;
+import io.github.sjzeero.voltworks.registry.VoltworksEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
 import io.github.sjzeero.voltworks.registry.VoltworksRecipes;
 import io.github.sjzeero.voltworks.registry.VoltworksMenus;
@@ -46,7 +48,7 @@ public class Voltworks {
         VoltworksCreativeTabs.register(modBus);
         VoltworksMenus.register(modBus);
         VoltworksSounds.register(modBus);
-        io.github.sjzeero.voltworks.registry.VoltworksEntities.register(modBus);
+        VoltworksEntities.register(modBus);
         modBus.addListener(VoltworksNetwork::register);
         modBus.addListener((NewRegistryEvent e) -> e.register(ComponentRegistry.REGISTRY));
         container.registerConfig(ModConfig.Type.SERVER, VoltworksConfig.SPEC);
@@ -55,7 +57,7 @@ public class Voltworks {
         NeoForge.EVENT_BUS.addListener(CircuitInsertion::onDeployerRecipeSearch);
         NeoForge.EVENT_BUS.addListener(BoardTestCommand::onServerTick);
         WallWireEvents.register();
-        io.github.sjzeero.voltworks.redstone.RedstoneCableEvents.register();
+        RedstoneCableEvents.register();
     }
 
     public static ResourceLocation asResource(String path) {

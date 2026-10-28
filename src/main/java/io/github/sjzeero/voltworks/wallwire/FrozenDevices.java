@@ -3,12 +3,18 @@ package io.github.sjzeero.voltworks.wallwire;
 import com.george_vi.electroenergetics.devices.device.DeviceBlock;
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.devices.device.SimulatedDevice;
+import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 import com.simibubi.create.content.contraptions.StructureTransform;
 import com.george_vi.electroenergetics.events.AddToElectricGraphEvent;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.simulation.electrical_properties.ElectricalProperties;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.simibubi.create.content.contraptions.Contraption;
+import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.board.BoardBlock;
+import io.github.sjzeero.voltworks.board.BoardDevice;
+import io.github.sjzeero.voltworks.network.BoardStatePayload;
+import io.github.sjzeero.voltworks.network.ContraptionBoardPayload;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -16,7 +22,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,7 +63,7 @@ public class FrozenDevices extends SavedData {
                 }
                 data.put(new Group(UUID.fromString(g.getString("Id")), g.getLongArray("Rel"), g.getLongArray("World"), wires));
             } catch(RuntimeException e) {
-                io.github.sjzeero.voltworks.Voltworks.LOGGER.warn("voltworks: frozen group skipped: {}", String.valueOf(e));
+                Voltworks.LOGGER.warn("voltworks: frozen group skipped: {}", String.valueOf(e));
             }
         }
         return data;
@@ -167,7 +176,7 @@ public class FrozenDevices extends SavedData {
                 }
             } catch(Throwable t) {
                 data[i] = null;
-                io.github.sjzeero.voltworks.Voltworks.LOGGER.warn("voltworks: device state not carried: {}", String.valueOf(t));
+                Voltworks.LOGGER.warn("voltworks: device state not carried: {}", String.valueOf(t));
             }
         }
         for(int i = 0; i < n; i++) {
@@ -179,7 +188,7 @@ public class FrozenDevices extends SavedData {
                 if(target != null && target != source && source != null && target.type == source.type)
                     target.read(data[i]);
             } catch(Throwable t) {
-                io.github.sjzeero.voltworks.Voltworks.LOGGER.warn("voltworks: device state not applied: {}", String.valueOf(t));
+                Voltworks.LOGGER.warn("voltworks: device state not applied: {}", String.valueOf(t));
             }
         }
         for(int i = 0; i < n; i++) {
@@ -190,7 +199,7 @@ public class FrozenDevices extends SavedData {
                 if(!occupied)
                     devices.removeDevice(from[i]);
             } catch(Throwable t) {
-                io.github.sjzeero.voltworks.Voltworks.LOGGER.warn("voltworks: frozen device not removed: {}", String.valueOf(t));
+                Voltworks.LOGGER.warn("voltworks: frozen device not removed: {}", String.valueOf(t));
             }
         }
     }
@@ -212,8 +221,8 @@ public class FrozenDevices extends SavedData {
     private static final Map<Sent, long[]> SENT = new HashMap<>();
     private static final int RESEND = 100;
 
-    public static void startTracking(net.neoforged.neoforge.event.entity.player.PlayerEvent.StartTracking event) {
-        if(event.getTarget() instanceof com.simibubi.create.content.contraptions.AbstractContraptionEntity entity)
+    public static void startTracking(PlayerEvent.StartTracking event) {
+        if(event.getTarget() instanceof AbstractContraptionEntity entity)
             SENT.keySet().removeIf(k -> k.entity() == entity.getId());
     }
 
@@ -225,8 +234,8 @@ public class FrozenDevices extends SavedData {
                 return;
             }
             DevicesSavedData devices = DevicesSavedData.load(level);
-            for(net.minecraft.world.entity.Entity e : level.getAllEntities()) {
-                if(!(e instanceof com.simibubi.create.content.contraptions.AbstractContraptionEntity entity) || !(entity.getContraption() instanceof ContraptionWireView view))
+            for(Entity e : level.getAllEntities()) {
+                if(!(e instanceof AbstractContraptionEntity entity) || !(entity.getContraption() instanceof ContraptionWireView view))
                     continue;
                 Group g = view.voltworks$frozenId() == null ? null : data.groups.get(view.voltworks$frozenId());
                 if(g == null)
@@ -234,9 +243,9 @@ public class FrozenDevices extends SavedData {
                 for(int i = 0; i < g.rel().length; i++) {
                     BlockPos rel = BlockPos.of(g.rel()[i]);
                     var info = entity.getContraption().getBlocks().get(rel);
-                    if(info == null || !(info.state().getBlock() instanceof io.github.sjzeero.voltworks.board.BoardBlock))
+                    if(info == null || !(info.state().getBlock() instanceof BoardBlock))
                         continue;
-                    var device = devices.getDevice(BlockPos.of(g.world()[i]), io.github.sjzeero.voltworks.board.BoardDevice.class);
+                    var device = devices.getDevice(BlockPos.of(g.world()[i]), BoardDevice.class);
                     var full = device == null ? null : device.fullTag();
                     if(full == null)
                         continue;
@@ -249,18 +258,18 @@ public class FrozenDevices extends SavedData {
                         var snapshot = device.snapshotState();
                         while(device.pollState() != null) {
                         }
-                        net.neoforged.neoforge.network.PacketDistributor.sendToPlayersTrackingEntity(entity,
-                                new io.github.sjzeero.voltworks.network.ContraptionBoardPayload(entity.getId(), rel, full, snapshot));
+                        PacketDistributor.sendToPlayersTrackingEntity(entity,
+                                new ContraptionBoardPayload(entity.getId(), rel, full, snapshot));
                     } else {
-                        io.github.sjzeero.voltworks.network.BoardStatePayload state;
+                        BoardStatePayload state;
                         while((state = device.pollState()) != null)
-                            net.neoforged.neoforge.network.PacketDistributor.sendToPlayersTrackingEntity(entity,
-                                    new io.github.sjzeero.voltworks.network.ContraptionBoardPayload(entity.getId(), rel, null, state));
+                            PacketDistributor.sendToPlayersTrackingEntity(entity,
+                                    new ContraptionBoardPayload(entity.getId(), rel, null, state));
                     }
                 }
             }
         } catch(Throwable t) {
-            io.github.sjzeero.voltworks.Voltworks.LOGGER.warn("voltworks: frozen board sync skipped: {}", String.valueOf(t));
+            Voltworks.LOGGER.warn("voltworks: frozen board sync skipped: {}", String.valueOf(t));
         }
     }
 
@@ -273,7 +282,7 @@ public class FrozenDevices extends SavedData {
                 for(Wire w : g.wires())
                     event.builder.connect(w.a(), w.b(), ElectricalProperties.resistor(w.resistance()));
         } catch(Throwable t) {
-            io.github.sjzeero.voltworks.Voltworks.LOGGER.warn("voltworks: frozen circuit skipped: {}", String.valueOf(t));
+            Voltworks.LOGGER.warn("voltworks: frozen circuit skipped: {}", String.valueOf(t));
         }
     }
 }

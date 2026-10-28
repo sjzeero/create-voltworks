@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -85,7 +86,7 @@ class PowerStripTest {
             for (String f : new String[]{"north", "east", "south", "west"})
                 assertTrue(v.has("face=" + face + ",facing=" + f));
         JsonObject model = ReelAssetsTest.json("assets/voltworks/models/block/power_strip.json");
-        for (JsonElement t : model.getAsJsonObject("textures").entrySet().stream().map(java.util.Map.Entry::getValue).toList()) {
+        for (JsonElement t : model.getAsJsonObject("textures").entrySet().stream().map(Map.Entry::getValue).toList()) {
             String tex = t.getAsString();
             assertNotNull(PowerStripTest.class.getClassLoader().getResource("assets/voltworks/textures/" + tex.substring(tex.indexOf(':') + 1) + ".png"), tex);
         }

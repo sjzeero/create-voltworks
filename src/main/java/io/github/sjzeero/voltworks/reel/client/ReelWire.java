@@ -23,6 +23,7 @@ import org.joml.Vector3d;
 import org.joml.Vector3dc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public final class ReelWire {
@@ -54,7 +55,7 @@ public final class ReelWire {
             BlockPos at = BlockPos.containing(x, y, z);
             double top = Double.NEGATIVE_INFINITY;
             for (BlockPos q : new BlockPos[]{at, at.below()}) {
-                if (java.util.Arrays.asList(skip).contains(q))
+                if (Arrays.asList(skip).contains(q))
                     continue;
                 VoxelShape shape = level.getBlockState(q).getCollisionShape(level, q);
                 if (!shape.isEmpty()) {

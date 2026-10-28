@@ -21,6 +21,7 @@ import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.circuits.schematic.CircuitSchematic;
 import io.github.sjzeero.voltworks.circuits.schematic.ISchematicHolder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -46,6 +47,8 @@ import org.jetbrains.annotations.Nullable;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
+import java.util.List;
+import java.util.Locale;
 
 public class CircuitDesignTableBlockEntity extends BlockEntity implements IMultiScreenHandlerFactory, ISchematicHolder, IMenuContent, IHaveGoggleInformation {
     private final Container inventory = new SimpleContainer(3);
@@ -86,12 +89,12 @@ public class CircuitDesignTableBlockEntity extends BlockEntity implements IMulti
     }
 
     @Override
-    public boolean addToGoggleTooltip(java.util.List<Component> tooltip, boolean isPlayerSneaking) {
+    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
         tooltip.add(Component.literal("    ").append(Component.translatable("block.voltworks.circuit_design_table")));
-        tooltip.add(Component.literal("    ").append(Component.translatable("voltworks.goggles.table_power", String.format(java.util.Locale.ROOT, "%.1f", power), Math.round(CircuitDesignTableDevice.REQUIRED_POWER)).withStyle(net.minecraft.ChatFormatting.GRAY)));
+        tooltip.add(Component.literal("    ").append(Component.translatable("voltworks.goggles.table_power", String.format(Locale.ROOT, "%.1f", power), Math.round(CircuitDesignTableDevice.REQUIRED_POWER)).withStyle(ChatFormatting.GRAY)));
         if(Float.isFinite(temperature)) {
-            var style = temperature >= CircuitDesignTableDevice.OVERHEAT_TEMPERATURE - 50 ? net.minecraft.ChatFormatting.RED : net.minecraft.ChatFormatting.GRAY;
-            tooltip.add(Component.literal("    ").append(Component.translatable("voltworks.goggles.table_temperature", String.format(java.util.Locale.ROOT, "%.0f", temperature), Math.round(CircuitDesignTableDevice.OVERHEAT_TEMPERATURE)).withStyle(style)));
+            var style = temperature >= CircuitDesignTableDevice.OVERHEAT_TEMPERATURE - 50 ? ChatFormatting.RED : ChatFormatting.GRAY;
+            tooltip.add(Component.literal("    ").append(Component.translatable("voltworks.goggles.table_temperature", String.format(Locale.ROOT, "%.0f", temperature), Math.round(CircuitDesignTableDevice.OVERHEAT_TEMPERATURE)).withStyle(style)));
         }
         return true;
     }

@@ -56,11 +56,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 import io.github.sjzeero.voltworks.circuits.components.ComponentRegistry;
 import io.github.sjzeero.voltworks.client.ClientHooks;
+import io.netty.buffer.Unpooled;
 
 public class BoardBlockEntity extends BlockEntity implements BoardContext, IHaveGoggleInformation, ISchematicHolder, IMenuContent {
     private CircuitSchematic schematic = new CircuitSchematic();
@@ -216,7 +219,7 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
         }
         if(state.temperatures() != null)
             applyTemperatures(state.temperatures());
-        if(state.burnt() != null && !java.util.Arrays.equals(state.burnt(), burntIndices)) {
+        if(state.burnt() != null && !Arrays.equals(state.burnt(), burntIndices)) {
             applyBurnt(state.burnt());
             modelChanged = true;
         }
@@ -263,7 +266,7 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
     public final long[] syncStats = new long[4];
 
     private static int encodedSize(Level level, BoardSchematicPayload full, BoardStatePayload state) {
-        var buf = new RegistryFriendlyByteBuf(io.netty.buffer.Unpooled.buffer(), level.registryAccess());
+        var buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), level.registryAccess());
         try {
             if(full != null)
                 BoardSchematicPayload.CODEC.encode(buf, full);
@@ -411,7 +414,7 @@ public class BoardBlockEntity extends BlockEntity implements BoardContext, IHave
                 var line = Component.literal("    ").append(item.getDescription().copy().withStyle(ChatFormatting.GRAY));
                 float t = partTemperature(hovered);
                 if(Float.isFinite(t))
-                    line.append(Component.literal(String.format(java.util.Locale.ROOT, " %.1f \u00b0C", t)).withStyle(ChatFormatting.DARK_GRAY));
+                    line.append(Component.literal(String.format(Locale.ROOT, " %.1f \u00b0C", t)).withStyle(ChatFormatting.DARK_GRAY));
                 if(hovered.destroyed)
                     line.append(Component.literal(" ").append(Component.translatable("voltworks.goggles.part_burnt")).withStyle(ChatFormatting.RED));
                 tooltip.add(line);

@@ -2,6 +2,7 @@ package io.github.sjzeero.voltworks.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.schematics.client.SchematicRenderer;
+import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.wallwire.client.SchematicWallRender;
 import net.createmod.catnip.levelWrappers.SchematicLevel;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
@@ -32,7 +33,7 @@ public abstract class SchematicRendererMixin {
         try {
             SchematicWallRender.draw(schematic, ms, buffer);
         } catch(Throwable t) {
-            io.github.sjzeero.voltworks.Voltworks.LOGGER.warn("voltworks: schematic wall wire draw skipped: {}", String.valueOf(t));
+            Voltworks.LOGGER.warn("voltworks: schematic wall wire draw skipped: {}", String.valueOf(t));
         } finally {
             SchematicWallRender.end();
         }

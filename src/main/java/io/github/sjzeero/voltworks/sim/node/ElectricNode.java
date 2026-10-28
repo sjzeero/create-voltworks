@@ -72,10 +72,8 @@ public abstract class ElectricNode implements IElectricNode {
     }
 
     public void setVoltage(double voltage) {
-
     }
 
     public void setCurrent(double current) {
-
     }
 }

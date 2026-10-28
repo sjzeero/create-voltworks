@@ -10,9 +10,12 @@ import io.github.sjzeero.voltworks.reel.CableReelBlockEntity;
 import io.github.sjzeero.voltworks.reel.LyingEnd;
 import io.github.sjzeero.voltworks.reel.ReelMath;
 import io.github.sjzeero.voltworks.reel.ReelPlugItem;
+import io.github.sjzeero.voltworks.registry.VoltworksWireTypes;
 import io.github.sjzeero.voltworks.wallwire.WallSpace;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.cord.LooseCords;
+import io.github.sjzeero.voltworks.cord.Outlets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -25,6 +28,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
@@ -34,7 +38,9 @@ import org.joml.Matrix4d;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
     private final ItemRenderer items;
@@ -140,15 +146,15 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
         Vector3d d = LyingEnd.direction(model, LyingEnd.PLUG.backDir());
         Vec3 to = at.add(b.x, b.y, b.z);
         Vec3 from, fromOut;
-        net.minecraft.core.BlockPos skip;
+        BlockPos skip;
         int supply = entity.otherSupply();
         if (supply >= 0) {
-            net.minecraft.core.BlockPos op = entity.otherPos();
+            BlockPos op = entity.otherPos();
             if (!level.isLoaded(op))
                 return;
-            from = io.github.sjzeero.voltworks.cord.LooseCords.plugWorld(level, op, supply);
+            from = LooseCords.plugWorld(level, op, supply);
             fromOut = WallSpace.rotate(WallSpace.renderPose(level, op, pt),
-                    io.github.sjzeero.voltworks.cord.Outlets.cordDir(level.getBlockState(op), supply));
+                    Outlets.cordDir(level.getBlockState(op), supply));
             skip = op;
         } else if (entity.otherHolder() != null || entity.end() != 0) {
             return;
@@ -161,7 +167,7 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
             fromOut = ob[1];
             skip = other.blockPosition();
         }
-        WireType type = io.github.sjzeero.voltworks.registry.VoltworksWireTypes.COPPER_CORD.get();
+        WireType type = VoltworksWireTypes.COPPER_CORD.get();
         double distance = from.distanceTo(to);
         if (distance <= 0.05)
             return;
@@ -173,7 +179,7 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
         pose.popPose();
     }
 
-    private static final java.util.Map<Integer, Long> LOGGED = new java.util.HashMap<>();
+    private static final Map<Integer, Long> LOGGED = new HashMap<>();
 
     private static void log(CableEndEntity entity, boolean cord, double yaw, Vec3 at, Vector3d back, @Nullable Vec3 from,
                             @Nullable CableReelBlockEntity be) {

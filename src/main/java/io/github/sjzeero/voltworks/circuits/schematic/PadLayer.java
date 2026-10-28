@@ -17,7 +17,6 @@
  */
 package io.github.sjzeero.voltworks.circuits.schematic;
 
-
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;

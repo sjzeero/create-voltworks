@@ -19,6 +19,7 @@ package io.github.sjzeero.voltworks.circuits;
 
 import net.minecraft.network.chat.Component;
 import io.github.sjzeero.voltworks.Voltworks;
+import java.util.Locale;
 
 public enum Unit {
     VOLTAGE("V"),
@@ -56,7 +57,7 @@ public enum Unit {
     }
 
     private static String number(double v) {
-        String s = String.format(java.util.Locale.ROOT, "%.2f", v);
+        String s = String.format(Locale.ROOT, "%.2f", v);
         if (s.contains(".")) {
             s = s.replaceAll("0+$", "");
             if (s.endsWith("."))

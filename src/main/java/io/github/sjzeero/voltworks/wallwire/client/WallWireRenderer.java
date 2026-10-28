@@ -8,10 +8,14 @@ import com.george_vi.electroenergetics.simulation.WireType;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.simibubi.create.content.contraptions.AbstractContraptionEntity;
 import io.github.sjzeero.voltworks.cord.CordPair;
 import io.github.sjzeero.voltworks.redstone.client.ClientRedstoneWires;
 import io.github.sjzeero.voltworks.redstone.client.RedstoneCableClient;
+import io.github.sjzeero.voltworks.reel.client.ReelClient;
 import io.github.sjzeero.voltworks.registry.VoltworksWireTypes;
+import io.github.sjzeero.voltworks.wallwire.ContraptionWireView;
+import io.github.sjzeero.voltworks.wallwire.ContraptionWires;
 import io.github.sjzeero.voltworks.wallwire.WallCell;
 import io.github.sjzeero.voltworks.wallwire.WallRoute;
 import io.github.sjzeero.voltworks.wallwire.WallSpace;
@@ -24,31 +28,39 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public final class WallWireRenderer {
     private static final double RENDER_DISTANCE = 128;
     private static final double PX = 1 / 16.0;
     private static final double TEX_PERIOD = 0.5;
-    private static final Map<BakedModel, Tex> TEXTURES = new java.util.IdentityHashMap<>();
+    private static final Map<BakedModel, Tex> TEXTURES = new IdentityHashMap<>();
 
     private WallWireRenderer() {
     }
@@ -158,14 +170,14 @@ public final class WallWireRenderer {
                 Vec3 towards = WallWireClient.start != null && !WallWireClient.start.sourcePos().equals(WallWireClient.hoverSocket.sourcePos())
                         ? WallSpace.toWorld(WallSpace.renderPose(level, WallWireClient.start.sourcePos(), partial), WallWireClient.start.sourcePos().getCenter())
                         : mc.player.getEyePosition(partial);
-                io.github.sjzeero.voltworks.reel.client.ReelClient.drawPlugPreview(level, pose, cam, partial, WallWireClient.hoverSocket.sourcePos(), towards);
+                ReelClient.drawPlugPreview(level, pose, cam, partial, WallWireClient.hoverSocket.sourcePos(), towards);
             }
         }
 
-        for(net.minecraft.world.entity.Entity e : level.entitiesForRendering()) {
-            if(!(e instanceof com.simibubi.create.content.contraptions.AbstractContraptionEntity ace) || !(ace.getContraption() instanceof io.github.sjzeero.voltworks.wallwire.ContraptionWireView view))
+        for(Entity e : level.entitiesForRendering()) {
+            if(!(e instanceof AbstractContraptionEntity ace) || !(ace.getContraption() instanceof ContraptionWireView view))
                 continue;
-            java.util.List<io.github.sjzeero.voltworks.wallwire.ContraptionWires.Drawn> drawn = view.voltworks$drawn();
+            List<ContraptionWires.Drawn> drawn = view.voltworks$drawn();
             if(drawn == null || drawn.isEmpty())
                 continue;
             double ex = Mth.lerp(partial, e.xOld, e.getX()), ey = Mth.lerp(partial, e.yOld, e.getY()), ez = Mth.lerp(partial, e.zOld, e.getZ());
@@ -174,19 +186,19 @@ public final class WallWireRenderer {
             try {
                 PoseStack local = new PoseStack();
                 ace.applyLocalTransforms(local, partial);
-                org.joml.Matrix4f m = new org.joml.Matrix4f(local.last().pose());
+                Matrix4f m = new Matrix4f(local.last().pose());
                 BlockPos eb = BlockPos.containing(ex, ey, ez);
                 Pose3dc space = WallSpace.renderPose(level, eb, partial);
                 int light = LevelRenderer.getLightColor(level, eb);
-                java.util.function.UnaryOperator<Vec3> point = p -> {
-                    org.joml.Vector3f v = m.transformPosition((float) p.x, (float) p.y, (float) p.z, new org.joml.Vector3f());
+                UnaryOperator<Vec3> point = p -> {
+                    Vector3f v = m.transformPosition((float) p.x, (float) p.y, (float) p.z, new Vector3f());
                     return WallSpace.toWorld(space, new Vec3(ex + v.x, ey + v.y, ez + v.z));
                 };
-                java.util.function.UnaryOperator<Vec3> normal = n -> {
-                    org.joml.Vector3f v = m.transformDirection((float) n.x, (float) n.y, (float) n.z, new org.joml.Vector3f());
+                UnaryOperator<Vec3> normal = n -> {
+                    Vector3f v = m.transformDirection((float) n.x, (float) n.y, (float) n.z, new Vector3f());
                     return WallSpace.rotate(space, new Vec3(v.x, v.y, v.z));
                 };
-                for(io.github.sjzeero.voltworks.wallwire.ContraptionWires.Drawn w : drawn)
+                for(ContraptionWires.Drawn w : drawn)
                     new Drawer(level, pose.last(), buffer, used, w.type(), w.color(), cam, space, point, normal, light)
                             .route(w.cells(), w.segments(), w.p1(), w.p2());
             } catch(RuntimeException ex2) {
@@ -197,16 +209,16 @@ public final class WallWireRenderer {
             buffer.endBatch(type);
     }
 
-    public static void drawSchematic(net.minecraft.world.level.Level level, PoseStack.Pose pose, MultiBufferSource buffer, WireType type, @Nullable DyeColor color, WallRoute route) {
+    public static void drawSchematic(Level level, PoseStack.Pose pose, MultiBufferSource buffer, WireType type, @Nullable DyeColor color, WallRoute route) {
         InWorldNodeConnection c = route.connection;
-        new Drawer(level, pose, buffer, new java.util.HashSet<>(), type, color, Vec3.ZERO, null, p -> p, n -> n, 15728880)
+        new Drawer(level, pose, buffer, new HashSet<>(), type, color, Vec3.ZERO, null, p -> p, n -> n, 15728880)
                 .route(route.cells, route.surfaceSegments(), c.node1(), c.node2());
     }
 
     private static Tex coilTex() {
-        TextureAtlasSprite s = net.minecraft.client.Minecraft.getInstance()
-                .getTextureAtlas(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS)
-                .apply(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("voltworks", "block/redstone_coil"));
+        TextureAtlasSprite s = Minecraft.getInstance()
+                .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
+                .apply(ResourceLocation.fromNamespaceAndPath("voltworks", "block/redstone_coil"));
         float u0 = s.getU0(), u1 = s.getU(2 / 16f), v0 = s.getV0(), v1 = s.getV(8 / 16f);
         return new Tex(new float[]{u0, u1, u0, u1}, new float[]{v0, v0, v1, v1});
     }
@@ -286,22 +298,22 @@ public final class WallWireRenderer {
 
     private static final class Drawer {
         private final WireType type;
-        final net.minecraft.world.level.Level level;
+        final Level level;
         final PoseStack.Pose pose;
         final VertexConsumer vb;
         Tex tex;
         final Vec3 cam;
         final double w, h;
         final @Nullable Pose3dc space;
-        final java.util.function.UnaryOperator<Vec3> mapPoint, mapNormal;
+        final UnaryOperator<Vec3> mapPoint, mapNormal;
         final int fixedLight;
 
-        Drawer(net.minecraft.world.level.Level level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, @Nullable DyeColor color, Vec3 cam, @Nullable Pose3dc space) {
+        Drawer(Level level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, @Nullable DyeColor color, Vec3 cam, @Nullable Pose3dc space) {
             this(level, pose, buffer, used, type, color, cam, space, p -> WallSpace.toWorld(space, p), n -> space == null ? n : space.transformNormal(n), -1);
         }
 
-        Drawer(net.minecraft.world.level.Level level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, @Nullable DyeColor color, Vec3 cam, @Nullable Pose3dc space,
-               java.util.function.UnaryOperator<Vec3> mapPoint, java.util.function.UnaryOperator<Vec3> mapNormal, int fixedLight) {
+        Drawer(Level level, PoseStack.Pose pose, MultiBufferSource buffer, Set<RenderType> used, WireType type, @Nullable DyeColor color, Vec3 cam, @Nullable Pose3dc space,
+               UnaryOperator<Vec3> mapPoint, UnaryOperator<Vec3> mapNormal, int fixedLight) {
             this.level = level;
             this.space = space;
             this.mapPoint = mapPoint;

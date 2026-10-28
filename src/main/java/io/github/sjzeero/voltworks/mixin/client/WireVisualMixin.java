@@ -2,7 +2,9 @@ package io.github.sjzeero.voltworks.mixin.client;
 
 import com.george_vi.electroenergetics.client.WireVisual;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
+import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import dev.engine_room.flywheel.lib.instance.TransformedInstance;
+import io.github.sjzeero.voltworks.reel.client.ReelClient;
 import io.github.sjzeero.voltworks.wallwire.client.ClientWallRoutes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
+import net.createmod.catnip.animation.AnimationTickHolder;
 import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = WireVisual.class, remap = false)
@@ -22,7 +25,7 @@ public abstract class WireVisualMixin {
     @Shadow private TransformedInstance startInstance;
     @Shadow private TransformedInstance endInstance;
     @Shadow private Vec3 prevPos1;
-    @Shadow @Final private com.george_vi.electroenergetics.simulation.infrastructure.WireData wireData;
+    @Shadow @Final private WireData wireData;
 
     @Unique
     private boolean voltworks$hidden;
@@ -30,8 +33,8 @@ public abstract class WireVisualMixin {
     @Inject(method = "recreateInstances", at = @At("HEAD"), cancellable = true, require = 0)
     private void voltworks$hideWallWire(CallbackInfo ci) {
         if(!ClientWallRoutes.isWall(connection)) {
-            io.github.sjzeero.voltworks.reel.client.ReelClient.followLength(connection, wireData,
-                    net.createmod.catnip.animation.AnimationTickHolder.getPartialTicks());
+            ReelClient.followLength(connection, wireData,
+                    AnimationTickHolder.getPartialTicks());
             if(voltworks$hidden) {
                 voltworks$hidden = false;
                 prevPos1 = null;

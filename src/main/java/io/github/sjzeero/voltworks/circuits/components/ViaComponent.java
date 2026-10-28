@@ -59,6 +59,5 @@ public class ViaComponent extends Component {
 
     @Override
     public void bake(@NotNull PlacedComponent placed, @NotNull ComponentCircuitBuilder builder, ThermalBuilder.@NotNull IEmitter thermals) {
-
     }
 }

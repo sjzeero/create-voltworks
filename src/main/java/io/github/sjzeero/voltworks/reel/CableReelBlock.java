@@ -36,6 +36,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.joml.Vector3d;
 
 public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice> implements IBE<CableReelBlockEntity> {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -100,7 +101,7 @@ public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice>
     }
 
     static Vec3 rotated(Direction facing, double px, double py, double pz) {
-        org.joml.Vector3d v = ReelOutlet.rotated(quarter(facing), px, py, pz);
+        Vector3d v = ReelOutlet.rotated(quarter(facing), px, py, pz);
         return new Vec3(v.x, v.y, v.z);
     }
 
@@ -114,7 +115,7 @@ public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice>
     }
 
     public Vec3 outletDir(BlockState state) {
-        org.joml.Vector3d d = ReelOutlet.dir(quarter(state.getValue(FACING)));
+        Vector3d d = ReelOutlet.dir(quarter(state.getValue(FACING)));
         return new Vec3(d.x, d.y, d.z);
     }
 

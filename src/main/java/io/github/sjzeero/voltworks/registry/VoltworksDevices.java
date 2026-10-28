@@ -1,16 +1,20 @@
 package io.github.sjzeero.voltworks.registry;
 
+import io.github.sjzeero.voltworks.cord.PowerStripDevice;
 import io.github.sjzeero.voltworks.cord.SocketDevice;
 import com.george_vi.electroenergetics.CEERegistries;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.battery.BatteryDevice;
 import io.github.sjzeero.voltworks.board.BoardDevice;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableDevice;
+import io.github.sjzeero.voltworks.light.FactoryLightDevice;
 import io.github.sjzeero.voltworks.servo.ServoDevice;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import io.github.sjzeero.voltworks.motor.PGMotorDevice;
+import io.github.sjzeero.voltworks.reel.CableReelDevice;
 import io.github.sjzeero.voltworks.solar.SolarPanelBearingDevice;
 import io.github.sjzeero.voltworks.solar.SolarPanelDevice;
 
@@ -33,9 +37,9 @@ public final class VoltworksDevices {
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<SocketDevice>> SOCKET_DEVICE = DEVICES.register("socket",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("socket"),
                     (type, level, pos, sd) -> new SocketDevice(level, pos, sd, type)));
-    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.cord.PowerStripDevice>> POWER_STRIP_DEVICE = DEVICES.register("power_strip",
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<PowerStripDevice>> POWER_STRIP_DEVICE = DEVICES.register("power_strip",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("power_strip"),
-                    (type, level, pos, sd) -> new io.github.sjzeero.voltworks.cord.PowerStripDevice(level, pos, sd, type)));
+                    (type, level, pos, sd) -> new PowerStripDevice(level, pos, sd, type)));
 
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<PGMotorDevice>> CONSTANT_SPEED_MOTOR_DEVICE = DEVICES.register("constant_speed_motor",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("constant_speed_motor"), (type, level, pos, sd) -> new PGMotorDevice(level, pos, sd, type)));
@@ -43,20 +47,20 @@ public final class VoltworksDevices {
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<SolarPanelDevice>> SOLAR_PANEL_DEVICE = DEVICES.register("solar_panel",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("solar_panel"), (type, level, pos, sd) -> new SolarPanelDevice(level, pos, sd, type)));
 
-    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.battery.BatteryDevice>> BATTERY_DEVICE = DEVICES.register("battery",
-            () -> new SimulatedDeviceType<>(Voltworks.asResource("battery"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.battery.BatteryDevice(level, pos, sd, type)));
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<BatteryDevice>> BATTERY_DEVICE = DEVICES.register("battery",
+            () -> new SimulatedDeviceType<>(Voltworks.asResource("battery"), (type, level, pos, sd) -> new BatteryDevice(level, pos, sd, type)));
 
-    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.reel.CableReelDevice>> CORD_REEL_DEVICE = DEVICES.register("cord_reel",
-            () -> new SimulatedDeviceType<>(Voltworks.asResource("cord_reel"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.reel.CableReelDevice(level, pos, sd, type, true)));
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<CableReelDevice>> CORD_REEL_DEVICE = DEVICES.register("cord_reel",
+            () -> new SimulatedDeviceType<>(Voltworks.asResource("cord_reel"), (type, level, pos, sd) -> new CableReelDevice(level, pos, sd, type, true)));
 
-    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.reel.CableReelDevice>> CABLE_REEL_DEVICE = DEVICES.register("cable_reel",
-            () -> new SimulatedDeviceType<>(Voltworks.asResource("cable_reel"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.reel.CableReelDevice(level, pos, sd, type, false)));
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<CableReelDevice>> CABLE_REEL_DEVICE = DEVICES.register("cable_reel",
+            () -> new SimulatedDeviceType<>(Voltworks.asResource("cable_reel"), (type, level, pos, sd) -> new CableReelDevice(level, pos, sd, type, false)));
 
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<SolarPanelBearingDevice>> SOLAR_PANEL_BEARING_DEVICE = DEVICES.register("solar_panel_bearing",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("solar_panel_bearing"), (type, level, pos, sd) -> new SolarPanelBearingDevice(level, pos, sd, type)));
 
-    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.light.FactoryLightDevice>> FACTORY_LIGHT_DEVICE = DEVICES.register("factory_light",
-            () -> new SimulatedDeviceType<>(Voltworks.asResource("factory_light"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.light.FactoryLightDevice(level, pos, sd, type)));
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<FactoryLightDevice>> FACTORY_LIGHT_DEVICE = DEVICES.register("factory_light",
+            () -> new SimulatedDeviceType<>(Voltworks.asResource("factory_light"), (type, level, pos, sd) -> new FactoryLightDevice(level, pos, sd, type)));
 
     public static void register(IEventBus bus) {
         DEVICES.register(bus);

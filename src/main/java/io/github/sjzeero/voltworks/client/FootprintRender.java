@@ -126,7 +126,6 @@ public final class FootprintRender {
         }
     }
 
-
     public static void renderPadIndices(ComponentFootprint fp, @NotNull GuiGraphics ctx, @NotNull Font font, int x, int y) {
         var ms = ctx.pose();
         ms.pushPose();

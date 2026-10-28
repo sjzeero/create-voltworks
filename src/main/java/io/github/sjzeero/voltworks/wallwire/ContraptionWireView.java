@@ -1,9 +1,10 @@
 package io.github.sjzeero.voltworks.wallwire;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface ContraptionWireView {
     List<ContraptionWires.Drawn> voltworks$drawn();
 
-    java.util.UUID voltworks$frozenId();
+    UUID voltworks$frozenId();
 }

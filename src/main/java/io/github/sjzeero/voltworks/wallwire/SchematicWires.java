@@ -16,7 +16,11 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 public final class SchematicWires {
     public static final String KEY = "voltworks_wall_wires";
@@ -34,7 +38,7 @@ public final class SchematicWires {
         return capture(WallWireData.get(level).all(), origin, size);
     }
 
-    public static ListTag capture(java.util.Collection<WallRoute> routes, BlockPos origin, Vec3i size) {
+    public static ListTag capture(Collection<WallRoute> routes, BlockPos origin, Vec3i size) {
         ListTag out = new ListTag();
         for(WallRoute route : routes) {
             InWorldNode n1 = route.connection.node1(), n2 = route.connection.node2();
@@ -132,7 +136,7 @@ public final class SchematicWires {
         });
     }
 
-    private static final java.util.Map<Object, List<WallRoute>> PREVIEW = java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
+    private static final Map<Object, List<WallRoute>> PREVIEW = Collections.synchronizedMap(new WeakHashMap<>());
 
     public static void placePreview(Object level, ListTag list, BlockPos origin, StructurePlaceSettings settings) {
         List<WallRoute> out = new ArrayList<>();
@@ -141,7 +145,7 @@ public final class SchematicWires {
         PREVIEW.put(level, out);
     }
 
-    private static final java.util.Map<ServerLevel, List<WallRoute>> PENDING = java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
+    private static final Map<ServerLevel, List<WallRoute>> PENDING = Collections.synchronizedMap(new WeakHashMap<>());
 
     public static void addPending(ServerLevel level, ListTag list, BlockPos origin, StructurePlaceSettings settings) {
         List<WallRoute> routes = new ArrayList<>();

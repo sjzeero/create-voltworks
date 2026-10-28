@@ -15,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
@@ -39,7 +40,7 @@ public final class ContraptionGoggles {
             var area = new AABB(origin, target).inflate(16);
             double bestDistance = Double.MAX_VALUE;
             AbstractContraptionEntity bestEntity = null;
-            net.minecraft.world.phys.BlockHitResult bestHit = null;
+            BlockHitResult bestHit = null;
             for(var ref : ContraptionHandler.loadedContraptions.get(mc.level).values()) {
                 var entity = ref.get();
                 if(entity == null || entity.getContraption() == null || !entity.getBoundingBox().intersects(area))

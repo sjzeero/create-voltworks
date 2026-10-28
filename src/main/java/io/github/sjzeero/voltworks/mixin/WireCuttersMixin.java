@@ -9,6 +9,7 @@ import com.simibubi.create.AllSoundEvents;
 import io.github.sjzeero.voltworks.cord.CordPair;
 import io.github.sjzeero.voltworks.cord.LooseCords;
 import io.github.sjzeero.voltworks.reel.CableReels;
+import io.github.sjzeero.voltworks.wallwire.WallSpace;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
@@ -28,7 +29,7 @@ public class WireCuttersMixin {
         InWorldNodeConnection c = new InWorldNodeConnection(point.node1(), point.node2());
         InfrastructureSavedData sd = InfrastructureSavedData.load(sl);
         WireData data = sd.getConnectionData(c);
-        BlockPos at = BlockPos.containing(io.github.sjzeero.voltworks.wallwire.WallSpace.toWorld(sl, point.node1().sourcePos().getCenter()));
+        BlockPos at = BlockPos.containing(WallSpace.toWorld(sl, point.node1().sourcePos().getCenter()));
         if(data == null) {
             ci.cancel();
             return;

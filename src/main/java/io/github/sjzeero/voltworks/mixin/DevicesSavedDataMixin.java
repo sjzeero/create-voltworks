@@ -2,6 +2,7 @@ package io.github.sjzeero.voltworks.mixin;
 
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.devices.device.SimulatedDevice;
+import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.wallwire.FrozenDevices;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -22,7 +23,7 @@ public abstract class DevicesSavedDataMixin {
             if(level != null && FrozenDevices.get(level).isFrozen(pos))
                 cir.setReturnValue(null);
         } catch(Throwable t) {
-            io.github.sjzeero.voltworks.Voltworks.LOGGER.warn("voltworks: frozen device check skipped: {}", String.valueOf(t));
+            Voltworks.LOGGER.warn("voltworks: frozen device check skipped: {}", String.valueOf(t));
         }
     }
 }

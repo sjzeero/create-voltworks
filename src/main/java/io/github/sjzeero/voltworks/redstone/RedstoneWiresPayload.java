@@ -7,6 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ public record RedstoneWiresPayload(boolean reset, List<List<WallCell>> added, Li
         }
     }
 
-    public static void handle(RedstoneWiresPayload payload, net.neoforged.neoforge.network.handling.IPayloadContext context) {
+    public static void handle(RedstoneWiresPayload payload, IPayloadContext context) {
         ClientRedstoneWires.apply(payload);
     }
 

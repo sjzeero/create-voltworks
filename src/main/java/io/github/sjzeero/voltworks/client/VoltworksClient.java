@@ -1,6 +1,10 @@
 package io.github.sjzeero.voltworks.client;
 
 import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.redstone.client.RedstoneCableClient;
+import io.github.sjzeero.voltworks.reel.ReelPlugItem;
+import io.github.sjzeero.voltworks.reel.client.CableEndRenderer;
+import io.github.sjzeero.voltworks.reel.client.ReelClient;
 import io.github.sjzeero.voltworks.registry.VoltworksMenus;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableEditScreen;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableLoadScreen;
@@ -28,8 +32,10 @@ import io.github.sjzeero.voltworks.circuits.editor.CircuitBoardEditMenu;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableEditMenu;
 import io.github.sjzeero.voltworks.motor.PGMotorRenderer;
 import io.github.sjzeero.voltworks.registry.VoltworksBlocks;
+import io.github.sjzeero.voltworks.registry.VoltworksEntities;
 import io.github.sjzeero.voltworks.solar.SolarPanelCTBehaviour;
 import io.github.sjzeero.voltworks.wallwire.client.WallWireClient;
+import java.util.List;
 import net.createmod.catnip.lang.FontHelper;
 
 @Mod(value = Voltworks.MOD_ID, dist = Dist.CLIENT)
@@ -47,9 +53,9 @@ public class VoltworksClient {
         modBus.addListener(WallWireClient::registerLayers);
         modBus.addListener(ContraptionGoggles::registerLayers);
         WallWireClient.init();
-        io.github.sjzeero.voltworks.reel.client.ReelClient.init();
+        ReelClient.init();
         PotentiometerScroll.init();
-        io.github.sjzeero.voltworks.redstone.client.RedstoneCableClient.init();
+        RedstoneCableClient.init();
     }
 
     private static void screens(RegisterMenuScreensEvent event) {
@@ -76,20 +82,20 @@ public class VoltworksClient {
         event.registerBlockEntityRenderer(VoltworksBlockEntities.SERVO_BE.get(), ServoRenderer::new);
         event.registerBlockEntityRenderer(VoltworksBlockEntities.SOLAR_PANEL_BEARING_BE.get(), SolarPanelBearingRenderer::new);
         event.registerBlockEntityRenderer(VoltworksBlockEntities.CONSTANT_SPEED_MOTOR_BE.get(), PGMotorRenderer::new);
-        event.registerEntityRenderer(io.github.sjzeero.voltworks.registry.VoltworksEntities.CABLE_END.get(), io.github.sjzeero.voltworks.reel.client.CableEndRenderer::new);
+        event.registerEntityRenderer(VoltworksEntities.CABLE_END.get(), CableEndRenderer::new);
     }
 
     private static void setup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             ItemBlockRenderTypes.setRenderLayer(CircuitItems.ACID.get(), RenderType.translucent());
-            for (var item : java.util.List.of(VoltworksItems.DESIGN_TABLE_ITEM.get(), CircuitItems.INCOMPLETE_CIRCUIT.get(), VoltworksItems.SERVO_ITEM.get(), VoltworksItems.CORD_REEL_ITEM.get(), VoltworksItems.CABLE_REEL_ITEM.get(), VoltworksItems.SMALL_CORD_REEL_ITEM.get(), VoltworksItems.SMALL_CABLE_REEL_ITEM.get(), VoltworksItems.BATTERY_ITEM.get()))
+            for (var item : List.of(VoltworksItems.DESIGN_TABLE_ITEM.get(), CircuitItems.INCOMPLETE_CIRCUIT.get(), VoltworksItems.SERVO_ITEM.get(), VoltworksItems.CORD_REEL_ITEM.get(), VoltworksItems.CABLE_REEL_ITEM.get(), VoltworksItems.SMALL_CORD_REEL_ITEM.get(), VoltworksItems.SMALL_CABLE_REEL_ITEM.get(), VoltworksItems.BATTERY_ITEM.get()))
                 TooltipModifier.REGISTRY.register(item,
                         new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE));
             ItemBlockRenderTypes.setRenderLayer(CircuitItems.ACID_FLOWING.get(), RenderType.translucent());
             ItemProperties.register(VoltworksItems.BOARD_ITEM.get(), Voltworks.asResource("board_color"),
                     (stack, level, entity, seed) -> BoardColor.ofBoard(stack).ordinal() / 10f);
             ItemProperties.register(VoltworksItems.REEL_PLUG.get(), Voltworks.asResource("cord"),
-                    (stack, level, entity, seed) -> io.github.sjzeero.voltworks.reel.ReelPlugItem.isCord(stack) ? 1f : 0f);
+                    (stack, level, entity, seed) -> ReelPlugItem.isCord(stack) ? 1f : 0f);
         });
     }
 

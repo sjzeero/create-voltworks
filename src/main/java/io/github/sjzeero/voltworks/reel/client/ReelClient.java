@@ -9,8 +9,11 @@ import com.george_vi.electroenergetics.simulation.WireType;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.ryanhcode.sable.companion.math.Pose3dc;
+import io.github.sjzeero.voltworks.cord.CordPair;
 import io.github.sjzeero.voltworks.cord.Outlets;
 import io.github.sjzeero.voltworks.cord.SocketBlock;
+import io.github.sjzeero.voltworks.cord.SocketPlugs;
+import io.github.sjzeero.voltworks.reel.CableEndEntity;
 import io.github.sjzeero.voltworks.reel.CablePath;
 import io.github.sjzeero.voltworks.reel.CableReelBlock;
 import io.github.sjzeero.voltworks.reel.CableReelBlockEntity;
@@ -112,7 +115,7 @@ public final class ReelClient {
         boolean any = false;
         for (Pair<InWorldNodeConnection, WireData> w : WireRenderer.getAllConnections()) {
             InWorldNodeConnection c = w.getFirst();
-            boolean cord = io.github.sjzeero.voltworks.cord.CordPair.isCord(w.getSecond().wireType());
+            boolean cord = CordPair.isCord(w.getSecond().wireType());
             if (!cord) {
                 CableReelBlockEntity be = reelAt(level, c.node1());
                 if (be == null)
@@ -124,7 +127,7 @@ public final class ReelClient {
                 any |= plugIn(mc, level, pose, buffer, cam, pt, socket.sourcePos(), socket.id(), done);
         }
         for (Entity e : level.entitiesForRendering())
-            if (e instanceof io.github.sjzeero.voltworks.reel.CableEndEntity end && end.isCord() && end.otherSupply() >= 0)
+            if (e instanceof CableEndEntity end && end.isCord() && end.otherSupply() >= 0)
                 any |= plugIn(mc, level, pose, buffer, cam, pt, end.otherPos(), end.otherSupply(), done);
         for (AbstractClientPlayer p : level.players()) {
             LooseCordClient.Anchor a = LooseCordClient.anchor(p.getMainHandItem());
@@ -190,7 +193,7 @@ public final class ReelClient {
         Vector3f a = SocketBlock.plugAxis(st);
         Vec3 centre = WallSpace.toWorld(sub, sp.getCenter());
         Vec3 axis = WallSpace.rotate(sub, new Vec3(a.x, a.y, a.z));
-        st = st.setValue(SocketBlock.PLUG, io.github.sjzeero.voltworks.cord.SocketPlugs.side(centre, axis, towards));
+        st = st.setValue(SocketBlock.PLUG, SocketPlugs.side(centre, axis, towards));
         Minecraft mc = Minecraft.getInstance();
         MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
         if (drawPlug(mc, level, pose, buffer, cam, pt, sp, st))

@@ -1,6 +1,8 @@
 package io.github.sjzeero.voltworks.mixin;
 
+import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.wallwire.SchematicWires;
+import io.github.sjzeero.voltworks.wallwire.client.SchematicWiresClient;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Vec3i;
@@ -28,7 +30,7 @@ public abstract class StructureTemplateMixin {
 
     @Unique
     private static void voltworks$warn(String where, Throwable t) {
-        io.github.sjzeero.voltworks.Voltworks.LOGGER.warn("voltworks: schematic wall wire {} skipped: {}", where, String.valueOf(t));
+        Voltworks.LOGGER.warn("voltworks: schematic wall wire {} skipped: {}", where, String.valueOf(t));
     }
 
     @Inject(method = "fillFromWorld(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Vec3i;ZLnet/minecraft/world/level/block/Block;)V", at = @At("TAIL"))
@@ -37,7 +39,7 @@ public abstract class StructureTemplateMixin {
             if(level instanceof ServerLevel server)
                 voltworks$walls = SchematicWires.capture(server, origin, size);
             else if(level.isClientSide())
-                voltworks$walls = io.github.sjzeero.voltworks.wallwire.client.SchematicWiresClient.capture(origin, size);
+                voltworks$walls = SchematicWiresClient.capture(origin, size);
             else
                 voltworks$walls = null;
         } catch(Throwable t) {

@@ -84,7 +84,6 @@ public abstract class GaugeComponent extends OrientableComponent implements IRed
             }
         }
 
-
         return true;
     }
 

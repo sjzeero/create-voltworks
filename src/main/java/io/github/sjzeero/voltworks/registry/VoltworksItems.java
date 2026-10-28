@@ -2,7 +2,10 @@ package io.github.sjzeero.voltworks.registry;
 
 import io.github.sjzeero.voltworks.cord.CordSpoolItem;
 import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.battery.BatteryItem;
 import io.github.sjzeero.voltworks.circuits.schematic.CircuitSchematicItem;
+import io.github.sjzeero.voltworks.redstone.RedstoneCableItem;
+import io.github.sjzeero.voltworks.reel.ReelPlugItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -38,8 +41,8 @@ public final class VoltworksItems {
     public static final DeferredItem<CordSpoolItem> COPPER_CORD = ITEMS.registerItem("copper_cord",
             p -> new CordSpoolItem(p, VoltworksWireTypes.COPPER_CORD));
 
-    public static final DeferredItem<io.github.sjzeero.voltworks.redstone.RedstoneCableItem> REDSTONE_CABLE = ITEMS.registerItem("redstone_cable",
-            p -> new io.github.sjzeero.voltworks.redstone.RedstoneCableItem(p));
+    public static final DeferredItem<RedstoneCableItem> REDSTONE_CABLE = ITEMS.registerItem("redstone_cable",
+            p -> new RedstoneCableItem(p));
 
     public static final DeferredItem<?> CORD_REEL_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.CORD_REEL);
 
@@ -47,8 +50,8 @@ public final class VoltworksItems {
     public static final DeferredItem<?> SMALL_CORD_REEL_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SMALL_CORD_REEL);
     public static final DeferredItem<?> SMALL_CABLE_REEL_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SMALL_CABLE_REEL);
 
-    public static final DeferredItem<io.github.sjzeero.voltworks.reel.ReelPlugItem> REEL_PLUG = ITEMS.registerItem("reel_plug",
-            p -> new io.github.sjzeero.voltworks.reel.ReelPlugItem(p.stacksTo(1)));
+    public static final DeferredItem<ReelPlugItem> REEL_PLUG = ITEMS.registerItem("reel_plug",
+            p -> new ReelPlugItem(p.stacksTo(1)));
 
     public static final DeferredItem<?> CONSTANT_SPEED_MOTOR_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.CONSTANT_SPEED_MOTOR);
 
@@ -58,8 +61,8 @@ public final class VoltworksItems {
 
     public static final DeferredItem<SequencedAssemblyItem> INCOMPLETE_SOLAR_PANEL = ITEMS.registerItem("incomplete_solar_panel", SequencedAssemblyItem::new);
 
-    public static final DeferredItem<io.github.sjzeero.voltworks.battery.BatteryItem> BATTERY_ITEM = ITEMS.register("battery",
-            () -> new io.github.sjzeero.voltworks.battery.BatteryItem(VoltworksBlocks.BATTERY.get(), new net.minecraft.world.item.Item.Properties()));
+    public static final DeferredItem<BatteryItem> BATTERY_ITEM = ITEMS.register("battery",
+            () -> new BatteryItem(VoltworksBlocks.BATTERY.get(), new Item.Properties()));
 
     public static final DeferredItem<SequencedAssemblyItem> INCOMPLETE_BATTERY = ITEMS.registerItem("incomplete_battery", SequencedAssemblyItem::new);
 
