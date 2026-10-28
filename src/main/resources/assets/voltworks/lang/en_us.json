@@ -259,7 +259,7 @@
   "block.voltworks.constant_speed_motor": "Constant Speed Motor",
   "block.voltworks.solar_panel": "Solar Panel",
   "item.voltworks.incomplete_solar_panel": "Incomplete Solar Panel",
-  "block.voltworks.constant_speed_motor.tooltip.summary": "An electric motor with a built-in speed controller. _Speed is set on the value box_; the supplied _power_ decides the stress capacity and its _polarity_ the direction.",
+  "block.voltworks.constant_speed_motor.tooltip.summary": "An electric motor with a built-in speed controller. _Speed is set on the value box_; the supplied _power_ decides the stress capacity and its _polarity_ the direction. Converts like EE's motors: _1 W gives 1 SU_ at any speed, and it draws _1.25 W per SU_ of load (80% efficient), at least _1/6_ of the full-load power while idle.",
   "block.voltworks.solar_panel.tooltip.summary": "Produces _DC power_ from sunlight. Point the cells at the _sun_; output drops at night, in rain, in shade and when the panel is hot. Wire several panels in _series_ for voltage or in _parallel_ for current.",
   "voltworks.node.solar_panel_0": "+",
   "voltworks.node.solar_panel_1": "-",

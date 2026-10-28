@@ -1,6 +1,7 @@
 package io.github.sjzeero.voltworks.motor;
 
 import com.george_vi.electroenergetics.config.CEEConfigs;
+import com.george_vi.electroenergetics.foundation.CEELang;
 import com.george_vi.electroenergetics.foundation.RMSHolder;
 import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
 import com.simibubi.create.infrastructure.config.AllConfigs;
@@ -18,19 +19,23 @@ import io.github.sjzeero.voltworks.Voltworks;
 
 /**
  * Ported from Create: Power Grid (patryk3211) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
- * Shared electrical model of the PG motors: coil resistance R / load, speed = (U^2 / R) / torque * 60pi/2.
+ * Electrical model follows Create: Electro Energetics' own electric motor (see {@link MotorPower}): the rated power
+ * U^2 / R (R = EE's motorResistance config) becomes stress at 1 W -> 1 SU, and the coil draws
+ * U^2 / (0.8 * min(6 R, R / load)), i.e. 1.25 W per SU used, never under the 1/6-load idle draw.
  */
 public abstract class AbstractPGMotorBlockEntity extends GeneratingKineticBlockEntity {
     public static final int AVERAGING_TICKS = 5;
+    /** PG's power -> speed constant; kept for the servo, which still uses PG's speed model. */
     public static final float CONVERSION_CONSTANT = (float) (60 * Math.PI / 2);
+    /** Stress step (SU) the supplied power is rounded down to; also the least stress the motor starts with. */
     public static final float STRESS_CAPACITY = 64f;
-    public static final double COIL_RESISTANCE = 25.6;
     public static final float TORQUE_FOR_STRESS = 15f;
-    public static final float MIN_LOAD = 0.05f;
+    public static final float MIN_LOAD = (float) MotorPower.MIN_LOAD;
 
     public final RMSHolder voltage;
     protected float load = MIN_LOAD;
-    protected float avgSpeed;
+    /** Signed rated stress (SU) summed over the averaging window. */
+    protected float avgStress;
 
     protected AbstractPGMotorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -50,28 +55,47 @@ public abstract class AbstractPGMotorBlockEntity extends GeneratingKineticBlockE
         return power / torque * CONVERSION_CONSTANT;
     }
 
-    /** Resistance the coil presents to the CEE grid this tick. */
-    public double coilResistance() {
-        return COIL_RESISTANCE / load;
+    /** EE's motorResistance server config (30 ohm by default): the rated resistance of EE's own motors. */
+    public static double motorResistance() {
+        try {
+            return CEEConfigs.server().resistanceValues.motorResistance.get();
+        } catch (RuntimeException | LinkageError e) {
+            return MotorPower.DEFAULT_MOTOR_RESISTANCE;
+        }
     }
 
-    /** Signed speed the electrical power alone would produce, clamped to the Create speed limit. */
-    protected int electricalSpeed() {
-        int s = (int) (avgSpeed / AVERAGING_TICKS);
-        return Mth.clamp(s, -maxRPM(), maxRPM());
+    /** Resistance the coil presents to the CEE grid this tick (EE motor: 0.8 * min(6 R, R / load)). */
+    public double coilResistance() {
+        return MotorPower.coilResistance(motorResistance(), load);
+    }
+
+    /** Electrical power drawn from the grid at the current voltage and load, in watts. */
+    public double inputPower() {
+        return MotorPower.inputPower(voltage.getSigned(), motorResistance(), load);
+    }
+
+    /** Signed stress the averaged electrical power provides (1 W -> 1 SU), rounded down to STRESS_CAPACITY steps. */
+    protected float electricalStress() {
+        return quantizeStress(avgStress / AVERAGING_TICKS);
+    }
+
+    public static float quantizeStress(double stress) {
+        return (float) MotorPower.quantize(stress, STRESS_CAPACITY);
     }
 
     @Override
     public void updateFromNetwork(float maxStress, float currentStress, int networkSize) {
         super.updateFromNetwork(maxStress, currentStress, networkSize);
+        float old = load;
         load = maxStress != 0 ? Mth.clamp(currentStress / maxStress, MIN_LOAD, 1f) : MIN_LOAD;
+        if (Math.abs(old - load) > 0.01f) sendData();
     }
 
     @Override
     public void tick() {
         if (level != null && (!level.isClientSide || isVirtual())) {
             double u = voltage.getSigned();
-            avgSpeed += (float) (calculateSpeed(u * u / COIL_RESISTANCE, torque()) * Math.signum(u));
+            avgStress += (float) (MotorPower.ratedStress(u, motorResistance()) * Math.signum(u));
         }
         super.tick();
     }
@@ -79,12 +103,13 @@ public abstract class AbstractPGMotorBlockEntity extends GeneratingKineticBlockE
     @Override
     public void lazyTick() {
         super.lazyTick();
-        int newSpeed = electricalSpeed();
-        avgSpeed = 0;
-        if (level != null && (!level.isClientSide || isVirtual())) onElectricalSpeed(newSpeed);
+        float newStress = electricalStress();
+        avgStress = 0;
+        if (level != null && (!level.isClientSide || isVirtual())) onElectricalStress(newStress);
     }
 
-    protected abstract void onElectricalSpeed(int speed);
+    /** Signed stress (SU, capacity x RPM) the supplied power provides; the sign is the supply polarity. */
+    protected abstract void onElectricalStress(float stress);
 
     /** Voltage fluctuations must not trip Create's flicker protection (PG solved this with a mixin hack). */
     @Override
@@ -111,6 +136,9 @@ public abstract class AbstractPGMotorBlockEntity extends GeneratingKineticBlockE
         boolean added = super.addToGoggleTooltip(tooltip, isPlayerSneaking);
         tooltip.add(Component.literal("    ").append(Component.translatable("gui.goggles.voltworks.motor.voltage").withStyle(ChatFormatting.GRAY)));
         tooltip.add(Component.literal("    ").append(Component.literal(String.format("%.1f V", voltage.getSigned())).withStyle(ChatFormatting.AQUA)));
+        CEELang.builder().translate("gui.goggles.energy_consumption").style(ChatFormatting.GRAY).forGoggles(tooltip);
+        CEELang.builder().add(CEELang.formatPower(Math.round(inputPower()))).style(ChatFormatting.AQUA).space()
+                .add(CEELang.translate("gui.goggles.at_current_load").style(ChatFormatting.DARK_GRAY)).forGoggles(tooltip, 1);
         return true;
     }
 }

@@ -14,7 +14,7 @@ import io.github.sjzeero.voltworks.Voltworks;
 
 /**
  * Ported from Create: Power Grid (patryk3211) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
- * The motor coil as seen by the CEE grid: a resistor between node 0 (+) and node 1 (-).
+ * The motor coil as seen by the CEE grid: a resistor between node 0 (+) and node 1 (-), sized like EE's motor coil.
  */
 public class PGMotorDevice extends SimpleElectricalDevice {
     private AbstractPGMotorBlockEntity be;
@@ -32,7 +32,7 @@ public class PGMotorDevice extends SimpleElectricalDevice {
     @Override
     public void preTick(BridgeCollector bridges) {
         var m = be();
-        bridges.builder(pos).resistor(0, 1, m != null ? m.coilResistance() : AbstractPGMotorBlockEntity.COIL_RESISTANCE);
+        bridges.builder(pos).resistor(0, 1, m != null ? m.coilResistance() : MotorPower.coilResistance(AbstractPGMotorBlockEntity.motorResistance(), MotorPower.MIN_LOAD));
     }
 
     @Override

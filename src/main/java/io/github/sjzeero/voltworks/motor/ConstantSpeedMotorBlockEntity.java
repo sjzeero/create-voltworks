@@ -19,7 +19,8 @@ import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 
 /**
  * Ported from Create: Power Grid (patryk3211) to Voltworks by sjzeero; electrical side reimplemented on CEE devices.
- * Speed is set with the value box; the supplied power becomes stress capacity, its polarity the direction.
+ * Speed is set with the value box; the supplied power becomes stress capacity (EE: 1 W -> 1 SU, independent of the
+ * set RPM, so capacity per RPM = SU / RPM), its polarity the direction.
  */
 public class ConstantSpeedMotorBlockEntity extends AbstractPGMotorBlockEntity {
     protected ScrollValueBehaviour targetSpeed;
@@ -44,8 +45,7 @@ public class ConstantSpeedMotorBlockEntity extends AbstractPGMotorBlockEntity {
     }
 
     @Override
-    protected void onElectricalSpeed(int speed) {
-        float su = speed * STRESS_CAPACITY;
+    protected void onElectricalStress(float su) {
         if (su != generatedSU) {
             generatedSU = su;
             updateGeneratedRotation();
