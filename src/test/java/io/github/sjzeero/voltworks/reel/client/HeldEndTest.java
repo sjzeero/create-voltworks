@@ -102,6 +102,39 @@ class HeldEndTest {
                 }
     }
 
+    /** Screen direction (ndc x, y) from a to b. */
+    static org.joml.Vector2f screen(Matrix4f proj, Vector3f a, Vector3f b) {
+        Vector3f na = HeldEnd.ndc(proj, a), nb = HeldEnd.ndc(proj, b);
+        return new org.joml.Vector2f(nb.x - na.x, nb.y - na.y).normalize();
+    }
+
+    @Test
+    void heldCableLeavesAlongTheCordAxisOnScreen() throws IOException {
+        Matrix4f handProj = perspective(70), worldProj = perspective(95);
+        Matrix4f view = new Matrix4f().rotation(new Quaternionf().rotationYXZ((float) Math.PI - 120 * DEG, -15 * DEG, 0).conjugate());
+        Vector3d cam = new Vector3d(-7.5, 70.62, 12.25);
+        for (String model : new String[]{"cord_plug", "cable_lug"})
+            for (boolean right : new boolean[]{true, false}) {
+                boolean cord = model.equals("cord_plug");
+                Matrix4f pose = new Matrix4f(view).invert().mul(firstPerson(model, right, 0, 0));
+                Vector3f eye = HeldEnd.eye(view, pose, HeldEnd.backPx(cord).get(new Vector3f()));
+                Vector3f eyeOut = HeldEnd.eye(view, pose, HeldEnd.outPx(cord).get(new Vector3f()));
+                // as HeldEndTracker.world does
+                Vector3d at = HeldEnd.world(cam, view, HeldEnd.reproject(eye, handProj, worldProj));
+                Vector3d out = HeldEnd.world(cam, view, HeldEnd.reproject(eyeOut, handProj, worldProj)).sub(at).normalize();
+                Vector3d reel = new Vector3d(cam).add(4, -1.5, 3);
+                java.util.List<Vector3d> p = io.github.sjzeero.voltworks.reel.CablePath.points(reel, at, out,
+                        io.github.sjzeero.voltworks.reel.CablePath.sagDepth(reel.distance(at), 1), Double.NEGATIVE_INFINITY);
+                Vector3d next = p.get(p.size() - 2); // the first wire point out of the model
+                Vector3f a = view.transformPosition(new Vector3f((float) (at.x - cam.x), (float) (at.y - cam.y), (float) (at.z - cam.z)), new Vector3f());
+                Vector3f b = view.transformPosition(new Vector3f((float) (next.x - cam.x), (float) (next.y - cam.y), (float) (next.z - cam.z)), new Vector3f());
+                // on screen the first segment continues the model's own cord axis as the hand pass draws it
+                org.joml.Vector2f wire = screen(worldProj, a, b), axis = screen(handProj, eye, eyeOut);
+                double deg = Math.toDegrees(Math.acos(Math.max(-1, Math.min(1, wire.dot(axis)))));
+                assertTrue(deg < 3, model + (right ? " right" : " left") + ": first segment " + deg + " degrees off the cord axis");
+            }
+    }
+
     /** Model direction {@code dir} after a display context's rotation. */
     static Vector3f turned(String model, String ctx, Vector3f dir) throws IOException {
         float[] r = vec(display(model, ctx), "rotation", 0);

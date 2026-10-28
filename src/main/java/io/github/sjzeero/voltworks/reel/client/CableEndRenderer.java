@@ -103,7 +103,9 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
             if (distance > 0.05) {
                 WireData look = WireData.ofLength(type, ReelMath.followLength(distance, Math.max(be.stored(), distance)));
                 // a cable lying on the floor does not hang through it
-                List<Vec3> points = ReelWire.points(type, from, to, look.getSag(distance), Math.min(from.y, to.y));
+                // straight out of the back along the cord axis, then the curve to the reel
+                List<Vec3> points = ReelWire.points(from, to, LyingEnd.direction(model, lie.backDir()), look.getSag(distance),
+                        Math.min(from.y, to.y));
                 pose.pushPose();
                 pose.translate(-at.x, -at.y, -at.z); // entity space -> world space relative to the camera
                 ReelWire.render(points, pose, buffer, type, level);

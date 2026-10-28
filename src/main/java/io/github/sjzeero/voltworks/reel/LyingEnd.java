@@ -20,13 +20,14 @@ public final class LyingEnd {
      * @param axis    yaw of the model direction that points back to the reel (0 = +Z, PI/2 = +X)
      * @param floorPx lowest model y after {@code base}, in pixels: it is put on the ground
      * @param backPx  where the cable goes in, in the model's own pixels (as in the JSON)
+     * @param backDir the cord axis there, pointing out of the model (unit, model axes): the cable leaves along it
      */
-    public record Lie(Quaterniond base, double axis, double floorPx, Vector3dc backPx) {}
+    public record Lie(Quaterniond base, double axis, double floorPx, Vector3dc backPx, Vector3dc backDir) {}
 
     /** cord_plug.json: standing in a floor socket, blades down, cord to +X. On the ground it lies on its back, blades up. */
-    public static final Lie PLUG = new Lie(new Quaterniond().rotationX(Math.PI), Math.PI / 2, 16 - 5, new Vector3d(12, 4, 8));
+    public static final Lie PLUG = new Lie(new Quaterniond().rotationX(Math.PI), Math.PI / 2, 16 - 5, new Vector3d(12, 4, 8), new Vector3d(1, 0, 0));
     /** cable_lug.json: flat already (y 6..8), ring to -Z, barrel back at z = 11 towards the reel. */
-    public static final Lie LUG = new Lie(new Quaterniond(), 0, 6, new Vector3d(8, 7, 11));
+    public static final Lie LUG = new Lie(new Quaterniond(), 0, 6, new Vector3d(8, 7, 11), new Vector3d(0, 0, 1));
 
     /** Yaw that turns the model's reel side towards the reel, {@code (dx, dz)} from the end to the reel outlet. */
     public static double yaw(Lie lie, double dx, double dz, double fallback) {
@@ -47,5 +48,10 @@ public final class LyingEnd {
     /** Where the cable goes into the lying model, relative to the entity position. */
     public static Vector3d attach(Lie lie, double yaw) {
         return toEntity(pose(lie, yaw), lie.backPx());
+    }
+
+    /** A model direction (the cord axis) in entity space, through the same matrix, unit length. */
+    public static Vector3d direction(Matrix4d pose, Vector3dc dir) {
+        return pose.transformDirection(new Vector3d(dir)).normalize();
     }
 }

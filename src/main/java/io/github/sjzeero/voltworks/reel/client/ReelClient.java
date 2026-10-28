@@ -193,17 +193,18 @@ public final class ReelClient {
         Vec3 guess = handPos(mc, player, event.getCamera(), pt);
         // the back of the end model as really drawn this frame (display transform, bob, swing, field of view)
         Matrix4f view = new Matrix4f(RenderSystem.getModelViewMatrix()).mul(event.getPoseStack().last().pose());
-        Vector3d seen = HeldEndTracker.world(mc.options.getCameraType().isFirstPerson(), new Vector3d(cam.x, cam.y, cam.z),
+        HeldEndTracker.Seen seen = HeldEndTracker.world(mc.options.getCameraType().isFirstPerson(), new Vector3d(cam.x, cam.y, cam.z),
                 view, new Matrix4f(RenderSystem.getProjectionMatrix()));
-        boolean drawn = seen != null && guess.distanceToSqr(seen.x, seen.y, seen.z) < 2.5 * 2.5;
-        Vec3 hand = drawn ? new Vec3(seen.x, seen.y, seen.z) : guess;
+        boolean drawn = seen != null && guess.distanceToSqr(seen.at().x, seen.at().y, seen.at().z) < 2.5 * 2.5;
+        Vec3 hand = drawn ? new Vec3(seen.at().x, seen.at().y, seen.at().z) : guess;
         double distance = from.distanceTo(hand);
         if (distance < 0.05)
             return;
         double stored = be.stored();
         WireData look = WireData.ofLength(type, ReelMath.followLength(distance, Math.max(stored, distance)));
-        List<Vec3> points = ReelWire.points(type, from, hand, look.getSag(distance), Double.NEGATIVE_INFINITY);
-
+        // out of the back of the model along its cord axis, then a smooth curve to the reel
+        List<Vec3> points = drawn ? ReelWire.points(from, hand, seen.out(), look.getSag(distance), Double.NEGATIVE_INFINITY)
+                : ReelWire.points(type, from, hand, look.getSag(distance), Double.NEGATIVE_INFINITY);
         PoseStack pose = event.getPoseStack();
         MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
         pose.pushPose();
@@ -213,7 +214,7 @@ public final class ReelClient {
         if (now - heldLogged > 5000) {
             heldLogged = now;
             Voltworks.LOGGER.info("[voltworks] held wire: end={} (model {}, guess {}, captured {}) outlet={} segments={} camera={}",
-                    hand, drawn ? "as drawn" : "not captured, fallback", guess, seen, from, points.size() - 1,
+                    hand, drawn ? "as drawn, cord axis " + seen.out() : "not captured, fallback", guess, seen, from, points.size() - 1,
                     mc.options.getCameraType());
         }
         pose.popPose();

@@ -15,6 +15,10 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
+import io.github.sjzeero.voltworks.reel.CablePath;
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +46,18 @@ public final class ReelWire {
                 out.add(p.y < floor ? new Vec3(p.x, floor, p.z) : p);
         out.add(to);
         return out;
+    }
+
+    /**
+     * The cable into an end model: straight out of the model along its cord axis {@code out} for a short run, then a
+     * smooth sagging curve to {@code from} (see {@link CablePath}); none of it lower than {@code floor}.
+     */
+    public static List<Vec3> points(Vec3 from, Vec3 to, Vector3dc out, float dip, double floor) {
+        List<Vec3> pts = new ArrayList<>();
+        for (Vector3d p : CablePath.points(new Vector3d(from.x, from.y, from.z), new Vector3d(to.x, to.y, to.z), out,
+                CablePath.sagDepth(from.distanceTo(to), dip), floor))
+            pts.add(new Vec3(p.x, p.y, p.z));
+        return pts;
     }
 
     public static void render(List<Vec3> points, PoseStack pose, MultiBufferSource buffer, WireType type, BlockAndTintGetter level) {

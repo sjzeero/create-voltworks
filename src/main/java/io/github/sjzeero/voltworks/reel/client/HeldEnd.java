@@ -28,6 +28,15 @@ public final class HeldEnd {
         return (cord ? LyingEnd.PLUG : LyingEnd.LUG).backPx();
     }
 
+    /** A model pixel a little way out of the cord pixel along the cord axis: transformed with the point, it gives the axis. */
+    public static Vector3dc outPx(boolean cord) {
+        LyingEnd.Lie lie = cord ? LyingEnd.PLUG : LyingEnd.LUG;
+        return new Vector3d(lie.backDir()).mul(OUT_PX).add(lie.backPx());
+    }
+
+    /** How far out (model pixels) {@link #outPx} goes. */
+    public static final float OUT_PX = 2;
+
     /** Eye-space position of model pixel {@code px} (0..16) drawn with {@code pose} under {@code modelView}. */
     public static Vector3f eye(Matrix4fc modelView, Matrix4fc pose, Vector3fc px) {
         return modelView.mul(pose, new Matrix4f()).transformPosition(px.x() / 16f, px.y() / 16f, px.z() / 16f, new Vector3f());

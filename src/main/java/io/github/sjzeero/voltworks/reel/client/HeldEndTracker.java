@@ -21,7 +21,7 @@ import org.joml.Vector3f;
 public final class HeldEndTracker {
     private HeldEndTracker() {}
 
-    private record Shot(Vector3f eye, Matrix4f projection, long frame) {}
+    private record Shot(Vector3f eye, Vector3f eyeOut, Matrix4f projection, long frame) {}
 
     private static long frame;
     private static boolean inLevel, localPlayer;
@@ -47,8 +47,11 @@ public final class HeldEndTracker {
         boolean thirdPerson = ctx == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND || ctx == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
         if (!firstPerson && !(thirdPerson && inLevel && localPlayer))
             return;
-        Vector3f px = HeldEnd.backPx(ReelPlugItem.isCord(stack)).get(new Vector3f());
-        Shot shot = new Shot(HeldEnd.eye(RenderSystem.getModelViewMatrix(), pose.last().pose(), px),
+        boolean cord = ReelPlugItem.isCord(stack);
+        Vector3f px = HeldEnd.backPx(cord).get(new Vector3f());
+        Vector3f outPx = HeldEnd.outPx(cord).get(new Vector3f());
+        Matrix4f mv = RenderSystem.getModelViewMatrix();
+        Shot shot = new Shot(HeldEnd.eye(mv, pose.last().pose(), px), HeldEnd.eye(mv, pose.last().pose(), outPx),
                 new Matrix4f(RenderSystem.getProjectionMatrix()), frame);
         if (firstPerson)
             first = shot;
@@ -56,14 +59,21 @@ public final class HeldEndTracker {
             third = shot;
     }
 
+    /** The held model's cord point in the world, and its cord axis out of the model (unit). */
+    public record Seen(Vector3d at, Vector3d out) {}
+
     /**
-     * World position of the held model's cord point for this frame's world camera, or null if it was not drawn in the
-     * current or last frame for this camera mode.
+     * Where the held model's cord leaves it, for this frame's world camera, or null if it was not drawn in the
+     * current or last frame for this camera mode. The axis is the captured pose's own, moved to the world the same
+     * way as the point, so on screen the cable continues the cord straight out of the model.
      */
-    public static @Nullable Vector3d world(boolean firstPerson, Vector3d cam, Matrix4f view, Matrix4f projection) {
+    public static @Nullable Seen world(boolean firstPerson, Vector3d cam, Matrix4f view, Matrix4f projection) {
         Shot s = firstPerson ? first : third;
         if (s == null || frame - s.frame > 1)
             return null;
-        return HeldEnd.world(cam, view, HeldEnd.reproject(s.eye, s.projection, projection));
+        Vector3d at = HeldEnd.world(cam, view, HeldEnd.reproject(s.eye, s.projection, projection));
+        Vector3d tip = HeldEnd.world(cam, view, HeldEnd.reproject(s.eyeOut, s.projection, projection));
+        Vector3d out = tip.sub(at, new Vector3d());
+        return new Seen(at, out.lengthSquared() > 1e-12 ? out.normalize() : out);
     }
 }
