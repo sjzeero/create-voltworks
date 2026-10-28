@@ -80,6 +80,62 @@ public class ReelAssetsTest {
                 }
     }
 
+    /** No mixels: every face's uv rectangle is exactly as many texture pixels as the face is model pixels. */
+    @Test
+    void oneTexelPerModelPixelOnEveryFace() throws IOException {
+        for (String r : REELS)
+            for (int fill = 0; fill <= LEVELS; fill++)
+                for (var e : json(model(r, fill)).getAsJsonArray("elements")) {
+                    var o = e.getAsJsonObject();
+                    assertFalse(o.has("rotation"), r + " " + o);
+                    double[] a = new double[3], b = new double[3];
+                    for (int i = 0; i < 3; i++) {
+                        a[i] = o.getAsJsonArray("from").get(i).getAsDouble();
+                        b[i] = o.getAsJsonArray("to").get(i).getAsDouble();
+                    }
+                    for (var f : o.getAsJsonObject("faces").entrySet()) {
+                        var face = f.getValue().getAsJsonObject();
+                        double w, h;
+                        switch (f.getKey()) {
+                            case "north", "south" -> { w = b[0] - a[0]; h = b[1] - a[1]; }
+                            case "east", "west" -> { w = b[2] - a[2]; h = b[1] - a[1]; }
+                            default -> { w = b[0] - a[0]; h = b[2] - a[2]; }
+                        }
+                        int rot = face.has("rotation") ? face.get("rotation").getAsInt() : 0;
+                        if (rot % 180 != 0) { double t = w; w = h; h = t; }
+                        assertTrue(face.has("uv"), r + " fill " + fill + " " + o.get("name") + " " + f.getKey() + ": explicit uv");
+                        var uv = face.getAsJsonArray("uv");
+                        String what = r + " fill " + fill + " " + o.get("name") + " " + f.getKey();
+                        assertEquals(w, Math.abs(uv.get(2).getAsDouble() - uv.get(0).getAsDouble()), 1e-9, what + " width");
+                        assertEquals(h, Math.abs(uv.get(3).getAsDouble() - uv.get(1).getAsDouble()), 1e-9, what + " height");
+                    }
+                }
+    }
+
+    /** The reel is a small thing on the floor, not a full block: 12 px frame, 10 px tall, centred, knobs on top. */
+    @Test
+    void smallReelCentredOnTheFloor() throws IOException {
+        for (String r : REELS)
+            for (int fill = 0; fill <= LEVELS; fill++) {
+                double[] lo = {16, 16, 16}, hi = {0, 0, 0};
+                for (var e : json(model(r, fill)).getAsJsonArray("elements")) {
+                    var o = e.getAsJsonObject();
+                    for (int i = 0; i < 3; i++) {
+                        lo[i] = Math.min(lo[i], o.getAsJsonArray("from").get(i).getAsDouble());
+                        hi[i] = Math.max(hi[i], o.getAsJsonArray("to").get(i).getAsDouble());
+                    }
+                    if ("cheek".equals(o.get("name").getAsString())) {
+                        assertEquals(11, o.getAsJsonArray("to").get(1).getAsDouble(), r + ": frame 10 px over a 1 px base");
+                        assertEquals(12, o.getAsJsonArray("to").get(2).getAsDouble() - o.getAsJsonArray("from").get(2).getAsDouble());
+                    }
+                }
+                String what = r + " fill " + fill;
+                assertEquals(0, lo[1], what + ": on the floor");
+                assertEquals(16, lo[0] + hi[0], 1e-9, what + ": centred across");
+                assertTrue(hi[0] - lo[0] <= 14 && hi[2] - lo[2] <= 13 && hi[1] <= 13, what + ": small " + java.util.Arrays.toString(lo) + java.util.Arrays.toString(hi));
+            }
+    }
+
     /** Coil element of a fill model, or null when the drum is bare. */
     static JsonObject coil(String reel, int fill) throws IOException {
         for (var e : json(model(reel, fill)).getAsJsonArray("elements"))
@@ -96,13 +152,7 @@ public class ReelAssetsTest {
                 JsonObject c = coil(r, fill);
                 assertNotNull(c, r + " fill " + fill);
                 double radius = (c.getAsJsonArray("to").get(1).getAsDouble() - c.getAsJsonArray("from").get(1).getAsDouble()) / 2;
-                assertEquals(2 + fill, radius, 1e-9, r + " fill " + fill);
-                // texture pixels as big as model pixels
-                for (var f : c.getAsJsonObject("faces").entrySet()) {
-                    var uv = f.getValue().getAsJsonObject().getAsJsonArray("uv");
-                    assertEquals(2 * radius, uv.get(2).getAsDouble() - uv.get(0).getAsDouble(), 1e-9);
-                    assertEquals(2 * radius, uv.get(3).getAsDouble() - uv.get(1).getAsDouble(), 1e-9);
-                }
+                assertEquals(1 + fill, radius, 1e-9, r + " fill " + fill);
             }
         }
     }

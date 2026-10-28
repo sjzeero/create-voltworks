@@ -52,12 +52,12 @@ public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice>
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     /** How much wire is wound on the drum, 0 (bare drum) to {@link ReelMath#FILL_LEVELS}; picks the coil model. */
     public static final IntegerProperty FILL = IntegerProperty.create("fill", 0, ReelMath.FILL_LEVELS);
-    private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
+    private static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 11, 15); // the small reel (frame, hubs, outlet guide); the same for every facing
 
     /** Pixel positions for FACING = NORTH. */
-    /** Terminals on top at the back; the outlet nodes are {@link ReelOutlet#PX}, the outlet guide's outer face. */
-    private static final double[][] CORD_NODES = {{5, 16, 15}, {11, 16, 15}, ReelOutlet.PX, ReelOutlet.PX};
-    private static final double[][] CABLE_NODES = {{8, 16, 15}, ReelOutlet.PX};
+    /** Terminal knob tops on the cheeks at the back; the outlet nodes are {@link ReelOutlet#PX}, the outlet guide's outer face. */
+    private static final double[][] CORD_NODES = {{3, 13, 12}, {13, 13, 12}, ReelOutlet.PX, ReelOutlet.PX};
+    private static final double[][] CABLE_NODES = {{13, 13, 12}, ReelOutlet.PX};
 
     public final boolean cord;
 

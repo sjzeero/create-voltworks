@@ -58,9 +58,9 @@ class ReelOutletTest {
         for (int q = 0; q < 4; q++) {
             Vector3d reel = new Vector3d(10, 64, -3);
             Vector3d from = ReelOutlet.local(q).add(reel), out = ReelOutlet.dir(q);
-            // an end lying on the ground 6 blocks out in front and a bit to the side, and one behind the reel
-            for (Vector3d to : new Vector3d[]{new Vector3d(out).mul(6).add(from).add(out.z * 2, -0.3, out.x * 2),
-                    new Vector3d(out).mul(-4).add(from).add(1.5, -0.3, 1.5)}) {
+            // an end lying on the ground (reel standing on y = 64) 6 blocks out in front and a bit to the side, and one behind the reel
+            for (Vector3d to : new Vector3d[]{new Vector3d(out).mul(6).add(from).add(out.z * 2, 0, out.x * 2).setComponent(1, 64 + CablePath.RADIUS),
+                    new Vector3d(out).mul(-4).add(from).add(1.5, 0, 1.5).setComponent(1, 64 + CablePath.RADIUS)}) {
                 Vector3d endOut = new Vector3d(from).sub(to).setComponent(1, 0).normalize();
                 List<Vector3d> p = CablePath.points(from, out, CablePath.RUN, to, endOut, CablePath.RUN,
                         CablePath.sagDepth(from.distance(to), 1), CablePath.Floor.flat(64 + CablePath.RADIUS));
