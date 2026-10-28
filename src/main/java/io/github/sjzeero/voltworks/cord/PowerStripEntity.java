@@ -110,6 +110,11 @@ public class PowerStripEntity extends Entity {
         entityData.set(SOCKET, Optional.ofNullable(socket));
     }
 
+    @Override
+    public float getPickRadius() {
+        return 0.15f;
+    }
+
     public boolean carriedBy(Player p) {
         return entityData.get(CARRIER) == p.getId();
     }
