@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "voltworks:socket"
+    },
+    {
+      "item": "voltworks:socket"
+    },
+    {
+      "item": "voltworks:socket"
+    },
+    {
+      "item": "voltworks:copper_cord"
+    },
+    {
+      "tag": "c:plates/brass"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "voltworks:power_strip"
+  }
+}

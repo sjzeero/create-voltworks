@@ -193,7 +193,7 @@ public final class WallWireClient {
             return;
         if(!(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK)
             return;
-        InWorldNode[] ends = CordPair.ends(level, hit.getBlockPos());
+        InWorldNode[] ends = CordPair.ends(level, hit.getBlockPos(), hit.getLocation());
         if(ends == null)
             return;
         for(int i = 0; i < ends.length; i++)
@@ -267,14 +267,14 @@ public final class WallWireClient {
         LocalPlayer player = Minecraft.getInstance().player;
         if(player != null && CordPair.isCord(heldWireType(player))) {
             // a cord plugs into the whole socket: aiming anywhere at it is enough
-            InWorldNode[] socket = CordPair.ends(level, hit.getBlockPos());
+            InWorldNode[] socket = CordPair.ends(level, hit.getBlockPos(), hit.getLocation());
             return socket == null ? null : socket[0];
         }
         InWorldNode node = InWorldNode.getHitNode(hit, level);
         if(node == null || player == null)
             return node;
         // a cord always plugs into the supply contact of the block; the return strand follows on the server
-        InWorldNode[] ends = CordPair.ends(level, node.sourcePos());
+        InWorldNode[] ends = CordPair.ends(level, node);
         return ends == null ? null : ends[0];
     }
 
@@ -475,7 +475,8 @@ public final class WallWireClient {
         WireInteractionBehaviour behaviour = CEERegistries.WIRE_INTERACTION_BEHAVIOUR.stream()
                 .filter(h -> h.isActiveFor(stack, player)).findFirst().orElse(null);
         boolean dye = behaviour instanceof DyeWireInteractionBehaviour;
-        if(!(behaviour instanceof EmptySpoolWireInteractionBehaviour) && !(behaviour instanceof WireCuttersWireInteractionBehaviour) && !dye)
+        if(!(behaviour instanceof EmptySpoolWireInteractionBehaviour) && !(behaviour instanceof WireCuttersWireInteractionBehaviour)
+                && !(behaviour instanceof com.george_vi.electroenergetics.content.clamp_meter.ClampMeterWireInteractionBehaviour) && !dye)
             return;
         double range = player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 1;
         Vec3 from = player.getEyePosition();

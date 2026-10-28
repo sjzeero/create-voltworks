@@ -73,6 +73,14 @@ public abstract class InfrastructureSavedDataMixin {
         if(level == null)
             return;
         WireData own = getConnectionData(connection);
+        // a power strip's own cord never comes off as items: it goes back into the strip
+        if(own != null && CordPair.isCord(own.wireType()) && io.github.sjzeero.voltworks.cord.LooseCords.isStripStrand(level, connection)) {
+            InWorldNodeConnection sibling = CordPair.sibling(connection);
+            if(getConnectionData(sibling) != null)
+                removeConnectionNoDrops(sibling);
+            cir.setReturnValue(removeConnectionNoDrops(connection));
+            return;
+        }
         if(own != null && CordPair.isCord(own.wireType())) {
             InWorldNodeConnection sibling = CordPair.sibling(connection);
             WireData other = getConnectionData(sibling);

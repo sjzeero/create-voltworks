@@ -2,7 +2,6 @@ package io.github.sjzeero.voltworks.cord;
 
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.base.SimpleElectricalDeviceBlock;
-import io.github.sjzeero.voltworks.reel.CableReelBlockEntity;
 import io.github.sjzeero.voltworks.registry.VoltworksDevices;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -180,28 +179,33 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
 
 
     /**
-     * Right-click on a socket with a plug in it pulls the plug out: a cord reel's (see
-     * {@link CableReelBlockEntity#unplugByPlayer}) or either end of a socket-to-socket cord (see
-     * {@link SocketPlugs#unplugByPlayer}). With something in the hand only when that is not a block to place
-     * or a tool of Electro Energetics / Create / Voltworks (wires, wrench, cable ends...), and not while sneaking.
+     * Right-click on a socket with a plug in it pulls the plug out (see {@link LooseCords#useOutlet}): a cord reel's,
+     * or one end of a cord - the other end stays plugged in; the last plug of a cord already out at one end comes out
+     * too and the cord is carried. With something in the hand only when that is not a block to place or a tool of
+     * Electro Energetics / Create / Voltworks (wires, wrench, cable ends...), and not while sneaking. Wire cutters cut
+     * the cord plugged in here (no items).
      */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (state.getValue(PLUG) == Plug.NONE || !canUnplugWith(player))
+        boolean cutters = LooseCords.isCutters(player.getMainHandItem());
+        if (state.getValue(PLUG) == Plug.NONE || !cutters && !canUnplugWith(player))
             return InteractionResult.PASS;
         if (!(level instanceof ServerLevel sl) || !(player instanceof ServerPlayer sp))
             return InteractionResult.SUCCESS;
-        CableReelBlockEntity reel = CableReelBlockEntity.pluggedInto(sl, pos);
-        if (reel == null) {
-            // one end of a cord between two sockets: the whole cord comes off, back into the inventory
-            if (SocketPlugs.unplugByPlayer(sl, pos, sp))
-                return InteractionResult.SUCCESS;
-            // the cord went away without taking the plug along: just clear it
-            sl.setBlock(pos, state.setValue(PLUG, Plug.NONE), Block.UPDATE_ALL);
+        LooseCords cords = LooseCords.get(sl);
+        if (cutters ? cords.cutAt(sl, pos, CORD_POSITIVE, sp) : cords.useOutlet(sl, pos, CORD_POSITIVE, sp))
             return InteractionResult.SUCCESS;
-        }
-        reel.unplugByPlayer(sp);
+        // the cord went away without taking the plug along: just clear it
+        sl.setBlock(pos, state.setValue(PLUG, Plug.NONE), Block.UPDATE_ALL);
         return InteractionResult.SUCCESS;
+    }
+
+    /** Broken by a player: a cord plugged in here falls out in front of it (its other plug stays in), no items. */
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (level instanceof ServerLevel sl)
+            LooseCords.get(sl).blockBroken(sl, pos);
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
     private static boolean canUnplugWith(Player player) {

@@ -377,7 +377,7 @@ public final class WallWireRenderer {
         }
 
         private void end(InWorldNode node, WallCell cell, WallRoute.Segment seg) {
-            InWorldNode[] pair = CordPair.isCord(type) ? CordPair.ends(level, node.sourcePos()) : null;
+            InWorldNode[] pair = CordPair.isCord(type) ? CordPair.ends(level, node) : null;
             Vec3 a = pair == null ? null : WallSpace.nodePos(level, pair[0]), b = pair == null ? null : WallSpace.nodePos(level, pair[1]);
             if(a == null || b == null) {
                 lead(WallSpace.nodePos(level, node), cell, seg);

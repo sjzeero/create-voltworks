@@ -66,7 +66,7 @@ public final class WallWirePlacement {
         boolean cord = CordPair.isCord(type);
         InWorldNode startRet = null, endRet = null;
         if(cord) {
-            InWorldNode[] a = CordPair.ends(level, start.sourcePos()), b = CordPair.ends(level, end.sourcePos());
+            InWorldNode[] a = CordPair.ends(level, start), b = CordPair.ends(level, end);
             if(a == null || b == null || start.sourcePos().equals(end.sourcePos())) {
                 deny(player, "cord_ends", end.sourcePos());
                 return;
@@ -121,7 +121,7 @@ public final class WallWirePlacement {
             return;
         }
 
-        if(cord && busy(sd, start, end, startRet, endRet)) {
+        if(cord && busy(level, sd, start, end, startRet, endRet)) {
             deny(player, "socket_busy", end.sourcePos());
             return;
         }
@@ -171,7 +171,7 @@ public final class WallWirePlacement {
         }
         InWorldNode startRet = null, endRet = null;
         if(CordPair.isCord(type)) {
-            InWorldNode[] a = CordPair.ends(level, start.sourcePos()), b = CordPair.ends(level, end.sourcePos());
+            InWorldNode[] a = CordPair.ends(level, start), b = CordPair.ends(level, end);
             if(a == null || b == null) {
                 deny(player, "cord_ends", end.sourcePos());
                 return;
@@ -205,7 +205,7 @@ public final class WallWirePlacement {
             deny(player, "invalid", end.sourcePos());
             return;
         }
-        if(startRet != null && busy(sd, start, end, startRet, endRet)) {
+        if(startRet != null && busy(level, sd, start, end, startRet, endRet)) {
             deny(player, "socket_busy", end.sourcePos());
             return;
         }
@@ -243,14 +243,23 @@ public final class WallWirePlacement {
         return true;
     }
 
-    /** A socket takes one wire only: true when any contact (terminals 0, 1 and cord contacts 2, 3) of a given socket already has a connection. */
-    private static boolean busy(InfrastructureSavedData sd, InWorldNode... nodes) {
+    /**
+     * A socket takes one wire only: true when any contact (terminals 0, 1 and cord contacts 2, 3) of a given socket
+     * already has a connection. A power strip outlet only needs its own two contacts free. Either is busy while a
+     * loose cord's plug is in it.
+     */
+    private static boolean busy(ServerLevel level, InfrastructureSavedData sd, InWorldNode... nodes) {
+        io.github.sjzeero.voltworks.cord.LooseCords loose = io.github.sjzeero.voltworks.cord.LooseCords.get(level);
         for(InWorldNode n : nodes) {
             if(n == null)
                 continue;
-            for(int id = 0; id <= 3; id++)
+            boolean socket = level.getBlockState(n.sourcePos()).getBlock() instanceof io.github.sjzeero.voltworks.cord.SocketBlock;
+            int from = socket ? 0 : n.id() & ~1, to = socket ? 3 : (n.id() & ~1) + 1;
+            for(int id = from; id <= to; id++)
                 if(!sd.getConnections(new InWorldNode(id, n.sourcePos())).isEmpty())
                     return true;
+            if(loose.isAnchor(n.sourcePos(), n.id() & ~1))
+                return true;
         }
         return false;
     }

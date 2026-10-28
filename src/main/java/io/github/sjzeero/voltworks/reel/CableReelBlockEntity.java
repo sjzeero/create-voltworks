@@ -321,16 +321,22 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         }
         InWorldNode to, toReturn = null;
         if (b.cord) {
-            InWorldNode[] ends = CordPair.ends(sl, pos);
+            InWorldNode[] ends = CordPair.ends(sl, pos, click);
             if (ends == null) {
                 deny(player, "cord_needs_socket");
                 return false;
             }
-            for (int i = 0; i < 4; i++)
+            // a socket takes one wire on any of its contacts; a power strip outlet just has to be free
+            boolean socket = state.getBlock() instanceof SocketBlock;
+            for (int i = socket ? 0 : ends[0].id(); i < (socket ? 4 : ends[0].id() + 2); i++)
                 if (!sd.getConnections(new InWorldNode(i, pos)).isEmpty()) {
                     deny(player, "socket_busy");
                     return false;
                 }
+            if (io.github.sjzeero.voltworks.cord.LooseCords.get(sl).isAnchor(pos, ends[0].id())) {
+                deny(player, "socket_busy");
+                return false;
+            }
             to = ends[0];
             toReturn = ends[1];
             plugIn(sl, pos);
@@ -372,8 +378,13 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
 
     /** The cord reel whose plug is in the socket at {@code socket}, or null. */
     public static @Nullable CableReelBlockEntity pluggedInto(ServerLevel sl, BlockPos socket) {
+        return pluggedInto(sl, socket, SocketBlock.CORD_POSITIVE);
+    }
+
+    /** The cord reel whose plug is in the outlet {@code supply} (a socket's 2, a power strip's 2, 4 or 6) at {@code socket}, or null. */
+    public static @Nullable CableReelBlockEntity pluggedInto(ServerLevel sl, BlockPos socket, int supply) {
         InfrastructureSavedData sd = InfrastructureSavedData.load(sl);
-        for (int id : new int[]{SocketBlock.CORD_POSITIVE, SocketBlock.CORD_NEGATIVE})
+        for (int id : new int[]{supply, supply + 1})
             for (InWorldNodeConnection c : sd.getConnections(new InWorldNode(id, socket))) {
                 InWorldNode other = c.node1().sourcePos().equals(socket) && c.node1().id() == id ? c.node2() : c.node1();
                 if (sl.isLoaded(other.sourcePos()) && sl.getBlockEntity(other.sourcePos()) instanceof CableReelBlockEntity be

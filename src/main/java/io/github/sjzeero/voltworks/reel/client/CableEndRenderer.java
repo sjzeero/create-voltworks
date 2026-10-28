@@ -64,6 +64,11 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
      */
     @Override
     public void render(CableEndEntity entity, float entityYaw, float pt, PoseStack pose, MultiBufferSource buffer, int light) {
+        if (entity.isCord()) {
+            renderCord(entity, pt, pose, buffer, light);
+            super.render(entity, entityYaw, pt, pose, buffer, light);
+            return;
+        }
         Level level = entity.level();
         Vec3 at = entity.getPosition(pt); // the dispatcher put the pose origin here (same interpolation)
         CableReelBlockEntity be = level.isLoaded(entity.reelPos()) && level.getBlockEntity(entity.reelPos()) instanceof CableReelBlockEntity r ? r : null;
@@ -116,6 +121,79 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
             }
         }
         super.render(entity, entityYaw, pt, pose, buffer, light);
+    }
+
+    /** How an end of a pulled-out cord lies: plug along the cord, its back towards the cord's other end. */
+    static Matrix4d cordModel(CableEndEntity entity, float pt) {
+        Vec3 at = entity.getPosition(pt);
+        Vec3 to = entity.otherAt(pt);
+        LyingEnd.Lie lie = LyingEnd.PLUG;
+        double fallback = Math.toRadians(-entity.getYRot());
+        double yaw = to == null ? fallback - lie.axis() : LyingEnd.yaw(lie, to.x - at.x, to.z - at.z, fallback);
+        return LyingEnd.pose(lie, yaw);
+    }
+
+    /** World position where the cord leaves the back of a lying cord end, and its direction out of the plug. */
+    static Vec3[] cordBack(CableEndEntity entity, float pt) {
+        Matrix4d model = cordModel(entity, pt);
+        Vector3d back = LyingEnd.toEntity(model, LyingEnd.PLUG.backPx());
+        Vector3d dir = LyingEnd.direction(model, LyingEnd.PLUG.backDir());
+        return new Vec3[]{entity.getPosition(pt).add(back.x, back.y, back.z), new Vec3(dir.x, dir.y, dir.z)};
+    }
+
+    /**
+     * An end of a cord pulled out of its outlets: the plug lying on the floor and the cord to its other end, which is
+     * plugged into an outlet or lies on the floor too (then the end 0 draws the cord between the two). When a player
+     * carries the other end, the held-end renderer draws the cord from the hand.
+     */
+    private void renderCord(CableEndEntity entity, float pt, PoseStack pose, MultiBufferSource buffer, int light) {
+        Level level = entity.level();
+        Vec3 at = entity.getPosition(pt);
+        Matrix4d model = cordModel(entity, pt);
+        BakedModel baked = items.getModel(plug, level, null, entity.getId());
+        pose.pushPose();
+        pose.mulPose(new Matrix4f(model));
+        pose.translate(-0.5f, -0.5f, -0.5f);
+        for (BakedModel pass : baked.getRenderPasses(plug, true))
+            for (RenderType rt : pass.getRenderTypes(plug, true))
+                items.renderModelLists(pass, plug, light, OverlayTexture.NO_OVERLAY, pose, buffer.getBuffer(rt));
+        pose.popPose();
+
+        Vector3d b = LyingEnd.toEntity(model, LyingEnd.PLUG.backPx());
+        Vector3d d = LyingEnd.direction(model, LyingEnd.PLUG.backDir());
+        Vec3 to = at.add(b.x, b.y, b.z);
+        Vec3 from, fromOut;
+        net.minecraft.core.BlockPos skip;
+        int supply = entity.otherSupply();
+        if (supply >= 0) {
+            net.minecraft.core.BlockPos op = entity.otherPos();
+            if (!level.isLoaded(op))
+                return;
+            from = io.github.sjzeero.voltworks.cord.LooseCords.plugWorld(level, op, supply);
+            fromOut = WallSpace.rotate(WallSpace.renderPose(level, op, pt),
+                    io.github.sjzeero.voltworks.cord.Outlets.cordDir(level.getBlockState(op), supply));
+            skip = op;
+        } else if (entity.otherHolder() != null || entity.end() != 0) {
+            return; // drawn from the hand, or by the other lying end
+        } else {
+            CableEndEntity other = entity.otherEnd();
+            if (other == null)
+                return;
+            Vec3[] ob = cordBack(other, pt);
+            from = ob[0];
+            fromOut = ob[1];
+            skip = other.blockPosition();
+        }
+        WireType type = io.github.sjzeero.voltworks.registry.VoltworksWireTypes.COPPER_CORD.get();
+        double distance = from.distanceTo(to);
+        if (distance <= 0.05)
+            return;
+        WireData look = WireData.ofLength(type, ReelMath.followLength(distance, Math.max(entity.reach(), distance)));
+        List<Vec3> points = ReelWire.points(from, fromOut, to, d, CablePath.RUN, look.getSag(distance), Math.min(from.y, to.y), level, skip);
+        pose.pushPose();
+        pose.translate(-at.x, -at.y, -at.z);
+        ReelWire.render(points, pose, buffer, type, level);
+        pose.popPose();
     }
 
     private static final java.util.Map<Integer, Long> LOGGED = new java.util.HashMap<>();

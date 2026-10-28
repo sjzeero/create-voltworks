@@ -17,7 +17,8 @@
     "RecipeApplierMixin",
     "StructureTemplateMixin",
     "WireSimulationStateMixin",
-    "WireSpoolItemAccessor"
+    "WireSpoolItemAccessor",
+    "WireCuttersMixin"
   ],
   "client": [
     "client.WireInteractionHandlerMixin",
@@ -30,7 +31,8 @@
     "client.CreativeScreenSectionsMixin",
     "client.ItemPickerMenuAccessor",
     "client.CustomCreativeSlotMixin",
-    "client.ItemRendererMixin"
+    "client.ItemRendererMixin",
+    "client.OutlinesOnWireRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

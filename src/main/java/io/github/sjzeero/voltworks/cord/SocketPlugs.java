@@ -1,21 +1,16 @@
 package io.github.sjzeero.voltworks.cord;
 
-import com.george_vi.electroenergetics.config.CEEConfigs;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
 import com.george_vi.electroenergetics.simulation.infrastructure.InfrastructureSavedData;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
-import com.simibubi.create.AllSoundEvents;
 import io.github.sjzeero.voltworks.reel.CableReelBlockEntity;
 import io.github.sjzeero.voltworks.wallwire.WallCell;
 import io.github.sjzeero.voltworks.wallwire.WallRoute;
 import io.github.sjzeero.voltworks.wallwire.WallSpace;
 import io.github.sjzeero.voltworks.wallwire.WallWireData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -84,6 +79,7 @@ public final class SocketPlugs {
     }
 
     public static void tick(ServerLevel sl) {
+        LooseCords.tick(sl);
         Set<BlockPos> pending = PENDING.remove(sl);
         if (pending != null)
             for (BlockPos p : pending)
@@ -100,7 +96,7 @@ public final class SocketPlugs {
         if (!(st.getBlock() instanceof SocketBlock) || st.getValue(SocketBlock.PLUG) == SocketBlock.Plug.NONE)
             return;
         InfrastructureSavedData sd = InfrastructureSavedData.load(sl);
-        if (cordConnections(sd, p).isEmpty())
+        if (cordConnections(sd, p).isEmpty() && !LooseCords.keepsPlug(sl, p))
             sl.setBlock(p, st.setValue(SocketBlock.PLUG, SocketBlock.Plug.NONE), Block.UPDATE_ALL);
     }
 
@@ -162,56 +158,5 @@ public final class SocketPlugs {
             return CordPair.isReturn(c) ? CordPair.sibling(c) : c;
         }
         return null;
-    }
-
-    /**
-     * Right-click on a socket holding one end of a socket-to-socket cord: the whole cord comes off (both strands, so
-     * the plug at the other end comes out too) and goes back to the player as the wire it was laid from, the same
-     * items breaking it would drop.
-     */
-    public static boolean unplugByPlayer(ServerLevel sl, BlockPos socket, ServerPlayer player) {
-        InfrastructureSavedData sd = InfrastructureSavedData.load(sl);
-        InWorldNodeConnection c = socketCord(sl, sd, socket);
-        if (c == null)
-            return false;
-        WireData data = sd.getConnectionData(c);
-        InWorldNodeConnection ret = CordPair.sibling(c);
-        WireData retData = sd.getConnectionData(ret);
-        if (retData != null && CordPair.isCord(retData.wireType()))
-            sd.removeConnectionNoDrops(ret);
-        if (data != null)
-            sd.removeConnectionNoDrops(c);
-        if (data != null && !player.isCreative())
-            for (ItemStack stack : drops(data))
-                player.getInventory().placeItemBackInInventory(stack);
-        removed(sl, c);
-        removed(sl, ret);
-        unplugNow(sl, c.node1().sourcePos());
-        unplugNow(sl, c.node2().sourcePos());
-        AllSoundEvents.WRENCH_REMOVE.playOnServer(sl, BlockPos.containing(WallSpace.toWorld(sl, Vec3.atCenterOf(socket))));
-        player.displayClientMessage(Component.translatable("voltworks.cord.unplugged"), true);
-        return true;
-    }
-
-    /** What a cord gives back: one spool with alternate placement, else a spool's worth of wire, like Electro Energetics. */
-    private static List<ItemStack> drops(WireData data) {
-        List<ItemStack> out = new ArrayList<>();
-        if (CEEConfigs.server().alternateWirePlacement.get()) {
-            out.add(new ItemStack(data.wireType().getSpooledItem()));
-        } else {
-            int n = CEEConfigs.server().wiresPerSpool.get();
-            for (int i = 0; i < n; i++)
-                out.add(new ItemStack(data.wireType().getDrops()));
-        }
-        return out;
-    }
-
-    private static void unplugNow(ServerLevel sl, BlockPos p) {
-        if (!sl.isLoaded(p))
-            return;
-        BlockState st = sl.getBlockState(p);
-        if (st.getBlock() instanceof SocketBlock && st.getValue(SocketBlock.PLUG) != SocketBlock.Plug.NONE
-                && cordConnections(InfrastructureSavedData.load(sl), p).isEmpty())
-            sl.setBlock(p, st.setValue(SocketBlock.PLUG, SocketBlock.Plug.NONE), Block.UPDATE_ALL);
     }
 }

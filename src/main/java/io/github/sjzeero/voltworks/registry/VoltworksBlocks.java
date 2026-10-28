@@ -32,6 +32,10 @@ public final class VoltworksBlocks {
     public static final DeferredBlock<SocketBlock> SOCKET = BLOCKS.register("socket", () -> new SocketBlock(
             BlockBehaviour.Properties.of().strength(1.0f).sound(SoundType.METAL).noOcclusion()));
 
+    /** Power strip: three socket outlets on a short cord of its own. */
+    public static final DeferredBlock<io.github.sjzeero.voltworks.cord.PowerStripBlock> POWER_STRIP = BLOCKS.register("power_strip", () -> new io.github.sjzeero.voltworks.cord.PowerStripBlock(
+            BlockBehaviour.Properties.of().strength(1.0f).sound(SoundType.METAL).noOcclusion()));
+
     /** Cord reel: two-core copper cord pulled out to a socket like a vacuum cleaner cord. */
     public static final DeferredBlock<io.github.sjzeero.voltworks.reel.CableReelBlock> CORD_REEL = BLOCKS.register("cord_reel", () -> new io.github.sjzeero.voltworks.reel.CableReelBlock(
             BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.WOOD).noOcclusion(), true));

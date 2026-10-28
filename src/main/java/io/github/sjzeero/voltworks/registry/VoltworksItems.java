@@ -30,6 +30,7 @@ public final class VoltworksItems {
 
     public static final DeferredItem<?> SERVO_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SERVO);
     public static final DeferredItem<?> SOCKET_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SOCKET);
+    public static final DeferredItem<?> POWER_STRIP_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.POWER_STRIP);
     /** Two-core wire (two insulated cores in a kelp sheath): crafting material, four of them and an empty spool make a {@link #COPPER_CORD} spool (as in Electro Energetics). */
     public static final DeferredItem<Item> TWO_CORE_WIRE = ITEMS.registerSimpleItem("two_core_wire");
 

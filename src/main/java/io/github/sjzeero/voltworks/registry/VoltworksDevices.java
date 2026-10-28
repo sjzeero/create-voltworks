@@ -33,6 +33,9 @@ public final class VoltworksDevices {
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<SocketDevice>> SOCKET_DEVICE = DEVICES.register("socket",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("socket"),
                     (type, level, pos, sd) -> new SocketDevice(level, pos, sd, type)));
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.cord.PowerStripDevice>> POWER_STRIP_DEVICE = DEVICES.register("power_strip",
+            () -> new SimulatedDeviceType<>(Voltworks.asResource("power_strip"),
+                    (type, level, pos, sd) -> new io.github.sjzeero.voltworks.cord.PowerStripDevice(level, pos, sd, type)));
 
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<PGMotorDevice>> CONSTANT_SPEED_MOTOR_DEVICE = DEVICES.register("constant_speed_motor",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("constant_speed_motor"), (type, level, pos, sd) -> new PGMotorDevice(level, pos, sd, type)));

@@ -1,12 +1,14 @@
 package io.github.sjzeero.voltworks.reel;
 
 import com.simibubi.create.AllSoundEvents;
+import io.github.sjzeero.voltworks.cord.LooseCords;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -29,6 +31,9 @@ import org.jetbrains.annotations.Nullable;
  * a terminal (cable reel) to plug it in, click the reel or sneak-click the air to let it wind back. Dropping or
  * throwing it, switching to another slot, or walking a few blocks further than the wound length (which first warns
  * on the action bar) lets it fall to the ground as a {@link CableEndEntity}, still pulled out of the reel.
+ * <p>
+ * The same item is an end of a loose cord pulled out of a socket or power strip outlet ({@link LooseCords}); such a
+ * stack carries the cord's id instead of a reel position and everything it does goes through {@link LooseCords}.
  */
 public class ReelPlugItem extends Item {
     /** How far past the wound length the player may stretch before the end slips out of the hand. */
@@ -96,6 +101,11 @@ public class ReelPlugItem extends Item {
         if (!(ctx.getPlayer() instanceof ServerPlayer player))
             return InteractionResult.FAIL;
         ItemStack stack = ctx.getItemInHand();
+        if (LooseCords.isLooseCord(stack)) {
+            if (LooseCords.get((ServerLevel) level).plugHeld(player, stack, ctx.getClickedPos(), ctx.getClickLocation()))
+                stack.setCount(0);
+            return InteractionResult.SUCCESS;
+        }
         CableReelBlockEntity be = reel(level, stack);
         if (be == null) {
             stack.setCount(0);
@@ -118,7 +128,10 @@ public class ReelPlugItem extends Item {
         ItemStack stack = player.getItemInHand(hand);
         if (!player.isShiftKeyDown())
             return InteractionResultHolder.pass(stack);
-        if (!level.isClientSide) {
+        if (!level.isClientSide && LooseCords.isLooseCord(stack)) {
+            if (player instanceof ServerPlayer sp)
+                LooseCords.get((ServerLevel) level).sneakHeld(sp, stack);
+        } else if (!level.isClientSide) {
             CableReelBlockEntity be = reel(level, stack);
             if (be != null) {
                 be.dropGrab();
@@ -133,6 +146,10 @@ public class ReelPlugItem extends Item {
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
         if (level.isClientSide || !(entity instanceof ServerPlayer player) || level.getGameTime() % 5 != 0)
             return;
+        if (LooseCords.isLooseCord(stack)) {
+            LooseCords.get((ServerLevel) level).heldTick(stack, player, selected);
+            return;
+        }
         CableReelBlockEntity be = reel(level, stack);
         if (be == null) {
             stack.setCount(0);
@@ -162,7 +179,10 @@ public class ReelPlugItem extends Item {
     /** A dropped or thrown cable end (Q, death, ...) keeps flying as a lying cable end, still pulled out of the reel. */
     @Override
     public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
-        if (!entity.level().isClientSide) {
+        if (!entity.level().isClientSide && LooseCords.isLooseCord(stack)) {
+            LooseCords.get((ServerLevel) entity.level()).thrown(stack, entity);
+            entity.discard();
+        } else if (!entity.level().isClientSide) {
             CableReelBlockEntity be = reel(entity.level(), stack);
             if (be != null)
                 be.dropLoose(entity.position(), entity.getDeltaMovement());
