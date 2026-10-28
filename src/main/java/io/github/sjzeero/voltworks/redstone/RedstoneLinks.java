@@ -239,5 +239,6 @@ public class RedstoneLinks extends SavedData {
         setDirty();
         for(Link l : changed)
             notifyOutput(l);
+        RedstoneSync.powered(level, changed);
     }
 }

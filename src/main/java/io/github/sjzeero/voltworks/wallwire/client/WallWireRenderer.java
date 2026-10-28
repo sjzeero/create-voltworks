@@ -144,13 +144,13 @@ public final class WallWireRenderer {
             AABB bounds = WallSpace.toWorld(space, entry.bounds());
             if(!event.getFrustum().isVisible(bounds) || bounds.getCenter().distanceTo(cam) > RENDER_DISTANCE + bounds.getSize())
                 continue;
-            new Drawer(level, pose.last(), buffer, used, redType, DyeColor.RED, cam, space).coil()
+            new Drawer(level, pose.last(), buffer, used, redType, DyeColor.RED, cam, space).coil(entry.power())
                     .route(entry.cells(), entry.segments(), (Vec3) null, (Vec3) null);
         }
         if(redPreview) {
             List<WallCell> redCells = List.copyOf(RedstoneCableClient.committed);
             Pose3dc redSpace = WallSpace.renderPose(level, redCells.getFirst().pos(), partial);
-            new Drawer(level, pose.last(), buffer, used, redType, DyeColor.RED, cam, redSpace).coil()
+            new Drawer(level, pose.last(), buffer, used, redType, DyeColor.RED, cam, redSpace).coil(0)
                     .route(redCells, WallRoute.segments(redCells), (Vec3) null, (Vec3) null);
         }
 
@@ -219,7 +219,7 @@ public final class WallWireRenderer {
         TextureAtlasSprite s = Minecraft.getInstance()
                 .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
                 .apply(ResourceLocation.fromNamespaceAndPath("voltworks", "block/redstone_coil"));
-        float u0 = s.getU0(), u1 = s.getU(2 / 16f), v0 = s.getV0(), v1 = s.getV(8 / 16f);
+        float u0 = s.getU0(), u1 = s.getU(1 / 16f), v0 = s.getV0(), v1 = s.getV(8 / 16f);
         return new Tex(new float[]{u0, u1, u0, u1}, new float[]{v0, v0, v1, v1});
     }
 
@@ -302,6 +302,7 @@ public final class WallWireRenderer {
         final PoseStack.Pose pose;
         final VertexConsumer vb;
         Tex tex;
+        float bright = 1;
         final Vec3 cam;
         final double w, h;
         final @Nullable Pose3dc space;
@@ -331,8 +332,9 @@ public final class WallWireRenderer {
             this.h = heightPixels(type) * PX;
         }
 
-        Drawer coil() {
+        Drawer coil(int power) {
             this.tex = coilTex();
+            this.bright = 0.6f + 0.4f * Math.max(0, Math.min(15, power)) / 15f;
             return this;
         }
 
@@ -519,7 +521,7 @@ public final class WallWireRenderer {
             double[][] ts = {{t0, s0}, {t1, s0}, {t1, s1}, {t0, s1}};
             boolean flip = c1.subtract(c0).cross(c3.subtract(c0)).dot(normal) < 0;
             float shade = shade(normal);
-            int col = (int) (255 * shade);
+            int col = (int) (255 * shade * bright);
             Vec3 worldNormal = mapNormal.apply(normal);
             float nx = (float) worldNormal.x, ny = (float) worldNormal.y, nz = (float) worldNormal.z;
             for(int k = 0; k < 4; k++) {
