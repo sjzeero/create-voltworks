@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
@@ -37,8 +36,6 @@ import java.util.Map;
  * carries the + and - terminal posts, every block of the bank is wired to the same storage.
  */
 public class BatteryBlock extends SimpleElectricalDeviceBlock<BatteryDevice> implements IBE<BatteryBlockEntity> {
-    /** Gauge marks shown in this block's window. */
-    public static final IntegerProperty CHARGE = IntegerProperty.create("charge", 0, BatterySpec.GAUGE_LEVELS);
     /** True on the bank's top north-west block, which carries the terminal posts. */
     public static final BooleanProperty TERMINALS = BooleanProperty.create("terminals");
 
@@ -49,12 +46,12 @@ public class BatteryBlock extends SimpleElectricalDeviceBlock<BatteryDevice> imp
 
     public BatteryBlock(Properties properties) {
         super(properties);
-        registerDefaultState(defaultBlockState().setValue(CHARGE, 0).setValue(TERMINALS, true));
+        registerDefaultState(defaultBlockState().setValue(TERMINALS, true));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder.add(CHARGE, TERMINALS));
+        super.createBlockStateDefinition(builder.add(TERMINALS));
     }
 
     @Override

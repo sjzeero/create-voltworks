@@ -1,3 +1,3 @@
 {
-  "parent": "voltworks:block/battery/battery_top_c0"
+  "parent": "voltworks:block/battery/battery_terminals"
 }

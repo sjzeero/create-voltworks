@@ -14,24 +14,19 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Blocks of one bank show one big casing (Create's rectangle CT, as Power Grid's battery): the end sheet on top and
- * bottom, a side sheet per gauge level; the terminal posts keep their own texture.
+ * bottom, the side sheet around; the terminal posts keep their own texture.
  */
 public class BatteryCTBehaviour extends ConnectedTextureBehaviour.Base {
-    private static final CTSpriteShiftEntry[] SIDE = new CTSpriteShiftEntry[BatterySpec.GAUGE_LEVELS + 1];
+    private static final CTSpriteShiftEntry SIDE = CTSpriteShifter.getCT(AllCTTypes.RECTANGLE,
+            Voltworks.asResource("block/battery/battery_side"), Voltworks.asResource("block/battery/battery_side_connected"));
     private static final CTSpriteShiftEntry TOP_BOTTOM = CTSpriteShifter.getCT(AllCTTypes.RECTANGLE,
             Voltworks.asResource("block/battery/battery_top"), Voltworks.asResource("block/battery/battery_top_connected"));
-
-    static {
-        for (int i = 0; i <= BatterySpec.GAUGE_LEVELS; i++)
-            SIDE[i] = CTSpriteShifter.getCT(AllCTTypes.RECTANGLE,
-                    Voltworks.asResource("block/battery/battery_side_" + i), Voltworks.asResource("block/battery/battery_side_" + i + "_connected"));
-    }
 
     @Override
     public @Nullable CTSpriteShiftEntry getShift(BlockState state, Direction direction, @Nullable TextureAtlasSprite sprite) {
         if (sprite != null && sprite.contents().name().getPath().endsWith("battery_terminals"))
             return null;
-        return direction.getAxis().isVertical() ? TOP_BOTTOM : SIDE[state.getValue(BatteryBlock.CHARGE)];
+        return direction.getAxis().isVertical() ? TOP_BOTTOM : SIDE;
     }
 
     @Override

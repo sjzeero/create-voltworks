@@ -18,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** The battery's blockstate, models (16 px per block, 1:1 uv), connected textures, recipe, loot and names. */
 class BatteryAssetsTest {
-    static final int LEVELS = BatterySpec.GAUGE_LEVELS;
-
     static BufferedImage png(String path) throws IOException {
         try (InputStream in = BatteryAssetsTest.class.getClassLoader().getResourceAsStream(path)) {
             assertNotNull(in, "missing " + path);
@@ -28,22 +26,15 @@ class BatteryAssetsTest {
     }
 
     static List<String> models() {
-        List<String> out = new ArrayList<>();
-        for (int i = 0; i <= LEVELS; i++) {
-            out.add("battery_c" + i);
-            out.add("battery_top_c" + i);
-        }
-        return out;
+        return List.of("battery", "battery_terminals");
     }
 
     @Test
-    void blockstateCoversEveryChargeAndTerminalState() throws IOException {
+    void blockstateHasOnlyTheTerminalVariants() throws IOException {
         JsonObject v = ReelAssetsTest.json("assets/voltworks/blockstates/battery.json").getAsJsonObject("variants");
-        assertEquals(2 * (LEVELS + 1), v.size());
-        for (int i = 0; i <= LEVELS; i++) {
-            assertEquals("voltworks:block/battery/battery_top_c" + i, v.getAsJsonObject("charge=" + i + ",terminals=true").get("model").getAsString());
-            assertEquals("voltworks:block/battery/battery_c" + i, v.getAsJsonObject("charge=" + i + ",terminals=false").get("model").getAsString());
-        }
+        assertEquals(2, v.size(), "no charge-dependent variants");
+        assertEquals("voltworks:block/battery/battery_terminals", v.getAsJsonObject("terminals=true").get("model").getAsString());
+        assertEquals("voltworks:block/battery/battery", v.getAsJsonObject("terminals=false").get("model").getAsString());
     }
 
     static double size(JsonArray from, JsonArray to, int axis) {
@@ -91,10 +82,7 @@ class BatteryAssetsTest {
 
     @Test
     void connectedSheetsMatchTheirSprites() throws IOException {
-        List<String> ct = new ArrayList<>(List.of("battery_top"));
-        for (int i = 0; i <= LEVELS; i++)
-            ct.add("battery_side_" + i);
-        for (String t : ct) {
+        for (String t : List.of("battery_top", "battery_side")) {
             BufferedImage base = png("assets/voltworks/textures/block/battery/" + t + ".png");
             BufferedImage sheet = png("assets/voltworks/textures/block/battery/" + t + "_connected.png");
             assertEquals(16, base.getWidth());
@@ -113,24 +101,6 @@ class BatteryAssetsTest {
             assertNotEquals(base.getRGB(0, 0), sheet.getRGB(32, 16), t);
         }
         assertEquals(16, png("assets/voltworks/textures/block/battery/battery_terminals.png").getWidth());
-    }
-
-    @Test
-    void gaugeStripsLightUpWithCharge() throws IOException {
-        // more charge = more distinct bright pixels than the empty sheet
-        int[] lit = new int[LEVELS + 1];
-        for (int i = 0; i <= LEVELS; i++) {
-            BufferedImage b = png("assets/voltworks/textures/block/battery/battery_side_" + i + ".png");
-            for (int y = 0; y < 16; y++)
-                for (int x = 0; x < 16; x++) {
-                    int c = b.getRGB(x, y), g = (c >> 8) & 255, r = (c >> 16) & 255;
-                    if (g > 150 && g > r + 20)
-                        lit[i]++;
-                }
-        }
-        assertEquals(0, lit[0]);
-        for (int i = 1; i <= LEVELS; i++)
-            assertTrue(lit[i] > lit[i - 1], "level " + i);
     }
 
     @Test

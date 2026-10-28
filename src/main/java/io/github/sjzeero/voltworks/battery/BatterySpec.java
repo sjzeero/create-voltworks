@@ -47,25 +47,6 @@ public final class BatterySpec {
         return (int) Math.floor(fill * 14) + (fill > 0.001 ? 1 : 0);
     }
 
-    /** Charge marks a gauge window shows. */
-    public static final int GAUGE_LEVELS = 4;
-
-    /**
-     * Gauge level of one layer of a bank {@code height} layers tall, layer 0 at the bottom: the bank's charge fills
-     * the stacked gauge windows from the bottom up, so a column reads as one tall gauge. A layer with any charge in it
-     * shows at least one mark.
-     */
-    public static int gaugeLevel(double energy, double capacity, int height, int layer) {
-        if (energy <= 0 || capacity <= 0)
-            return 0;
-        double local = clampSoc(energy / capacity) * height - layer;
-        if (local <= 1.0E-6)
-            return 0;
-        if (local >= 1)
-            return GAUGE_LEVELS;
-        return Math.max(1, Math.min(GAUGE_LEVELS, (int) Math.ceil(local * GAUGE_LEVELS - 1.0E-6)));
-    }
-
     /**
      * Power, W, the stored energy drops by while the terminals sit at {@code terminal} volts: the source's EMF times
      * the current it drives (Power Grid's rule; charging is negative). An empty battery has no EMF, so Power Grid's

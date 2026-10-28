@@ -1,34 +1,10 @@
 {
   "variants": {
-    "charge=0,terminals=false": {
-      "model": "voltworks:block/battery/battery_c0"
+    "terminals=false": {
+      "model": "voltworks:block/battery/battery"
     },
-    "charge=0,terminals=true": {
-      "model": "voltworks:block/battery/battery_top_c0"
-    },
-    "charge=1,terminals=false": {
-      "model": "voltworks:block/battery/battery_c1"
-    },
-    "charge=1,terminals=true": {
-      "model": "voltworks:block/battery/battery_top_c1"
-    },
-    "charge=2,terminals=false": {
-      "model": "voltworks:block/battery/battery_c2"
-    },
-    "charge=2,terminals=true": {
-      "model": "voltworks:block/battery/battery_top_c2"
-    },
-    "charge=3,terminals=false": {
-      "model": "voltworks:block/battery/battery_c3"
-    },
-    "charge=3,terminals=true": {
-      "model": "voltworks:block/battery/battery_top_c3"
-    },
-    "charge=4,terminals=false": {
-      "model": "voltworks:block/battery/battery_c4"
-    },
-    "charge=4,terminals=true": {
-      "model": "voltworks:block/battery/battery_top_c4"
+    "terminals=true": {
+      "model": "voltworks:block/battery/battery_terminals"
     }
   }
 }

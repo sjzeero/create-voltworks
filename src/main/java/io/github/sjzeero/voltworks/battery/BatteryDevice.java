@@ -81,7 +81,6 @@ public class BatteryDevice extends SimpleElectricalDevice {
         }
         if (++displayTimer >= 10) {
             displayTimer = 0;
-            BatteryBanks.refreshDisplay(level, be);
             int comparator = BatterySpec.comparator(energy, cap);
             if (comparator != lastComparator) {
                 lastComparator = comparator;

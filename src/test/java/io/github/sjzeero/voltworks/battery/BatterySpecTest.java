@@ -33,17 +33,6 @@ class BatterySpecTest {
     }
 
     @Test
-    void gaugeOfAColumnFillsFromTheBottom() {
-        // 3 high, 50%: bottom full, middle half, top empty
-        assertEquals(4, BatterySpec.gaugeLevel(1.5 * C, 3 * C, 3, 0));
-        assertEquals(2, BatterySpec.gaugeLevel(1.5 * C, 3 * C, 3, 1));
-        assertEquals(0, BatterySpec.gaugeLevel(1.5 * C, 3 * C, 3, 2));
-        assertEquals(0, BatterySpec.gaugeLevel(0, C, 1, 0));
-        assertEquals(1, BatterySpec.gaugeLevel(C * 0.01, C, 1, 0), "any charge shows a mark");
-        assertEquals(4, BatterySpec.gaugeLevel(C, C, 1, 0));
-    }
-
-    @Test
     void energyFlow() {
         // discharging into a load: positive power, EMF times current
         assertEquals(12 * 1.0, BatterySpec.energyOut(12, 1, 11), 1e-12);
