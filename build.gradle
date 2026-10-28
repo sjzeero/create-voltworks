@@ -55,7 +55,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly files('../ee-work/electroenergetics-1.21.1-1.2.0-127.jar', '../ee-work/create-1.21.1-6.0.10.jar', '../ee-work/libs/ponder-neoforge-1.0.82+mc1.21.1.jar', '../ee-work/libs/flywheel-neoforge-1.21.1-1.0.6.jar', '../ee-work/libs/Registrate-MC1.21-1.3.0+67.jar')
+    compileOnly files('../ee-work/electroenergetics-1.21.1-1.1.4.jar', '../ee-work/create-1.21.1-6.0.10.jar', '../ee-work/libs/ponder-neoforge-1.0.82+mc1.21.1.jar', '../ee-work/libs/flywheel-neoforge-1.21.1-1.0.6.jar', '../ee-work/libs/Registrate-MC1.21-1.3.0+67.jar')
     compileOnly("dev.ryanhcode.sable-companion:sable-companion-common-1.21.1:1.6.0")
     compileOnly("mezz.jei:jei-1.21.1-common-api:19.25.1.328")
     compileOnly("mezz.jei:jei-1.21.1-neoforge-api:19.25.1.328")

@@ -6,6 +6,7 @@ import com.george_vi.electroenergetics.foundation.device.SimpleElectricalDevice;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.simulation.BridgeCollector;
 import com.george_vi.electroenergetics.simulation.SimulationResults;
+import com.george_vi.electroenergetics.simulation.electrical_properties.ElectricalProperties;
 import io.github.sjzeero.voltworks.VoltageGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -34,8 +35,8 @@ public class BatteryDevice extends SimpleElectricalDevice {
         source = false;
         BatteryBlockEntity be = battery();
         BlockPos bus = be == null || !be.validBank() ? pos : be.controllerPos();
-        bridges.bridge(new InWorldNode(0, pos), new InWorldNode(BUS_PLUS, bus), CONTACT_RESISTANCE);
-        bridges.bridge(new InWorldNode(1, pos), new InWorldNode(BUS_MINUS, bus), CONTACT_RESISTANCE);
+        bridges.bridge(new InWorldNode(0, pos), new InWorldNode(BUS_PLUS, bus), ElectricalProperties.resistor(CONTACT_RESISTANCE));
+        bridges.bridge(new InWorldNode(1, pos), new InWorldNode(BUS_MINUS, bus), ElectricalProperties.resistor(CONTACT_RESISTANCE));
         if (be == null || !be.isController())
             return;
         double cap = be.capacity();

@@ -308,7 +308,8 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
             toReturn = ends[1];
             plugIn(sl, pos);
         } else {
-            to = InWorldNode.closestNode(sl, click, 1.5F);
+            BlockPos clicked = BlockPos.containing(click);
+            to = InWorldNode.closestNode(sl, clicked, sl.getBlockState(clicked), 1.5F, click);
             if (to == null || !to.sourcePos().equals(pos))
                 to = InWorldNode.closestNode(sl, pos, state, 1.5F, click);
             if (to == null || !device.isNodeAccessible(sl, pos, state, to.id())) {

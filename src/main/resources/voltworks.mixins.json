@@ -32,7 +32,7 @@
     "client.ItemPickerMenuAccessor",
     "client.CustomCreativeSlotMixin",
     "client.ItemRendererMixin",
-    "client.OutlinesOnWireRendererMixin"
+    "client.WireMeterMixin"
   ],
   "injectors": {
     "defaultRequire": 1
