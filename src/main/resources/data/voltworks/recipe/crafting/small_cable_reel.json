@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "ingredients": [
+    {
+      "item": "voltworks:cable_reel"
+    }
+  ],
+  "result": {
+    "id": "voltworks:small_cable_reel",
+    "count": 1
+  }
+}

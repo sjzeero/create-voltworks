@@ -83,7 +83,7 @@ public class VoltworksClient {
     private static void setup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             ItemBlockRenderTypes.setRenderLayer(CircuitItems.ACID.get(), RenderType.translucent());
-            for (var item : java.util.List.of(VoltworksItems.DESIGN_TABLE_ITEM.get(), CircuitItems.INCOMPLETE_CIRCUIT.get(), VoltworksItems.SERVO_ITEM.get(), VoltworksItems.CORD_REEL_ITEM.get(), VoltworksItems.CABLE_REEL_ITEM.get()))
+            for (var item : java.util.List.of(VoltworksItems.DESIGN_TABLE_ITEM.get(), CircuitItems.INCOMPLETE_CIRCUIT.get(), VoltworksItems.SERVO_ITEM.get(), VoltworksItems.CORD_REEL_ITEM.get(), VoltworksItems.CABLE_REEL_ITEM.get(), VoltworksItems.SMALL_CORD_REEL_ITEM.get(), VoltworksItems.SMALL_CABLE_REEL_ITEM.get()))
                 TooltipModifier.REGISTRY.register(item,
                         new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE));
             ItemBlockRenderTypes.setRenderLayer(CircuitItems.ACID_FLOWING.get(), RenderType.translucent());

@@ -40,6 +40,12 @@ public final class VoltworksBlocks {
     public static final DeferredBlock<io.github.sjzeero.voltworks.reel.CableReelBlock> CABLE_REEL = BLOCKS.register("cable_reel", () -> new io.github.sjzeero.voltworks.reel.CableReelBlock(
             BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.WOOD).noOcclusion(), false));
 
+    /** The same reels in a smaller frame (not a full block). */
+    public static final DeferredBlock<io.github.sjzeero.voltworks.reel.CableReelBlock> SMALL_CORD_REEL = BLOCKS.register("small_cord_reel", () -> new io.github.sjzeero.voltworks.reel.CableReelBlock(
+            BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.WOOD).noOcclusion(), true, true));
+    public static final DeferredBlock<io.github.sjzeero.voltworks.reel.CableReelBlock> SMALL_CABLE_REEL = BLOCKS.register("small_cable_reel", () -> new io.github.sjzeero.voltworks.reel.CableReelBlock(
+            BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.WOOD).noOcclusion(), false, true));
+
     public static final DeferredBlock<ConstantSpeedMotorBlock> CONSTANT_SPEED_MOTOR = BLOCKS.register("constant_speed_motor", () -> new ConstantSpeedMotorBlock(
             BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));
 

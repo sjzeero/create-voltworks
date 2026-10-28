@@ -47,6 +47,8 @@ public final class VoltworksItems {
     public static final DeferredItem<?> CORD_REEL_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.CORD_REEL);
 
     public static final DeferredItem<?> CABLE_REEL_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.CABLE_REEL);
+    public static final DeferredItem<?> SMALL_CORD_REEL_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SMALL_CORD_REEL);
+    public static final DeferredItem<?> SMALL_CABLE_REEL_ITEM = ITEMS.registerSimpleBlockItem(VoltworksBlocks.SMALL_CABLE_REEL);
 
     /** End of the cable pulled out of a reel; only exists in the hand of the player carrying it. */
     public static final DeferredItem<io.github.sjzeero.voltworks.reel.ReelPlugItem> REEL_PLUG = ITEMS.registerItem("reel_plug",

@@ -52,18 +52,30 @@ public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice>
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     /** How much wire is wound on the drum, 0 (bare drum) to {@link ReelMath#FILL_LEVELS}; picks the coil model. */
     public static final IntegerProperty FILL = IntegerProperty.create("fill", 0, ReelMath.FILL_LEVELS);
-    private static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 11, 15); // the small reel (frame, hubs, outlet guide); the same for every facing
+    private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
+    /** The small reel (frame, hubs, outlet guide); the same for every facing. */
+    private static final VoxelShape SMALL_SHAPE = Block.box(1, 0, 1, 15, 11, 15);
 
     /** Pixel positions for FACING = NORTH. */
-    /** Terminal knob tops on the cheeks at the back; the outlet nodes are {@link ReelOutlet#PX}, the outlet guide's outer face. */
-    private static final double[][] CORD_NODES = {{3, 13, 12}, {13, 13, 12}, ReelOutlet.PX, ReelOutlet.PX};
-    private static final double[][] CABLE_NODES = {{13, 13, 12}, ReelOutlet.PX};
+    /** Big reel: terminals on top at the back; the outlet nodes are {@link ReelOutlet#PX}, the outlet guide's outer face. */
+    private static final double[][] CORD_NODES = {{5, 16, 15}, {11, 16, 15}, ReelOutlet.PX, ReelOutlet.PX};
+    private static final double[][] CABLE_NODES = {{8, 16, 15}, ReelOutlet.PX};
+    /** Small reel: terminal knob tops on the cheeks at the back, outlet {@link ReelOutlet#PX_SMALL}. */
+    private static final double[][] SMALL_CORD_NODES = {{3, 13, 12}, {13, 13, 12}, ReelOutlet.PX_SMALL, ReelOutlet.PX_SMALL};
+    private static final double[][] SMALL_CABLE_NODES = {{13, 13, 12}, ReelOutlet.PX_SMALL};
 
     public final boolean cord;
+    /** The small reel (voltworks:small_cord_reel / small_cable_reel): same behaviour, a smaller model. */
+    public final boolean small;
 
     public CableReelBlock(Properties properties, boolean cord) {
+        this(properties, cord, false);
+    }
+
+    public CableReelBlock(Properties properties, boolean cord, boolean small) {
         super(properties);
         this.cord = cord;
+        this.small = small;
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(FILL, 0));
     }
 
@@ -89,7 +101,7 @@ public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice>
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-        return SHAPE;
+        return small ? SMALL_SHAPE : SHAPE;
     }
 
     /** First node id of the pulled-out cable (the supply strand for a cord). */
@@ -128,7 +140,7 @@ public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice>
     }
 
     public Vec3 localNode(BlockState state, int id) {
-        double[][] nodes = cord ? CORD_NODES : CABLE_NODES;
+        double[][] nodes = small ? (cord ? SMALL_CORD_NODES : SMALL_CABLE_NODES) : (cord ? CORD_NODES : CABLE_NODES);
         double[] n = nodes[id >= 0 && id < nodes.length ? id : 0];
         return rotated(state.getValue(FACING), n[0], n[1], n[2]);
     }

@@ -38,7 +38,8 @@ public final class VoltworksBlockEntities {
             () -> BlockEntityType.Builder.of(SolarPanelBearingBlockEntity::new, VoltworksBlocks.SOLAR_PANEL_BEARING.get()).build(null));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<io.github.sjzeero.voltworks.reel.CableReelBlockEntity>> CABLE_REEL_BE = BLOCK_ENTITIES.register("cable_reel",
-            () -> BlockEntityType.Builder.of(io.github.sjzeero.voltworks.reel.CableReelBlockEntity::new, VoltworksBlocks.CORD_REEL.get(), VoltworksBlocks.CABLE_REEL.get()).build(null));
+            () -> BlockEntityType.Builder.of(io.github.sjzeero.voltworks.reel.CableReelBlockEntity::new, VoltworksBlocks.CORD_REEL.get(), VoltworksBlocks.CABLE_REEL.get(),
+                    VoltworksBlocks.SMALL_CORD_REEL.get(), VoltworksBlocks.SMALL_CABLE_REEL.get()).build(null));
 
     public static void register(IEventBus bus) {
         BLOCK_ENTITIES.register(bus);

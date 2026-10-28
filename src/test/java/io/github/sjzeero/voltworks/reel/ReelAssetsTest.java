@@ -18,7 +18,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Every reel has its blockstate, models, loot table, recipe and names in both languages. */
 public class ReelAssetsTest {
-    static final List<String> REELS = List.of("cord_reel", "cable_reel");
+    static final List<String> BIG = List.of("cord_reel", "cable_reel");
+    static final List<String> SMALL = List.of("small_cord_reel", "small_cable_reel");
+    static final List<String> REELS = List.of("cord_reel", "cable_reel", "small_cord_reel", "small_cable_reel");
 
     public static JsonObject json(String path) throws IOException {
         try (InputStream in = ReelAssetsTest.class.getClassLoader().getResourceAsStream(path)) {
@@ -103,7 +105,8 @@ public class ReelAssetsTest {
                         }
                         int rot = face.has("rotation") ? face.get("rotation").getAsInt() : 0;
                         if (rot % 180 != 0) { double t = w; w = h; h = t; }
-                        assertTrue(face.has("uv"), r + " fill " + fill + " " + o.get("name") + " " + f.getKey() + ": explicit uv");
+                        if (!face.has("uv"))
+                            continue; // Minecraft's own uv is the face's position on the block: 1:1
                         var uv = face.getAsJsonArray("uv");
                         String what = r + " fill " + fill + " " + o.get("name") + " " + f.getKey();
                         assertEquals(w, Math.abs(uv.get(2).getAsDouble() - uv.get(0).getAsDouble()), 1e-9, what + " width");
@@ -115,7 +118,7 @@ public class ReelAssetsTest {
     /** The reel is a small thing on the floor, not a full block: 12 px frame, 10 px tall, centred, knobs on top. */
     @Test
     void smallReelCentredOnTheFloor() throws IOException {
-        for (String r : REELS)
+        for (String r : SMALL)
             for (int fill = 0; fill <= LEVELS; fill++) {
                 double[] lo = {16, 16, 16}, hi = {0, 0, 0};
                 for (var e : json(model(r, fill)).getAsJsonArray("elements")) {
@@ -136,10 +139,64 @@ public class ReelAssetsTest {
             }
     }
 
+    /** A wire runs from the coil into the outlet guide whenever there is wire on the drum, coil texture 1:1. */
+    @Test
+    void wireFromTheCoilToTheOutlet() throws IOException {
+        for (String r : REELS)
+            for (int fill = 0; fill <= LEVELS; fill++) {
+                double[] outFrom = null, outTo = null, coilFrom = null, coilTo = null;
+                List<double[][]> wire = new java.util.ArrayList<>();
+                for (var e : json(model(r, fill)).getAsJsonArray("elements")) {
+                    var o = e.getAsJsonObject();
+                    double[] a = new double[3], b = new double[3];
+                    for (int i = 0; i < 3; i++) {
+                        a[i] = o.getAsJsonArray("from").get(i).getAsDouble();
+                        b[i] = o.getAsJsonArray("to").get(i).getAsDouble();
+                    }
+                    switch (o.get("name").getAsString()) {
+                        case "outlet" -> { outFrom = a; outTo = b; }
+                        case "coil" -> { coilFrom = a; coilTo = b; }
+                        case "wire" -> {
+                            wire.add(new double[][]{a, b});
+                            for (var f : o.getAsJsonObject("faces").entrySet())
+                                assertEquals("#coil", f.getValue().getAsJsonObject().get("texture").getAsString());
+                        }
+                        default -> {}
+                    }
+                }
+                String what = r + " fill " + fill;
+                if (fill == 0) {
+                    assertTrue(wire.isEmpty(), what + ": no wire on an empty drum");
+                    continue;
+                }
+                assertFalse(wire.isEmpty(), what);
+                // the pieces join up, one touches the outlet guide (its back or top) and one lies on the coil
+                double[] of = outFrom, ot = outTo, cf = coilFrom, ct = coilTo;
+                assertTrue(wire.stream().anyMatch(w -> touches(w[0], w[1], of, ot)), what + ": into the outlet");
+                assertTrue(wire.stream().anyMatch(w -> touches(w[0], w[1], cf, ct)), what + ": off the coil");
+                for (double[][] w : wire)
+                    assertTrue(wire.stream().anyMatch(v -> v != w && touches(w[0], w[1], v[0], v[1])), what + ": pieces joined");
+                for (double[][] w : wire) // centred on the guide's hole
+                    assertEquals((of[0] + ot[0]) / 2, (w[0][0] + w[1][0]) / 2, 1e-9, what);
+            }
+    }
+
+    /** Two boxes touch or overlap (share at least a face patch). */
+    static boolean touches(double[] a0, double[] a1, double[] b0, double[] b1) {
+        int flush = 0;
+        for (int i = 0; i < 3; i++) {
+            if (a1[i] < b0[i] || b1[i] < a0[i])
+                return false;
+            if (a1[i] == b0[i] || b1[i] == a0[i])
+                flush++;
+        }
+        return flush <= 1;
+    }
+
     /** Coil element of a fill model, or null when the drum is bare. */
     static JsonObject coil(String reel, int fill) throws IOException {
         for (var e : json(model(reel, fill)).getAsJsonArray("elements"))
-            if (e.getAsJsonObject().toString().contains("\"#coil\""))
+            if ("coil".equals(e.getAsJsonObject().get("name").getAsString()))
                 return e.getAsJsonObject();
         return null;
     }
@@ -152,7 +209,7 @@ public class ReelAssetsTest {
                 JsonObject c = coil(r, fill);
                 assertNotNull(c, r + " fill " + fill);
                 double radius = (c.getAsJsonArray("to").get(1).getAsDouble() - c.getAsJsonArray("from").get(1).getAsDouble()) / 2;
-                assertEquals(1 + fill, radius, 1e-9, r + " fill " + fill);
+                assertEquals((r.startsWith("small_") ? 1 : 2) + fill, radius, 1e-9, r + " fill " + fill);
             }
         }
     }
@@ -167,7 +224,15 @@ public class ReelAssetsTest {
 
     @Test
     void recipesUseAnEmptySpoolAndAndesiteCasing() throws IOException {
-        for (String r : REELS) {
+        for (String r : SMALL) { // a big reel turns into a small one and back
+            JsonObject toSmall = json("data/voltworks/recipe/crafting/" + r + ".json");
+            assertEquals("voltworks:" + r, toSmall.getAsJsonObject("result").get("id").getAsString());
+            assertEquals("voltworks:" + r.substring(6), toSmall.getAsJsonArray("ingredients").get(0).getAsJsonObject().get("item").getAsString());
+            JsonObject back = json("data/voltworks/recipe/crafting/" + r.substring(6) + "_from_small.json");
+            assertEquals("voltworks:" + r.substring(6), back.getAsJsonObject("result").get("id").getAsString());
+            assertEquals("voltworks:" + r, back.getAsJsonArray("ingredients").get(0).getAsJsonObject().get("item").getAsString());
+        }
+        for (String r : BIG) {
             JsonObject recipe = json("data/voltworks/recipe/crafting/" + r + ".json");
             assertEquals("voltworks:" + r, recipe.getAsJsonObject("result").get("id").getAsString());
             String keys = recipe.getAsJsonObject("key").toString();

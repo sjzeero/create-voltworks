@@ -22,7 +22,9 @@ class ReelOutletTest {
 
     @Test
     void outletIsOnTheGuideFaceForEveryFacingAndFill() throws IOException {
-        for (String reel : List.of("cable_reel", "cord_reel")) {
+        for (String reel : List.of("cable_reel", "cord_reel", "small_cable_reel", "small_cord_reel")) {
+            boolean small = reel.startsWith("small_");
+            double[] px = ReelOutlet.px(small);
             JsonObject variants = ReelAssetsTest.json("assets/voltworks/blockstates/" + reel + ".json").getAsJsonObject("variants");
             for (int fill = 0; fill <= ReelMath.FILL_LEVELS; fill++)
                 for (int q = 0; q < 4; q++) {
@@ -38,10 +40,10 @@ class ReelOutletTest {
                     double[] from = arr(guide, "from"), to = arr(guide, "to");
                     String what = reel + " " + FACINGS[q] + " fill " + fill;
                     // the outer face of the guide (z = from.z for the north model), its centre - turned like the model
-                    assertEquals(from[2], ReelOutlet.PX[2], 1e-9, what + ": on the outer face");
-                    assertEquals((from[0] + to[0]) / 2, ReelOutlet.PX[0], 1e-9, what + ": centred across");
-                    assertEquals((from[1] + to[1]) / 2, ReelOutlet.PX[1], 1e-9, what + ": centred in height");
-                    Vector3d at = ReelOutlet.local(q), out = ReelOutlet.dir(q);
+                    assertEquals(from[2], px[2], 1e-9, what + ": on the outer face");
+                    assertEquals((from[0] + to[0]) / 2, px[0], 1e-9, what + ": centred across");
+                    assertEquals((from[1] + to[1]) / 2, px[1], 1e-9, what + ": centred in height");
+                    Vector3d at = ReelOutlet.local(q, small), out = ReelOutlet.dir(q);
                     Vector3d faceCentre = ReelOutlet.rotated(q, (from[0] + to[0]) / 2, (from[1] + to[1]) / 2, from[2]);
                     assertEquals(0, at.distance(faceCentre), 1e-9, what);
                     // the face looks along `out`: the guide's inside is behind it
@@ -55,16 +57,17 @@ class ReelOutletTest {
 
     @Test
     void cableLeavesTheOutletHorizontallyThenSags() {
+        for (boolean small : new boolean[]{false, true})
         for (int q = 0; q < 4; q++) {
             Vector3d reel = new Vector3d(10, 64, -3);
-            Vector3d from = ReelOutlet.local(q).add(reel), out = ReelOutlet.dir(q);
+            Vector3d from = ReelOutlet.local(q, small).add(reel), out = ReelOutlet.dir(q);
             // an end lying on the ground (reel standing on y = 64) 6 blocks out in front and a bit to the side, and one behind the reel
             for (Vector3d to : new Vector3d[]{new Vector3d(out).mul(6).add(from).add(out.z * 2, 0, out.x * 2).setComponent(1, 64 + CablePath.RADIUS),
                     new Vector3d(out).mul(-4).add(from).add(1.5, 0, 1.5).setComponent(1, 64 + CablePath.RADIUS)}) {
                 Vector3d endOut = new Vector3d(from).sub(to).setComponent(1, 0).normalize();
                 List<Vector3d> p = CablePath.points(from, out, CablePath.RUN, to, endOut, CablePath.RUN,
                         CablePath.sagDepth(from.distance(to), 1), CablePath.Floor.flat(64 + CablePath.RADIUS));
-                String what = "facing " + q + " to " + to;
+                String what = (small ? "small " : "big ") + "facing " + q + " to " + to;
                 assertEquals(0, p.get(0).distance(from), 1e-9, what);
                 Vector3d s0 = new Vector3d(p.get(1)).sub(p.get(0)), s1 = new Vector3d(p.get(2)).sub(p.get(1));
                 assertTrue(Math.toDegrees(s0.angle(out)) < 0.5, what + ": first segment straight out of the outlet");
