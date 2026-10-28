@@ -189,7 +189,9 @@ public final class ReelClient {
 
         CableReelBlock block = be.block();
         Vec3 local = block.localNode(be.getBlockState(), block.outletId());
-        Vec3 from = WallSpace.toWorld(WallSpace.renderPose(level, be.getBlockPos(), pt), Vec3.atLowerCornerOf(be.getBlockPos()).add(local));
+        Pose3dc reelPose = WallSpace.renderPose(level, be.getBlockPos(), pt);
+        Vec3 from = WallSpace.toWorld(reelPose, Vec3.atLowerCornerOf(be.getBlockPos()).add(local));
+        Vec3 fromOut = WallSpace.rotate(reelPose, block.outletDir(be.getBlockState())); // turned with a Sable structure too
         Vec3 cam = event.getCamera().getPosition();
         Vec3 guess = handPos(mc, player, event.getCamera(), pt);
         // the back of the end model as really drawn this frame (display transform, bob, swing, field of view)
@@ -204,7 +206,8 @@ public final class ReelClient {
         double stored = be.stored();
         WireData look = WireData.ofLength(type, ReelMath.followLength(distance, Math.max(stored, distance)));
         // out of the back of the model along its cord axis, then a smooth curve to the reel
-        List<Vec3> points = drawn ? ReelWire.points(from, hand, seen.out(), CablePath.HELD_RUN, look.getSag(distance), Double.NEGATIVE_INFINITY, level)
+        List<Vec3> points = drawn ? ReelWire.points(from, fromOut, hand, seen.out(), CablePath.HELD_RUN, look.getSag(distance), Double.NEGATIVE_INFINITY,
+                level, be.getBlockPos())
                 : ReelWire.points(type, from, hand, look.getSag(distance), Double.NEGATIVE_INFINITY);
         PoseStack pose = event.getPoseStack();
         MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();

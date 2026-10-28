@@ -157,7 +157,11 @@ class HeldEndTest {
                     Vector3d at = HeldEnd.world(cam, view, HeldEnd.reproject(eye, handProj, worldProj));
                     Vector3d out = HeldEnd.world(cam, view, HeldEnd.reproject(eyeOut, handProj, worldProj)).sub(at).normalize();
                     Vector3d reel = new Vector3d(cam.x + 7, ground + 0.5, cam.z - 7.1);
-                    java.util.List<Vector3d> p = CablePath.points(reel, at, out, CablePath.HELD_RUN,
+                    // the reel's outlet faces the player (as placed), or away from them
+                    Vector3d facing = new Vector3d(cam.x - reel.x, 0, cam.z - reel.z).normalize();
+                    if (yaw > 200)
+                        facing.negate();
+                    java.util.List<Vector3d> p = CablePath.points(reel, facing, CablePath.RUN, at, out, CablePath.HELD_RUN,
                             CablePath.sagDepth(reel.distance(at), 1), CablePath.Floor.flat(ground + CablePath.RADIUS));
                     String what = model + " yaw " + yaw + " pitch " + pitch;
                     int n = p.size();

@@ -69,11 +69,13 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
         CableReelBlockEntity be = level.isLoaded(entity.reelPos()) && level.getBlockEntity(entity.reelPos()) instanceof CableReelBlockEntity r ? r : null;
         boolean cord = be != null && be.block().cord;
 
-        Vec3 from = null;
+        Vec3 from = null, fromOut = null;
         if (be != null) {
             CableReelBlock block = be.block();
             Vec3 local = block.localNode(be.getBlockState(), block.outletId());
-            from = WallSpace.toWorld(WallSpace.renderPose(level, be.getBlockPos(), pt), Vec3.atLowerCornerOf(be.getBlockPos()).add(local));
+            dev.ryanhcode.sable.companion.math.Pose3dc reelPose = WallSpace.renderPose(level, be.getBlockPos(), pt);
+            from = WallSpace.toWorld(reelPose, Vec3.atLowerCornerOf(be.getBlockPos()).add(local));
+            fromOut = WallSpace.rotate(reelPose, block.outletDir(be.getBlockState())); // turned with a Sable structure too
         }
         // lie along the cable: the back of the end towards the reel
         LyingEnd.Lie lie = cord ? LyingEnd.PLUG : LyingEnd.LUG;
@@ -105,8 +107,8 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
                 WireData look = WireData.ofLength(type, ReelMath.followLength(distance, Math.max(be.stored(), distance)));
                 // a cable lying on the floor does not hang through it
                 // straight out of the back along the cord axis, then the curve to the reel
-                List<Vec3> points = ReelWire.points(from, to, LyingEnd.direction(model, lie.backDir()), CablePath.RUN,
-                        look.getSag(distance), Math.min(from.y, to.y), level);
+                List<Vec3> points = ReelWire.points(from, fromOut, to, LyingEnd.direction(model, lie.backDir()), CablePath.RUN,
+                        look.getSag(distance), Math.min(from.y, to.y), level, be.getBlockPos());
                 pose.pushPose();
                 pose.translate(-at.x, -at.y, -at.z); // entity space -> world space relative to the camera
                 ReelWire.render(points, pose, buffer, type, level);

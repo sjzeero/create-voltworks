@@ -56,23 +56,29 @@ public final class ReelWire {
      * smooth sagging curve to {@code from} (see {@link CablePath}); none of it lower than {@code floor} or in the
      * ground under it.
      */
-    public static List<Vec3> points(Vec3 from, Vec3 to, Vector3dc out, double run, float dip, double floor, BlockGetter level) {
+    public static List<Vec3> points(Vec3 from, Vec3 fromOut, Vec3 to, Vector3dc out, double run, float dip, double floor,
+                                    BlockGetter level, BlockPos reel) {
         List<Vec3> pts = new ArrayList<>();
-        for (Vector3d p : CablePath.points(new Vector3d(from.x, from.y, from.z), new Vector3d(to.x, to.y, to.z), out, run,
-                CablePath.sagDepth(from.distanceTo(to), dip), terrain(level, floor)))
+        // the reel's own block (and the one its outlet is in) is not ground: the cable leaves through its side
+        CablePath.Floor ground = terrain(level, floor, reel, BlockPos.containing(from));
+        for (Vector3d p : CablePath.points(new Vector3d(from.x, from.y, from.z), new Vector3d(fromOut.x, fromOut.y, fromOut.z),
+                CablePath.RUN, new Vector3d(to.x, to.y, to.z), out, run, CablePath.sagDepth(from.distanceTo(to), dip), ground))
             pts.add(new Vec3(p.x, p.y, p.z));
         return pts;
     }
 
     /**
      * The ground under a wire point: the top of the collision shape of the block the point is in (it is pushed out
-     * on top) or of the block right under it, plus the wire's half thickness; never lower than {@code flat}.
+     * on top) or of the block right under it, plus the wire's half thickness; never lower than {@code flat}. Blocks
+     * in {@code skip} don't count.
      */
-    public static CablePath.Floor terrain(BlockGetter level, double flat) {
+    public static CablePath.Floor terrain(BlockGetter level, double flat, BlockPos... skip) {
         return (x, y, z) -> {
             BlockPos at = BlockPos.containing(x, y, z);
             double top = Double.NEGATIVE_INFINITY;
             for (BlockPos q : new BlockPos[]{at, at.below()}) {
+                if (java.util.Arrays.asList(skip).contains(q))
+                    continue;
                 VoxelShape shape = level.getBlockState(q).getCollisionShape(level, q);
                 if (!shape.isEmpty()) {
                     top = q.getY() + shape.max(Direction.Axis.Y);

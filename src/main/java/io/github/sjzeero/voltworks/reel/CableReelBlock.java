@@ -55,8 +55,9 @@ public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice>
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
 
     /** Pixel positions for FACING = NORTH. */
-    private static final double[][] CORD_NODES = {{5, 16, 15}, {11, 16, 15}, {8, 6, 0.5}, {8, 6, 0.5}};
-    private static final double[][] CABLE_NODES = {{8, 16, 15}, {8, 6, 0.5}};
+    /** Terminals on top at the back; the outlet nodes are {@link ReelOutlet#PX}, the outlet guide's outer face. */
+    private static final double[][] CORD_NODES = {{5, 16, 15}, {11, 16, 15}, ReelOutlet.PX, ReelOutlet.PX};
+    private static final double[][] CABLE_NODES = {{8, 16, 15}, ReelOutlet.PX};
 
     public final boolean cord;
 
@@ -106,13 +107,24 @@ public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice>
 
     /** Pixel position for FACING = NORTH turned like the blockstate turns the model (y rotation, clockwise from above). */
     static Vec3 rotated(Direction facing, double px, double py, double pz) {
-        double x = px / 16, y = py / 16, z = pz / 16;
+        org.joml.Vector3d v = ReelOutlet.rotated(quarter(facing), px, py, pz);
+        return new Vec3(v.x, v.y, v.z);
+    }
+
+    /** Clockwise quarter turns from NORTH, as the blockstate's y rotation. */
+    static int quarter(Direction facing) {
         return switch (facing) {
-            case EAST -> new Vec3(1 - z, y, x);
-            case SOUTH -> new Vec3(1 - x, y, 1 - z);
-            case WEST -> new Vec3(z, y, 1 - x);
-            default -> new Vec3(x, y, z);
+            case EAST -> 1;
+            case SOUTH -> 2;
+            case WEST -> 3;
+            default -> 0;
         };
+    }
+
+    /** The direction the pulled-out cable leaves the outlet in, in the block (level, out of the front face). */
+    public Vec3 outletDir(BlockState state) {
+        org.joml.Vector3d d = ReelOutlet.dir(quarter(state.getValue(FACING)));
+        return new Vec3(d.x, d.y, d.z);
     }
 
     public Vec3 localNode(BlockState state, int id) {
