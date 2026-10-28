@@ -11,12 +11,10 @@ public final class StripGeometry {
     public static final int INPUT = 4;
     public static final int[] OUTLETS = {6, 8, 10};
     public static final int NODES = 12;
-    public static final int[] CELL_X = {-4, 5, 12, 20};
-    public static final int[] CENTER_X = {1, 8, 15};
-    public static final int BODY_X0 = -3, BODY_X1 = 19, BODY_Z0 = 4, BODY_Z1 = 12, BODY_TOP = 3;
-    public static final int RIM_TOP = 5, RIM_RADIUS = 3;
-    public static final int PLUG_LIFT = RIM_TOP - 3;
-    public static final Vector3dc INPUT_NODE = new Vector3d(-8, 2, 8);
+    public static final int[] CELL_X = {-1, 5, 11, 17};
+    public static final int BODY_Z0 = 5, BODY_Z1 = 11, BODY_TOP = 3;
+    public static final int[] GROMMET = {-3, 0, 7, -1, 2, 9};
+    public static final Vector3dc INPUT_NODE = new Vector3d(-3, 1, 8);
     public static final Vector3dc INPUT_DIR = new Vector3d(-1, 0, 0);
     public static final Vector3dc CORD_DIR = new Vector3d(0, 0, 1);
     public static final Vector3dc PLUG_BACK = new Vector3d(12, 4, 8);
@@ -46,11 +44,12 @@ public final class StripGeometry {
     }
 
     public static int centerX(int supply) {
-        return CENTER_X[index(supply)];
+        int i = index(supply);
+        return (CELL_X[i] + CELL_X[i + 1]) / 2;
     }
 
     public static Vector3d plugBack(int supply) {
-        return new Vector3d(centerX(supply), PLUG_BACK.y() + PLUG_LIFT, 8 + (PLUG_BACK.x() - 8));
+        return new Vector3d(centerX(supply), PLUG_BACK.y(), 8 + (PLUG_BACK.x() - 8));
     }
 
     public static Vector3d node(int id) {
@@ -83,7 +82,7 @@ public final class StripGeometry {
     }
 
     public static int outletAt(Vector3dc px) {
-        if (px.z() < BODY_Z0 - 2 || px.z() > BODY_Z1 + 2)
+        if (px.z() < BODY_Z0 - 3 || px.z() > BODY_Z1 + 3)
             return -1;
         for (int i = 0; i < OUTLETS.length; i++)
             if (px.x() >= CELL_X[i] && px.x() < CELL_X[i + 1])
@@ -95,7 +94,7 @@ public final class StripGeometry {
         return new Matrix4f()
                 .translate((float) (at.x() - origin.x()), (float) (at.y() - origin.y()), (float) (at.z() - origin.z()))
                 .rotateY((float) yaw)
-                .translate((centerX(supply) - 8) / 16f, 0.5f + PLUG_LIFT / 16f, 0)
+                .translate((centerX(supply) - 8) / 16f, 0.5f, 0)
                 .rotateY((float) (-Math.PI / 2))
                 .translate(-0.5f, -0.5f, -0.5f);
     }
@@ -126,6 +125,6 @@ public final class StripGeometry {
 
     public static int[] plugFootprint(int supply) {
         int cx = centerX(supply);
-        return new int[]{cx - RIM_RADIUS, cx + RIM_RADIUS, 6, 10};
+        return new int[]{cx - 3, cx + 3, 6, 10};
     }
 }

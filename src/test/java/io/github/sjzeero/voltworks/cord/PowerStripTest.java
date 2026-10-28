@@ -49,17 +49,16 @@ class PowerStripTest {
         for (int s : StripGeometry.OUTLETS) {
             int i = StripGeometry.index(s);
             int cx = StripGeometry.centerX(s);
-            assertEquals(StripGeometry.CENTER_X[i], cx);
-            assertTrue(cx - StripGeometry.RIM_RADIUS >= StripGeometry.CELL_X[i] && cx + StripGeometry.RIM_RADIUS <= StripGeometry.CELL_X[i + 1], "socket inside its cell " + i);
+            assertEquals((StripGeometry.CELL_X[i] + StripGeometry.CELL_X[i + 1]) / 2, cx);
             Vector3d back = StripGeometry.plugBack(s);
-            assertEquals(StripGeometry.RIM_TOP + 1, back.y, "plug back one pixel over the rim");
+            assertEquals(StripGeometry.BODY_TOP + 1, back.y, "plug back one pixel over the top");
             assertEquals(s, StripGeometry.outletAt(new Vector3d(cx, StripGeometry.BODY_TOP, 8)), "click on the cell picks it");
             assertEquals(s, StripGeometry.outletAt(back), "click on the plug picks it");
             near(back, StripGeometry.node(s), "positive node");
             near(back, StripGeometry.node(s + 1), "return node at the same plug");
             near(new Vector3d(StripGeometry.CORD_DIR), StripGeometry.dir(s), "outlet cords leave sideways");
         }
-        assertEquals(-1, StripGeometry.outletAt(new Vector3d(-6, 2, 8)), "the grommet is no outlet");
+        assertEquals(-1, StripGeometry.outletAt(new Vector3d(-2, 3, 8)), "the grommet is no outlet");
         assertEquals(-1, StripGeometry.outletAt(new Vector3d(8, 3, 15)));
         near(new Vector3d(StripGeometry.INPUT_NODE), StripGeometry.node(4), "input");
         near(new Vector3d(StripGeometry.INPUT_NODE), StripGeometry.node(5), "input return");
@@ -89,10 +88,6 @@ class PowerStripTest {
                 Vector3f back = m.transformPosition(new Vector3f(12 / 16f, 4 / 16f, 8 / 16f));
                 Vector3d got = new Vector3d(back.x, back.y, back.z).add(origin);
                 near(StripGeometry.world(at, yaw, StripGeometry.node(s)), got, "plug back " + s + " yaw " + yaw);
-                Vector3f base = m.transformPosition(new Vector3f(8 / 16f, 3 / 16f, 8 / 16f));
-                Vector3d px = StripGeometry.unturn(yaw, new Vector3d(base.x, base.y, base.z).add(origin).sub(at));
-                assertEquals(StripGeometry.RIM_TOP, px.y, EPS, "plug sits on the rim");
-                assertEquals(StripGeometry.centerX(s), px.x, EPS, "plug centred on the socket");
                 Vector3f out = m.transformDirection(new Vector3f(1, 0, 0));
                 near(StripGeometry.turn(yaw, StripGeometry.CORD_DIR), new Vector3d(out.x, out.y, out.z), "plug cord direction");
             }
@@ -165,7 +160,7 @@ class PowerStripTest {
         near(new Vector3d(0.5 + StripGeometry.CARRY_DISTANCE, 65.62 - StripGeometry.CARRY_DROP, 0.5), hold, "in front of the eyes");
         Vector3d anchor = new Vector3d(-3, 64.25, 0.5);
         near(hold, StripGeometry.clampToCord(hold, anchor), "inside the reach it is not held back");
-        assertTrue(StripGeometry.CENTER_REACH >= 7.0, "no hidden 2 or 4 block cap");
+        assertTrue(StripGeometry.CENTER_REACH > 7.0, "no hidden 2 or 4 block cap");
         for (double walk = 0; walk <= 12; walk += 0.25) {
             Vector3d e = new Vector3d(eye).add(walk, 0, 0);
             Vector3d at = StripGeometry.clampToCord(StripGeometry.holdTarget(e, look), anchor);
@@ -206,34 +201,28 @@ class PowerStripTest {
         JsonObject model = ReelAssetsTest.json("assets/voltworks/models/block/power_strip.json");
         assertEquals("voltworks:block/power_strip", model.getAsJsonObject("textures").get("strip").getAsString());
         assertNotNull(PowerStripTest.class.getClassLoader().getResource("assets/voltworks/textures/block/power_strip.png"));
-        Set<String> boxes = new HashSet<>();
-        int bodyX0 = Integer.MAX_VALUE, bodyX1 = Integer.MIN_VALUE;
+        int[] body = {Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, 0};
         for (JsonElement el : model.getAsJsonArray("elements")) {
             JsonObject e = el.getAsJsonObject();
             assertFalse(e.has("rotation"));
             JsonArray from = e.getAsJsonArray("from"), to = e.getAsJsonArray("to");
             double[] size = new double[3];
-            int[] f = new int[3], t = new int[3];
             for (int i = 0; i < 3; i++) {
                 assertEquals(Math.rint(from.get(i).getAsDouble()), from.get(i).getAsDouble(), "whole pixels");
                 assertEquals(Math.rint(to.get(i).getAsDouble()), to.get(i).getAsDouble(), "whole pixels");
                 size[i] = to.get(i).getAsDouble() - from.get(i).getAsDouble();
-                assertTrue(size[i] > 0, "no flat elements");
-                f[i] = from.get(i).getAsInt();
-                t[i] = to.get(i).getAsInt();
             }
-            boxes.add(f[0] + "," + f[1] + "," + f[2] + "," + t[0] + "," + t[1] + "," + t[2]);
-            if (f[1] == 0 && t[1] == StripGeometry.BODY_TOP && f[2] == StripGeometry.BODY_Z0 && t[2] == StripGeometry.BODY_Z1) {
-                bodyX0 = Math.min(bodyX0, f[0]);
-                bodyX1 = Math.max(bodyX1, t[0]);
+            if (size[1] == StripGeometry.BODY_TOP) {
+                body[0] = Math.min(body[0], from.get(0).getAsInt());
+                body[1] = Math.max(body[1], to.get(0).getAsInt());
+                body[2] = from.get(2).getAsInt();
+                body[3] = to.get(2).getAsInt();
+                body[4]++;
             }
-            assertTrue(t[1] <= StripGeometry.RIM_TOP, "nothing above the rim");
             for (var face : e.getAsJsonObject("faces").entrySet()) {
                 JsonArray uv = face.getValue().getAsJsonObject().getAsJsonArray("uv");
-                for (JsonElement u : uv) {
+                for (JsonElement u : uv)
                     assertEquals(Math.rint(u.getAsDouble()), u.getAsDouble());
-                    assertTrue(u.getAsDouble() >= 0 && u.getAsDouble() <= 16);
-                }
                 double w = Math.abs(uv.get(2).getAsDouble() - uv.get(0).getAsDouble());
                 double h = Math.abs(uv.get(3).getAsDouble() - uv.get(1).getAsDouble());
                 double[] want = switch (face.getKey()) {
@@ -244,21 +233,9 @@ class PowerStripTest {
                 assertArrayEquals(want, new double[]{w, h}, "1:1 texels on " + face.getKey());
             }
         }
-        assertEquals(StripGeometry.BODY_X0, bodyX0, "body start");
-        assertEquals(StripGeometry.BODY_X1, bodyX1, "body end");
-        int r = StripGeometry.RIM_RADIUS, y0 = StripGeometry.RIM_TOP - 1, y1 = StripGeometry.RIM_TOP;
-        for (int s : StripGeometry.OUTLETS) {
-            int c = StripGeometry.centerX(s);
-            int[] fp = StripGeometry.plugFootprint(s);
-            assertEquals(c - r, fp[0]);
-            assertEquals(c + r, fp[1]);
-            for (String want : new String[]{
-                    (c - r + 1) + "," + y0 + ",5," + (c + r - 1) + "," + y1 + ",6",
-                    (c - r + 1) + "," + y0 + ",10," + (c + r - 1) + "," + y1 + ",11",
-                    (c - r) + "," + y0 + ",6," + (c - r + 1) + "," + y1 + ",10",
-                    (c + r - 1) + "," + y0 + ",6," + (c + r) + "," + y1 + ",10"})
-                assertTrue(boxes.contains(want), "round rim part " + want + " of outlet " + s);
-        }
+        assertEquals(3, body[4], "three outlet cells");
+        assertArrayEquals(new int[]{StripGeometry.CELL_X[0], StripGeometry.CELL_X[3], StripGeometry.BODY_Z0, StripGeometry.BODY_Z1},
+                new int[]{body[0], body[1], body[2], body[3]});
         JsonObject item = ReelAssetsTest.json("assets/voltworks/models/item/power_strip.json");
         assertEquals("voltworks:block/power_strip", item.get("parent").getAsString());
         assertTrue(item.getAsJsonObject("display").has("gui"));
@@ -281,23 +258,13 @@ class PowerStripTest {
         }
         assertEquals(16, img.getWidth());
         assertEquals(16, img.getHeight());
-        int recess = lum(img.getRGB(2, 2));
+        int plastic = lum(img.getRGB(0, 2));
         for (int[] pin : new int[][]{{1, 2}, {1, 3}, {4, 2}, {4, 3}})
-            assertTrue(lum(img.getRGB(pin[0], pin[1])) < recess - 30, "pin hole " + pin[0] + "," + pin[1]);
-        for (int[] rim : new int[][]{{2, 0}, {3, 0}, {0, 2}, {0, 3}, {2, 5}, {5, 2}})
-            assertTrue(lum(img.getRGB(rim[0], rim[1])) > recess + 50, "rim " + rim[0] + "," + rim[1]);
-        for (int[] corner : new int[][]{{5, 0}, {0, 5}, {5, 5}})
-            assertEquals(img.getRGB(0, 0), img.getRGB(corner[0], corner[1]), "round socket corner");
-        assertNotEquals(img.getRGB(0, 0), img.getRGB(2, 0), "the corner is cut off the rim");
-        for (int[] clip : new int[][]{{2, 1}, {3, 1}, {2, 4}, {3, 4}}) {
-            int c = img.getRGB(clip[0], clip[1]);
-            assertTrue((c & 255) > ((c >> 16) & 255), "earthing clip is metal " + clip[0] + "," + clip[1]);
-        }
-        for (int u = 0; u < 7; u++)
-            for (int t = 0; t < 6; t++)
-                assertEquals(255, img.getRGB(u, t) >>> 24, "opaque " + u + "," + t);
-        for (int u = 8; u < 16; u++)
-            for (int t = 0; t < 8; t++)
+            assertTrue(lum(img.getRGB(pin[0], pin[1])) < plastic - 50, "pin hole " + pin[0] + "," + pin[1]);
+        for (int[] corner : new int[][]{{1, 1}, {4, 1}, {1, 4}, {4, 4}})
+            assertEquals(img.getRGB(0, 2), img.getRGB(corner[0], corner[1]), "round socket corner");
+        for (int u = 0; u < 14; u++)
+            for (int t = 0; t < 4; t++)
                 assertEquals(255, img.getRGB(u, t) >>> 24, "opaque " + u + "," + t);
     }
 

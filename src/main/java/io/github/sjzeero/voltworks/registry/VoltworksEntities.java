@@ -25,7 +25,7 @@ public final class VoltworksEntities {
 
     public static final DeferredHolder<EntityType<?>, EntityType<PowerStripEntity>> POWER_STRIP = ENTITIES.register("power_strip",
             () -> EntityType.Builder.<PowerStripEntity>of(PowerStripEntity::new, MobCategory.MISC)
-                    .sized(1.0f, 0.3125f)
+                    .sized(0.9f, 0.25f)
                     .clientTrackingRange(10)
                     .updateInterval(1)
                     .build("power_strip"));
