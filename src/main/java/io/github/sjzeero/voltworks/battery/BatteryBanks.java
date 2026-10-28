@@ -31,8 +31,20 @@ public final class BatteryBanks {
     /** Forms the bank of a newly placed (or moved) battery, together with the batteries it touches. */
     public static void ensure(Level level, BlockPos pos) {
         BatteryBlockEntity be = battery(level, pos);
-        if (be == null || be.validBank())
+        if (be == null)
             return;
+        if (be.validBank()) {
+            // a bank saved before its blocks had joined sides: bring the look up to date once
+            BatteryBlockEntity c = be.controllerBE();
+            if (c != null) {
+                BlockPos o = c.getBlockPos(), p = be.getBlockPos();
+                BlockState s = level.getBlockState(pos);
+                if (s.getBlock() instanceof BatteryBlock && s != BatteryBlock.withBankLook(s, p.equals(terminalPos(c)),
+                        p.getX() - o.getX(), p.getY() - o.getY(), p.getZ() - o.getZ(), c.sizeX(), c.sizeY(), c.sizeZ()))
+                    refreshDisplay(level, c);
+            }
+            return;
+        }
         reform(level, List.of(pos), null);
     }
 
@@ -131,8 +143,8 @@ public final class BatteryBanks {
     }
 
     /**
-     * Brings the terminal posts of a bank's blocks up to date: only the top block above the controller (the bank's
-     * north-west corner) shows them, and wires still on any other block of the bank move onto them.
+     * Brings the terminal posts and joined sides of a bank's blocks up to date: only the top block above the controller
+     * (the bank's north-west corner) shows the posts, and wires still on any other block of the bank move onto them.
      * @return true when any block changed
      */
     public static boolean refreshDisplay(Level level, BatteryBlockEntity controller) {
@@ -149,7 +161,7 @@ public final class BatteryBanks {
                     BlockState s = level.getBlockState(p);
                     if (!(s.getBlock() instanceof BatteryBlock))
                         continue;
-                    BlockState n = s.setValue(BatteryBlock.TERMINALS, top);
+                    BlockState n = BatteryBlock.withBankLook(s, top, x, y, z, controller.sizeX(), controller.sizeY(), controller.sizeZ());
                     if (n != s) {
                         level.setBlock(p, n, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
                         changed = true;

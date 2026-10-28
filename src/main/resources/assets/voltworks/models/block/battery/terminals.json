@@ -1,0 +1,191 @@
+{
+ "parent": "block/block",
+ "textures": {
+  "particle": "create:block/andesite_casing",
+  "bar": "voltworks:block/battery/battery_bar",
+  "terminals": "voltworks:block/battery/battery_terminals"
+ },
+ "elements": [
+  {
+   "name": "terminal_bar",
+   "from": [
+    2,
+    14,
+    5
+   ],
+   "to": [
+    14,
+    16,
+    11
+   ],
+   "faces": {
+    "north": {
+     "texture": "#bar",
+     "uv": [
+      0,
+      6,
+      12,
+      8
+     ]
+    },
+    "south": {
+     "texture": "#bar",
+     "uv": [
+      0,
+      6,
+      12,
+      8
+     ]
+    },
+    "east": {
+     "texture": "#bar",
+     "uv": [
+      0,
+      8,
+      6,
+      10
+     ]
+    },
+    "west": {
+     "texture": "#bar",
+     "uv": [
+      0,
+      8,
+      6,
+      10
+     ]
+    },
+    "up": {
+     "texture": "#bar",
+     "uv": [
+      0,
+      0,
+      12,
+      6
+     ],
+     "cullface": "up"
+    }
+   }
+  },
+  {
+   "from": [
+    3,
+    16,
+    6
+   ],
+   "to": [
+    7,
+    18,
+    10
+   ],
+   "faces": {
+    "up": {
+     "texture": "#terminals",
+     "uv": [
+      0,
+      0,
+      4,
+      4
+     ]
+    },
+    "north": {
+     "texture": "#terminals",
+     "uv": [
+      0,
+      4,
+      4,
+      6
+     ]
+    },
+    "south": {
+     "texture": "#terminals",
+     "uv": [
+      0,
+      4,
+      4,
+      6
+     ]
+    },
+    "east": {
+     "texture": "#terminals",
+     "uv": [
+      0,
+      4,
+      4,
+      6
+     ]
+    },
+    "west": {
+     "texture": "#terminals",
+     "uv": [
+      0,
+      4,
+      4,
+      6
+     ]
+    }
+   },
+   "name": "post"
+  },
+  {
+   "from": [
+    9,
+    16,
+    6
+   ],
+   "to": [
+    13,
+    18,
+    10
+   ],
+   "faces": {
+    "up": {
+     "texture": "#terminals",
+     "uv": [
+      8,
+      0,
+      12,
+      4
+     ]
+    },
+    "north": {
+     "texture": "#terminals",
+     "uv": [
+      8,
+      4,
+      12,
+      6
+     ]
+    },
+    "south": {
+     "texture": "#terminals",
+     "uv": [
+      8,
+      4,
+      12,
+      6
+     ]
+    },
+    "east": {
+     "texture": "#terminals",
+     "uv": [
+      8,
+      4,
+      12,
+      6
+     ]
+    },
+    "west": {
+     "texture": "#terminals",
+     "uv": [
+      8,
+      4,
+      12,
+      6
+     ]
+    }
+   },
+   "name": "post"
+  }
+ ]
+}

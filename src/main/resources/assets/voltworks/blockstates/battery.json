@@ -1,10 +1,482 @@
 {
-  "variants": {
-    "terminals=false": {
-      "model": "voltworks:block/battery/battery"
-    },
-    "terminals=true": {
-      "model": "voltworks:block/battery/battery_terminals"
-    }
+ "multipart": [
+  {
+   "apply": {
+    "model": "voltworks:block/battery/cells_lid"
+   },
+   "when": {
+    "up": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/cells_stack"
+   },
+   "when": {
+    "up": "true"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_wn_lid"
+   },
+   "when": {
+    "west": "true",
+    "north": "true",
+    "up": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_wn_stack"
+   },
+   "when": {
+    "west": "true",
+    "north": "true",
+    "up": "true"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_wm_lid"
+   },
+   "when": {
+    "west": "true",
+    "up": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_wm_stack"
+   },
+   "when": {
+    "west": "true",
+    "up": "true"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_ws_lid"
+   },
+   "when": {
+    "west": "true",
+    "south": "true",
+    "up": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_ws_stack"
+   },
+   "when": {
+    "west": "true",
+    "south": "true",
+    "up": "true"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_mn_lid"
+   },
+   "when": {
+    "north": "true",
+    "up": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_mn_stack"
+   },
+   "when": {
+    "north": "true",
+    "up": "true"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_mm_lid"
+   },
+   "when": {
+    "up": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_mm_stack"
+   },
+   "when": {
+    "up": "true"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_ms_lid"
+   },
+   "when": {
+    "south": "true",
+    "up": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_ms_stack"
+   },
+   "when": {
+    "south": "true",
+    "up": "true"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_en_lid"
+   },
+   "when": {
+    "east": "true",
+    "north": "true",
+    "up": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_en_stack"
+   },
+   "when": {
+    "east": "true",
+    "north": "true",
+    "up": "true"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_em_lid"
+   },
+   "when": {
+    "east": "true",
+    "up": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_em_stack"
+   },
+   "when": {
+    "east": "true",
+    "up": "true"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_es_lid"
+   },
+   "when": {
+    "east": "true",
+    "south": "true",
+    "up": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/core_es_stack"
+   },
+   "when": {
+    "east": "true",
+    "south": "true",
+    "up": "true"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/post_north_west"
+   },
+   "when": {
+    "west": "false",
+    "north": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/post_north_east"
+   },
+   "when": {
+    "east": "false",
+    "north": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/post_south_west"
+   },
+   "when": {
+    "west": "false",
+    "south": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/post_south_east"
+   },
+   "when": {
+    "east": "false",
+    "south": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/beam_up_north"
+   },
+   "when": {
+    "up": "false",
+    "north": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/beam_up_south"
+   },
+   "when": {
+    "up": "false",
+    "south": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/beam_up_west"
+   },
+   "when": {
+    "up": "false",
+    "west": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/beam_up_east"
+   },
+   "when": {
+    "up": "false",
+    "east": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/corner_up_north_west"
+   },
+   "when": {
+    "OR": [
+     {
+      "up": "false",
+      "north": "false",
+      "west": "true"
+     },
+     {
+      "up": "false",
+      "west": "false",
+      "north": "true"
+     }
+    ]
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/corner_up_north_east"
+   },
+   "when": {
+    "OR": [
+     {
+      "up": "false",
+      "north": "false",
+      "east": "true"
+     },
+     {
+      "up": "false",
+      "east": "false",
+      "north": "true"
+     }
+    ]
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/corner_up_south_west"
+   },
+   "when": {
+    "OR": [
+     {
+      "up": "false",
+      "south": "false",
+      "west": "true"
+     },
+     {
+      "up": "false",
+      "west": "false",
+      "south": "true"
+     }
+    ]
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/corner_up_south_east"
+   },
+   "when": {
+    "OR": [
+     {
+      "up": "false",
+      "south": "false",
+      "east": "true"
+     },
+     {
+      "up": "false",
+      "east": "false",
+      "south": "true"
+     }
+    ]
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/beam_down_north"
+   },
+   "when": {
+    "down": "false",
+    "north": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/beam_down_south"
+   },
+   "when": {
+    "down": "false",
+    "south": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/beam_down_west"
+   },
+   "when": {
+    "down": "false",
+    "west": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/beam_down_east"
+   },
+   "when": {
+    "down": "false",
+    "east": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/corner_down_north_west"
+   },
+   "when": {
+    "OR": [
+     {
+      "down": "false",
+      "north": "false",
+      "west": "true"
+     },
+     {
+      "down": "false",
+      "west": "false",
+      "north": "true"
+     }
+    ]
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/corner_down_north_east"
+   },
+   "when": {
+    "OR": [
+     {
+      "down": "false",
+      "north": "false",
+      "east": "true"
+     },
+     {
+      "down": "false",
+      "east": "false",
+      "north": "true"
+     }
+    ]
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/corner_down_south_west"
+   },
+   "when": {
+    "OR": [
+     {
+      "down": "false",
+      "south": "false",
+      "west": "true"
+     },
+     {
+      "down": "false",
+      "west": "false",
+      "south": "true"
+     }
+    ]
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/corner_down_south_east"
+   },
+   "when": {
+    "OR": [
+     {
+      "down": "false",
+      "south": "false",
+      "east": "true"
+     },
+     {
+      "down": "false",
+      "east": "false",
+      "south": "true"
+     }
+    ]
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/straps"
+   },
+   "when": {
+    "up": "false"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/straps_e"
+   },
+   "when": {
+    "up": "false",
+    "east": "true"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/straps_w"
+   },
+   "when": {
+    "up": "false",
+    "west": "true"
+   }
+  },
+  {
+   "apply": {
+    "model": "voltworks:block/battery/terminals"
+   },
+   "when": {
+    "terminals": "true"
+   }
   }
+ ]
 }

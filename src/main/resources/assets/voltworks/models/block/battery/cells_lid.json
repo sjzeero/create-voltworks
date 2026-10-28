@@ -1,0 +1,289 @@
+{
+ "parent": "block/block",
+ "textures": {
+  "particle": "create:block/andesite_casing",
+  "parts": "voltworks:block/battery/battery_parts"
+ },
+ "elements": [
+  {
+   "name": "cell",
+   "from": [
+    1,
+    0,
+    1
+   ],
+   "to": [
+    7,
+    14,
+    7
+   ],
+   "faces": {
+    "north": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "south": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "east": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "west": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "up": {
+     "texture": "#parts",
+     "uv": [
+      6,
+      0,
+      12,
+      6
+     ]
+    },
+    "down": {
+     "texture": "#parts",
+     "uv": [
+      6,
+      0,
+      12,
+      6
+     ],
+     "cullface": "down"
+    }
+   }
+  },
+  {
+   "name": "cell",
+   "from": [
+    1,
+    0,
+    9
+   ],
+   "to": [
+    7,
+    14,
+    15
+   ],
+   "faces": {
+    "north": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "south": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "east": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "west": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "up": {
+     "texture": "#parts",
+     "uv": [
+      6,
+      0,
+      12,
+      6
+     ]
+    },
+    "down": {
+     "texture": "#parts",
+     "uv": [
+      6,
+      0,
+      12,
+      6
+     ],
+     "cullface": "down"
+    }
+   }
+  },
+  {
+   "name": "cell",
+   "from": [
+    9,
+    0,
+    1
+   ],
+   "to": [
+    15,
+    14,
+    7
+   ],
+   "faces": {
+    "north": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "south": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "east": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "west": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "up": {
+     "texture": "#parts",
+     "uv": [
+      6,
+      0,
+      12,
+      6
+     ]
+    },
+    "down": {
+     "texture": "#parts",
+     "uv": [
+      6,
+      0,
+      12,
+      6
+     ],
+     "cullface": "down"
+    }
+   }
+  },
+  {
+   "name": "cell",
+   "from": [
+    9,
+    0,
+    9
+   ],
+   "to": [
+    15,
+    14,
+    15
+   ],
+   "faces": {
+    "north": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "south": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "east": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "west": {
+     "texture": "#parts",
+     "uv": [
+      0,
+      2,
+      6,
+      16
+     ]
+    },
+    "up": {
+     "texture": "#parts",
+     "uv": [
+      6,
+      0,
+      12,
+      6
+     ]
+    },
+    "down": {
+     "texture": "#parts",
+     "uv": [
+      6,
+      0,
+      12,
+      6
+     ],
+     "cullface": "down"
+    }
+   }
+  }
+ ]
+}

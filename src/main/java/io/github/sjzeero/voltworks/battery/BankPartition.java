@@ -1,6 +1,7 @@
 package io.github.sjzeero.voltworks.battery;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,6 +29,15 @@ public final class BankPartition {
 
     public static final int MAX_WIDTH = 3;
     public static final int MAX_HEIGHT = 5;
+
+    /**
+     * Whether the block at ({@code x}, {@code y}, {@code z}) of a bank of {@code sx * sy * sz} blocks (counted from the
+     * controller) has a block of the same bank on side {@code d}: that side of its model drops the frame.
+     */
+    public static boolean joined(int x, int y, int z, int sx, int sy, int sz, Direction d) {
+        int nx = x + d.getStepX(), ny = y + d.getStepY(), nz = z + d.getStepZ();
+        return nx >= 0 && nx < sx && ny >= 0 && ny < sy && nz >= 0 && nz < sz;
+    }
 
     /** A bank: the box from {@code origin} spanning {@code sx} by {@code sy} by {@code sz} blocks, holding {@code energy}. */
     public record Bank(BlockPos origin, int sx, int sy, int sz, double energy) {

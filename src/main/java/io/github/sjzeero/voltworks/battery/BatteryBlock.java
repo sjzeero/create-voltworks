@@ -6,6 +6,7 @@ import com.simibubi.create.foundation.block.IBE;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksDevices;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -21,6 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -32,12 +34,18 @@ import java.util.Map;
 
 /**
  * A full-block rechargeable battery, ported from Create: Power Grid's {@code powergrid:battery} (patryk3211,
- * Apache-2.0) its look adapted from Power Grid's battery textures by sjzeero. Touching batteries join into banks ({@link BatteryBanks}); the bank's top corner block
- * carries the + and - terminal posts, every block of the bank is wired to the same storage.
+ * Apache-2.0); its model and textures are original (sjzeero). Touching batteries join into banks ({@link BatteryBanks}); the bank's top corner block
+ * carries the + and - terminal posts, every block of the bank is wired to the same storage. A bank shows as one rack: the
+ * {@link #JOINED} sides of a block (towards blocks of the same bank) drop their frame, the cells and bus bars run on.
  */
 public class BatteryBlock extends SimpleElectricalDeviceBlock<BatteryDevice> implements IBE<BatteryBlockEntity> {
     /** True on the bank's top north-west block, which carries the terminal posts. */
     public static final BooleanProperty TERMINALS = BooleanProperty.create("terminals");
+    /** Per side: the neighbour there belongs to the same bank (only drives the model, see blockstates/battery.json). */
+    public static final Map<Direction, BooleanProperty> JOINED = Map.of(
+            Direction.NORTH, BlockStateProperties.NORTH, Direction.SOUTH, BlockStateProperties.SOUTH,
+            Direction.EAST, BlockStateProperties.EAST, Direction.WEST, BlockStateProperties.WEST,
+            Direction.UP, BlockStateProperties.UP, Direction.DOWN, BlockStateProperties.DOWN);
 
     /** Tops of the terminal posts standing on the block, in sixteenths: + (copper) on the west, - (iron) on the east. */
     public static final Vec3 PLUS = new Vec3(5 / 16.0, 18 / 16.0, 8 / 16.0);
@@ -46,12 +54,26 @@ public class BatteryBlock extends SimpleElectricalDeviceBlock<BatteryDevice> imp
 
     public BatteryBlock(Properties properties) {
         super(properties);
-        registerDefaultState(defaultBlockState().setValue(TERMINALS, true));
+        BlockState s = defaultBlockState().setValue(TERMINALS, true);
+        for (BooleanProperty p : JOINED.values())
+            s = s.setValue(p, false);
+        registerDefaultState(s);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder.add(TERMINALS));
+        builder.add(TERMINALS);
+        for (Direction d : Direction.values())
+            builder.add(JOINED.get(d));
+        super.createBlockStateDefinition(builder);
+    }
+
+    /** The state with the terminal posts and the joined sides of the block at (x, y, z) of an sx * sy * sz bank. */
+    public static BlockState withBankLook(BlockState s, boolean terminals, int x, int y, int z, int sx, int sy, int sz) {
+        s = s.setValue(TERMINALS, terminals);
+        for (Direction d : Direction.values())
+            s = s.setValue(JOINED.get(d), BankPartition.joined(x, y, z, sx, sy, sz, d));
+        return s;
     }
 
     @Override

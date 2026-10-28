@@ -11,13 +11,16 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** The battery's blockstate, models (16 px per block, 1:1 uv), connected textures, recipe, loot and names. */
+/** The battery's blockstate, models (16 px per block, 1:1 uv, no holes), recipe, loot and names. */
 class BatteryAssetsTest {
+    static final String[] SIDES = {"north", "south", "east", "west", "up", "down"};
+
     static BufferedImage png(String path) throws IOException {
         try (InputStream in = BatteryAssetsTest.class.getClassLoader().getResourceAsStream(path)) {
             assertNotNull(in, "missing " + path);
@@ -25,16 +28,76 @@ class BatteryAssetsTest {
         }
     }
 
-    static List<String> models() {
-        return List.of("battery", "battery_terminals");
+    static JsonArray multipart() throws IOException {
+        return ReelAssetsTest.json("assets/voltworks/blockstates/battery.json").getAsJsonArray("multipart");
+    }
+
+    static String path(String model) {
+        return "assets/voltworks/models/" + model.substring(model.indexOf(':') + 1) + ".json";
+    }
+
+    static boolean matches(JsonObject when, Map<String, String> state) {
+        if (when == null)
+            return true;
+        if (when.has("OR")) {
+            for (JsonElement w : when.getAsJsonArray("OR"))
+                if (matches(w.getAsJsonObject(), state))
+                    return true;
+            return false;
+        }
+        for (Map.Entry<String, JsonElement> e : when.entrySet())
+            if (!e.getValue().getAsString().equals(state.get(e.getKey())))
+                return false;
+        return true;
+    }
+
+    static void conditionKeys(JsonObject when, List<String> out) {
+        if (when.has("OR"))
+            for (JsonElement w : when.getAsJsonArray("OR"))
+                conditionKeys(w.getAsJsonObject(), out);
+        else
+            out.addAll(when.keySet());
+    }
+
+    /** All elements a block shows in the given state. */
+    static List<JsonObject> elements(Map<String, String> state) throws IOException {
+        List<JsonObject> out = new ArrayList<>();
+        for (JsonElement p : multipart()) {
+            JsonObject part = p.getAsJsonObject();
+            if (matches(part.has("when") ? part.getAsJsonObject("when") : null, state))
+                for (JsonElement e : ReelAssetsTest.json(path(part.getAsJsonObject("apply").get("model").getAsString())).getAsJsonArray("elements"))
+                    out.add(e.getAsJsonObject());
+        }
+        return out;
+    }
+
+    static Map<String, String> state(int joinedBits, boolean terminals) {
+        Map<String, String> s = new HashMap<>();
+        for (int i = 0; i < 6; i++)
+            s.put(SIDES[i], String.valueOf((joinedBits >> i & 1) == 1));
+        s.put("terminals", String.valueOf(terminals));
+        return s;
+    }
+
+    static double[] vec(JsonObject e, String k) {
+        JsonArray a = e.getAsJsonArray(k);
+        return new double[]{a.get(0).getAsDouble(), a.get(1).getAsDouble(), a.get(2).getAsDouble()};
     }
 
     @Test
-    void blockstateHasOnlyTheTerminalVariants() throws IOException {
-        JsonObject v = ReelAssetsTest.json("assets/voltworks/blockstates/battery.json").getAsJsonObject("variants");
-        assertEquals(2, v.size(), "no charge-dependent variants");
-        assertEquals("voltworks:block/battery/battery_terminals", v.getAsJsonObject("terminals=true").get("model").getAsString());
-        assertEquals("voltworks:block/battery/battery", v.getAsJsonObject("terminals=false").get("model").getAsString());
+    void blockstateIsTheBankLookOnly() throws IOException {
+        // the model depends on the joined sides and the terminal posts only - nothing shows the charge
+        for (JsonElement p : multipart()) {
+            JsonObject part = p.getAsJsonObject();
+            if (part.has("when")) {
+                List<String> keys = new ArrayList<>();
+                conditionKeys(part.getAsJsonObject("when"), keys);
+                for (String k : keys)
+                    assertTrue(List.of(SIDES).contains(k) || k.equals("terminals"), k);
+            }
+            assertNotNull(ReelAssetsTest.json(path(part.getAsJsonObject("apply").get("model").getAsString())));
+        }
+        assertEquals("voltworks:block/battery/battery_item", ReelAssetsTest.json("assets/voltworks/models/item/battery.json").get("parent").getAsString());
     }
 
     static double size(JsonArray from, JsonArray to, int axis) {
@@ -43,11 +106,15 @@ class BatteryAssetsTest {
 
     @Test
     void modelsAreOnTheBlockGridWithOneToOneUv() throws IOException {
-        for (String m : models()) {
-            JsonObject model = ReelAssetsTest.json("assets/voltworks/models/block/battery/" + m + ".json");
+        List<String> models = new ArrayList<>(List.of("voltworks:block/battery/battery_item"));
+        for (JsonElement p : multipart())
+            models.add(p.getAsJsonObject().getAsJsonObject("apply").get("model").getAsString());
+        for (String m : models) {
+            JsonObject model = ReelAssetsTest.json(path(m));
             for (Map.Entry<String, JsonElement> t : model.getAsJsonObject("textures").entrySet()) {
                 String tex = t.getValue().getAsString();
-                assertNotNull(png("assets/voltworks/textures/" + tex.substring(tex.indexOf(':') + 1) + ".png"));
+                if (tex.startsWith("voltworks:"))
+                    assertNotNull(png("assets/voltworks/textures/" + tex.substring(tex.indexOf(':') + 1) + ".png"));
             }
             for (JsonElement el : model.getAsJsonArray("elements")) {
                 JsonObject e = el.getAsJsonObject();
@@ -57,13 +124,12 @@ class BatteryAssetsTest {
                     double f = from.get(a).getAsDouble(), tt = to.get(a).getAsDouble();
                     assertEquals(Math.rint(f), f, m + ": off-grid");
                     assertEquals(Math.rint(tt), tt, m + ": off-grid");
-                    assertTrue(f >= 0 && tt <= 18 && tt > f, m); // posts stand 2 px above the block
+                    assertTrue(f >= 0 && tt <= (a == 1 ? 18 : 16) && tt > f, m); // posts stand 2 px above the block
                 }
                 for (Map.Entry<String, JsonElement> fe : e.getAsJsonObject("faces").entrySet()) {
                     JsonObject face = fe.getValue().getAsJsonObject();
                     assertFalse(face.has("rotation"), m + ": rotated uv");
-                    if (!face.has("uv"))
-                        continue;
+                    assertTrue(model.getAsJsonObject("textures").has(face.get("texture").getAsString().substring(1)), m);
                     JsonArray uv = face.getAsJsonArray("uv");
                     double w = Math.abs(uv.get(2).getAsDouble() - uv.get(0).getAsDouble());
                     double h = Math.abs(uv.get(3).getAsDouble() - uv.get(1).getAsDouble());
@@ -80,47 +146,119 @@ class BatteryAssetsTest {
         }
     }
 
+    /** Every texel the battery textures show is opaque (no see-through faces). */
     @Test
-    void connectedSheetsMatchTheirSprites() throws IOException {
-        for (String t : List.of("battery_top", "battery_side")) {
-            BufferedImage base = png("assets/voltworks/textures/block/battery/" + t + ".png");
-            BufferedImage sheet = png("assets/voltworks/textures/block/battery/" + t + "_connected.png");
-            assertEquals(16, base.getWidth());
-            assertEquals(16, base.getHeight());
-            assertEquals(64, sheet.getWidth(), t);
-            assertEquals(64, sheet.getHeight(), t);
-            // Create's rectangle CT: tile (0, 3) is the block with no neighbours
-            for (int y = 0; y < 16; y++)
-                for (int x = 0; x < 16; x++)
-                    assertEquals(base.getRGB(x, y), sheet.getRGB(x, 48 + y), t + " at " + x + "," + y);
-            // every tile is drawn (banks may be any rectangle, not only squares)
-            for (int y = 0; y < 64; y++)
-                for (int x = 0; x < 64; x++)
-                    assertEquals(255, sheet.getRGB(x, y) >>> 24, t + ": hole at " + x + "," + y);
-            // the lone tile's corner frame is gone from the fully surrounded tile (2, 1)
-            assertNotEquals(base.getRGB(0, 0), sheet.getRGB(32, 16), t);
+    void texturesAreOpaqueWhereUsed() throws IOException {
+        for (int bits = 0; bits < 64; bits++)
+            for (JsonObject e : elements(state(bits, true)))
+                for (Map.Entry<String, JsonElement> fe : e.getAsJsonObject("faces").entrySet()) {
+                    JsonObject face = fe.getValue().getAsJsonObject();
+                    String key = face.get("texture").getAsString().substring(1);
+                    String tex = Map.of("core", "battery/battery_core", "parts", "battery/battery_parts", "bar", "battery/battery_bar",
+                            "terminals", "battery/battery_terminals").get(key);
+                    if (tex == null)
+                        continue; // Create's andesite casing
+                    BufferedImage img = png("assets/voltworks/textures/block/" + tex + ".png");
+                    JsonArray uv = face.getAsJsonArray("uv");
+                    int u0 = uv.get(0).getAsInt(), v0 = uv.get(1).getAsInt(), u1 = uv.get(2).getAsInt(), v1 = uv.get(3).getAsInt();
+                    for (int x = Math.min(u0, u1); x < Math.max(u0, u1); x++)
+                        for (int y = Math.min(v0, v1); y < Math.max(v0, v1); y++)
+                            assertEquals(0xFF, img.getRGB(x, y) >>> 24, tex + " " + x + "," + y);
+                }
+    }
+
+    /**
+     * Whatever the bank around it, a battery is solid: a line into the block through any texel of an outer (not
+     * joined) side meets the model inside the block - the grooves between cells have a back, there is no hole
+     * through the rack.
+     */
+    @Test
+    void noHolesThroughTheRack() throws IOException {
+        int[][] dir = {{0, 0, 1}, {0, 0, -1}, {-1, 0, 0}, {1, 0, 0}, {0, -1, 0}, {0, 1, 0}}; // inward, per SIDES
+        for (int bits = 0; bits < 64; bits++) {
+            List<JsonObject> els = elements(state(bits, false));
+            for (int s = 0; s < 6; s++) {
+                if ((bits >> s & 1) == 1)
+                    continue;
+                int ax = dir[s][0] != 0 ? 0 : dir[s][1] != 0 ? 1 : 2, a = (ax + 1) % 3, b = (ax + 2) % 3;
+                for (int i = 0; i < 16; i++)
+                    for (int j = 0; j < 16; j++) {
+                        boolean hit = false;
+                        for (int k = 0; k < 16 && !hit; k++) {
+                            double[] p = new double[3];
+                            p[a] = i + 0.5;
+                            p[b] = j + 0.5;
+                            p[ax] = dir[s][ax] > 0 ? k + 0.5 : 15.5 - k;
+                            for (JsonObject e : els) {
+                                double[] f = vec(e, "from"), t = vec(e, "to");
+                                if (f[0] < p[0] && p[0] < t[0] && f[1] < p[1] && p[1] < t[1] && f[2] < p[2] && p[2] < t[2]) {
+                                    hit = true;
+                                    break;
+                                }
+                            }
+                        }
+                        assertTrue(hit, "joined " + Integer.toBinaryString(bits) + ": hole through the " + SIDES[s] + " side at " + i + "," + j);
+                    }
+            }
         }
-        assertEquals(16, png("assets/voltworks/textures/block/battery/battery_terminals.png").getWidth());
+    }
+
+    /** The frame runs round the outside of the bank only; a lone battery has the whole frame. */
+    @Test
+    void frameOnlyOnTheBanksOuterEdges() throws IOException {
+        for (int bits = 0; bits < 64; bits++) {
+            List<JsonObject> els = elements(state(bits, false));
+            for (JsonObject e : els) {
+                if (!"frame".equals(e.get("name").getAsString()))
+                    continue;
+                double[] f = vec(e, "from"), t = vec(e, "to");
+                // a frame piece touches at least two outer sides of the block, none of them joined
+                int outer = 0;
+                double[][] lim = {{f[2], 0}, {t[2], 16}, {t[0], 16}, {f[0], 0}, {t[1], 16}, {f[1], 0}};
+                for (int s = 0; s < 6; s++)
+                    if (lim[s][0] == lim[s][1] && (bits >> s & 1) == 0)
+                        outer++;
+                assertTrue(outer >= 2, "joined " + Integer.toBinaryString(bits) + ": frame inside the bank " + e);
+            }
+        }
+        long frame = elements(state(0, false)).stream().filter(e -> "frame".equals(e.get("name").getAsString())).count();
+        assertEquals(12, frame, "a lone battery: 4 posts and 8 rim beams");
+        // a block in the middle of a bank (all sides joined) is cells and core only
+        for (JsonObject e : elements(state(63, false)))
+            assertTrue(List.of("cell", "core").contains(e.get("name").getAsString()), e.toString());
     }
 
     @Test
-    void postsSitFlushOnTheLidUnderTheWireNodes() throws IOException {
+    void itemIsTheLoneBatteryWithItsPosts() throws IOException {
+        JsonArray item = ReelAssetsTest.json("assets/voltworks/models/block/battery/battery_item.json").getAsJsonArray("elements");
+        assertEquals(elements(state(0, true)).size(), item.size());
+    }
+
+    @Test
+    void postsSitFlushOnTheInsulatorBarUnderTheWireNodes() throws IOException {
         // BatteryBlock.PLUS / MINUS, in sixteenths: the wire ends at the centre of each post's top
         double[][] nodes = {{5, 18, 8}, {11, 18, 8}};
-        JsonObject model = ReelAssetsTest.json("assets/voltworks/models/block/battery/battery_terminals.json");
         List<JsonObject> posts = new ArrayList<>();
-        for (JsonElement el : model.getAsJsonArray("elements"))
-            if (el.getAsJsonObject().getAsJsonArray("to").get(1).getAsDouble() > 16)
-                posts.add(el.getAsJsonObject());
-        assertEquals(2, posts.size(), "one solid element per post");
-        for (int i = 0; i < 2; i++) {
-            JsonArray from = posts.get(i).getAsJsonArray("from"), to = posts.get(i).getAsJsonArray("to");
-            assertEquals(16, from.get(1).getAsDouble(), "post stands on the lid");
-            assertEquals(nodes[i][1], to.get(1).getAsDouble(), "node at the post top");
-            assertEquals(nodes[i][0], (from.get(0).getAsDouble() + to.get(0).getAsDouble()) / 2, "node centred in x");
-            assertEquals(nodes[i][2], (from.get(2).getAsDouble() + to.get(2).getAsDouble()) / 2, "node centred in z");
+        JsonObject bar = null;
+        for (JsonObject e : elements(state(0, true))) {
+            if (vec(e, "to")[1] > 16)
+                posts.add(e);
+            if ("terminal_bar".equals(e.get("name").getAsString()))
+                bar = e;
         }
-        assertEquals(1, ReelAssetsTest.json("assets/voltworks/models/block/battery/battery.json").getAsJsonArray("elements").size(), "no posts on plain blocks");
+        assertEquals(2, posts.size(), "one solid element per post");
+        assertNotNull(bar);
+        for (int i = 0; i < 2; i++) {
+            double[] f = vec(posts.get(i), "from"), t = vec(posts.get(i), "to");
+            assertEquals(16, f[1], "post stands on the top");
+            assertEquals(vec(bar, "to")[1], f[1], "post stands on the insulator bar");
+            assertTrue(vec(bar, "from")[0] <= f[0] && t[0] <= vec(bar, "to")[0] && vec(bar, "from")[2] <= f[2] && t[2] <= vec(bar, "to")[2]);
+            assertEquals(nodes[i][1], t[1], "node at the post top");
+            assertEquals(nodes[i][0], (f[0] + t[0]) / 2, "node centred in x");
+            assertEquals(nodes[i][2], (f[2] + t[2]) / 2, "node centred in z");
+        }
+        for (JsonObject e : elements(state(0, false)))
+            assertTrue(vec(e, "to")[1] <= 16, "no posts on plain blocks");
     }
 
     @Test

@@ -100,9 +100,5 @@ public class VoltworksClient {
         ModelSwapper.swapModels(event.getModels(),
                 ModelSwapper.getAllBlockStateModelLocations(VoltworksBlocks.SOLAR_PANEL.get()),
                 m -> new CTModel(m, behaviour));
-        var battery = new io.github.sjzeero.voltworks.battery.BatteryCTBehaviour();
-        ModelSwapper.swapModels(event.getModels(),
-                ModelSwapper.getAllBlockStateModelLocations(VoltworksBlocks.BATTERY.get()),
-                m -> new CTModel(m, battery));
     }
 }

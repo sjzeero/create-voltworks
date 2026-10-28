@@ -1,0 +1,81 @@
+{
+ "parent": "block/block",
+ "textures": {
+  "particle": "create:block/andesite_casing",
+  "core": "voltworks:block/battery/battery_core"
+ },
+ "elements": [
+  {
+   "name": "core",
+   "from": [
+    2,
+    0,
+    0
+   ],
+   "to": [
+    14,
+    16,
+    2
+   ],
+   "faces": {
+    "north": {
+     "texture": "#core",
+     "uv": [
+      2,
+      0,
+      14,
+      16
+     ],
+     "cullface": "north"
+    },
+    "south": {
+     "texture": "#core",
+     "uv": [
+      2,
+      0,
+      14,
+      16
+     ]
+    },
+    "east": {
+     "texture": "#core",
+     "uv": [
+      14,
+      0,
+      16,
+      16
+     ]
+    },
+    "west": {
+     "texture": "#core",
+     "uv": [
+      0,
+      0,
+      2,
+      16
+     ]
+    },
+    "up": {
+     "texture": "#core",
+     "uv": [
+      2,
+      0,
+      14,
+      2
+     ],
+     "cullface": "up"
+    },
+    "down": {
+     "texture": "#core",
+     "uv": [
+      2,
+      14,
+      14,
+      16
+     ],
+     "cullface": "down"
+    }
+   }
+  }
+ ]
+}
