@@ -13,6 +13,7 @@ import io.github.sjzeero.voltworks.cord.CordPair;
 import io.github.sjzeero.voltworks.cord.Outlets;
 import io.github.sjzeero.voltworks.cord.SocketBlock;
 import io.github.sjzeero.voltworks.cord.SocketPlugs;
+import io.github.sjzeero.voltworks.cord.StripGeometry;
 import io.github.sjzeero.voltworks.cord.StripLinks;
 import io.github.sjzeero.voltworks.reel.CableEndEntity;
 import io.github.sjzeero.voltworks.reel.CablePath;
@@ -73,6 +74,8 @@ public final class ReelClient {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null || data == null)
             return;
+        if (followStrip(level, connection, data, partialTick))
+            return;
         CableReelBlockEntity be = reelAt(level, connection.node1());
         if (be == null)
             be = reelAt(level, connection.node2());
@@ -85,6 +88,19 @@ public final class ReelClient {
         if (p1 == null || p2 == null)
             return;
         data.length = ReelMath.followLength(p1.distanceTo(p2), total);
+    }
+
+    private static boolean followStrip(ClientLevel level, InWorldNodeConnection connection, WireData data, float partialTick) {
+        InWorldNode n = StripGeometry.isStripNode(connection.node1().id()) ? connection.node1()
+                : StripGeometry.isStripNode(connection.node2().id()) ? connection.node2() : null;
+        if (n == null || !StripLinks.linked(level, n.sourcePos()))
+            return false;
+        Vec3 p1 = connection.node1().getPosition(level, partialTick), p2 = connection.node2().getPosition(level, partialTick);
+        if (p1 == null || p2 == null)
+            return true;
+        double d = p1.distanceTo(p2);
+        data.length = StripGeometry.cordLength(d, StripGeometry.isInput(n.id()) ? StripGeometry.CORD_LENGTH : d + StripGeometry.slack(d));
+        return true;
     }
 
     public static void followLengths(float partialTick) {

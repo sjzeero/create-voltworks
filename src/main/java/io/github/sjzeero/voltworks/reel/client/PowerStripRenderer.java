@@ -3,6 +3,7 @@ package io.github.sjzeero.voltworks.reel.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.sjzeero.voltworks.cord.PowerStripEntity;
+import io.github.sjzeero.voltworks.cord.StripLinks;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -13,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 public class PowerStripRenderer extends EntityRenderer<PowerStripEntity> {
     private final ItemRenderer items;
@@ -28,8 +30,11 @@ public class PowerStripRenderer extends EntityRenderer<PowerStripEntity> {
     public void render(PowerStripEntity entity, float entityYaw, float pt, PoseStack pose, MultiBufferSource buffer, int light) {
         if (look.isEmpty())
             look = new ItemStack(VoltworksItems.POWER_STRIP_ITEM.get());
+        StripLinks.Placement at = entity.placement(pt);
+        Vec3 base = entity.getPosition(pt);
         pose.pushPose();
-        pose.mulPose(Axis.YP.rotation((float) entity.yaw(pt)));
+        pose.translate(at.at().x - base.x, at.at().y - base.y, at.at().z - base.z);
+        pose.mulPose(Axis.YP.rotation((float) at.yaw()));
         pose.translate(0, 0.5, 0);
         items.renderStatic(look, ItemDisplayContext.NONE, light, OverlayTexture.NO_OVERLAY, pose, buffer, entity.level(), entity.getId());
         pose.popPose();

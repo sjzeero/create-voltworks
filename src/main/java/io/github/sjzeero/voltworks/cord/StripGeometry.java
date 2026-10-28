@@ -7,7 +7,7 @@ import org.joml.Vector3dc;
 public final class StripGeometry {
     private StripGeometry() {}
 
-    public static final double CORD_LENGTH = 4.0;
+    public static final double CORD_LENGTH = 8.0;
     public static final int INPUT = 4;
     public static final int[] OUTLETS = {6, 8, 10};
     public static final int NODES = 12;
@@ -20,6 +20,9 @@ public final class StripGeometry {
     public static final Vector3dc PLUG_BACK = new Vector3d(12, 4, 8);
     public static final double INPUT_ARM = Math.hypot(INPUT_NODE.x() - 8, INPUT_NODE.z() - 8) / 16;
     public static final double CENTER_REACH = CORD_LENGTH - INPUT_ARM;
+    public static final double CARRY_DISTANCE = 1.3;
+    public static final double CARRY_DROP = 0.35;
+    public static final double CARRY_SLIP = 7.5;
 
     public static int index(int supply) {
         for (int i = 0; i < OUTLETS.length; i++)
@@ -94,6 +97,30 @@ public final class StripGeometry {
                 .translate((centerX(supply) - 8) / 16f, 0.5f, 0)
                 .rotateY((float) (-Math.PI / 2))
                 .translate(-0.5f, -0.5f, -0.5f);
+    }
+
+    public static double slack(double distance) {
+        return Math.min(0.5, Math.max(0, distance) * 0.05);
+    }
+
+    public static double cordLength(double distance, double reach) {
+        return Math.max(distance, Math.min(reach, distance + slack(distance)));
+    }
+
+    public static Vector3d holdTarget(Vector3dc eye, Vector3dc look) {
+        return new Vector3d(look).mul(CARRY_DISTANCE).add(eye).sub(0, CARRY_DROP, 0);
+    }
+
+    public static Vector3d clampToCord(Vector3dc target, Vector3dc anchor) {
+        Vector3d off = new Vector3d(target).sub(anchor);
+        double d = off.length();
+        if (d <= CENTER_REACH || d < 1.0E-9)
+            return new Vector3d(target);
+        return off.mul(CENTER_REACH / d).add(anchor);
+    }
+
+    public static boolean slips(Vector3dc eye, Vector3dc held) {
+        return eye.distance(held) > CARRY_SLIP;
     }
 
     public static int[] plugFootprint(int supply) {

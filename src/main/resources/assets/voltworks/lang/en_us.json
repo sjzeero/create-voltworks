@@ -359,7 +359,7 @@
   "voltworks.battery.tooltip.charge": "Charge: %s%% (%s / %s Wh)",
   "block.voltworks.power_strip": "Power Strip",
   "entity.voltworks.power_strip": "Power Strip",
-  "block.voltworks.power_strip.tooltip.summary": "A portable block of _three outlets_ on its own _4 block_ cord. Use it _on a socket_ to drop it nearby already plugged in, or anywhere else to lay it down. _Right-click_ it to pick it up and carry it, again to put it down; it stays within reach of its cord. Plug cords into its outlets like into a socket; they move with the strip. _Sneak_-click to take it back as an item.",
+  "block.voltworks.power_strip.tooltip.summary": "A portable block of _three outlets_ on its own _8 block_ cord. Use it _on a socket_ to drop it nearby already plugged in, or anywhere else to lay it down. _Right-click_ it to pick it up and carry it, again to put it down; a plugged strip is held back at the end of its cord, an unplugged one drags its plug along. Plug cords into its outlets like into a socket; they move with the strip. _Sneak_-click to take it back as an item.",
   "voltworks.node.power_strip_cord": "Strip cord",
   "voltworks.cord.carried": "Cord unplugged at both ends: you carry it",
   "voltworks.cord.end_unplugged": "Cord end unplugged; the other end stays in",

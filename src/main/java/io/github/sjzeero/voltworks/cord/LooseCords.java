@@ -168,7 +168,7 @@ public final class LooseCords extends SavedData {
                 continue;
             Cord cord = new Cord(c.getUUID("Id"));
             cord.kind = "STRIP".equals(c.getString("Kind")) ? Kind.STRIP : Kind.CORD;
-            cord.reach = c.getDouble("Reach");
+            cord.reach = cord.kind == Kind.STRIP ? StripGeometry.CORD_LENGTH : c.getDouble("Reach");
             cord.ends[0] = End.load(c.getCompound("End0"));
             cord.ends[1] = End.load(c.getCompound("End1"));
             d.cords.put(cord.id, cord);
@@ -994,6 +994,31 @@ public final class LooseCords extends SavedData {
         setDirty();
     }
 
+    private double outletReach(InWorldNodeConnection strand, @Nullable WireData data) {
+        String k = key(strand.node1(), strand.node2());
+        Double reach = reaches.get(k);
+        if (reach != null)
+            return reach;
+        double r = data == null ? StripGeometry.CORD_LENGTH : data.length;
+        reaches.put(k, r);
+        setDirty();
+        return r;
+    }
+
+    public static boolean followStrip(ServerLevel sl, InfrastructureSavedData sd, InWorldNodeConnection connection, WireData data) {
+        InWorldNode n = StripGeometry.isStripNode(connection.node1().id()) ? connection.node1()
+                : StripGeometry.isStripNode(connection.node2().id()) ? connection.node2() : null;
+        if (n == null || !sl.isLoaded(n.sourcePos()) || !(sl.getBlockState(n.sourcePos()).getBlock() instanceof SocketBlock)
+                || !StripLinks.linked(sl, n.sourcePos()))
+            return false;
+        Vec3 a = sd.getNodePosition(connection.node1()), b = sd.getNodePosition(connection.node2());
+        if (a == null || b == null)
+            return false;
+        double reach = StripGeometry.isInput(n.id()) ? StripGeometry.CORD_LENGTH : get(sl).outletReach(connection, data);
+        data.length = StripGeometry.cordLength(a.distanceTo(b), reach);
+        return true;
+    }
+
     private void stretchOutlets(Strip strip) {
         BlockPos socket = strip.socket;
         if (socket == null)
@@ -1005,9 +1030,7 @@ public final class LooseCords extends SavedData {
             InWorldNode other = far(strand, socket, supply);
             Vec3 here = plugWorld(level, socket, supply);
             Vec3 there = plugWorld(level, other.sourcePos(), other.id());
-            Double reach = reaches.get(key(strand.node1(), strand.node2()));
-            WireData data = InfrastructureSavedData.load(level).getConnectionData(strand);
-            double r = CordReach.reachOf(reach, data == null ? 1 : data.length);
+            double r = outletReach(strand, InfrastructureSavedData.load(level).getConnectionData(strand));
             if (WallSpace.distance(level, here, there) > r + STRETCH) {
                 Cord c = unlay(strand, socket, supply);
                 lay(c, 1, here, Vec3.ZERO);
@@ -1023,13 +1046,11 @@ public final class LooseCords extends SavedData {
             strip.yaw = e.yaw();
             setDirty();
         }
-        if (strip.socket != null && e.tickCount % 10 == 0) {
-            if (level.isLoaded(strip.socket) && (!(level.getBlockState(strip.socket).getBlock() instanceof SocketBlock)
-                    || cordAt(level, strip.socket, StripGeometry.INPUT) == null))
-                detachStrip(strip, null, false);
-            else
-                stretchOutlets(strip);
-        }
+        if (strip.socket != null && e.tickCount % 10 == 0 && level.isLoaded(strip.socket)
+                && (!(level.getBlockState(strip.socket).getBlock() instanceof SocketBlock) || cordAt(level, strip.socket, StripGeometry.INPUT) == null))
+            detachStrip(strip, null, false);
+        if (strip.socket != null)
+            stretchOutlets(strip);
         if (!Objects.equals(e.socket(), strip.socket))
             e.setSocket(strip.socket);
         if (strip.socket != null)

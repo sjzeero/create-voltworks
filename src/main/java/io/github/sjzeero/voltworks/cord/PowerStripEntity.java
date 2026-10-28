@@ -29,15 +29,12 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 public class PowerStripEntity extends Entity {
     private static final EntityDataAccessor<Optional<BlockPos>> SOCKET = SynchedEntityData.defineId(PowerStripEntity.class, EntityDataSerializers.OPTIONAL_BLOCK_POS);
-    public static final double CARRY_DISTANCE = 1.3;
-    public static final double CARRY_SLIP = 3.5;
+    private static final EntityDataAccessor<Integer> CARRIER = SynchedEntityData.defineId(PowerStripEntity.class, EntityDataSerializers.INT);
 
-    private @Nullable UUID carrier;
     private @Nullable BlockPos linked;
     private int lerpSteps;
     private double lerpX, lerpY, lerpZ;
@@ -68,7 +65,41 @@ public class PowerStripEntity extends Entity {
     }
 
     public StripLinks.Placement placement(float pt) {
+        Player p = carrier();
+        if (p != null && level().isClientSide) {
+            Vec3 at = held(p, pt);
+            return new StripLinks.Placement(at, heldYaw(p, at, pt));
+        }
         return new StripLinks.Placement(getPosition(pt), yaw(pt));
+    }
+
+    public @Nullable Player carrier() {
+        int id = entityData.get(CARRIER);
+        return id >= 0 && level().getEntity(id) instanceof Player p && p.isAlive() ? p : null;
+    }
+
+    private void setCarrier(@Nullable Player p) {
+        entityData.set(CARRIER, p == null ? -1 : p.getId());
+    }
+
+    private @Nullable Vec3 socketAnchor() {
+        BlockPos socket = socket();
+        return socket != null && level().isLoaded(socket) ? LooseCords.plugWorld(level(), socket, SocketBlock.CORD_POSITIVE) : null;
+    }
+
+    private Vec3 held(Player p, float pt) {
+        Vec3 eye = p.getEyePosition(pt), look = p.getViewVector(pt);
+        Vector3d target = StripGeometry.holdTarget(new Vector3d(eye.x, eye.y, eye.z), new Vector3d(look.x, look.y, look.z));
+        Vec3 anchor = socketAnchor();
+        if (anchor != null)
+            target = StripGeometry.clampToCord(target, new Vector3d(anchor.x, anchor.y, anchor.z));
+        return new Vec3(target.x, target.y, target.z);
+    }
+
+    private double heldYaw(Player p, Vec3 at, float pt) {
+        Vec3 anchor = socketAnchor();
+        Vec3 toward = anchor != null ? anchor : p.getPosition(pt);
+        return StripGeometry.yawToward(toward.x - at.x, toward.z - at.z, yaw(pt));
     }
 
     public @Nullable BlockPos socket() {
@@ -80,12 +111,13 @@ public class PowerStripEntity extends Entity {
     }
 
     public boolean carriedBy(Player p) {
-        return p.getUUID().equals(carrier);
+        return entityData.get(CARRIER) == p.getId();
     }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(SOCKET, Optional.empty());
+        builder.define(CARRIER, -1);
     }
 
     @Override
@@ -99,36 +131,34 @@ public class PowerStripEntity extends Entity {
             return;
         LooseCords cords = LooseCords.get(sl);
         Vec3 anchor = cords.stripTick(this);
+        if (carry(sl))
+            return;
         Vec3 before = position();
-        if (!carry(sl, anchor))
-            fall(anchor);
+        fall(anchor);
         Vec3 moved = position().subtract(before);
         if (anchor != null && moved.lengthSqr() > 1.0E-6)
             setYaw(StripGeometry.yawToward(anchor.x - getX(), anchor.z - getZ(), yaw()));
     }
 
-    private boolean carry(ServerLevel sl, @Nullable Vec3 anchor) {
-        if (carrier == null)
+    private boolean carry(ServerLevel sl) {
+        if (entityData.get(CARRIER) < 0)
             return false;
-        ServerPlayer p = sl.getServer().getPlayerList().getPlayer(carrier);
-        if (p == null || p.level() != sl || !p.isAlive()) {
-            carrier = null;
+        Player p = carrier();
+        if (!(p instanceof ServerPlayer sp) || p.level() != sl) {
+            setCarrier(null);
             return false;
         }
-        Vec3 look = p.getLookAngle();
-        Vec3 target = p.getEyePosition().add(look.x * CARRY_DISTANCE, look.y * CARRY_DISTANCE - 0.35, look.z * CARRY_DISTANCE);
-        if (anchor != null && target.distanceTo(anchor) > StripGeometry.CENTER_REACH)
-            target = anchor.add(target.subtract(anchor).normalize().scale(StripGeometry.CENTER_REACH));
-        if (target.distanceTo(p.getEyePosition()) > CARRY_SLIP) {
-            carrier = null;
-            p.displayClientMessage(Component.translatable("voltworks.power_strip.slipped").withStyle(ChatFormatting.RED), true);
-            sl.playSound(null, p.blockPosition(), SoundEvents.LEASH_KNOT_BREAK, SoundSource.PLAYERS, 0.8f, 1.2f);
+        Vec3 at = held(sp, 1);
+        Vec3 eye = sp.getEyePosition();
+        if (StripGeometry.slips(new Vector3d(eye.x, eye.y, eye.z), new Vector3d(at.x, at.y, at.z))) {
+            setCarrier(null);
+            sp.displayClientMessage(Component.translatable("voltworks.power_strip.slipped").withStyle(ChatFormatting.RED), true);
+            sl.playSound(null, sp.blockPosition(), SoundEvents.LEASH_KNOT_BREAK, SoundSource.PLAYERS, 0.8f, 1.2f);
             return false;
         }
         setDeltaMovement(Vec3.ZERO);
-        setPos(target.x, target.y, target.z);
-        if (anchor == null)
-            setYaw(StripGeometry.yawToward(p.getX() - getX(), p.getZ() - getZ(), yaw()));
+        setPos(at.x, at.y, at.z);
+        setYaw(heldYaw(sp, at, 1));
         return true;
     }
 
@@ -154,7 +184,13 @@ public class PowerStripEntity extends Entity {
     }
 
     private void clientTick() {
-        if (lerpSteps > 0) {
+        Player p = carrier();
+        if (p != null) {
+            Vec3 at = held(p, 1);
+            setPos(at.x, at.y, at.z);
+            setYaw(heldYaw(p, at, 1));
+            lerpSteps = 0;
+        } else if (lerpSteps > 0) {
             setPos(getX() + (lerpX - getX()) / lerpSteps, getY() + (lerpY - getY()) / lerpSteps, getZ() + (lerpZ - getZ()) / lerpSteps);
             setYRot(getYRot() + Mth.wrapDegrees(lerpYaw - getYRot()) / lerpSteps);
             lerpSteps--;
@@ -212,7 +248,7 @@ public class PowerStripEntity extends Entity {
             return InteractionResult.SUCCESS;
         }
         if (carriedBy(sp)) {
-            carrier = null;
+            setCarrier(null);
             sl.playSound(null, blockPosition(), SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.PLAYERS, 0.6f, 1.2f);
             return InteractionResult.SUCCESS;
         }
@@ -222,7 +258,7 @@ public class PowerStripEntity extends Entity {
         }
         if (cords.useStripOutlet(sp, this, outlet, false) || cords.pullPlug(sp, this))
             return InteractionResult.SUCCESS;
-        carrier = sp.getUUID();
+        setCarrier(sp);
         sl.playSound(null, blockPosition(), SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.PLAYERS, 0.6f, 1.2f);
         sp.displayClientMessage(Component.translatable("voltworks.power_strip.carried"), true);
         return InteractionResult.SUCCESS;

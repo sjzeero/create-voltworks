@@ -132,6 +132,53 @@ class PowerStripTest {
         assertTrue(p.node(6).distanceTo(p.node(8)) > 5 / 16.0);
     }
 
+    private static boolean eeBreaks(double distance, double length) {
+        return distance - length > 1.0 && distance / length > 1.4;
+    }
+
+    @Test
+    void stripCordIsEightBlocksAndItsWireNeverSnapsWithinReach() {
+        assertEquals(8.0, StripGeometry.CORD_LENGTH);
+        assertTrue(eeBreaks(2.7, CordReach.laidLength(1.5, 4.0)), "a wire laid 1.5 blocks long used to snap at about 2.6 blocks");
+        for (double d = 0; d <= StripGeometry.CORD_LENGTH + 3; d += 0.05) {
+            double len = StripGeometry.cordLength(d, StripGeometry.CORD_LENGTH);
+            assertTrue(len >= d - 1e-9, "never shorter than the gap at " + d);
+            assertFalse(eeBreaks(d, len), "EE keeps the wire at " + d);
+            if (d <= StripGeometry.CORD_LENGTH - 0.5)
+                assertEquals(d + StripGeometry.slack(d), len, 1e-9, "a little slack while in reach");
+            if (d >= StripGeometry.CORD_LENGTH)
+                assertEquals(d, len, 1e-9, "taut past the reach");
+        }
+        assertTrue(StripGeometry.cordLength(3.9, 4.0) <= 4.0);
+    }
+
+    @Test
+    void carriedStripIsHeldInFrontAndPulledOnTheCord() {
+        Vector3d eye = new Vector3d(0.5, 65.62, 0.5);
+        Vector3d look = new Vector3d(1, 0, 0);
+        Vector3d hold = StripGeometry.holdTarget(eye, look);
+        near(new Vector3d(0.5 + StripGeometry.CARRY_DISTANCE, 65.62 - StripGeometry.CARRY_DROP, 0.5), hold, "in front of the eyes");
+        Vector3d anchor = new Vector3d(-3, 64.25, 0.5);
+        near(hold, StripGeometry.clampToCord(hold, anchor), "inside the reach it is not held back");
+        assertTrue(StripGeometry.CENTER_REACH > 7.0, "no hidden 2 or 4 block cap");
+        for (double walk = 0; walk <= 12; walk += 0.25) {
+            Vector3d e = new Vector3d(eye).add(walk, 0, 0);
+            Vector3d at = StripGeometry.clampToCord(StripGeometry.holdTarget(e, look), anchor);
+            assertTrue(at.distance(anchor) <= StripGeometry.CENTER_REACH + EPS);
+            double yaw = StripGeometry.yawToward(anchor.x - at.x, anchor.z - at.z, 0);
+            Vector3d input = StripGeometry.world(at, yaw, StripGeometry.INPUT_NODE);
+            assertTrue(input.distance(anchor) <= StripGeometry.CORD_LENGTH + EPS, "the input stays on the cord at walk " + walk);
+            boolean slip = StripGeometry.slips(e, at);
+            assertEquals(e.distance(at) > 7.5, slip);
+        }
+        Vector3d far = new Vector3d(anchor).add(StripGeometry.CENTER_REACH, 0, 0);
+        assertFalse(StripGeometry.slips(new Vector3d(far).add(7.4, 0, 0), far));
+        assertTrue(StripGeometry.slips(new Vector3d(far).add(7.6, 0, 0), far));
+        Vector3d side = StripGeometry.clampToCord(new Vector3d(anchor).add(6, 0, 6), anchor);
+        assertEquals(StripGeometry.CENTER_REACH, side.distance(anchor), EPS, "pulled along the cord's sphere toward the player");
+        assertEquals(side.x - anchor.x, side.z - anchor.z, EPS);
+    }
+
     @Test
     void cordReach() {
         assertTrue(CordReach.fits(4.0, 4.0));
