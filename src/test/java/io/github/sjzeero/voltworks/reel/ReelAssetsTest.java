@@ -17,10 +17,10 @@ import java.util.TreeSet;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** Every reel has its blockstate, models, loot table, recipe and names in both languages. */
-class ReelAssetsTest {
+public class ReelAssetsTest {
     static final List<String> REELS = List.of("cord_reel", "cable_reel");
 
-    static JsonObject json(String path) throws IOException {
+    public static JsonObject json(String path) throws IOException {
         try (InputStream in = ReelAssetsTest.class.getClassLoader().getResourceAsStream(path)) {
             assertNotNull(in, "missing resource " + path);
             return JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject();

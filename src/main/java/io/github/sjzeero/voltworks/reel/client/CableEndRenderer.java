@@ -94,7 +94,8 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
 
         Vector3d back = LyingEnd.toEntity(model, lie.backPx()); // same matrix as the model: the cable meets its back
         if (Minecraft.getInstance().getDebugOverlay().showDebugScreen())
-            debug(entity, pose, buffer, cord, yaw, at, back, from, be);
+            debug(pose, buffer, at, back, from);
+        log(entity, cord, yaw, at, back, from, be);
         WireType type = be == null ? null : be.wireType();
         if (type != null) {
             Vec3 to = at.add(back.x, back.y, back.z);
@@ -112,14 +113,24 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
         super.render(entity, entityYaw, pt, pose, buffer, light);
     }
 
-    private static final java.util.Set<Integer> LOGGED = new java.util.HashSet<>();
+    private static final java.util.Map<Integer, Long> LOGGED = new java.util.HashMap<>();
 
-    /**
-     * F3 on: a green box on the entity origin (on the ground), a red one where the cable goes in, a yellow line to
-     * the reel outlet, and one log line per end - to tell from a screenshot which part is off.
-     */
-    private static void debug(CableEndEntity entity, PoseStack pose, MultiBufferSource buffer, boolean cord, double yaw, Vec3 at,
-                              Vector3d back, @Nullable Vec3 from, @Nullable CableReelBlockEntity be) {
+    /** One log line per lying end every 5 seconds, debug screen or not. */
+    private static void log(CableEndEntity entity, boolean cord, double yaw, Vec3 at, Vector3d back, @Nullable Vec3 from,
+                            @Nullable CableReelBlockEntity be) {
+        long now = System.currentTimeMillis();
+        Long last = LOGGED.get(entity.getId());
+        if (last != null && now - last < 5000)
+            return;
+        if (LOGGED.size() > 256)
+            LOGGED.clear();
+        LOGGED.put(entity.getId(), now);
+        Voltworks.LOGGER.info("[voltworks] cable end {}: cord={} at={} yaw={} back={} outlet={} wire={}", entity.getId(), cord, at,
+                Math.toDegrees(yaw), back, from, be == null ? null : be.wireType());
+    }
+
+    /** F3 on: a green box on the entity origin (on the ground), a red one where the cable goes in, a yellow line to the reel outlet. */
+    private static void debug(PoseStack pose, MultiBufferSource buffer, Vec3 at, Vector3d back, @Nullable Vec3 from) {
         VertexConsumer lines = buffer.getBuffer(RenderType.lines());
         double r = 1 / 32.0;
         LevelRenderer.renderLineBox(pose, lines, new AABB(-r, 0, -r, r, 2 * r, r), 0, 1, 0, 1);
@@ -131,9 +142,6 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
             lines.addVertex(last, (float) back.x, (float) back.y, (float) back.z).setColor(1f, 1f, 0f, 1f).setNormal(last, dx / len, dy / len, dz / len);
             lines.addVertex(last, dx, dy, dz).setColor(1f, 1f, 0f, 1f).setNormal(last, dx / len, dy / len, dz / len);
         }
-        if (LOGGED.add(entity.getId()))
-            Voltworks.LOGGER.info("[voltworks] cable end {}: cord={} at={} yaw={} back={} outlet={} wire={}", entity.getId(), cord, at,
-                    Math.toDegrees(yaw), back, from, be == null ? null : be.wireType());
     }
 
     @Override

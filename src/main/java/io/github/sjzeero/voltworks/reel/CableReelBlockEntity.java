@@ -226,7 +226,10 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         Vec3 outlet = outletWorld();
         Vec3 pos = outlet.add(at.subtract(outlet).scale(ReelMath.reachScale(at.distanceTo(outlet), stored)));
         CableEndEntity end = new CableEndEntity(sl, worldPosition, pos, motion);
-        if (sl.addFreshEntity(end)) {
+        boolean added = sl.addFreshEntity(end);
+        io.github.sjzeero.voltworks.Voltworks.LOGGER.info("[voltworks] reel {} dropped loose end: type={} id={} uuid={} at={} added={}",
+                worldPosition, net.minecraft.world.entity.EntityType.getKey(end.getType()), end.getId(), end.getUUID(), pos, added);
+        if (added) {
             loose = end.getUUID();
             looseAt = end.blockPosition();
         }

@@ -29,7 +29,8 @@
     "client.ItemPickerMenuSectionsMixin",
     "client.CreativeScreenSectionsMixin",
     "client.ItemPickerMenuAccessor",
-    "client.CustomCreativeSlotMixin"
+    "client.CustomCreativeSlotMixin",
+    "client.ItemRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,7 +1,8 @@
 package io.github.sjzeero.voltworks.reel.client;
 
 import com.george_vi.electroenergetics.client.WireRenderer;
-import com.george_vi.electroenergetics.foundation.QuadraticWireHelper;
+import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.sjzeero.voltworks.Voltworks;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
 import com.george_vi.electroenergetics.simulation.WireType;
@@ -35,6 +36,7 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 import java.util.HashSet;
@@ -57,6 +59,7 @@ public final class ReelClient {
 
     public static void init() {
         NeoForge.EVENT_BUS.addListener(ReelClient::render);
+        HeldEndTracker.init();
     }
 
     // ---- laid cables -------------------------------------------------------------------------------------------
@@ -169,6 +172,8 @@ public final class ReelClient {
 
     // ---- cable end in the hand -----------------------------------------------------------------------------------
 
+    private static long heldLogged;
+
     private static void renderHeld(RenderLevelStageEvent event, Minecraft mc, LocalPlayer player, ClientLevel level) {
         ItemStack held = player.getMainHandItem();
         if (!(held.getItem() instanceof ReelPlugItem))
@@ -184,7 +189,14 @@ public final class ReelClient {
         CableReelBlock block = be.block();
         Vec3 local = block.localNode(be.getBlockState(), block.outletId());
         Vec3 from = WallSpace.toWorld(WallSpace.renderPose(level, be.getBlockPos(), pt), Vec3.atLowerCornerOf(be.getBlockPos()).add(local));
-        Vec3 hand = handPos(mc, player, event.getCamera(), pt);
+        Vec3 cam = event.getCamera().getPosition();
+        Vec3 guess = handPos(mc, player, event.getCamera(), pt);
+        // the back of the end model as really drawn this frame (display transform, bob, swing, field of view)
+        Matrix4f view = new Matrix4f(RenderSystem.getModelViewMatrix()).mul(event.getPoseStack().last().pose());
+        Vector3d seen = HeldEndTracker.world(mc.options.getCameraType().isFirstPerson(), new Vector3d(cam.x, cam.y, cam.z),
+                view, new Matrix4f(RenderSystem.getProjectionMatrix()));
+        boolean drawn = seen != null && guess.distanceToSqr(seen.x, seen.y, seen.z) < 2.5 * 2.5;
+        Vec3 hand = drawn ? new Vec3(seen.x, seen.y, seen.z) : guess;
         double distance = from.distanceTo(hand);
         if (distance < 0.05)
             return;
@@ -193,11 +205,17 @@ public final class ReelClient {
         List<Vec3> points = ReelWire.points(type, from, hand, look.getSag(distance), Double.NEGATIVE_INFINITY);
 
         PoseStack pose = event.getPoseStack();
-        Vec3 cam = event.getCamera().getPosition();
         MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
         pose.pushPose();
         pose.translate(-cam.x, -cam.y, -cam.z);
         ReelWire.render(points, pose, buffer, type, level);
+        long now = System.currentTimeMillis();
+        if (now - heldLogged > 5000) {
+            heldLogged = now;
+            Voltworks.LOGGER.info("[voltworks] held wire: end={} (model {}, guess {}, captured {}) outlet={} segments={} camera={}",
+                    hand, drawn ? "as drawn" : "not captured, fallback", guess, seen, from, points.size() - 1,
+                    mc.options.getCameraType());
+        }
         pose.popPose();
         buffer.endBatch(type.renderType());
 
@@ -209,7 +227,8 @@ public final class ReelClient {
     }
 
     /**
-     * Where the held cable end is, the way vanilla finds the hand holding a fishing rod line: in first person a point
+     * Fallback when the held model was not seen being drawn (hand hidden, another mod drawing items): where the held
+     * cable end is, roughly, the way vanilla finds the hand holding a fishing rod line: in first person a point
      * on the camera's near plane at the main-hand corner (scaled by the field of view, so the wire runs into the held
      * item at the bottom of the screen instead of stopping in front of the crosshair), in third person the hand of
      * the body model.
