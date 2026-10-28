@@ -4,7 +4,7 @@ import org.joml.Vector3d;
 
 /**
  * Where the pulled-out cable leaves a reel: the middle of the outer face of the "outlet" guide in the reel block
- * models (big reel: {@code outlet [5,4,0]-[11,8,2]}, on the front face, z = 0; small reel: {@code [6,2,1]-[10,6,3]}, 1 px
+ * models (big reel: {@code outlet [5,4,0]-[11,8,2]} (four bars around a 2x2 hole), on the front face, z = 0; small reel: {@code [6,3,1]-[10,7,3]}, 1 px
  * proud of its frame, z = 1; FACING = NORTH, every fill level), and
  * the direction it leaves in (straight out of that face, level). Free of Minecraft classes for unit tests.
  * <p>
@@ -17,7 +17,7 @@ public final class ReelOutlet {
     /** The outlet guide's outer face centre, model pixels, FACING = NORTH. */
     public static final double[] PX = {8, 6, 0};
     /** The same for the small reel. */
-    public static final double[] PX_SMALL = {8, 4, 1};
+    public static final double[] PX_SMALL = {8, 5, 1};
 
     public static double[] px(boolean small) {
         return small ? PX_SMALL : PX;

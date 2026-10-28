@@ -32,13 +32,21 @@ class ReelOutletTest {
                     int y = v.has("y") ? v.get("y").getAsInt() : 0;
                     assertEquals(q * 90, y, reel + " " + FACINGS[q] + ": blockstate turn");
                     String model = v.get("model").getAsString().replace("voltworks:", "assets/voltworks/models/") + ".json";
-                    JsonObject guide = null;
+                    // the guide is a ring of bars around a real hole: its bounds, and the hole's centre is open
+                    double[] from = null, to = null;
+                    List<double[][]> bars = new java.util.ArrayList<>();
                     for (JsonElement e : ReelAssetsTest.json(model).getAsJsonArray("elements"))
-                        if ("outlet".equals(e.getAsJsonObject().get("name").getAsString()))
-                            guide = e.getAsJsonObject();
-                    assertNotNull(guide, model + ": outlet guide");
-                    double[] from = arr(guide, "from"), to = arr(guide, "to");
+                        if ("outlet".equals(e.getAsJsonObject().get("name").getAsString())) {
+                            double[] a = arr(e.getAsJsonObject(), "from"), b = arr(e.getAsJsonObject(), "to");
+                            bars.add(new double[][]{a, b});
+                            if (from == null) { from = a.clone(); to = b.clone(); }
+                            for (int i = 0; i < 3; i++) { from[i] = Math.min(from[i], a[i]); to[i] = Math.max(to[i], b[i]); }
+                        }
+                    assertNotNull(from, model + ": outlet guide");
                     String what = reel + " " + FACINGS[q] + " fill " + fill;
+                    assertEquals(4, bars.size(), what + ": four bars around the hole");
+                    for (double[][] b : bars) // nothing of the guide at the cable's start: it comes out of the hole
+                        assertFalse(b[0][0] < px[0] && px[0] < b[1][0] && b[0][1] < px[1] && px[1] < b[1][1], what + ": hole at the cable start");
                     // the outer face of the guide (z = from.z for the north model), its centre - turned like the model
                     assertEquals(from[2], px[2], 1e-9, what + ": on the outer face");
                     assertEquals((from[0] + to[0]) / 2, px[0], 1e-9, what + ": centred across");

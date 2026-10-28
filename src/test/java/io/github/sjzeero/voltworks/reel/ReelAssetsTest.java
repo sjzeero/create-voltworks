@@ -154,7 +154,10 @@ public class ReelAssetsTest {
                         b[i] = o.getAsJsonArray("to").get(i).getAsDouble();
                     }
                     switch (o.get("name").getAsString()) {
-                        case "outlet" -> { outFrom = a; outTo = b; }
+                        case "outlet" -> {
+                            if (outFrom == null) { outFrom = a.clone(); outTo = b.clone(); }
+                            for (int i = 0; i < 3; i++) { outFrom[i] = Math.min(outFrom[i], a[i]); outTo[i] = Math.max(outTo[i], b[i]); }
+                        }
                         case "coil" -> { coilFrom = a; coilTo = b; }
                         case "wire" -> {
                             wire.add(new double[][]{a, b});
@@ -169,15 +172,16 @@ public class ReelAssetsTest {
                     assertTrue(wire.isEmpty(), what + ": no wire on an empty drum");
                     continue;
                 }
-                assertFalse(wire.isEmpty(), what);
-                // the pieces join up, one touches the outlet guide (its back or top) and one lies on the coil
-                double[] of = outFrom, ot = outTo, cf = coilFrom, ct = coilTo;
-                assertTrue(wire.stream().anyMatch(w -> touches(w[0], w[1], of, ot)), what + ": into the outlet");
-                assertTrue(wire.stream().anyMatch(w -> touches(w[0], w[1], cf, ct)), what + ": off the coil");
-                for (double[][] w : wire)
-                    assertTrue(wire.stream().anyMatch(v -> v != w && touches(w[0], w[1], v[0], v[1])), what + ": pieces joined");
-                for (double[][] w : wire) // centred on the guide's hole
-                    assertEquals((of[0] + ot[0]) / 2, (w[0][0] + w[1][0]) / 2, 1e-9, what);
+                // one straight 2 px cable, level at the hole's height, from the coil's front face into the guide's hole
+                assertEquals(1, wire.size(), what + ": one straight piece, no post");
+                double[] of = outFrom, ot = outTo, w0 = wire.get(0)[0], w1 = wire.get(0)[1];
+                assertEquals(2, w1[0] - w0[0], 1e-9, what + ": 2 px wide");
+                assertEquals(2, w1[1] - w0[1], 1e-9, what + ": 2 px high");
+                assertEquals((of[0] + ot[0]) / 2, (w0[0] + w1[0]) / 2, 1e-9, what + ": centred across the hole");
+                assertEquals((of[1] + ot[1]) / 2, (w0[1] + w1[1]) / 2, 1e-9, what + ": at the hole's height");
+                assertEquals(of[2] + 1, w0[2], 1e-9, what + ": starts inside the hole, 1 px in");
+                assertEquals(coilFrom[2], w1[2], 1e-9, what + ": ends on the coil's front");
+                assertTrue(coilFrom[1] <= w0[1] && w1[1] <= coilTo[1], what + ": leaves the coil's front face");
             }
     }
 
