@@ -10,6 +10,7 @@ import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.ryanhcode.sable.companion.math.Pose3dc;
 import io.github.sjzeero.voltworks.cord.SocketBlock;
+import io.github.sjzeero.voltworks.reel.CablePath;
 import io.github.sjzeero.voltworks.reel.CableReelBlock;
 import io.github.sjzeero.voltworks.reel.CableReelBlockEntity;
 import io.github.sjzeero.voltworks.reel.ReelMath;
@@ -203,7 +204,7 @@ public final class ReelClient {
         double stored = be.stored();
         WireData look = WireData.ofLength(type, ReelMath.followLength(distance, Math.max(stored, distance)));
         // out of the back of the model along its cord axis, then a smooth curve to the reel
-        List<Vec3> points = drawn ? ReelWire.points(from, hand, seen.out(), look.getSag(distance), Double.NEGATIVE_INFINITY)
+        List<Vec3> points = drawn ? ReelWire.points(from, hand, seen.out(), CablePath.HELD_RUN, look.getSag(distance), Double.NEGATIVE_INFINITY, level)
                 : ReelWire.points(type, from, hand, look.getSag(distance), Double.NEGATIVE_INFINITY);
         PoseStack pose = event.getPoseStack();
         MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();

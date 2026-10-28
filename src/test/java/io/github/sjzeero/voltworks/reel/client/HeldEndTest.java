@@ -2,6 +2,7 @@ package io.github.sjzeero.voltworks.reel.client;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.github.sjzeero.voltworks.reel.CablePath;
 import io.github.sjzeero.voltworks.reel.LyingEnd;
 import io.github.sjzeero.voltworks.reel.ReelAssetsTest;
 import org.joml.Matrix4f;
@@ -123,8 +124,8 @@ class HeldEndTest {
                 Vector3d at = HeldEnd.world(cam, view, HeldEnd.reproject(eye, handProj, worldProj));
                 Vector3d out = HeldEnd.world(cam, view, HeldEnd.reproject(eyeOut, handProj, worldProj)).sub(at).normalize();
                 Vector3d reel = new Vector3d(cam).add(4, -1.5, 3);
-                java.util.List<Vector3d> p = io.github.sjzeero.voltworks.reel.CablePath.points(reel, at, out,
-                        io.github.sjzeero.voltworks.reel.CablePath.sagDepth(reel.distance(at), 1), Double.NEGATIVE_INFINITY);
+                java.util.List<Vector3d> p = CablePath.points(reel, at, out, CablePath.HELD_RUN,
+                        CablePath.sagDepth(reel.distance(at), 1), CablePath.Floor.flat(Double.NEGATIVE_INFINITY));
                 Vector3d next = p.get(p.size() - 2); // the first wire point out of the model
                 Vector3f a = view.transformPosition(new Vector3f((float) (at.x - cam.x), (float) (at.y - cam.y), (float) (at.z - cam.z)), new Vector3f());
                 Vector3f b = view.transformPosition(new Vector3f((float) (next.x - cam.x), (float) (next.y - cam.y), (float) (next.z - cam.z)), new Vector3f());
@@ -133,6 +134,49 @@ class HeldEndTest {
                 double deg = Math.toDegrees(Math.acos(Math.max(-1, Math.min(1, wire.dot(axis)))));
                 assertTrue(deg < 3, model + (right ? " right" : " left") + ": first segment " + deg + " degrees off the cord axis");
             }
+    }
+
+    /**
+     * Held plug, reel outlet on the ground 10 blocks away: after the short run out of the plug the cable only goes
+     * down (to the ground), then along / up to the outlet - never up first, never under the ground.
+     */
+    @Test
+    void heldPlugToAReelOnTheGroundHangsDownNotUpNorUnderground() throws IOException {
+        Matrix4f handProj = perspective(70), worldProj = perspective(90);
+        double ground = 64;
+        Vector3d cam = new Vector3d(0.5, ground + 1.62, 0.5);
+        for (String model : new String[]{"cord_plug", "cable_lug"})
+            for (float yaw : new float[]{0, 75, 180, 250})
+                for (float pitch : new float[]{-30, 0, 20, 60}) { // minecraft pitch: + looks down
+                    Quaternionf rot = new Quaternionf().rotationYXZ((float) Math.PI - yaw * DEG, -pitch * DEG, 0);
+                    Matrix4f view = new Matrix4f().rotation(rot.conjugate(new Quaternionf()));
+                    boolean cord = model.equals("cord_plug");
+                    Matrix4f pose = new Matrix4f(view).invert().mul(firstPerson(model, true, 0, 0));
+                    Vector3f eye = HeldEnd.eye(view, pose, HeldEnd.backPx(cord).get(new Vector3f()));
+                    Vector3f eyeOut = HeldEnd.eye(view, pose, HeldEnd.outPx(cord).get(new Vector3f()));
+                    Vector3d at = HeldEnd.world(cam, view, HeldEnd.reproject(eye, handProj, worldProj));
+                    Vector3d out = HeldEnd.world(cam, view, HeldEnd.reproject(eyeOut, handProj, worldProj)).sub(at).normalize();
+                    Vector3d reel = new Vector3d(cam.x + 7, ground + 0.5, cam.z - 7.1);
+                    java.util.List<Vector3d> p = CablePath.points(reel, at, out, CablePath.HELD_RUN,
+                            CablePath.sagDepth(reel.distance(at), 1), CablePath.Floor.flat(ground + CablePath.RADIUS));
+                    String what = model + " yaw " + yaw + " pitch " + pitch;
+                    int n = p.size();
+                    Vector3d j = p.get(n - 3); // end of the straight run
+                    assertTrue(j.distance(at) <= CablePath.HELD_RUN + 1e-6, what + ": short run");
+                    boolean rising = false;
+                    for (int i = n - 3; i >= 0; i--) { // from the model to the reel
+                        Vector3d v = p.get(i);
+                        assertTrue(v.y >= ground + CablePath.RADIUS - 1e-9, what + ": under the ground at " + i + " " + v);
+                        assertTrue(v.y <= Math.max(j.y, reel.y) + 1e-9, what + ": above its ends at " + i + " " + v);
+                        if (i < n - 3) {
+                            double dy = v.y - p.get(i + 1).y;
+                            if (dy > 1e-6)
+                                rising = true;
+                            else if (rising)
+                                assertTrue(dy > -1e-6, what + ": up and then down again at " + i);
+                        }
+                    }
+                }
     }
 
     /** Model direction {@code dir} after a display context's rotation. */

@@ -10,6 +10,9 @@ import net.createmod.catnip.render.SuperByteBuffer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
@@ -49,15 +52,36 @@ public final class ReelWire {
     }
 
     /**
-     * The cable into an end model: straight out of the model along its cord axis {@code out} for a short run, then a
-     * smooth sagging curve to {@code from} (see {@link CablePath}); none of it lower than {@code floor}.
+     * The cable into an end model: straight out of the model along its cord axis {@code out} for {@code run}, then a
+     * smooth sagging curve to {@code from} (see {@link CablePath}); none of it lower than {@code floor} or in the
+     * ground under it.
      */
-    public static List<Vec3> points(Vec3 from, Vec3 to, Vector3dc out, float dip, double floor) {
+    public static List<Vec3> points(Vec3 from, Vec3 to, Vector3dc out, double run, float dip, double floor, BlockGetter level) {
         List<Vec3> pts = new ArrayList<>();
-        for (Vector3d p : CablePath.points(new Vector3d(from.x, from.y, from.z), new Vector3d(to.x, to.y, to.z), out,
-                CablePath.sagDepth(from.distanceTo(to), dip), floor))
+        for (Vector3d p : CablePath.points(new Vector3d(from.x, from.y, from.z), new Vector3d(to.x, to.y, to.z), out, run,
+                CablePath.sagDepth(from.distanceTo(to), dip), terrain(level, floor)))
             pts.add(new Vec3(p.x, p.y, p.z));
         return pts;
+    }
+
+    /**
+     * The ground under a wire point: the top of the collision shape of the block the point is in (it is pushed out
+     * on top) or of the block right under it, plus the wire's half thickness; never lower than {@code flat}.
+     */
+    public static CablePath.Floor terrain(BlockGetter level, double flat) {
+        return (x, y, z) -> {
+            BlockPos at = BlockPos.containing(x, y, z);
+            double top = Double.NEGATIVE_INFINITY;
+            for (BlockPos q : new BlockPos[]{at, at.below()}) {
+                VoxelShape shape = level.getBlockState(q).getCollisionShape(level, q);
+                if (!shape.isEmpty()) {
+                    top = q.getY() + shape.max(Direction.Axis.Y);
+                    break;
+                }
+            }
+            double lowest = top + CablePath.RADIUS;
+            return Math.max(flat, y < lowest ? lowest : Double.NEGATIVE_INFINITY);
+        };
     }
 
     public static void render(List<Vec3> points, PoseStack pose, MultiBufferSource buffer, WireType type, BlockAndTintGetter level) {

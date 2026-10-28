@@ -4,6 +4,7 @@ import com.george_vi.electroenergetics.simulation.WireType;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.sjzeero.voltworks.reel.CableEndEntity;
+import io.github.sjzeero.voltworks.reel.CablePath;
 import io.github.sjzeero.voltworks.reel.CableReelBlock;
 import io.github.sjzeero.voltworks.reel.CableReelBlockEntity;
 import io.github.sjzeero.voltworks.reel.LyingEnd;
@@ -104,8 +105,8 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
                 WireData look = WireData.ofLength(type, ReelMath.followLength(distance, Math.max(be.stored(), distance)));
                 // a cable lying on the floor does not hang through it
                 // straight out of the back along the cord axis, then the curve to the reel
-                List<Vec3> points = ReelWire.points(from, to, LyingEnd.direction(model, lie.backDir()), look.getSag(distance),
-                        Math.min(from.y, to.y));
+                List<Vec3> points = ReelWire.points(from, to, LyingEnd.direction(model, lie.backDir()), CablePath.RUN,
+                        look.getSag(distance), Math.min(from.y, to.y), level);
                 pose.pushPose();
                 pose.translate(-at.x, -at.y, -at.z); // entity space -> world space relative to the camera
                 ReelWire.render(points, pose, buffer, type, level);
