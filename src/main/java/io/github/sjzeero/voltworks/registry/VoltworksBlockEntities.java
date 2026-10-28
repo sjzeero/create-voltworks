@@ -41,6 +41,9 @@ public final class VoltworksBlockEntities {
             () -> BlockEntityType.Builder.of(io.github.sjzeero.voltworks.reel.CableReelBlockEntity::new, VoltworksBlocks.CORD_REEL.get(), VoltworksBlocks.CABLE_REEL.get(),
                     VoltworksBlocks.SMALL_CORD_REEL.get(), VoltworksBlocks.SMALL_CABLE_REEL.get()).build(null));
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<io.github.sjzeero.voltworks.battery.BatteryBlockEntity>> BATTERY_BE = BLOCK_ENTITIES.register("battery",
+            () -> BlockEntityType.Builder.of(io.github.sjzeero.voltworks.battery.BatteryBlockEntity::new, VoltworksBlocks.BATTERY.get()).build(null));
+
     public static void register(IEventBus bus) {
         BLOCK_ENTITIES.register(bus);
     }

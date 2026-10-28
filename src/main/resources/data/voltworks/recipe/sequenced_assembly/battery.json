@@ -1,0 +1,68 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create:andesite_casing"
+  },
+  "loops": 2,
+  "results": [
+    {
+      "chance": 100.0,
+      "id": "voltworks:battery"
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_battery"
+        },
+        {
+          "tag": "c:plates/copper"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_battery"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_battery"
+        },
+        {
+          "tag": "c:ingots/zinc"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_battery"
+        }
+      ]
+    },
+    {
+      "type": "create:filling",
+      "ingredients": [
+        {
+          "item": "voltworks:incomplete_battery"
+        },
+        {
+          "type": "neoforge:single",
+          "amount": 250,
+          "fluid": "voltworks:acid"
+        }
+      ],
+      "results": [
+        {
+          "id": "voltworks:incomplete_battery"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "voltworks:incomplete_battery"
+  }
+}

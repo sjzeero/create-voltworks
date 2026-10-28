@@ -35,7 +35,7 @@ public final class VoltworksTabSections {
         }
         for (Supplier<? extends ItemLike> s : List.<Supplier<? extends ItemLike>>of(VoltworksItems.SERVO_ITEM, VoltworksItems.CONSTANT_SPEED_MOTOR_ITEM, VoltworksItems.SOCKET_ITEM, VoltworksItems.CORD_REEL_ITEM, VoltworksItems.CABLE_REEL_ITEM, VoltworksItems.SMALL_CORD_REEL_ITEM, VoltworksItems.SMALL_CABLE_REEL_ITEM, VoltworksItems.TWO_CORE_WIRE, VoltworksItems.COPPER_CORD, VoltworksItems.REDSTONE_CABLE_WIRE, VoltworksItems.REDSTONE_CABLE))
             motors.add(s.get().asItem());
-        for (Supplier<? extends ItemLike> s : List.<Supplier<? extends ItemLike>>of(VoltworksItems.SOLAR_PANEL_ITEM, VoltworksItems.SOLAR_PANEL_BEARING_ITEM, VoltworksItems.INCOMPLETE_SOLAR_PANEL))
+        for (Supplier<? extends ItemLike> s : List.<Supplier<? extends ItemLike>>of(VoltworksItems.SOLAR_PANEL_ITEM, VoltworksItems.SOLAR_PANEL_BEARING_ITEM, VoltworksItems.INCOMPLETE_SOLAR_PANEL, VoltworksItems.BATTERY_ITEM, VoltworksItems.INCOMPLETE_BATTERY))
             solar.add(s.get().asItem());
         List<Item> lights = new ArrayList<>();
         lights.add(VoltworksItems.FACTORY_LIGHT_ITEM.get().asItem());

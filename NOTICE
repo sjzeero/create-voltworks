@@ -23,6 +23,13 @@ same license, with resource locations changed to the voltworks namespace.
 The GUI textures, the dyed circuit board variants and the remaining item
 textures without a Power Grid counterpart are original work for CEE: Voltworks.
 
+The battery (io.github.sjzeero.voltworks.battery) is derived from Create: Power
+Grid's battery block (powergrid:battery): its voltage, internal resistance,
+capacity and comparator curves and its rules for joining batteries into banks
+follow Power Grid, modified for Voltworks (rectangular banks, Electro
+Energetics terminals, recharging from empty). Its textures and models are
+original work for CEE: Voltworks.
+
 Create: Power Grid NOTICE:
 
 Copyright 2025-2026 patryk3211

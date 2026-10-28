@@ -40,6 +40,9 @@ public final class VoltworksDevices {
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<SolarPanelDevice>> SOLAR_PANEL_DEVICE = DEVICES.register("solar_panel",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("solar_panel"), (type, level, pos, sd) -> new SolarPanelDevice(level, pos, sd, type)));
 
+    public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.battery.BatteryDevice>> BATTERY_DEVICE = DEVICES.register("battery",
+            () -> new SimulatedDeviceType<>(Voltworks.asResource("battery"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.battery.BatteryDevice(level, pos, sd, type)));
+
     public static final DeferredHolder<SimulatedDeviceType<?>, SimulatedDeviceType<io.github.sjzeero.voltworks.reel.CableReelDevice>> CORD_REEL_DEVICE = DEVICES.register("cord_reel",
             () -> new SimulatedDeviceType<>(Voltworks.asResource("cord_reel"), (type, level, pos, sd) -> new io.github.sjzeero.voltworks.reel.CableReelDevice(level, pos, sd, type, true)));
 

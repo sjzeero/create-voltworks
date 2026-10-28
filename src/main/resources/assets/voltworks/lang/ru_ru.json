@@ -347,5 +347,16 @@
   "voltworks.cable_reel.goggles.on_floor": "Конец кабеля лежит на полу",
   "voltworks.cable_reel.end_on_floor": "Конец кабеля лежит на полу: подберите его или Shift-клик по лебёдке, чтобы смотать",
   "voltworks.cable_reel.hands_full": "Освободите руку, чтобы подобрать конец кабеля",
-  "entity.voltworks.cable_end": "Конец кабеля"
+  "entity.voltworks.cable_end": "Конец кабеля",
+  "block.voltworks.battery": "Батарея",
+  "item.voltworks.incomplete_battery": "Незавершённая батарея",
+  "block.voltworks.battery.tooltip.summary": "Хранит _120 Вт·ч_ электричества при напряжении около _12 В_. Батареи, поставленные рядом, _объединяются в одну сборку_ (до _3×3_ в ширину и _5_ в высоту) с общим зарядом; если сломать блок, сборка разделится, а блок сохранит _свою долю_. Подключайте провода к клеммам _+_ и _-_ сверху сборки. Стеклянный индикатор показывает заряд, его же читает _компаратор_.",
+  "voltworks.node.battery_0": "+",
+  "voltworks.node.battery_1": "-",
+  "voltworks.battery.goggles.charge": "Заряд: %s%% (%s / %s Вт·ч)",
+  "voltworks.battery.goggles.bank": "Сборка: %s×%s×%s (%s блоков)",
+  "voltworks.battery.goggles.voltage": "Напряжение без нагрузки: %s В",
+  "voltworks.battery.goggles.discharging": "Разряд: %s Вт",
+  "voltworks.battery.goggles.charging": "Заряд: %s Вт",
+  "voltworks.battery.tooltip.charge": "Заряд: %s%% (%s / %s Вт·ч)"
 }

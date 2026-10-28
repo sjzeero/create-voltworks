@@ -345,5 +345,16 @@
   "voltworks.cable_reel.goggles.on_floor": "Cable end lies on the floor",
   "voltworks.cable_reel.end_on_floor": "The cable end lies on the floor: pick it up, or sneak-click the reel to wind it back",
   "voltworks.cable_reel.hands_full": "Empty your hand to pick up the cable end",
-  "entity.voltworks.cable_end": "Cable End"
+  "entity.voltworks.cable_end": "Cable End",
+  "block.voltworks.battery": "Battery",
+  "item.voltworks.incomplete_battery": "Incomplete Battery",
+  "block.voltworks.battery.tooltip.summary": "Stores _120 Wh_ of electricity at about _12 V_. Batteries placed next to each other _join into one bank_ (up to _3×3_ wide and _5_ high) that shares its charge; breaking a block splits the bank and the block keeps _its share_. Wire the _+_ and _-_ posts on top of the bank. The glass gauge shows the charge; a _comparator_ reads it too.",
+  "voltworks.node.battery_0": "+",
+  "voltworks.node.battery_1": "-",
+  "voltworks.battery.goggles.charge": "Charge: %s%% (%s / %s Wh)",
+  "voltworks.battery.goggles.bank": "Bank: %s×%s×%s (%s blocks)",
+  "voltworks.battery.goggles.voltage": "Open-circuit voltage: %s V",
+  "voltworks.battery.goggles.discharging": "Discharging: %s W",
+  "voltworks.battery.goggles.charging": "Charging: %s W",
+  "voltworks.battery.tooltip.charge": "Charge: %s%% (%s / %s Wh)"
 }
