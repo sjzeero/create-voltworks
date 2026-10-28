@@ -15,8 +15,11 @@ package io.github.sjzeero.voltworks.battery;
 public final class BatterySpec {
     private BatterySpec() {}
 
-    /** Watt-hours one block stores (Power Grid's {@code acidBatteryCapacity}). */
-    public static final double CAPACITY_WH = 120;
+    /**
+     * Watt-hours one block stores. Power Grid's {@code acidBatteryCapacity} is 120 Wh; Voltworks makes it 1 kWh, about
+     * 4.6 times Electro Energetics' small accumulator (360000 C at 24 V, about 215 Wh).
+     */
+    public static final double CAPACITY_WH = 1000;
     /** Joules one block stores. */
     public static final double CAPACITY = CAPACITY_WH * 3600;
     /** Charge of a freshly made battery (Power Grid's {@code acidBatteryInitialCharge}). */

@@ -41,6 +41,16 @@ class BatterySpecTest {
     }
 
     @Test
+    void oneKilowattHourPerBlock() {
+        assertEquals(1000, BatterySpec.CAPACITY_WH);
+        assertEquals(3.6e6, C, 1e-6);
+        // far above Electro Energetics' small accumulator (~215 Wh)
+        assertTrue(BatterySpec.CAPACITY_WH > 4 * 215);
+        // a full 3x3x5 bank: 45 kWh
+        assertEquals(45, 45 * BatterySpec.CAPACITY_WH / 1000, 1e-12);
+    }
+
+    @Test
     void comparatorAsPowerGrid() {
         assertEquals(0, BatterySpec.comparator(0, C));
         assertEquals(1, BatterySpec.comparator(C * 0.01, C));

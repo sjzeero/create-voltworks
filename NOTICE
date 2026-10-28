@@ -27,11 +27,11 @@ The battery (io.github.sjzeero.voltworks.battery) is derived from Create: Power
 Grid's battery block (powergrid:battery): its voltage, internal resistance,
 capacity and comparator curves and its rules for joining batteries into banks
 follow Power Grid, modified for Voltworks (voltage and resistance curves
-scaled to 300 V, rectangular banks, Electro Energetics terminals, recharging
-from empty). Its side and end textures are
-Power Grid's battery textures (end tiles for one-block-wide banks composed
-from Power Grid's tiles); the terminal posts and block models are original
-work for CEE: Voltworks.
+scaled to 300 V, 1 kWh per block instead of 120 Wh, rectangular banks,
+Electro Energetics terminals, recharging from empty). Its side and end
+textures are Power Grid's battery textures (end tiles for one-block-wide
+banks composed from Power Grid's tiles); the terminal posts and block
+models are original work for CEE: Voltworks.
 
 Create: Power Grid NOTICE:
 

@@ -179,6 +179,8 @@ public class BatteryBlockEntity extends BlockEntity implements IHaveGoggleInform
             sz = Math.max(1, s[2]);
         }
         power = tag.getDouble("Power");
+        // never more than the bank holds (also catches saves from a version with a different capacity)
+        energy = Double.isFinite(energy) ? Math.max(0, Math.min(BatterySpec.CAPACITY * size(), energy)) : 0;
         // joined faces lose their borders: redraw this block when its bank changed
         if (level != null && level.isClientSide && (!oldController.equals(controllerPos()) || oldSize != size()))
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_IMMEDIATE);
