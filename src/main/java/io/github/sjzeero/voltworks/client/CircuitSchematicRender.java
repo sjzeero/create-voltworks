@@ -21,9 +21,6 @@ import net.minecraft.client.gui.GuiGraphics;
 
 import io.github.sjzeero.voltworks.circuits.schematic.CircuitLayer;
 import io.github.sjzeero.voltworks.circuits.schematic.CircuitSchematic;
-import io.github.sjzeero.voltworks.circuits.schematic.Point;
-
-import java.util.List;
 
 import static io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableEditScreen.TRACE_PADDING;
 import static io.github.sjzeero.voltworks.circuits.schematic.CircuitLayer.GRID_TO_GRID_SCALE;
@@ -81,14 +78,6 @@ public class CircuitSchematicRender {
             y2 * scale + scale + yOffset - TRACE_PADDING,
             color
         );
-    }
-
-    public static void renderPoints(List<Point> points, GuiGraphics ctx, int x, int y, int scale, int color) {
-        for(var point : points) {
-            int x1 = x + point.x() * scale;
-            int y1 = y + point.y() * scale;
-            ctx.fill(x1, y1, x1 + scale, y1 + scale, color);
-        }
     }
 
     public static void renderComponents(CircuitSchematic schematic, GuiGraphics ctx, int x, int y, int scale) {

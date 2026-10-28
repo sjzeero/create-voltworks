@@ -79,12 +79,6 @@ public class CircuitSchematic {
         return schematic;
     }
 
-    public static CircuitSchematic fromStack(HolderLookup.Provider provider, ItemStack stack) {
-        if(stack.isEmpty() || !stack.has(DataComponents.CUSTOM_DATA))
-            return null;
-        return fromNbt(provider, stack.get(DataComponents.CUSTOM_DATA).copyTag().getCompound("Schematic"));
-    }
-
     public CompoundTag serializeNbt(HolderLookup.Provider provider) {
         var tag = new CompoundTag();
         tag.put("Front", front.serializeNbt());

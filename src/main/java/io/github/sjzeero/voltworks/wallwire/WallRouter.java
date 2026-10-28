@@ -134,11 +134,6 @@ public final class WallRouter {
         return true;
     }
 
-    public static boolean spanClear(BlockGetter level, WallCell a, WallCell b) {
-        WallShapes shapes = new WallShapes(level);
-        return forEachSpanPixel(a, b, (x, y, z) -> !shapes.solid(x, y, z));
-    }
-
     private record State(WallCell cell, int dir) {
     }
 

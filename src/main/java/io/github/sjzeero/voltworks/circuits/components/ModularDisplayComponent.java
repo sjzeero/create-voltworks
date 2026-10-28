@@ -45,17 +45,6 @@ public class ModularDisplayComponent extends OrientableComponent {
         super(footprint);
     }
 
-    private static final float SHEET_HEIGHT = 16f;
-    private static final float FRAME_WIDTH = 5f;
-    private static final float FRAME_HEIGHT = 7f;
-    private static final float FRAME_PADDING = 1f;
-    private static final float PIXEL = 1f / 16f;
-    private static final float INNER_OFFSET = 1f * PIXEL;
-    private static final float INNER_UD_OFFSET = .75f * PIXEL;
-    private static final float INNER_UD_SIZE = 2.5f * PIXEL;
-    private static final float INNER_RL_SIZE = 2f * PIXEL;
-    private static final float Y_NUDGE = 0.0001f;
-
     @Override
     protected void addProperties(ImmutableCollection.Builder<ComponentProperty<?>> properties) {
         super.addProperties(properties);

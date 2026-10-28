@@ -18,7 +18,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -385,7 +384,7 @@ public final class WallWireTestCommand {
             if(level.getBlockState(p).getBlock() instanceof ElectricalDeviceBlock<?>)
                 continue;
             for(Direction face : Direction.values()) {
-                int[] px = {pixel(node.x - p.getX()), pixel(node.y - p.getY()), pixel(node.z - p.getZ())};
+                int[] px = {WallCell.pixel(node.x - p.getX()), WallCell.pixel(node.y - p.getY()), WallCell.pixel(node.z - p.getZ())};
                 WallCell cell = WallCell.of(p, face, px);
                 if(!WallRouter.supports(level, cell))
                     continue;
@@ -397,9 +396,5 @@ public final class WallWireTestCommand {
             }
         }
         return best;
-    }
-
-    private static int pixel(double v) {
-        return Mth.clamp(Mth.floor(v * 16), 0, 15);
     }
 }

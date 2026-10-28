@@ -17,6 +17,8 @@
  */
 package io.github.sjzeero.voltworks.servo;
 
+import io.github.sjzeero.voltworks.VoltageGuard;
+
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import com.george_vi.electroenergetics.devices.device.SimulatedDeviceType;
 import com.george_vi.electroenergetics.foundation.device.SimpleElectricalDevice;
@@ -31,13 +33,8 @@ public class ServoDevice extends SimpleElectricalDevice {
     public static final double CONTROL_RESISTANCE = 1000.0;
     public static final double NO_FEEDBACK_CONTROL_RESISTANCE = 1.0e6;
     public static final double NETWORK_COIL_RESISTANCE = 1.0e4;
-    private static final double MAX_SANE_VOLTAGE = 1.0e4;
     private static final int ZERO_POTENTIAL_PRIORITY = 1000;
     private ServoBlockEntity be;
-
-    private static boolean isSane(double v) {
-        return Double.isFinite(v) && Math.abs(v) <= MAX_SANE_VOLTAGE;
-    }
 
     public ServoDevice(Level level, BlockPos pos, DevicesSavedData sd, SimulatedDeviceType<?> type) {
         super(level, pos, sd, type);
@@ -68,11 +65,11 @@ public class ServoDevice extends SimpleElectricalDevice {
         for (int i = 0; i < n; i++) {
             double coil = v0[i] - v1[i];
             double ctrl = v2[i] - v1[i];
-            if (!isSane(coil) || !isSane(ctrl)) continue;
+            if (!VoltageGuard.isSane(coil) || !VoltageGuard.isSane(ctrl)) continue;
             s.coilVoltage.add(coil);
             s.controlVoltage.add(ctrl);
         }
-        if (n > 0 && isSane(v0[n - 1]) && isSane(v1[n - 1]) && isSane(v2[n - 1])) {
+        if (n > 0 && VoltageGuard.isSane(v0[n - 1]) && VoltageGuard.isSane(v1[n - 1]) && VoltageGuard.isSane(v2[n - 1])) {
             s.dbgV0 = v0[n - 1];
             s.dbgV1 = v1[n - 1];
             s.dbgV2 = v2[n - 1];

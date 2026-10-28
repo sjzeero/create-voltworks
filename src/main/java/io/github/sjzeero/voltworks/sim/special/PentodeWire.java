@@ -155,8 +155,8 @@ public class PentodeWire extends CompoundWire implements ISolverHook {
 
         var knee = Math.atan(vAnode / kvb);
         var dKnee_dAnode = (1.0 / kvb) / (1.0 + (vAnode / kvb) * (vAnode / kvb));
-        var base = korenPlateFactor(e1State.e1) * Math.pow(e1State.e1, ex) / kg1;
-        var dBase_dE1 = korenPlateFactor(e1State.e1) * ex * Math.pow(e1State.e1, ex - 1) / kg1;
+        var base = ElectronTubeWire.korenPlateFactor(e1State.e1) * Math.pow(e1State.e1, ex) / kg1;
+        var dBase_dE1 = ElectronTubeWire.korenPlateFactor(e1State.e1) * ex * Math.pow(e1State.e1, ex - 1) / kg1;
 
         var rawCurrent = base * knee;
         var dRaw_dE1 = dBase_dE1 * knee;
@@ -176,9 +176,9 @@ public class PentodeWire extends CompoundWire implements ISolverHook {
     private E1State evaluateE1(double vGrid, double vScreen) {
         var vs = Math.max(vScreen, SCREEN_FLOOR);
         var driveTerm = kp * (1 / mu + vGrid / vs);
-        var sp = softplus(driveTerm);
+        var sp = ElectronTubeWire.softplus(driveTerm);
         var e1 = vs / kp * sp;
-        var sigmoid = sigmoid(driveTerm);
+        var sigmoid = ElectronTubeWire.sigmoid(driveTerm);
         var dE1_dGrid = sigmoid;
         var dE1_dScreen = sp / kp - sigmoid * vGrid / (vs * vs);
         return new E1State(e1, dE1_dGrid, dE1_dScreen);
@@ -198,17 +198,13 @@ public class PentodeWire extends CompoundWire implements ISolverHook {
         return new SaturatedCurrent(current, dCurrent_dRaw);
     }
 
-    private static double korenPlateFactor(double e1) {
-        return e1 >= 0 ? 2 : 0;
-    }
-
     private record GridState(double current, double conductance) {}
 
     private GridState evaluateControlGrid(double vGrid) {
         var leak = GRID_LEAK_CONDUCTANCE * vGrid;
-        var vgPos = positiveGridVoltage(vGrid);
+        var vgPos = ElectronTubeWire.positiveGridVoltage(vGrid);
         var forward = (2.0 / 3.0) * GRID_PERVEANCE * Math.pow(vgPos, 1.5);
-        var dForward = GRID_PERVEANCE * Math.sqrt(Math.max(vgPos, 1e-12)) * positiveGridDerivative(vGrid);
+        var dForward = GRID_PERVEANCE * Math.sqrt(Math.max(vgPos, 1e-12)) * ElectronTubeWire.positiveGridDerivative(vGrid);
         var conductance = Math.max(GRID_LEAK_CONDUCTANCE + dForward, ElectricalNetwork.G_MIN);
         return new GridState(leak + forward, conductance);
     }
@@ -217,41 +213,13 @@ public class PentodeWire extends CompoundWire implements ISolverHook {
 
     private ScreenState evaluateScreen(double vGrid, double vScreen) {
         var drive = vGrid + vScreen / mu;
-        var drivePos = softplus(drive);
+        var drivePos = ElectronTubeWire.softplus(drive);
         if (drivePos <= 0)
             return new ScreenState(0, 0, ElectricalNetwork.G_MIN);
 
         var current = Math.pow(drivePos, 1.5) / kg2;
-        var dCurrent_dDrive = 1.5 * Math.sqrt(drivePos) / kg2 * sigmoid(drive);
+        var dCurrent_dDrive = 1.5 * Math.sqrt(drivePos) / kg2 * ElectronTubeWire.sigmoid(drive);
         return new ScreenState(current, dCurrent_dDrive, dCurrent_dDrive / mu);
-    }
-
-    private static double positiveGridVoltage(double vGrid) {
-        if (vGrid <= 0)
-            return softplus(vGrid * 10) / 10;
-        return vGrid;
-    }
-
-    private static double positiveGridDerivative(double vGrid) {
-        if (vGrid > 0)
-            return 1;
-        return sigmoid(vGrid * 10);
-    }
-
-    private static double sigmoid(double x) {
-        if (x > 20)
-            return 1;
-        if (x < -20)
-            return 0;
-        return 1 / (1 + Math.exp(-x));
-    }
-
-    private static double softplus(double x) {
-        if (x > 20)
-            return x;
-        if (x < -20)
-            return 0;
-        return Math.log1p(Math.exp(x));
     }
 
     @Override

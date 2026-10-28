@@ -47,16 +47,6 @@ public class ComponentModels {
         return ids;
     }
 
-    public static Set<ResourceLocation> collectRawIds() {
-        var ids = new HashSet<ResourceLocation>();
-        for(var component : ComponentRegistry.entries()) {
-            for(var id : component.requestedModels()) {
-                ids.add(rawModelId(id));
-            }
-        }
-        return ids;
-    }
-
     public static BakedModel getModel(PlacedComponent placed) {
         var manager = Minecraft.getInstance().getModelManager();
         return manager.getModel(modelId(placed.component.getModelId(placed)));

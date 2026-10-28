@@ -1,7 +1,6 @@
 package io.github.sjzeero.voltworks.client;
 
 import io.github.sjzeero.voltworks.Voltworks;
-import io.github.sjzeero.voltworks.VoltworksClientConfig;
 import io.github.sjzeero.voltworks.registry.VoltworksMenus;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableEditScreen;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableLoadScreen;

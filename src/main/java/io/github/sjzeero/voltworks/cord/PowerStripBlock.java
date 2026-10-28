@@ -78,7 +78,7 @@ public class PowerStripBlock extends SimpleElectricalDeviceBlock<PowerStripDevic
     public static Vec3 place(BlockState state, double[] px) {
         Vector3f v = new Vector3f((float) (px[0] / 16 - 0.5), (float) (px[1] / 16 - 0.5), (float) (px[2] / 16 - 0.5));
         rotation(state).transform(v);
-        return new Vec3(round(v.x + 0.5), round(v.y + 0.5), round(v.z + 0.5));
+        return new Vec3(SocketBlock.round(v.x + 0.5), SocketBlock.round(v.y + 0.5), SocketBlock.round(v.z + 0.5));
     }
 
     public static Vec3 turn(BlockState state, double[] dir) {
@@ -90,10 +90,6 @@ public class PowerStripBlock extends SimpleElectricalDeviceBlock<PowerStripDevic
         Vector3f v = new Vector3f((float) (local.x - 0.5), (float) (local.y - 0.5), (float) (local.z - 0.5));
         rotation(state).conjugate(new Quaternionf()).transform(v);
         return new Vec3((v.x + 0.5) * 16, (v.y + 0.5) * 16, (v.z + 0.5) * 16);
-    }
-
-    private static double round(double v) {
-        return Math.round(v * 1024) / 1024.0;
     }
 
     public static int outletAt(BlockState state, Vec3 local) {

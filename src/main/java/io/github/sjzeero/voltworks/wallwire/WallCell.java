@@ -34,7 +34,7 @@ public record WallCell(BlockPos pos, Direction face, int px, int py, int pz) {
         return new WallCell(pos, face, p[0], p[1], p[2]);
     }
 
-    private static int pixel(double v) {
+    static int pixel(double v) {
         return Mth.clamp(Mth.floor(v * 16), 0, 15);
     }
 

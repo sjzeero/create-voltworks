@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.List;
-import io.github.sjzeero.voltworks.Voltworks;
 
 @Mixin(value = WireRenderer.class, remap = false)
 public abstract class WireRendererMixin {

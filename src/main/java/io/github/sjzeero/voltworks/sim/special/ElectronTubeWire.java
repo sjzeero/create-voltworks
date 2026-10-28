@@ -163,7 +163,7 @@ public class ElectronTubeWire extends CompoundWire implements ISolverHook {
         return new SaturatedCurrent(current, dCurrent_dRaw);
     }
 
-    private static double korenPlateFactor(double e1) {
+    static double korenPlateFactor(double e1) {
         return e1 >= 0 ? 2 : 0;
     }
 
@@ -178,19 +178,19 @@ public class ElectronTubeWire extends CompoundWire implements ISolverHook {
         return new GridState(leak + forward, conductance);
     }
 
-    private static double positiveGridVoltage(double vGrid) {
+    static double positiveGridVoltage(double vGrid) {
         if (vGrid <= 0)
             return softplus(vGrid * 10) / 10;
         return vGrid;
     }
 
-    private static double positiveGridDerivative(double vGrid) {
+    static double positiveGridDerivative(double vGrid) {
         if (vGrid > 0)
             return 1;
         return sigmoid(vGrid * 10);
     }
 
-    private static double sigmoid(double x) {
+    static double sigmoid(double x) {
         if (x > 20)
             return 1;
         if (x < -20)
@@ -206,7 +206,7 @@ public class ElectronTubeWire extends CompoundWire implements ISolverHook {
         return evaluateGrid(vGrid).current;
     }
 
-    private static double softplus(double x) {
+    static double softplus(double x) {
         if (x > 20)
             return x;
         if (x < -20)

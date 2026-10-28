@@ -130,7 +130,7 @@ public class SocketBlock extends SimpleElectricalDeviceBlock<SocketDevice> {
         return modelRotation(state.setValue(PLUG, Plug.A)).transform(new Vector3f(1, 0, 0));
     }
 
-    private static double round(double v) {
+    static double round(double v) {
         return Math.round(v * 1024) / 1024.0;
     }
 

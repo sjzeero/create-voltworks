@@ -362,19 +362,6 @@ public final class WallWireRenderer {
             lead(a.add(b).scale(0.5), cell, seg);
         }
 
-        private void straight(Vec3 a, Vec3 b, Vec3 flat, WallCell cell, boolean bottom) {
-            Vec3 d = b.subtract(a);
-            double len = d.length();
-            if(len < 1e-4)
-                return;
-            Vec3 u = d.scale(1 / len);
-            Vec3 side = flat.cross(u).normalize();
-            Vec3 up = u.cross(side).normalize();
-            int light = WireRenderer.maxLightLevel(light(BlockPos.containing(a)),
-                    light(cell.front()));
-            box(a.subtract(side.scale(w / 2)).subtract(up.scale(h / 2)), u, side, up, len, w, h, true, true, bottom, light);
-        }
-
         private static Vec3 step(Direction d) {
             return new Vec3(d.getStepX(), d.getStepY(), d.getStepZ());
         }

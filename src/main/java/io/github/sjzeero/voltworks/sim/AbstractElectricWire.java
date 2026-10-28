@@ -180,8 +180,4 @@ public abstract class AbstractElectricWire implements INetworkElement, IMultiHoo
             return false;
         return network.isConverged();
     }
-
-    public static double softDelta(double dX, double a) {
-        return Math.min(a * Math.log1p(dX), dX);
-    }
 }
