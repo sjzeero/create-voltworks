@@ -104,6 +104,26 @@ class BatteryAssetsTest {
     }
 
     @Test
+    void postsSitFlushOnTheLidUnderTheWireNodes() throws IOException {
+        // BatteryBlock.PLUS / MINUS, in sixteenths: the wire ends at the centre of each post's top
+        double[][] nodes = {{5, 18, 8}, {11, 18, 8}};
+        JsonObject model = ReelAssetsTest.json("assets/voltworks/models/block/battery/battery_terminals.json");
+        List<JsonObject> posts = new ArrayList<>();
+        for (JsonElement el : model.getAsJsonArray("elements"))
+            if (el.getAsJsonObject().getAsJsonArray("to").get(1).getAsDouble() > 16)
+                posts.add(el.getAsJsonObject());
+        assertEquals(2, posts.size(), "one solid element per post");
+        for (int i = 0; i < 2; i++) {
+            JsonArray from = posts.get(i).getAsJsonArray("from"), to = posts.get(i).getAsJsonArray("to");
+            assertEquals(16, from.get(1).getAsDouble(), "post stands on the lid");
+            assertEquals(nodes[i][1], to.get(1).getAsDouble(), "node at the post top");
+            assertEquals(nodes[i][0], (from.get(0).getAsDouble() + to.get(0).getAsDouble()) / 2, "node centred in x");
+            assertEquals(nodes[i][2], (from.get(2).getAsDouble() + to.get(2).getAsDouble()) / 2, "node centred in z");
+        }
+        assertEquals(1, ReelAssetsTest.json("assets/voltworks/models/block/battery/battery.json").getAsJsonArray("elements").size(), "no posts on plain blocks");
+    }
+
+    @Test
     void recipeLootAndNames() throws IOException {
         JsonObject r = ReelAssetsTest.json("data/voltworks/recipe/sequenced_assembly/battery.json");
         assertEquals("create:sequenced_assembly", r.get("type").getAsString());

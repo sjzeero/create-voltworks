@@ -2,6 +2,7 @@ package io.github.sjzeero.voltworks.battery;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,9 +43,22 @@ public final class BatteryBanks {
         for (Direction d : Direction.values())
             if (battery(level, pos.relative(d)) != null)
                 seeds.add(pos.relative(d));
-        if (!seeds.isEmpty())
+        if (!seeds.isEmpty()) {
             reform(level, seeds, pos);
+            // the post block is going: its wires move to the posts of the bank that was under/next to it
+            if (level instanceof ServerLevel sl && BatteryWires.hasWires(sl, pos)) {
+                BatteryBlockEntity next = battery(level, seeds.get(0));
+                BatteryBlockEntity c = next == null ? null : next.controllerBE();
+                if (c != null)
+                    BatteryWires.move(sl, pos, terminalPos(c));
+            }
+        }
         be.makeSingle(share);
+    }
+
+    /** The block of a bank that carries the terminal posts: the top one above the controller (north-west corner). */
+    public static BlockPos terminalPos(BatteryBlockEntity controller) {
+        return controller.getBlockPos().above(controller.sizeY() - 1);
     }
 
     static void reform(Level level, Collection<BlockPos> seeds, @Nullable BlockPos excluded) {
@@ -118,18 +132,18 @@ public final class BatteryBanks {
 
     /**
      * Brings the terminal posts of a bank's blocks up to date: only the top block above the controller (the bank's
-     * north-west corner) shows them.
+     * north-west corner) shows them, and wires still on any other block of the bank move onto them.
      * @return true when any block changed
      */
     public static boolean refreshDisplay(Level level, BatteryBlockEntity controller) {
         boolean changed = false;
         BlockPos o = controller.getBlockPos();
-        double cap = controller.capacity();
+        BlockPos terminal = terminalPos(controller);
         for (int y = 0; y < controller.sizeY(); y++) {
             for (int x = 0; x < controller.sizeX(); x++)
                 for (int z = 0; z < controller.sizeZ(); z++) {
-                    boolean top = y == controller.sizeY() - 1 && x == 0 && z == 0;
                     BlockPos p = o.offset(x, y, z);
+                    boolean top = p.equals(terminal);
                     if (!level.isLoaded(p))
                         continue;
                     BlockState s = level.getBlockState(p);
@@ -140,6 +154,9 @@ public final class BatteryBanks {
                         level.setBlock(p, n, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
                         changed = true;
                     }
+                    // wires left on a block that no longer has posts follow the posts
+                    if (!top && level instanceof ServerLevel sl && BatteryWires.hasWires(sl, p))
+                        BatteryWires.move(sl, p, terminal);
                 }
         }
         return changed;
