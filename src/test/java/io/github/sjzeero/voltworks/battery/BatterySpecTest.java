@@ -47,6 +47,18 @@ class BatterySpecTest {
     }
 
     @Test
+    void biggerBanksHoldMorePerBlock() {
+        assertEquals(1, BatterySpec.bankMultiplier(1, 0.25, 4), 1e-12);
+        assertEquals(1.25, BatterySpec.bankMultiplier(2, 0.25, 4), 1e-12);
+        assertEquals(1.75, BatterySpec.bankMultiplier(8, 0.25, 4), 1e-12);
+        assertEquals(2.37, BatterySpec.bankMultiplier(45, 0.25, 4), 0.01, "full 3x3x5 bank");
+        for (int n = 1; n < 45; n++)
+            assertTrue(BatterySpec.bankMultiplier(n + 1, 0.25, 4) > BatterySpec.bankMultiplier(n, 0.25, 4));
+        assertEquals(1.5, BatterySpec.bankMultiplier(45, 0.25, 1.5), 1e-12, "capped");
+        assertEquals(1, BatterySpec.bankMultiplier(45, 0, 4), 1e-12, "bonus off");
+    }
+
+    @Test
     void comparatorAsPowerGrid() {
         assertEquals(0, BatterySpec.comparator(0, C));
         assertEquals(1, BatterySpec.comparator(C * 0.01, C));

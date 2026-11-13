@@ -1,18 +1,4 @@
 #!/usr/bin/env python3
-"""Draws textures/block/component/buzzer.png and models/component/buzzer.json.
-
-16x16 texture, 1 texel per model pixel (same density as the board and the other components).
-The buzzer is a 3x3x2 round piezo disc raised one pixel on two copper leads, like the capacitor.
-Palette follows the black diode body (#08..#50 greys) and the copper legs of resistor/diode.
-
-Texture layout (uv = texels):
-  top    0..3 x 0..3   lit ring around a dark sound hole, corners = dark bevel of the round edge,
-                       highlight on the north rim, faint '+' mark on the west rim (next to the + pad)
-  side   3..6 x 0..2   darker outer columns (curved wall), lighter top lip
-  lead   6..7 x 0..2   copper
-  bottom 7..10 x 0..3
-Run from the repo root: python3 tools/buzzer_texture.py
-"""
 import json
 from PIL import Image
 

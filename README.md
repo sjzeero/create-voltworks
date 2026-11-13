@@ -14,7 +14,7 @@ Build with `./gradlew build`, the jar (`create-voltworks-<mc version>-<version>.
 - Copper cord and socket: a two-strand cord that plugs into wall sockets (cord goes from socket to socket).
 - Solar panels and the solar panel bearing (panels join into strings, sun tracking).
 - Constant speed motor with a built-in speed controller.
-- Factory light: an industrial ceiling lamp that glows at about 22 V, shines fully at about 45 V and explodes above about 52 V.
+- Factory light: an industrial ceiling lamp that glows at about 22 V, shines fully at about 45 V and explodes above about 52 V. Like Power Grid's, it also lights the air below it down to the floor, up to 16 blocks (`factoryLight.range` in the server config).
 - Creative tab sections with animated banners.
 
 

@@ -26,6 +26,7 @@ import com.simibubi.create.content.kinetics.transmission.sequencer.SequencerInst
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.motor.AbstractPGMotorBlockEntity;
 import java.util.List;
+import java.util.Locale;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -53,8 +54,7 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity {
     private int settleTicks;
     private float avgSpeed;
     private float maxSpeed;
-    public volatile double dbgV0, dbgV1, dbgV2;
-    private double syncV0, syncV1, syncV2, syncCtrl;
+    private double syncCoil, syncCtrl;
 
     public ServoBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -86,9 +86,10 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity {
         if (level == null || level.isClientSide) return;
         maxSpeed = Math.min(avgSpeed / AVERAGING_TICKS, MAX_SPEED);
         avgSpeed = 0;
-        if (Math.abs(dbgV0 - syncV0) > 0.05 || Math.abs(dbgV1 - syncV1) > 0.05 || Math.abs(dbgV2 - syncV2) > 0.05
-                || Math.abs(controlVoltage.getSigned() - syncCtrl) > 0.01) {
-            syncV0 = dbgV0; syncV1 = dbgV1; syncV2 = dbgV2; syncCtrl = controlVoltage.getSigned();
+        double coil = coilVoltage.getSigned(), ctrl = controlVoltage.getSigned();
+        if (Math.abs(coil - syncCoil) > 0.05 || Math.abs(ctrl - syncCtrl) > 0.01) {
+            syncCoil = coil;
+            syncCtrl = ctrl;
             sendData();
         }
         if (maxSpeed == 0 && generatedSpeed != 0) {
@@ -113,9 +114,6 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity {
         if (!server) return;
         int rotation = currentTarget - currentAngle;
         if (Math.abs(rotation) < 1) rotation = 0;
-        if (level.getGameTime() % 20 == 0 && (generatedSpeed != 0 || movingTicks > 0)) {
-            System.out.println("[servo-dbg] pos=" + worldPosition + " genSpeed=" + generatedSpeed + " moving=" + movingTicks + " settle=" + settleTicks + " target=" + currentTarget + " angle=" + currentAngle + " ctrl=" + controlTarget() + " prev=" + prevTarget + " maxSpeed=" + maxSpeed + " kSpeed=" + getSpeed());
-        }
         if (movingTicks > 0) {
             if (--movingTicks == 0) {
                 settleTicks = 10;
@@ -162,9 +160,6 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity {
         tag.putInt("MovingTicks", movingTicks);
         coilVoltage.write(tag, "Voltage");
         controlVoltage.write(tag, "ControlVoltage");
-        tag.putDouble("DbgV0", dbgV0);
-        tag.putDouble("DbgV1", dbgV1);
-        tag.putDouble("DbgV2", dbgV2);
     }
 
     @Override
@@ -177,9 +172,6 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity {
         movingTicks = tag.getInt("MovingTicks");
         coilVoltage.read(tag, "Voltage");
         controlVoltage.read(tag, "ControlVoltage");
-        dbgV0 = tag.getDouble("DbgV0");
-        dbgV1 = tag.getDouble("DbgV1");
-        dbgV2 = tag.getDouble("DbgV2");
     }
 
     @Override
@@ -189,11 +181,11 @@ public class ServoBlockEntity extends GeneratingKineticBlockEntity {
         tooltip.add(Component.literal("    ").append(Component.literal(String.format("%.1f V", coilVoltage.getSigned())).withStyle(ChatFormatting.AQUA)));
         tooltip.add(Component.literal("    ").append(Component.translatable("gui.goggles.voltworks.servo.control").withStyle(ChatFormatting.GRAY)));
         double ctrlV = controlVoltage.getSigned();
-        tooltip.add(Component.literal(String.format("    %.2f V -> target %d deg", ctrlV, currentTarget)).withStyle(ChatFormatting.GREEN));
-        tooltip.add(Component.literal(String.format("    now %d deg", currentAngle)).withStyle(ChatFormatting.GREEN));
-        if (Math.abs(ctrlV) > 5.0) {
-            tooltip.add(Component.literal("    Control is above 5 V: wire the control supply to the servo minus pin").withStyle(ChatFormatting.RED));
-        }
+        tooltip.add(Component.literal("    ").append(Component.translatable("gui.goggles.voltworks.servo.target",
+                String.format(Locale.ROOT, "%.2f", ctrlV), currentTarget).withStyle(ChatFormatting.GREEN)));
+        tooltip.add(Component.literal("    ").append(Component.translatable("gui.goggles.voltworks.servo.angle", currentAngle).withStyle(ChatFormatting.GREEN)));
+        if (Math.abs(ctrlV) > 5.0)
+            tooltip.add(Component.literal("    ").append(Component.translatable("gui.goggles.voltworks.servo.over_range").withStyle(ChatFormatting.RED)));
         return true;
     }
 }

@@ -18,6 +18,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -36,7 +37,6 @@ import io.github.sjzeero.voltworks.registry.VoltworksBlocks;
 import io.github.sjzeero.voltworks.registry.VoltworksEntities;
 import io.github.sjzeero.voltworks.solar.SolarPanelCTBehaviour;
 import io.github.sjzeero.voltworks.wallwire.client.WallWireClient;
-import java.util.List;
 import net.createmod.catnip.lang.FontHelper;
 
 @Mod(value = Voltworks.MOD_ID, dist = Dist.CLIENT)
@@ -90,9 +90,10 @@ public class VoltworksClient {
     private static void setup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             ItemBlockRenderTypes.setRenderLayer(CircuitItems.ACID.get(), RenderType.translucent());
-            for (var item : List.of(VoltworksItems.DESIGN_TABLE_ITEM.get(), CircuitItems.INCOMPLETE_CIRCUIT.get(), VoltworksItems.SERVO_ITEM.get(), VoltworksItems.CORD_REEL_ITEM.get(), VoltworksItems.CABLE_REEL_ITEM.get(), VoltworksItems.SMALL_CORD_REEL_ITEM.get(), VoltworksItems.SMALL_CABLE_REEL_ITEM.get(), VoltworksItems.BATTERY_ITEM.get()))
-                TooltipModifier.REGISTRY.register(item,
-                        new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE));
+            for (var item : BuiltInRegistries.ITEM)
+                if (BuiltInRegistries.ITEM.getKey(item).getNamespace().equals(Voltworks.MOD_ID))
+                    TooltipModifier.REGISTRY.register(item,
+                            new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE));
             ItemBlockRenderTypes.setRenderLayer(CircuitItems.ACID_FLOWING.get(), RenderType.translucent());
             ItemProperties.register(VoltworksItems.BOARD_ITEM.get(), Voltworks.asResource("board_color"),
                     (stack, level, entity, seed) -> BoardColor.ofBoard(stack).ordinal() / 10f);

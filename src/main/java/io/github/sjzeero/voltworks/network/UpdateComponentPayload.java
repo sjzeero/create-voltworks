@@ -20,6 +20,7 @@ package io.github.sjzeero.voltworks.network;
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.board.BoardBlockEntity;
 import io.github.sjzeero.voltworks.board.BoardDevice;
+import io.github.sjzeero.voltworks.circuits.components.PotentiometerComponent;
 import io.github.sjzeero.voltworks.circuits.schematic.PlacedComponent;
 import com.george_vi.electroenergetics.devices.device.DevicesSavedData;
 import io.github.sjzeero.voltworks.circuits.components.properties.ComponentProperty;
@@ -57,7 +58,7 @@ public record UpdateComponentPayload(BlockPos pos, UUID component, ResourceLocat
     }
 
     public void handle(IPayloadContext context) {
-        if(!(context.player() instanceof ServerPlayer player))
+        if(!(context.player() instanceof ServerPlayer player) || !PotentiometerComponent.VALUE.id().equals(propertyId))
             return;
         var level = player.serverLevel();
         if(!player.mayInteract(level, pos) || player.distanceToSqr(pos.getCenter()) > 16 * 16)

@@ -16,6 +16,7 @@ import io.github.sjzeero.voltworks.cord.CordPair;
 import io.github.sjzeero.voltworks.cord.LooseCords;
 import io.github.sjzeero.voltworks.cord.SocketBlock;
 import io.github.sjzeero.voltworks.cord.SocketPlugs;
+import io.github.sjzeero.voltworks.cord.StripGeometry;
 import io.github.sjzeero.voltworks.mixin.WireSpoolItemAccessor;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksWireTypes;
@@ -34,6 +35,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Clearable;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
@@ -54,7 +56,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInformation {
+public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInformation, Clearable {
     private @Nullable ResourceLocation wireTypeId;
     private double stored;
     private double pulled;
@@ -294,8 +296,7 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
                 deny(player, "cord_needs_socket");
                 return false;
             }
-            boolean socket = state.getBlock() instanceof SocketBlock;
-            for (int i = socket ? 0 : ends[0].id(); i < (socket ? 4 : ends[0].id() + 2); i++)
+            for (int i = ends[0].id(); i < ends[0].id() + 2; i++)
                 if (!sd.getConnections(new InWorldNode(i, pos)).isEmpty()) {
                     deny(player, "socket_busy");
                     return false;
@@ -321,12 +322,43 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
                 return false;
             }
         }
-        double dist = WallSpace.distance(sl, outletWorld(), WallSpace.toWorld(sl, WallSpace.nodePos(sl, to)));
+        if (!pullTo(player, sl, sd, type, to, toReturn)) {
+            if (b.cord)
+                unplug(sl, pos);
+            return false;
+        }
+        return true;
+    }
+
+    public boolean connectStrip(ServerPlayer player, BlockPos socket, int supply) {
+        ServerLevel sl = (ServerLevel) level;
+        checkOut();
+        if (pulled > 0) {
+            deny(player, "already_out");
+            return false;
+        }
+        BlockState state = sl.getBlockState(socket);
+        if (!block().cord || !(state.getBlock() instanceof SocketBlock device) || !StripGeometry.isOutlet(supply)) {
+            deny(player, "invalid_target");
+            return false;
+        }
+        InfrastructureSavedData sd = InfrastructureSavedData.load(sl);
+        device.ensureNodesExist(sl, socket, state);
+        block().ensureNodesExist(sl, worldPosition, getBlockState());
+        if (!outgoing(sd).isEmpty()) {
+            deny(player, "already_out");
+            return false;
+        }
+        int s = supply & ~1;
+        return pullTo(player, sl, sd, wireType(), new InWorldNode(s, socket), new InWorldNode(s + 1, socket));
+    }
+
+    private boolean pullTo(ServerPlayer player, ServerLevel sl, InfrastructureSavedData sd, WireType type, InWorldNode to, @Nullable InWorldNode toReturn) {
+        Vec3 plug = WallSpace.toWorld(sl, WallSpace.nodePos(sl, to));
+        double dist = WallSpace.distance(sl, outletWorld(), plug);
         double len = ReelMath.pullLength(dist, stored);
         if (len < 0) {
             deny(player, "too_short", fmt(dist), fmt(stored));
-            if (b.cord)
-                unplug(sl, pos);
             return false;
         }
         pulled = len;
@@ -336,7 +368,7 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         if (toReturn != null)
             sd.connect(outlet(1), toReturn, WireData.ofLength(type, (float) len));
         sync();
-        AllSoundEvents.WRENCH_REMOVE.playOnServer(sl, pos);
+        AllSoundEvents.WRENCH_REMOVE.playOnServer(sl, BlockPos.containing(plug));
         player.displayClientMessage(Component.translatable("voltworks.cable_reel.connected", fmt(len), fmt(stored)), true);
         return true;
     }
@@ -408,6 +440,14 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         return true;
     }
 
+    public void dropPlug() {
+        if (!(level instanceof ServerLevel sl))
+            return;
+        List<InWorldNodeConnection> out = outgoing(InfrastructureSavedData.load(sl));
+        if (!out.isEmpty())
+            windBackFor(out.getFirst());
+    }
+
     private @Nullable Vec3 farEnd(InWorldNodeConnection connection) {
         if (!(level instanceof ServerLevel sl))
             return null;
@@ -426,7 +466,9 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
             InfrastructureSavedData sd = InfrastructureSavedData.load(sl);
             Set<BlockPos> sockets = new HashSet<>();
             for (InWorldNodeConnection c : outgoing(sd)) {
-                sockets.add(far(c).sourcePos());
+                InWorldNode far = far(c);
+                if (!StripGeometry.isStripNode(far.id()))
+                    sockets.add(far.sourcePos());
                 if (sd.getConnectionData(c) != null)
                     sd.removeConnectionNoDrops(c);
             }
@@ -461,7 +503,7 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
     }
 
     boolean follow(InfrastructureSavedData sd, InWorldNodeConnection connection, int outletId, WireData data) {
-        Vec3 a = sd.getNodePosition(connection.node1()), b = sd.getNodePosition(connection.node2());
+        Vec3 a = nodeWorld(sd, connection.node1()), b = nodeWorld(sd, connection.node2());
         if (a == null || b == null)
             return false;
         double distance = a.distanceTo(b);
@@ -477,6 +519,37 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
         }
         data.length = want;
         return false;
+    }
+
+    public void followStrip(InWorldNodeConnection strand, Vec3 plug) {
+        if (!(level instanceof ServerLevel sl))
+            return;
+        double distance = WallSpace.distance(sl, outletWorld(), plug);
+        double total = stored + pulled;
+        if (ReelMath.overstretched(distance, total)) {
+            windBackFor(strand);
+            return;
+        }
+        double want = ReelMath.followLength(distance, total);
+        if (Math.abs(want - pulled) <= 1.0E-4)
+            return;
+        double delta = want - pulled;
+        pulled = want;
+        stored = Math.max(0, total - want);
+        changedByFollow(delta);
+        InfrastructureSavedData sd = InfrastructureSavedData.load(sl);
+        for (InWorldNodeConnection c : outgoing(sd)) {
+            WireData d = sd.getConnectionData(c);
+            if (d != null)
+                d.length = want;
+        }
+    }
+
+    private @Nullable Vec3 nodeWorld(InfrastructureSavedData sd, InWorldNode node) {
+        if (StripGeometry.isStripNode(node.id()) && level.isLoaded(node.sourcePos())
+                && level.getBlockState(node.sourcePos()).getBlock() instanceof SocketBlock)
+            return LooseCords.plugWorld(level, node.sourcePos(), node.id());
+        return sd.getNodePosition(node);
     }
 
     private void changedByFollow(double delta) {
@@ -518,6 +591,13 @@ public class CableReelBlockEntity extends BlockEntity implements IHaveGoggleInfo
             Containers.dropItemStack(sl, worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5, new ItemStack(item, n));
             count -= n;
         }
+    }
+
+    @Override
+    public void clearContent() {
+        stored = 0;
+        pulled = 0;
+        grab = 0;
     }
 
     private void deny(ServerPlayer player, String key, Object... args) {

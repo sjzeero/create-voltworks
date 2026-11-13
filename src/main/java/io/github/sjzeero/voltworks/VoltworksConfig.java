@@ -12,6 +12,9 @@ public final class VoltworksConfig {
     private static final ModConfigSpec.IntValue WALL_WIRE_MAX_POINTS;
     private static final ModConfigSpec.DoubleValue REEL_SPOOL_LENGTH;
     private static final ModConfigSpec.IntValue REEL_CAPACITY_SPOOLS;
+    private static final ModConfigSpec.IntValue FACTORY_LIGHT_RANGE;
+    private static final ModConfigSpec.DoubleValue BATTERY_BANK_BONUS;
+    private static final ModConfigSpec.DoubleValue BATTERY_BANK_MAX;
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
@@ -33,6 +36,16 @@ public final class VoltworksConfig {
                 .defineInRange("spoolLength", 16.0, 1.0, 256.0);
         REEL_CAPACITY_SPOOLS = b.comment("How many spools of wire a cable reel holds.")
                 .defineInRange("capacitySpools", 4, 1, 64);
+        b.pop();
+        b.push("factoryLight");
+        FACTORY_LIGHT_RANGE = b.comment("How many blocks below a lit factory light get lit too.")
+                .defineInRange("range", 16, 0, 64);
+        b.pop();
+        b.push("battery");
+        BATTERY_BANK_BONUS = b.comment("Extra capacity per block for each doubling of a battery bank's size.")
+                .defineInRange("bankBonusPerDoubling", 0.25, 0.0, 2.0);
+        BATTERY_BANK_MAX = b.comment("Highest per-block capacity multiplier of a battery bank.")
+                .defineInRange("maxBankMultiplier", 4.0, 1.0, 16.0);
         b.pop();
         SPEC = b.build();
     }
@@ -66,6 +79,18 @@ public final class VoltworksConfig {
 
     public static double reelCapacity() {
         return reelSpoolLength() * (SPEC.isLoaded() ? REEL_CAPACITY_SPOOLS.get() : 4);
+    }
+
+    public static int factoryLightRange() {
+        return SPEC.isLoaded() ? FACTORY_LIGHT_RANGE.get() : 16;
+    }
+
+    public static double batteryBankBonus() {
+        return SPEC.isLoaded() ? BATTERY_BANK_BONUS.get() : 0.25;
+    }
+
+    public static double batteryBankMaxMultiplier() {
+        return SPEC.isLoaded() ? BATTERY_BANK_MAX.get() : 4.0;
     }
 
     public static float holdingCurrentPercent() {

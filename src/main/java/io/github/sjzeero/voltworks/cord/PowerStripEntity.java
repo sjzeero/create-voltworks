@@ -1,6 +1,7 @@
 package io.github.sjzeero.voltworks.cord;
 
 import io.github.sjzeero.voltworks.reel.LooseEndPhysics;
+import io.github.sjzeero.voltworks.reel.ReelPlugItem;
 import io.github.sjzeero.voltworks.registry.VoltworksEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
 import net.minecraft.ChatFormatting;
@@ -230,7 +231,8 @@ public class PowerStripEntity extends Entity {
         ItemStack held = player.getMainHandItem();
         boolean cutters = LooseCords.isCutters(held);
         boolean cord = LooseCords.isLooseCord(held);
-        if (!held.isEmpty() && !cutters && !cord)
+        boolean reelPlug = !cord && held.getItem() instanceof ReelPlugItem;
+        if (!held.isEmpty() && !cutters && !cord && !reelPlug)
             return InteractionResult.PASS;
         if (!(level() instanceof ServerLevel sl) || !(player instanceof ServerPlayer sp))
             return InteractionResult.SUCCESS;
@@ -239,6 +241,11 @@ public class PowerStripEntity extends Entity {
         int outlet = StripGeometry.outletAt(px);
         if (cord) {
             if (cords.plugHeldStrip(sp, held, this, outlet < 0 ? nearest(px) : outlet))
+                held.setCount(0);
+            return InteractionResult.SUCCESS;
+        }
+        if (reelPlug) {
+            if (cords.plugReelStrip(sp, held, this, outlet < 0 ? nearest(px) : outlet))
                 held.setCount(0);
             return InteractionResult.SUCCESS;
         }

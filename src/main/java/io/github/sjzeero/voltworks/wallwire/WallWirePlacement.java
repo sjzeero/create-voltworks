@@ -2,7 +2,6 @@ package io.github.sjzeero.voltworks.wallwire;
 
 import io.github.sjzeero.voltworks.cord.CordPair;
 import io.github.sjzeero.voltworks.cord.LooseCords;
-import io.github.sjzeero.voltworks.cord.SocketBlock;
 import io.github.sjzeero.voltworks.cord.SocketPlugs;
 
 import com.george_vi.electroenergetics.CEEItems;
@@ -54,6 +53,10 @@ public final class WallWirePlacement {
         WireType type = wireType(spool, player);
         if(!WallRouter.canLay(type)) {
             deny(player, "not_this_wire", null);
+            return;
+        }
+        if(!level.isLoaded(p.start().sourcePos()) || !level.isLoaded(p.end().sourcePos())) {
+            deny(player, "invalid", null);
             return;
         }
         List<WallCell> points = p.points();
@@ -249,9 +252,8 @@ public final class WallWirePlacement {
         for(InWorldNode n : nodes) {
             if(n == null)
                 continue;
-            boolean socket = level.getBlockState(n.sourcePos()).getBlock() instanceof SocketBlock;
-            int from = socket ? 0 : n.id() & ~1, to = socket ? 3 : (n.id() & ~1) + 1;
-            for(int id = from; id <= to; id++)
+            int from = n.id() & ~1;
+            for(int id = from; id <= from + 1; id++)
                 if(!sd.getConnections(new InWorldNode(id, n.sourcePos())).isEmpty())
                     return true;
             if(loose.isAnchor(n.sourcePos(), n.id() & ~1))

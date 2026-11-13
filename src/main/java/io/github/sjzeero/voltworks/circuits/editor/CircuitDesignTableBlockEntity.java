@@ -33,7 +33,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -42,17 +42,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import io.github.sjzeero.voltworks.registry.VoltworksBlockEntities;
 import io.github.sjzeero.voltworks.registry.VoltworksItems;
+import io.github.sjzeero.voltworks.wallwire.WallSpace;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
+import com.simibubi.create.foundation.utility.IInteractionChecker;
 import java.util.List;
 import java.util.Locale;
 
-public class CircuitDesignTableBlockEntity extends BlockEntity implements IMultiScreenHandlerFactory, ISchematicHolder, IMenuContent, IHaveGoggleInformation {
-    private final Container inventory = new SimpleContainer(3);
-
+public class CircuitDesignTableBlockEntity extends BlockEntity implements IMultiScreenHandlerFactory, ISchematicHolder, IMenuContent, IHaveGoggleInformation, IInteractionChecker {
     CircuitSchematic schematic = new CircuitSchematic();
     boolean schematicChanged = false;
     float power;
@@ -164,8 +165,14 @@ public class CircuitDesignTableBlockEntity extends BlockEntity implements IMulti
         };
     }
 
-    public void writeToItem(boolean isCreative) {
-        if(level == null || level.isClientSide)
+    @Override
+    public boolean canPlayerUse(Player player) {
+        return level != null && level.getBlockEntity(worldPosition) == this
+                && WallSpace.distance(level, player.getEyePosition(), Vec3.atCenterOf(worldPosition)) <= player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE) + 5;
+    }
+
+    public void writeToItem(Container inventory, boolean isCreative) {
+        if(level == null || level.isClientSide || !inventory.getItem(2).isEmpty())
             return;
         if(!isCreative) {
             var stack = inventory.getItem(1);
@@ -179,7 +186,7 @@ public class CircuitDesignTableBlockEntity extends BlockEntity implements IMulti
         notifyUpdate();
     }
 
-    public void readFromItem() {
+    public void readFromItem(Container inventory) {
         var stack = inventory.getItem(0);
         if(stack.isEmpty() || level == null || level.isClientSide || !stack.has(DataComponents.CUSTOM_DATA))
             return;
@@ -212,10 +219,6 @@ public class CircuitDesignTableBlockEntity extends BlockEntity implements IMulti
         schematic.setName(name);
         if(level != null && !level.isClientSide)
             notifyUpdate();
-    }
-
-    public Container getInventory() {
-        return inventory;
     }
 
     @Override

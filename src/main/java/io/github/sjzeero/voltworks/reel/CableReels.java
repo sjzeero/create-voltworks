@@ -32,13 +32,12 @@ public final class CableReels {
         ServerLevel level = sd.level;
         if (level == null)
             return false;
-        if (LooseCords.followStrip(level, sd, connection, data))
-            return false;
         for (InWorldNode node : new InWorldNode[]{connection.node1(), connection.node2()}) {
             CableReelBlockEntity be = reelAt(level, node);
             if (be != null)
                 return be.follow(sd, connection, node.id(), data);
         }
+        LooseCords.followStrip(level, sd, connection, data);
         return false;
     }
 }

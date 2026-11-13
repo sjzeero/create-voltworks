@@ -17,6 +17,8 @@
  */
 package io.github.sjzeero.voltworks.battery;
 
+import io.github.sjzeero.voltworks.VoltworksConfig;
+
 public final class BatterySpec {
     private BatterySpec() {}
 
@@ -27,6 +29,20 @@ public final class BatterySpec {
     public static final double SCALE = FULL_VOLTAGE / 12.7;
     public static final double FULL_RESISTANCE = 0.1 * SCALE;
     public static final double MAX_RESISTANCE = 10000 * SCALE;
+
+    public static double bankMultiplier(int size) {
+        return bankMultiplier(size, VoltworksConfig.batteryBankBonus(), VoltworksConfig.batteryBankMaxMultiplier());
+    }
+
+    public static double bankMultiplier(int size, double bonusPerDoubling, double max) {
+        if (size <= 1)
+            return 1;
+        return Math.max(1, Math.min(max, 1 + bonusPerDoubling * Math.log(size) / Math.log(2)));
+    }
+
+    public static double bankCapacity(int size) {
+        return CAPACITY * Math.max(1, size) * bankMultiplier(size);
+    }
 
     public static double clampSoc(double soc) {
         return soc < 0 ? 0 : soc > 1 ? 1 : soc;

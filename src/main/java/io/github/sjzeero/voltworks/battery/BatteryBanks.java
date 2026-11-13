@@ -109,7 +109,7 @@ public final class BatteryBanks {
             if (be != null)
                 orphanShares.put(q, be.cellEnergy());
         }
-        List<BankPartition.Bank> banks = BankPartition.partition(shares.keySet(), shares, BatterySpec.CAPACITY);
+        List<BankPartition.Bank> banks = BankPartition.partition(shares.keySet(), shares, BatterySpec::bankCapacity);
         for (BankPartition.Bank b : banks)
             apply(level, b);
         orphanShares.forEach((q, e) -> {

@@ -942,6 +942,9 @@ public final class LooseCords extends SavedData {
     }
 
     private void dropOutlet(BlockPos socket, int supply) {
+        CableReelBlockEntity reel = CableReelBlockEntity.pluggedInto(level, socket, supply);
+        if (reel != null)
+            reel.dropPlug();
         Vec3 at = plugWorld(level, socket, supply);
         for (Cord c : new ArrayList<>(cords.values()))
             for (int i = 0; i < 2; i++) {
@@ -1027,6 +1030,11 @@ public final class LooseCords extends SavedData {
             InWorldNodeConnection strand = cordAt(level, socket, supply);
             if (strand == null)
                 continue;
+            CableReelBlockEntity reel = CableReelBlockEntity.pluggedInto(level, socket, supply);
+            if (reel != null) {
+                reel.followStrip(strand, plugWorld(level, socket, supply));
+                continue;
+            }
             InWorldNode other = far(strand, socket, supply);
             Vec3 here = plugWorld(level, socket, supply);
             Vec3 there = plugWorld(level, other.sourcePos(), other.id());
@@ -1115,6 +1123,22 @@ public final class LooseCords extends SavedData {
             return false;
         }
         return plugInto(p, c, heldEnd(stack), strip.socket, supply);
+    }
+
+    public boolean plugReelStrip(ServerPlayer p, ItemStack stack, PowerStripEntity e, int supply) {
+        CableReelBlockEntity reel = ReelPlugItem.reel(level, stack);
+        if (reel == null)
+            return true;
+        Strip strip = strip(e);
+        if (strip.socket == null) {
+            deny(p, "voltworks.power_strip.no_power");
+            return false;
+        }
+        if (!free(strip.socket, supply)) {
+            deny(p, "voltworks.cord.outlet_busy");
+            return false;
+        }
+        return reel.connectStrip(p, strip.socket, supply);
     }
 
     public boolean useStripOutlet(ServerPlayer p, PowerStripEntity e, int supply, boolean cutters) {

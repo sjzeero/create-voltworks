@@ -103,6 +103,13 @@ public class FactoryLightBlock extends SimpleElectricalDeviceBlock<FactoryLightD
     }
 
     @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock()) && !level.isClientSide)
+            FactoryLightGlowBlock.project(level, pos, 0);
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    @Override
     public SimulatedDeviceType<FactoryLightDevice> getDevice() {
         return VoltworksDevices.FACTORY_LIGHT_DEVICE.get();
     }

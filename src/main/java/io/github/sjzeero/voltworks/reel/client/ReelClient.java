@@ -74,13 +74,13 @@ public final class ReelClient {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null || data == null)
             return;
-        if (followStrip(level, connection, data, partialTick))
-            return;
         CableReelBlockEntity be = reelAt(level, connection.node1());
         if (be == null)
             be = reelAt(level, connection.node2());
-        if (be == null)
+        if (be == null) {
+            followStrip(level, connection, data, partialTick);
             return;
+        }
         double total = be.stored() + be.pulled();
         if (total <= ReelMath.EPS)
             return;
@@ -90,17 +90,16 @@ public final class ReelClient {
         data.length = ReelMath.followLength(p1.distanceTo(p2), total);
     }
 
-    private static boolean followStrip(ClientLevel level, InWorldNodeConnection connection, WireData data, float partialTick) {
+    private static void followStrip(ClientLevel level, InWorldNodeConnection connection, WireData data, float partialTick) {
         InWorldNode n = StripGeometry.isStripNode(connection.node1().id()) ? connection.node1()
                 : StripGeometry.isStripNode(connection.node2().id()) ? connection.node2() : null;
         if (n == null || !StripLinks.linked(level, n.sourcePos()))
-            return false;
+            return;
         Vec3 p1 = connection.node1().getPosition(level, partialTick), p2 = connection.node2().getPosition(level, partialTick);
         if (p1 == null || p2 == null)
-            return true;
+            return;
         double d = p1.distanceTo(p2);
         data.length = StripGeometry.cordLength(d, StripGeometry.isInput(n.id()) ? StripGeometry.CORD_LENGTH : d + StripGeometry.slack(d));
-        return true;
     }
 
     public static void followLengths(float partialTick) {

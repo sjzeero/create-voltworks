@@ -265,11 +265,7 @@ public final class WallWireClient {
             InWorldNode[] socket = CordPair.ends(level, hit.getBlockPos(), hit.getLocation());
             return socket == null ? null : socket[0];
         }
-        InWorldNode node = InWorldNode.getHitNode(hit, level);
-        if(node == null || player == null)
-            return node;
-        InWorldNode[] ends = CordPair.ends(level, node);
-        return ends == null ? null : ends[0];
+        return InWorldNode.getHitNode(hit, level);
     }
 
     private static void click(InputEvent.InteractionKeyMappingTriggered event) {

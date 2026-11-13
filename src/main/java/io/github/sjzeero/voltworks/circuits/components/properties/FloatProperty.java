@@ -36,6 +36,8 @@ public class FloatProperty extends ComponentProperty<Float> {
     }
 
     protected float limit(float value) {
+        if(Float.isNaN(value))
+            return defaultValue;
         if(value < min)
             return min;
         if(value > max)

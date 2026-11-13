@@ -18,6 +18,8 @@
 package io.github.sjzeero.voltworks.circuits.editor;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
@@ -30,6 +32,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 
 public class CircuitDesignTableMenu extends AbstractCircuitDesignTableMenu<CircuitDesignTableBlockEntity> {
+    private Container inventory;
+
     public CircuitDesignTableMenu(MenuType<?> type, int id, Inventory inv, RegistryFriendlyByteBuf extraData) {
         super(type, id, inv, extraData);
     }
@@ -52,20 +56,20 @@ public class CircuitDesignTableMenu extends AbstractCircuitDesignTableMenu<Circu
         final int X_OFFSET = -11;
         final int Y_OFFSET = 0;
 
-        var beInv = contentHolder.getInventory();
-        addSlot(new Slot(beInv, 0, X_OFFSET + 16, Y_OFFSET + 44) {
+        inventory = new SimpleContainer(3);
+        addSlot(new Slot(inventory, 0, X_OFFSET + 16, Y_OFFSET + 44) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return stack.is(VoltworksItems.CIRCUIT_SCHEMATIC.get()) || stack.is(VoltworksItems.BOARD_ITEM.get());
             }
         });
-        addSlot(new Slot(beInv, 1, X_OFFSET + 117, Y_OFFSET + 21) {
+        addSlot(new Slot(inventory, 1, X_OFFSET + 117, Y_OFFSET + 21) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return stack.is(BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("create", "empty_schematic"))) || stack.is(VoltworksItems.CIRCUIT_SCHEMATIC.get());
             }
         });
-        addSlot(new Slot(beInv, 2, X_OFFSET + 145, Y_OFFSET + 44) {
+        addSlot(new Slot(inventory, 2, X_OFFSET + 145, Y_OFFSET + 44) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return false;
@@ -89,9 +93,13 @@ public class CircuitDesignTableMenu extends AbstractCircuitDesignTableMenu<Circu
         return ItemStack.EMPTY;
     }
 
+    public Container inventory() {
+        return inventory;
+    }
+
     @Override
     public void removed(Player playerIn) {
         super.removed(playerIn);
-        clearContainer(playerIn, contentHolder.getInventory());
+        clearContainer(playerIn, inventory);
     }
 }

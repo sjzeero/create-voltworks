@@ -10,7 +10,6 @@ def ramp(*hexes):
     return [tuple(int(h[i:i + 2], 16) for i in (0, 2, 4)) for h in hexes]
 
 
-# outline, shadow, base, light, highlight
 PAL = {
     "brass": ramp("5a3a1c", "a1662d", "d39c45", "f0c86a", "fff0a8"),
     "copper": ramp("4a2216", "8f4a30", "c26a45", "e7966a", "ffc7a0"),

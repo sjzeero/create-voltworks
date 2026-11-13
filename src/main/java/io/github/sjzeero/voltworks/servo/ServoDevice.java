@@ -69,11 +69,6 @@ public class ServoDevice extends SimpleElectricalDevice {
             s.coilVoltage.add(coil);
             s.controlVoltage.add(ctrl);
         }
-        if (n > 0 && VoltageGuard.isSane(v0[n - 1]) && VoltageGuard.isSane(v1[n - 1]) && VoltageGuard.isSane(v2[n - 1])) {
-            s.dbgV0 = v0[n - 1];
-            s.dbgV1 = v1[n - 1];
-            s.dbgV2 = v2[n - 1];
-        }
     }
 
     @Override

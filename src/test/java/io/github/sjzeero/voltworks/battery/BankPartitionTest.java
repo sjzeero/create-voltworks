@@ -106,6 +106,15 @@ class BankPartitionTest {
     }
 
     @Test
+    void bankBonusRaisesTheCap() {
+        var cells = box(3, 5, 3);
+        var banks = BankPartition.partition(cells, each(cells, 5 * C), n -> C * n * BatterySpec.bankMultiplier(n, 0.25, 4));
+        assertEquals(1, banks.size());
+        assertEquals(45 * C * BatterySpec.bankMultiplier(45, 0.25, 4), banks.get(0).energy(), 1e-6);
+        assertTrue(banks.get(0).energy() > 2 * 45 * C);
+    }
+
+    @Test
     void joinedSidesFaceTheRestOfTheBank() {
         for (Direction d : Direction.values())
             assertFalse(BankPartition.joined(0, 0, 0, 1, 1, 1, d), d.toString());

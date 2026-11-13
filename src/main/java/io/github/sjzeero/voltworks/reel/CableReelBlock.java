@@ -188,7 +188,7 @@ public class CableReelBlock extends SimpleElectricalDeviceBlock<CableReelDevice>
 
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.is(newState.getBlock()) && level instanceof ServerLevel sl && level.getBlockEntity(pos) instanceof CableReelBlockEntity be)
+        if (!state.is(newState.getBlock()) && !movedByPiston && level instanceof ServerLevel sl && level.getBlockEntity(pos) instanceof CableReelBlockEntity be)
             be.windInAndDrop(sl);
         super.onRemove(state, level, pos, newState, movedByPiston);
     }

@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.IntToDoubleFunction;
 
 public final class BankPartition {
     private BankPartition() {}
@@ -64,6 +65,10 @@ public final class BankPartition {
     public static final Comparator<BlockPos> ORDER = Comparator.comparingInt((BlockPos p) -> p.getY()).thenComparingInt(p -> p.getX()).thenComparingInt(p -> p.getZ());
 
     public static List<Bank> partition(Collection<BlockPos> blocks, Map<BlockPos, Double> energyPerBlock, double capacityPerBlock) {
+        return partition(blocks, energyPerBlock, size -> capacityPerBlock * size);
+    }
+
+    public static List<Bank> partition(Collection<BlockPos> blocks, Map<BlockPos, Double> energyPerBlock, IntToDoubleFunction bankCapacity) {
         Set<BlockPos> free = new HashSet<>();
         for (BlockPos p : blocks)
             free.add(p.immutable());
@@ -97,7 +102,7 @@ public final class BankPartition {
                         free.remove(p);
                         energy += Math.max(0, energyPerBlock.getOrDefault(p, 0.0));
                     }
-            energy = Math.min(energy, capacityPerBlock * bx * by * bz);
+            energy = Math.min(energy, bankCapacity.applyAsDouble(bx * by * bz));
             banks.add(new Bank(o, bx, by, bz, energy));
         }
         return banks;

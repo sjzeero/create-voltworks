@@ -75,7 +75,7 @@ public class BatteryBlockEntity extends BlockEntity implements IHaveGoggleInform
     }
 
     public double capacity() {
-        return BatterySpec.CAPACITY * size();
+        return BatterySpec.bankCapacity(size());
     }
 
     public boolean validBank() {
@@ -103,7 +103,7 @@ public class BatteryBlockEntity extends BlockEntity implements IHaveGoggleInform
         this.sx = sx;
         this.sy = sy;
         this.sz = sz;
-        this.energy = isController() ? energy : 0;
+        this.energy = isController() ? Math.min(energy, capacity()) : 0;
         this.formed = true;
         if (!isController())
             power = 0;
@@ -148,9 +148,14 @@ public class BatteryBlockEntity extends BlockEntity implements IHaveGoggleInform
         tooltip.add(Component.literal(" ").append(Component.translatable("voltworks.battery.goggles.charge",
                 String.format(Locale.ROOT, "%.1f", soc * 100), fmt(c.energy / 3600), fmt(cap / 3600))
                 .withStyle(soc > 0.25 ? ChatFormatting.GREEN : soc > 0.05 ? ChatFormatting.GOLD : ChatFormatting.RED)));
-        if (c.size() > 1)
+        if (c.size() > 1) {
             tooltip.add(Component.literal(" ").append(Component.translatable("voltworks.battery.goggles.bank",
                     c.sx, c.sy, c.sz, c.size()).withStyle(ChatFormatting.GRAY)));
+            double bonus = BatterySpec.bankMultiplier(c.size()) - 1;
+            if (bonus > 1.0E-3)
+                tooltip.add(Component.literal(" ").append(Component.translatable("voltworks.battery.goggles.bonus",
+                        String.format(Locale.ROOT, "%.0f", bonus * 100)).withStyle(ChatFormatting.GRAY)));
+        }
         tooltip.add(Component.literal(" ").append(Component.translatable("voltworks.battery.goggles.voltage",
                 String.format(Locale.ROOT, "%.1f", BatterySpec.voltage(c.energy, cap))).withStyle(ChatFormatting.GRAY)));
         if (Math.abs(c.power) >= 0.05)
@@ -185,7 +190,7 @@ public class BatteryBlockEntity extends BlockEntity implements IHaveGoggleInform
             sz = Math.max(1, s[2]);
         }
         power = tag.getDouble("Power");
-        energy = Double.isFinite(energy) ? Math.max(0, Math.min(BatterySpec.CAPACITY * size(), energy)) : 0;
+        energy = Double.isFinite(energy) ? Math.max(0, Math.min(capacity(), energy)) : 0;
         if (level != null && level.isClientSide && (!oldController.equals(controllerPos()) || oldSize != size()))
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_IMMEDIATE);
     }

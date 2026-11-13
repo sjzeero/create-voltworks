@@ -44,11 +44,13 @@ public class FactoryLightDevice extends SimpleElectricalDevice {
     public static final float RATED_POWER = 20.25f;
     private static final float DISSIPATION = RATED_POWER / (1500 - 25);
     private static final float[] LEVELS = {600, 1200, 1400};
+    private static final int GLOW_REFRESH_TICKS = 20;
 
     private volatile float temperature = Float.NaN;
     private float prevTemperature;
     private int overheatTicks;
     private boolean exploded;
+    private int glowTicks;
 
     public FactoryLightDevice(Level level, BlockPos pos, DevicesSavedData sd, SimulatedDeviceType<?> type) {
         super(level, pos, sd, type);
@@ -95,11 +97,17 @@ public class FactoryLightDevice extends SimpleElectricalDevice {
     private void setPower(int target) {
         var server = level.getServer();
         if (server == null) return;
+        boolean refresh = ++glowTicks >= GLOW_REFRESH_TICKS;
+        if (refresh) glowTicks = 0;
         server.execute(() -> {
             if (!level.isLoaded(pos)) return;
             BlockState s = level.getBlockState(pos);
-            if (s.getBlock() instanceof FactoryLightBlock && s.getValue(FactoryLightBlock.POWER) != target)
+            if (!(s.getBlock() instanceof FactoryLightBlock)) return;
+            boolean changed = s.getValue(FactoryLightBlock.POWER) != target;
+            if (changed)
                 level.setBlock(pos, s.setValue(FactoryLightBlock.POWER, target), 3);
+            if (changed || refresh)
+                FactoryLightGlowBlock.project(level, pos, target);
         });
     }
 

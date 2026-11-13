@@ -19,7 +19,9 @@ package io.github.sjzeero.voltworks.network;
 
 import io.github.sjzeero.voltworks.Voltworks;
 import io.github.sjzeero.voltworks.board.BoardBlockEntity;
+import com.simibubi.create.foundation.gui.menu.MenuBase;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableBlockEntity;
+import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableMenu;
 import io.github.sjzeero.voltworks.circuits.editor.IMultiScreenHandlerFactory;
 import io.github.sjzeero.voltworks.circuits.schematic.CircuitSchematic;
 import io.github.sjzeero.voltworks.circuits.schematic.ISchematicHolder;
@@ -76,19 +78,22 @@ public record SaveSchematicPayload(BlockPos pos, @Nullable CompoundTag nbt, @Nul
     public void handle(IPayloadContext context) {
         if(!(context.player() instanceof ServerPlayer player))
             return;
-        if(!player.level().isLoaded(pos) || player.distanceToSqr(pos.getCenter()) > 64 * 64)
+        if(!player.level().isLoaded(pos) || !(player.containerMenu instanceof MenuBase<?> menu) || !menu.stillValid(player))
             return;
         var be = player.serverLevel().getBlockEntity(pos);
+        if(be == null || menu.contentHolder != be)
+            return;
         if(be instanceof CircuitDesignTableBlockEntity table) {
             if(nbt != null) {
                 table.getSchematic().deserializeNbt(player.serverLevel().registryAccess(), nbt);
                 table.setSchematicName(name);
                 table.notifyUpdate();
                 IMultiScreenHandlerFactory.openScreen(player, table, table::sendToMenu, 0);
-            } else if(load) {
-                table.readFromItem();
-            } else {
-                table.writeToItem(player.isCreative());
+            } else if(menu instanceof CircuitDesignTableMenu main) {
+                if(load)
+                    table.readFromItem(main.inventory());
+                else
+                    table.writeToItem(main.inventory(), player.isCreative());
             }
         } else if(be instanceof BoardBlockEntity board) {
             if(player.isCreative() && nbt != null)

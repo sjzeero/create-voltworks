@@ -18,6 +18,7 @@
 package io.github.sjzeero.voltworks.network;
 
 import io.github.sjzeero.voltworks.Voltworks;
+import io.github.sjzeero.voltworks.circuits.editor.AbstractCircuitDesignTableMenu;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableBlockEntity;
 import io.github.sjzeero.voltworks.circuits.editor.IMultiScreenHandlerFactory;
 import net.minecraft.core.BlockPos;
@@ -43,9 +44,9 @@ public record ChangeScreenPayload(BlockPos pos, int screenIndex) implements Cust
     public void handle(IPayloadContext context) {
         if(!(context.player() instanceof ServerPlayer player))
             return;
-        if(!player.level().isLoaded(pos) || player.distanceToSqr(pos.getCenter()) > 64 * 64)
+        if(!player.level().isLoaded(pos) || !(player.containerMenu instanceof AbstractCircuitDesignTableMenu<?> menu) || !menu.stillValid(player))
             return;
-        if(player.level().getBlockEntity(pos) instanceof CircuitDesignTableBlockEntity table)
+        if(player.level().getBlockEntity(pos) instanceof CircuitDesignTableBlockEntity table && menu.contentHolder == table)
             IMultiScreenHandlerFactory.openScreen(player, table, table::sendToMenu, screenIndex);
     }
 }

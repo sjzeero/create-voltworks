@@ -7,10 +7,12 @@ import io.github.sjzeero.voltworks.battery.BatteryBlock;
 import io.github.sjzeero.voltworks.board.BoardBlock;
 import io.github.sjzeero.voltworks.circuits.editor.CircuitDesignTableBlock;
 import io.github.sjzeero.voltworks.light.FactoryLightBlock;
+import io.github.sjzeero.voltworks.light.FactoryLightGlowBlock;
 import io.github.sjzeero.voltworks.servo.ServoBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -64,6 +66,10 @@ public final class VoltworksBlocks {
 
     public static final DeferredBlock<FactoryLightBlock> FACTORY_LIGHT = BLOCKS.register("factory_light", () -> new FactoryLightBlock(
             BlockBehaviour.Properties.of().strength(1.0f).sound(SoundType.METAL).noOcclusion().lightLevel(s -> s.getValue(FactoryLightBlock.POWER) * 5)));
+
+    public static final DeferredBlock<FactoryLightGlowBlock> FACTORY_LIGHT_GLOW = BLOCKS.register("factory_light_glow", () -> new FactoryLightGlowBlock(
+            BlockBehaviour.Properties.of().replaceable().noCollission().noOcclusion().noLootTable().air().randomTicks()
+                    .pushReaction(PushReaction.DESTROY).lightLevel(s -> s.getValue(FactoryLightBlock.POWER) * 5)));
 
     public static void register(IEventBus bus) {
         BLOCKS.register(bus);
