@@ -53,7 +53,7 @@ public final class LooseCordClient {
         if (a != null) {
             if (!level.isLoaded(a.pos()))
                 return null;
-            Vec3 from = LooseCords.plugWorld(level, a.pos(), a.supply());
+            Vec3 from = LooseCords.plugWorld(level, a.pos(), a.supply(), pt);
             Vec3 out = WallSpace.rotate(WallSpace.renderPose(level, a.pos(), pt), Outlets.cordDir(level, a.pos(), a.supply()));
             return new ReelClientSource(from, out, type, reach, a.pos());
         }

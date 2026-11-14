@@ -244,6 +244,15 @@ public final class LooseCords extends SavedData {
         }
     }
 
+    public static Vec3 plugWorld(Level level, BlockPos pos, int supply, float partialTick) {
+        try {
+            Vec3 global = WallSpace.nodePos(level, new InWorldNode(supply, pos));
+            return WallSpace.toWorld(WallSpace.renderPose(level, BlockPos.containing(global), partialTick), global);
+        } catch (RuntimeException e) {
+            return WallSpace.toWorld(WallSpace.renderPose(level, pos, partialTick), Vec3.atCenterOf(pos));
+        }
+    }
+
     private @Nullable ServerPlayer player(@Nullable UUID id) {
         return id == null ? null : level.getServer().getPlayerList().getPlayer(id);
     }

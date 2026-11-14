@@ -213,7 +213,7 @@ public class PowerStripEntity extends Entity {
         lerpY = y;
         lerpZ = z;
         lerpYaw = yRot;
-        lerpSteps = Math.max(1, steps);
+        lerpSteps = 1;
     }
 
     @Override

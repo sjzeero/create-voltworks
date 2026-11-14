@@ -155,7 +155,7 @@ public class CableEndRenderer extends EntityRenderer<CableEndEntity> {
             BlockPos op = entity.otherPos();
             if (!level.isLoaded(op))
                 return;
-            from = LooseCords.plugWorld(level, op, supply);
+            from = LooseCords.plugWorld(level, op, supply, pt);
             fromOut = WallSpace.rotate(WallSpace.renderPose(level, op, pt),
                     Outlets.cordDir(level, op, supply));
             skip = op;

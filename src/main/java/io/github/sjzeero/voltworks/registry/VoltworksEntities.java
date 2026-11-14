@@ -19,7 +19,7 @@ public final class VoltworksEntities {
             () -> EntityType.Builder.<CableEndEntity>of(CableEndEntity::new, MobCategory.MISC)
                     .sized(0.3f, 0.2f)
                     .clientTrackingRange(10)
-                    .updateInterval(2)
+                    .updateInterval(1)
                     .setShouldReceiveVelocityUpdates(true)
                     .build("cable_end"));
 

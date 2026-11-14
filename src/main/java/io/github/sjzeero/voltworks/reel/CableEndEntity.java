@@ -128,7 +128,7 @@ public class CableEndEntity extends Entity {
     public @Nullable Vec3 otherAt(float pt) {
         int supply = otherSupply();
         if (supply >= 0)
-            return level().isLoaded(otherPos()) ? LooseCords.plugWorld(level(), otherPos(), supply) : null;
+            return level().isLoaded(otherPos()) ? LooseCords.plugWorld(level(), otherPos(), supply, pt) : null;
         Player p = otherHolder();
         if (p != null)
             return p.getPosition(pt).add(0, p.getBbHeight() * 0.55, 0);
@@ -165,6 +165,8 @@ public class CableEndEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
+        if (level().isClientSide)
+            return;
         BlockPos in = BlockPos.containing(getX(), getY() + 0.01, getZ());
         if (level().getBlockState(in).isCollisionShapeFullBlock(level(), in)
                 && !level().getBlockState(in.above()).isCollisionShapeFullBlock(level(), in.above()))
@@ -192,8 +194,7 @@ public class CableEndEntity extends Entity {
         Vec3 after = getDeltaMovement();
         Vector3d f = LooseEndPhysics.friction(new Vector3d(after.x, after.y, after.z), onGround());
         setDeltaMovement(f.x, onGround() && f.y < 0 ? 0 : f.y, f.z);
-        if (!level().isClientSide)
-            serverTick();
+        serverTick();
     }
 
     private void serverTick() {
